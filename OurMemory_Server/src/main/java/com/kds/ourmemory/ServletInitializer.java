@@ -1,5 +1,6 @@
 package com.kds.ourmemory;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
@@ -10,4 +11,7 @@ public class ServletInitializer extends SpringBootServletInitializer {
 		return application.sources(OurMemoryServerApplication.class);
 	}
 
+	public static void main(String[] args) {
+		SpringApplication.run(OurMemoryServerApplication.class, args);
+	}
 }
