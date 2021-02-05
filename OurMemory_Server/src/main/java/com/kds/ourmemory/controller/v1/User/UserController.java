@@ -1,4 +1,4 @@
-package com.kds.ourmemory.controller;
+package com.kds.ourmemory.controller.v1.User;
 
 import java.util.Date;
 
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kds.ourmemory.domain.Users;
 import com.kds.ourmemory.dto.signup.SignUpRequest;
 import com.kds.ourmemory.dto.signup.SignUpResponse;
-import com.kds.ourmemory.service.UserService;
+import com.kds.ourmemory.service.v1.user.UserService;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -25,18 +25,27 @@ public class UserController {
 		this.service= service;
 	}
 
-	@ApiOperation(value="È¸¿ø°¡ÀÔ", notes = "¾Û¿¡¼­ Àü´Ş¹ŞÀº µ¥ÀÌÅÍ·Î È¸¿ø°¡ÀÔ ÁøÇà.")
+	@ApiOperation(value="íšŒì›ê°€ì…", notes = "ì•±ì—ì„œ ì „ë‹¬ë°›ì€ ë°ì´í„°ë¡œ íšŒì›ê°€ì… ì§„í–‰")
 	@PostMapping("/SignUp")
 	public SignUpResponse signUp(@RequestBody SignUpRequest request) {
-		System.out.println(request.getSnsId());
-		Users user = new Users(null, request.getSnsId(), request.getSnsType(), request.getPushToken(),
-				request.getName(), request.getBirthday(), request.isSolar(), request.isBirthdayOpen(), "user",
-				new Date(), true);
+		Users user = Users.builder()
+				.id(null)
+				.snsId(request.getSnsId())
+				.snsType(request.getSnsType())
+				.pushToken(request.getPushToken())
+				.name(request.getName())
+				.birthday(request.getBirthday())
+				.isSolar(request.isSolar())
+				.isBirthdayOpen(request.isBirthdayOpen())
+				.role("user")
+				.regDate(new Date())
+				.used(true)
+				.build();
 		
 		return service.signUp(user);
 	}
 	
-	@ApiOperation(value="·Î±×ÀÎ", notes = "userId ·Î »ç¿ëÀÚ Á¤º¸ Á¶È¸ ¹× ¸®ÅÏ")
+	@ApiOperation(value="ë¡œê·¸ì¸", notes = "userId ë¡œ ì‚¬ìš©ì € ì •ë³´ ì¡°íšŒ ë° ë¦¬í„´")
 	@GetMapping("/SignIn")
 	public Users signIn(@RequestParam String snsId) {
 		return service.signIn(snsId);

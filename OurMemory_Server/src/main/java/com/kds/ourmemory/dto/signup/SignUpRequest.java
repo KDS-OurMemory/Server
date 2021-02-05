@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignUpRequest {
 	private String snsId;
-	private int snsType;	// 1: Ä«Ä«¿À, 2: ±¸±Û, 3: ³×ÀÌ¹ö
+	private int snsType;	// 1: ì¹´ì¹´ì˜¤, 2: êµ¬ê¸€, 3: ë„¤ì´ë²„
 	private String pushToken;
 	private String name;
 	private String birthday;
