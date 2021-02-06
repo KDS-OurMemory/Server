@@ -29,7 +29,6 @@ repositories {
 dependencies {
 	implementation 'com.google.firebase:firebase-admin:7.1.0'
 	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
-	
 
 	implementation 'io.springfox:springfox-swagger2:3.0.0'
 	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
