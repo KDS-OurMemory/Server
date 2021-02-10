@@ -1,4 +1,4 @@
-package com.kds.ourmemory.controller.v1.User;
+package com.kds.ourmemory.controller.v1.user;
 
 import java.util.Date;
 
