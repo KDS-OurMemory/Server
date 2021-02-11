@@ -33,10 +33,7 @@ public class UserService {
 		DateFormat format = new SimpleDateFormat("yyyyMMdd");
 		String today = format.format(new Date());
 
-		IntFunction<SignUpResponse> response = code -> SignUpResponse.builder()
-				.result(code)
-				.joinTime(today)
-				.build();
+		IntFunction<SignUpResponse> response = code -> new SignUpResponse(code, today);
 		
 		Consumer<String> fcmPush = result -> firebaseFcm.sendMessageTo(user.getPushToken(), 
 																		"OurMemory - SignUp", 
