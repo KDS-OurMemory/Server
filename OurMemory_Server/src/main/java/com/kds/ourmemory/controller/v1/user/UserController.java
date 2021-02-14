@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kds.ourmemory.advice.exception.CNotFoundUserException;
 import com.kds.ourmemory.domain.Users;
 import com.kds.ourmemory.dto.signup.SignUpRequest;
 import com.kds.ourmemory.dto.signup.SignUpResponse;
@@ -45,9 +46,9 @@ public class UserController {
 		return service.signUp(user);
 	}
 	
-	@ApiOperation(value="로그인", notes = "userId 로 사용저 정보 조회 및 리턴")
+	@ApiOperation(value="로그인", notes = "snsId 로 사용저 정보 조회 및 리턴")
 	@GetMapping("/SignIn")
-	public Users signIn(@RequestParam String snsId) {
+	public Users signIn(@RequestParam String snsId) throws CNotFoundUserException {
 		return service.signIn(snsId);
 	}
 }

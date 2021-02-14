@@ -10,6 +10,7 @@ import java.util.function.IntFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.kds.ourmemory.advice.exception.CNotFoundUserException;
 import com.kds.ourmemory.domain.Users;
 import com.kds.ourmemory.dto.signup.SignUpResponse;
 import com.kds.ourmemory.repository.UserRepository;
@@ -46,20 +47,8 @@ public class UserService {
 				.orElseGet(() -> response.apply(1));
 	}
 
-	public Users signIn(String snsId) {
+	public Users signIn(String snsId) throws CNotFoundUserException {
 		return repository.findBySnsId(snsId)
-				.orElse(Users.builder()
-						.id(null)
-						.snsId("No SnsId")
-						.snsType(-1)
-						.pushToken("No push Token")
-						.name("No Name")
-						.birthday("No Birthday")
-						.isSolar(false)
-						.isBirthdayOpen(false)
-						.role("No Role")
-						.regDate(new Date())
-						.used(false)
-						.build());
+				.orElseThrow(() -> new CNotFoundUserException("No match snsId to user"));
 	}
 }
