@@ -1,3 +1,12 @@
+---
+name: Feature Template
+about: 기능 추가 관련 템플릿
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 ## 이슈 내용
 - 이슈 내용 요약 설명
 
