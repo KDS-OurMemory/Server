@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.exception.CNotFoundUserException;
 import com.kds.ourmemory.domain.Users;
-import com.kds.ourmemory.dto.signup.SignUpResponse;
+import com.kds.ourmemory.dto.user.SignUpResponse;
 import com.kds.ourmemory.repository.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FirebaseCloudMessageService;
 

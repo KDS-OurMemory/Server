@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kds.ourmemory.advice.exception.CNotFoundUserException;
 import com.kds.ourmemory.domain.Users;
-import com.kds.ourmemory.dto.signup.SignUpRequest;
-import com.kds.ourmemory.dto.signup.SignUpResponse;
+import com.kds.ourmemory.dto.user.SignUpRequest;
+import com.kds.ourmemory.dto.user.SignUpResponse;
 import com.kds.ourmemory.service.v1.user.UserService;
 
 import io.swagger.annotations.ApiOperation;
