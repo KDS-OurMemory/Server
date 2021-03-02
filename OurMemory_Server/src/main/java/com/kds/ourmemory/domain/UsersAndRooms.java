@@ -1,6 +1,5 @@
 package com.kds.ourmemory.domain;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -17,8 +16,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@IdClass(Users_And_Memorys_PK.class)
-public class Users_And_Memorys {
+@IdClass(UsersAndRoomsPk.class)
+public class UsersAndRooms {
 	@Id
 	@ManyToOne
 	@JoinColumn(name="user_id")
@@ -26,9 +25,6 @@ public class Users_And_Memorys {
 	
 	@Id
 	@ManyToOne
-	@JoinColumn(name="memory_id")
-	private Memorys memorys;
-	
-	@Column(nullable = false, name="user_memory_owner")
-	private boolean owned;
+	@JoinColumn(name="room_id")
+	private Rooms rooms;
 }

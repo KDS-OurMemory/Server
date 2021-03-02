@@ -1,5 +1,6 @@
 package com.kds.ourmemory.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -18,9 +19,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users {
-	
-	@Id
+public class Users implements Serializable{
+    
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")	// JPARepository 에서 스네이크 표기법을 지원하지 않아 카멜로 수정
 	private Long id;
