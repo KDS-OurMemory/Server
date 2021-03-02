@@ -3,15 +3,13 @@ package com.kds.ourmemory.domain;
 import java.io.Serializable;
 
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users_And_Memorys_PK implements Serializable{
+public class UsersAndMemorysPk implements Serializable{
 	/**
 	 * 
 	 */

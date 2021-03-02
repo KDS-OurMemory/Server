@@ -8,24 +8,26 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@IdClass(Users_And_Memorys_PK.class)
-public class Users_And_Memorys {
-	@Id
-	@ManyToOne
-	@JoinColumn(name="user_id")
-	private Users users;
-	
-	@Id
-	@ManyToOne
-	@JoinColumn(name="memory_id")
-	private Memorys memorys;
+@IdClass(UsersAndMemorysPk.class)
+public class UsersAndMemorys {
+    @Id
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private Users users;
+    
+    @Id
+    @ManyToOne
+    @JoinColumn(name="memory_id")
+    private Memorys memorys;
 	
 	@Column(nullable = false, name="user_memory_owner")
 	private boolean owned;

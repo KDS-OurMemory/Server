@@ -1,5 +1,6 @@
 package com.kds.ourmemory.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -9,16 +10,23 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Rooms {
+public class Rooms implements Serializable{
 
-	@Id
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "room_id")
 	private Long id;

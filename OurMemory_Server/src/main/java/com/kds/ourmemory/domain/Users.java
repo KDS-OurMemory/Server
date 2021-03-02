@@ -1,5 +1,6 @@
 package com.kds.ourmemory.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -9,24 +10,31 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users {
-	
-	@Id
+public class Users implements Serializable{
+    
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id")	// JPARepository ¿¡¼­ ½º³×ÀÌÅ© Ç¥±â¹ıÀ» Áö¿øÇÏÁö ¾Ê¾Æ Ä«¸á·Î ¼öÁ¤
+	@Column(name = "user_id")	// JPARepository ì—ì„œ ìŠ¤ë„¤ì´í¬ í‘œê¸°ë²•ì„ ì§€ì›í•˜ì§€ ì•Šì•„ ì¹´ë©œë¡œ ìˆ˜ì •
 	private Long id;
 	
 	@Column(nullable = false, name="user_sns_id")
 	private String snsId;
 	
-	@Column(nullable = false, name="user_sns_type")	// 1: Ä«Ä«¿À, 2: ±¸±Û, 3: ³×ÀÌ¹ö
+	@Column(nullable = false, name="user_sns_type")	// 1: ì¹´ì¹´ì˜¤, 2: êµ¬ê¸€, 3: ë„¤ì´ë²„
 	private int snsType;
 	
 	@Column(nullable = true, name="user_push_token")

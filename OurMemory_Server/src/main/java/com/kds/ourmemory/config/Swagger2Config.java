@@ -9,7 +9,9 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+@EnableSwagger2
 @Configuration
 public class Swagger2Config {
 	@Bean
@@ -24,9 +26,9 @@ public class Swagger2Config {
 	
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder()
-				.title("±â¾ï°øÀ¯ ¾Û ¼­ºñ½º - ¼­¹ö")
+				.title("ê¸°ì–µê³µìœ  ì•± ì„œë¹„ìŠ¤ - ì„œë²„")
 				.version("0.1")
-				.description("±â¾ï °øÀ¯ ¾Û ¼­ºñ½º ±â´É Áß ¼­¹ö ´ã´ç.")
+				.description("ê¸°ì–µ ê³µìœ  ì•± ì„œë¹„ìŠ¤ ê¸°ëŠ¥ ì¤‘ ì„œë²„ ë‹´ë‹¹")
 				.build();
 	}
 }

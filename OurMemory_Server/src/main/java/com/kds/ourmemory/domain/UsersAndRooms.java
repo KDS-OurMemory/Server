@@ -7,15 +7,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@IdClass(Users_And_Rooms_PK.class)
-public class Users_And_Rooms {
+@IdClass(UsersAndRoomsPk.class)
+public class UsersAndRooms {
 	@Id
 	@ManyToOne
 	@JoinColumn(name="user_id")
