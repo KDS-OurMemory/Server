@@ -49,10 +49,10 @@ public class Memorys implements Serializable {
 	private String bgColor;
 	
 	@Column(nullable = true, name="memory_first_alarm")
-	private String firstAlarm;
+	private Date firstAlarm;
 	
 	@Column(nullable = true, name="memory_second_alarm")
-	private String secondAlarm;
+	private Date secondAlarm;
 	
 	@Column(nullable = false, name="reg_date")
 	private Date regDate;

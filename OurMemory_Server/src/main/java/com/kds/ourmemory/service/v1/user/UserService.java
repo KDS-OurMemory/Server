@@ -7,34 +7,30 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.exception.CNotFoundUserException;
 import com.kds.ourmemory.domain.Users;
-import com.kds.ourmemory.dto.signup.SignUpResponse;
+import com.kds.ourmemory.dto.user.SignUpResponseDto;
 import com.kds.ourmemory.repository.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FirebaseCloudMessageService;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
-	private UserRepository repository;
-	private FirebaseCloudMessageService firebaseFcm;
+	private final UserRepository repository;
+	private final FirebaseCloudMessageService firebaseFcm;
 
-	@Autowired
-	public UserService(UserRepository repository, FirebaseCloudMessageService firebaseFcm) {
-		this.repository = repository;
-		this.firebaseFcm = firebaseFcm;
-	}
-
-	public SignUpResponse signUp(Users user) {
+	public SignUpResponseDto signUp(Users user) {
 		Users saveUser = repository.save(user);
 
 		DateFormat format = new SimpleDateFormat("yyyyMMdd");
 		String today = format.format(new Date());
 
-		IntFunction<SignUpResponse> response = code -> new SignUpResponse(code, today);
+		IntFunction<SignUpResponseDto> response = code -> new SignUpResponseDto(code, today);
 		
 		Consumer<String> fcmPush = result -> firebaseFcm.sendMessageTo(user.getPushToken(), 
 																		"OurMemory - SignUp", 

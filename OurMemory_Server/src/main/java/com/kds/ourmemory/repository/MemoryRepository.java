@@ -1,0 +1,12 @@
+package com.kds.ourmemory.repository;
+
+import javax.transaction.Transactional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.kds.ourmemory.domain.Memorys;
+
+@Transactional
+public interface MemoryRepository extends JpaRepository<Memorys, Long>{
+
+}
