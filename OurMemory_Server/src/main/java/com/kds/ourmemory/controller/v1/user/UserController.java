@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kds.ourmemory.advice.exception.CNotFoundUserException;
 import com.kds.ourmemory.domain.Users;
-import com.kds.ourmemory.dto.user.SignUpRequest;
-import com.kds.ourmemory.dto.user.SignUpResponse;
+import com.kds.ourmemory.dto.user.SignUpRequestDto;
+import com.kds.ourmemory.dto.user.SignUpResponseDto;
 import com.kds.ourmemory.service.v1.user.UserService;
 
 import io.swagger.annotations.ApiOperation;
 
-@RestController(value = "/User")
+@RestController(value = "/v1")
 public class UserController {
 	private UserService service;
 	
@@ -27,8 +27,8 @@ public class UserController {
 	}
 
 	@ApiOperation(value="회원가입", notes = "앱에서 전달받은 데이터로 회원가입 진행")
-	@PostMapping("/SignUp")
-	public SignUpResponse signUp(@RequestBody SignUpRequest request) {
+	@PostMapping("/signUp")
+	public SignUpResponseDto signUp(@RequestBody SignUpRequestDto request) {
 		Users user = Users.builder()
 				.id(null)
 				.snsId(request.getSnsId())
@@ -47,7 +47,7 @@ public class UserController {
 	}
 	
 	@ApiOperation(value="로그인", notes = "snsId 로 사용저 정보 조회 및 리턴")
-	@GetMapping("/SignIn")
+	@GetMapping("/signIn")
 	public Users signIn(@RequestParam String snsId) throws CNotFoundUserException {
 		return service.signIn(snsId);
 	}

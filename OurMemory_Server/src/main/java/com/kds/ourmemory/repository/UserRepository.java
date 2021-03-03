@@ -9,6 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.kds.ourmemory.domain.Users;
 
 @Transactional
-public interface UserRepository extends JpaRepository<Users, Long>{
+public interface UserRepository extends JpaRepository<Users, Long> {
 	public Optional<Users> findBySnsId(String snsId);
 }

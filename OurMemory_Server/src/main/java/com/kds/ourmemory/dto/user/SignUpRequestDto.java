@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignUpRequest {
+public class SignUpRequestDto {
 	
 	@ApiParam(value="sns ID", required = true)
 	private String snsId;

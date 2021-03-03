@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class SignUpResponse {
+public class SignUpResponseDto {
 	@ApiParam(value="resultCode", example = "0: success, 1: fail")
 	private int result;
 	
