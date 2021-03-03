@@ -1,4 +1,4 @@
-package com.kds.ourmemory.repository;
+package com.kds.ourmemory.repository.memory;
 
 import javax.transaction.Transactional;
 
@@ -8,5 +8,4 @@ import com.kds.ourmemory.domain.Memorys;
 
 @Transactional
 public interface MemoryRepository extends JpaRepository<Memorys, Long>{
-
 }

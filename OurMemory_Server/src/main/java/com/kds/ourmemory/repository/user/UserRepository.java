@@ -1,4 +1,4 @@
-package com.kds.ourmemory.repository;
+package com.kds.ourmemory.repository.user;
 
 import java.util.Optional;
 

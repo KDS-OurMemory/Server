@@ -15,11 +15,11 @@ import lombok.RequiredArgsConstructor;
 @RestController(value = "/v1")
 public class MemoryController {
     
-    private final MemoryService memoService;
+    private final MemoryService memoryService;
 
     @ApiOperation(value="일정 추가", notes = "앱에서 전달받은 데이터로 일정 추가")
     @PostMapping("/memory")
     public MemoryResponseDto addMemory(@RequestBody MemoryRequestDto request) {
-        return memoService.addMemory(request.toEntity());
+        return memoryService.addMemory(request.toEntity());
     }
 }
