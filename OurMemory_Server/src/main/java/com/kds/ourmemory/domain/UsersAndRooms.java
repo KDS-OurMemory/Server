@@ -21,10 +21,10 @@ public class UsersAndRooms {
 	@Id
 	@ManyToOne
 	@JoinColumn(name="user_id")
-	private Users users;
+	private Users user;
 	
 	@Id
 	@ManyToOne
 	@JoinColumn(name="room_id")
-	private Rooms rooms;
+	private Rooms room;
 }

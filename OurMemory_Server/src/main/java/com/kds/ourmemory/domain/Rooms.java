@@ -32,7 +32,7 @@ public class Rooms implements Serializable{
 	private Long id;
 	
 	@Column(nullable = false, name="room_owner")
-	private String owner;
+	private Long owner;
 	
 	@Column(nullable = false, name="room_name")
 	private String name;

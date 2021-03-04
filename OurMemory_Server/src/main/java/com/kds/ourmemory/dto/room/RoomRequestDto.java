@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RoomRequestDto {
     private String name;
-    private String owner;
+    private Long owner;
     private boolean opened;
     
     private Long[] member;

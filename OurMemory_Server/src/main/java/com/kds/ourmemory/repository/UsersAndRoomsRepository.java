@@ -1,4 +1,4 @@
-package com.kds.ourmemory.dto.relational.usersandrooms;
+package com.kds.ourmemory.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

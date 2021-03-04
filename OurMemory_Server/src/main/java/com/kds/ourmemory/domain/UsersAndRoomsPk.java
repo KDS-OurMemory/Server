@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UsersAndRoomsPk implements Serializable{
-	/**
+    /**
      * 
      */
     private static final long serialVersionUID = 1L;
     
-    private Users users;
-	private Rooms rooms;
+    private Users user;
+    private Rooms room;
 }

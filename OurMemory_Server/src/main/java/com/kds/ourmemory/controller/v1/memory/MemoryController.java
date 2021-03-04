@@ -2,6 +2,7 @@ package com.kds.ourmemory.controller.v1.memory;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kds.ourmemory.dto.memory.MemoryRequestDto;
@@ -12,7 +13,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RestController(value = "/v1")
+@RestController
+@RequestMapping(value = "/v1")
 public class MemoryController {
     
     private final MemoryService memoryService;
