@@ -7,6 +7,9 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.kds.ourmemory.domain.memory.Memorys;
+import com.kds.ourmemory.domain.user.Users;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

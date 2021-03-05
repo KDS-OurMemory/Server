@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kds.ourmemory.advice.exception.CNotFoundUserException;
-import com.kds.ourmemory.domain.Users;
+import com.kds.ourmemory.domain.user.Users;
 import com.kds.ourmemory.dto.user.SignUpRequestDto;
 import com.kds.ourmemory.dto.user.SignUpResponseDto;
 import com.kds.ourmemory.service.v1.user.UserService;

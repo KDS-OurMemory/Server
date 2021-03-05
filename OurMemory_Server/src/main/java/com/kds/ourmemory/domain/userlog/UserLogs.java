@@ -1,4 +1,4 @@
-package com.kds.ourmemory.domain;
+package com.kds.ourmemory.domain.userlog;
 
 import java.util.Date;
 
@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import com.kds.ourmemory.domain.user.Users;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

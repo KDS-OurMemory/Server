@@ -1,4 +1,4 @@
-package com.kds.ourmemory.domain;
+package com.kds.ourmemory.domain.room;
 
 import java.io.Serializable;
 import java.util.Date;

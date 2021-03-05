@@ -6,7 +6,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.kds.ourmemory.domain.Users;
+import com.kds.ourmemory.domain.user.Users;
 
 @Transactional
 public interface UserRepository extends JpaRepository<Users, Long> {

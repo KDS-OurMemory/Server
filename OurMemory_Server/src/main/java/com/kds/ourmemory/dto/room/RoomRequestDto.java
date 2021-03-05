@@ -1,8 +1,9 @@
 package com.kds.ourmemory.dto.room;
 
 import java.util.Date;
+import java.util.List;
 
-import com.kds.ourmemory.domain.Rooms;
+import com.kds.ourmemory.domain.room.Rooms;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class RoomRequestDto {
     private Long owner;
     private boolean opened;
     
-    private Long[] member;
+    private List<Long> member;
     
     public Rooms toEntity() {
         return Rooms.builder()

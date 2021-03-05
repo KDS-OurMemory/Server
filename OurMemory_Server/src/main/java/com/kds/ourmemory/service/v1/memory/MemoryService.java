@@ -8,7 +8,7 @@ import java.util.function.IntFunction;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.domain.Memorys;
+import com.kds.ourmemory.domain.memory.Memorys;
 import com.kds.ourmemory.dto.memory.MemoryResponseDto;
 import com.kds.ourmemory.repository.memory.MemoryRepository;
 
