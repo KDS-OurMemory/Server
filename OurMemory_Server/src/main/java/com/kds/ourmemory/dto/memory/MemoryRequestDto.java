@@ -2,7 +2,7 @@ package com.kds.ourmemory.dto.memory;
 
 import java.util.Date;
 
-import com.kds.ourmemory.domain.memory.Memorys;
+import com.kds.ourmemory.domain.Memorys;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,9 +1,12 @@
 package com.kds.ourmemory.domain;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -17,18 +20,17 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@IdClass(UsersAndMemorysPk.class)
-public class UsersAndMemorys {
-    @Id
-    @ManyToOne
-    @JoinColumn(name="user_id")
-    private Users users;
-    
-    @Id
-    @ManyToOne
-    @JoinColumn(name="memory_id")
-    private Memorys memorys;
+public class UserLogs {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "userlog_id")
+	private Long id;
 	
-	@Column(nullable = false, name="user_memory_owner")
-	private boolean owned;
+	@ManyToOne
+	@JoinColumn(name="user_id")
+	private Users users;
+	
+	@Column(nullable = false, name="login_date")
+	private Date loginDate;
 }
