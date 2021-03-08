@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kds.ourmemory.advice.exception.CNotFoundUserException;
-import com.kds.ourmemory.advice.exception.CUsersAndRoomsException;
+import com.kds.ourmemory.advice.exception.CRoomsException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,8 +25,8 @@ public class CRestControllerAdvice {
 		return apiResult(HttpStatus.BAD_REQUEST, "Not Found User. cause by: " + e.getMessage());
 	}
 	
-	@ExceptionHandler(CUsersAndRoomsException.class)
-	public ResponseEntity<ErrorResponse> handleCUserAndRoomsException(CUsersAndRoomsException e) {
+	@ExceptionHandler(CRoomsException.class)
+	public ResponseEntity<ErrorResponse> handleCUserAndRoomsException(CRoomsException e) {
 	    log.error("CUsersAndRoomsException" + e);
 	    return apiResult(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 	}

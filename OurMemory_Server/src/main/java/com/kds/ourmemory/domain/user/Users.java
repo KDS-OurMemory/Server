@@ -1,13 +1,19 @@
 package com.kds.ourmemory.domain.user;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+
+import com.kds.ourmemory.domain.room.Rooms;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,4 +66,24 @@ public class Users implements Serializable{
 	
 	@Column(nullable = false, name="user_used_flag")
 	private boolean used;
+	
+	@ManyToMany(mappedBy="users")
+	private List<Rooms> rooms = new ArrayList<>();
+	
+	public Optional<Users> setRooms(List<Rooms> rooms) {
+	    this.rooms = rooms;
+	    return Optional.of(this);
+	}
+	
+	public Optional<Users> addRoom(Rooms room) {
+	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
+	    this.rooms.add(room);
+	    return Optional.of(this);
+	}
+	
+	public Optional<Users> addRooms(List<Rooms> rooms) {
+	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
+	    this.rooms.addAll(rooms);
+	    return Optional.of(this);
+	}
 }
