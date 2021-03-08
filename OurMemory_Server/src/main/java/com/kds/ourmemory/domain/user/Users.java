@@ -8,9 +8,12 @@ import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
 import com.kds.ourmemory.domain.room.Rooms;
@@ -67,7 +70,10 @@ public class Users implements Serializable{
 	@Column(nullable = false, name="user_used_flag")
 	private boolean used;
 	
-	@ManyToMany(mappedBy="users")
+	@ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name="users_rooms",
+                joinColumns = @JoinColumn(name="user_id"),
+                inverseJoinColumns = @JoinColumn(name = "room_id"))
 	private List<Rooms> rooms;
 	
 	public Optional<Users> setRooms(List<Rooms> rooms) {

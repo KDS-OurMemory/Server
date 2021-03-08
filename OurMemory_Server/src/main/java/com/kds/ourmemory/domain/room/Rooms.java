@@ -8,11 +8,10 @@ import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
 import com.kds.ourmemory.domain.user.Users;
@@ -54,10 +53,7 @@ public class Rooms implements Serializable{
 	@Column(nullable = false, name="room_opened")
 	private boolean opened;
 	
-	@ManyToMany
-	@JoinTable(name="users_rooms",
-	            joinColumns = @JoinColumn(name="user_id"),
-	            inverseJoinColumns = @JoinColumn(name = "room_id"))
+	@ManyToMany(mappedBy = "rooms", fetch = FetchType.LAZY)
 	private List<Users> users;
 	
 	public Optional<Rooms> setUsers(List<Users> users) {
