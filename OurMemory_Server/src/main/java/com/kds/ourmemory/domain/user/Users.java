@@ -68,7 +68,7 @@ public class Users implements Serializable{
 	private boolean used;
 	
 	@ManyToMany(mappedBy="users")
-	private List<Rooms> rooms = new ArrayList<>();
+	private List<Rooms> rooms;
 	
 	public Optional<Users> setRooms(List<Rooms> rooms) {
 	    this.rooms = rooms;

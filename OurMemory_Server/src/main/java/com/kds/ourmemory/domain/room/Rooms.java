@@ -58,7 +58,7 @@ public class Rooms implements Serializable{
 	@JoinTable(name="users_rooms",
 	            joinColumns = @JoinColumn(name="user_id"),
 	            inverseJoinColumns = @JoinColumn(name = "room_id"))
-	private List<Users> users = new ArrayList<>();
+	private List<Users> users;
 	
 	public Optional<Rooms> setUsers(List<Users> users) {
 	    this.users = users;
