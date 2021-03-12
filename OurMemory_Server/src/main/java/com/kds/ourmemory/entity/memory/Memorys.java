@@ -1,4 +1,4 @@
-package com.kds.ourmemory.domain.memory;
+package com.kds.ourmemory.entity.memory;
 
 import java.io.Serializable;
 import java.util.Date;

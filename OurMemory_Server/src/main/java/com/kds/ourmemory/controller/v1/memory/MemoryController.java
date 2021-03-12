@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kds.ourmemory.dto.memory.MemoryRequestDto;
-import com.kds.ourmemory.dto.memory.MemoryResponseDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryRequestDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryResponseDto;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
 
 import io.swagger.annotations.ApiOperation;

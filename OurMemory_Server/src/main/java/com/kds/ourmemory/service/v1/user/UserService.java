@@ -9,9 +9,9 @@ import java.util.function.IntFunction;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.exception.CNotFoundUserException;
-import com.kds.ourmemory.domain.user.Users;
-import com.kds.ourmemory.dto.user.SignUpResponseDto;
+import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.controller.v1.user.dto.SignUpResponseDto;
+import com.kds.ourmemory.entity.user.Users;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FirebaseCloudMessageService;
 
@@ -43,8 +43,8 @@ public class UserService {
 				.orElseGet(() -> response.apply(1));
 	}
 
-	public Users signIn(String snsId) throws CNotFoundUserException {
+	public Users signIn(String snsId) throws CUserNotFoundException {
 		return repository.findBySnsId(snsId)
-				.orElseThrow(() -> new CNotFoundUserException("No match snsId to user"));
+				.orElseThrow(() -> new CUserNotFoundException("No match snsId to user"));
 	}
 }

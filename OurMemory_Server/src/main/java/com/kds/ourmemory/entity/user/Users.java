@@ -1,4 +1,4 @@
-package com.kds.ourmemory.domain.user;
+package com.kds.ourmemory.entity.user;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,13 +16,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
-import com.kds.ourmemory.domain.room.Rooms;
+import org.hibernate.annotations.DynamicUpdate;
+
+import com.kds.ourmemory.entity.room.Rooms;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
+@DynamicUpdate
 @Entity
 @Builder
 @Getter
@@ -74,7 +78,7 @@ public class Users implements Serializable{
     @JoinTable(name="users_rooms",
                 joinColumns = @JoinColumn(name="user_id"),
                 inverseJoinColumns = @JoinColumn(name = "room_id"))
-	private List<Rooms> rooms;
+	private List<Rooms> rooms = new ArrayList<>();
 	
 	public Optional<Users> setRooms(List<Rooms> rooms) {
 	    this.rooms = rooms;

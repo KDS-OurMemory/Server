@@ -1,9 +1,10 @@
-package com.kds.ourmemory.dto.room;
+package com.kds.ourmemory.controller.v1.room.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.kds.ourmemory.domain.room.Rooms;
+import com.kds.ourmemory.entity.room.Rooms;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class RoomRequestDto {
                 .regDate(new Date())
                 .opened(opened)
                 .used(true)
+                .users(new ArrayList<>())
                 .build();
     }
 }

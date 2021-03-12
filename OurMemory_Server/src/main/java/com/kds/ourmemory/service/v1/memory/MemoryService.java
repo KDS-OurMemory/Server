@@ -8,8 +8,8 @@ import java.util.function.IntFunction;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.domain.memory.Memorys;
-import com.kds.ourmemory.dto.memory.MemoryResponseDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryResponseDto;
+import com.kds.ourmemory.entity.memory.Memorys;
 import com.kds.ourmemory.repository.memory.MemoryRepository;
 
 import lombok.RequiredArgsConstructor;

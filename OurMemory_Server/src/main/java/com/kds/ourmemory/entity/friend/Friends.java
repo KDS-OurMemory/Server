@@ -1,4 +1,4 @@
-package com.kds.ourmemory.domain.friend;
+package com.kds.ourmemory.entity.friend;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.kds.ourmemory.domain.user.Users;
+import com.kds.ourmemory.entity.user.Users;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

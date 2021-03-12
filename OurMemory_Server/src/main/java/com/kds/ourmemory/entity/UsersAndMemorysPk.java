@@ -1,9 +1,9 @@
-package com.kds.ourmemory.domain;
+package com.kds.ourmemory.entity;
 
 import java.io.Serializable;
 
-import com.kds.ourmemory.domain.memory.Memorys;
-import com.kds.ourmemory.domain.user.Users;
+import com.kds.ourmemory.entity.memory.Memorys;
+import com.kds.ourmemory.entity.user.Users;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

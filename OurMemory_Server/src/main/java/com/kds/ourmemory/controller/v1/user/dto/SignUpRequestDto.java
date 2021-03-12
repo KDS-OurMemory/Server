@@ -1,4 +1,4 @@
-package com.kds.ourmemory.dto.user;
+package com.kds.ourmemory.controller.v1.user.dto;
 
 import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;

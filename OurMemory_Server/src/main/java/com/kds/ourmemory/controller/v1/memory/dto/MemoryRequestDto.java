@@ -1,8 +1,8 @@
-package com.kds.ourmemory.dto.memory;
+package com.kds.ourmemory.controller.v1.memory.dto;
 
 import java.util.Date;
 
-import com.kds.ourmemory.domain.memory.Memorys;
+import com.kds.ourmemory.entity.memory.Memorys;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

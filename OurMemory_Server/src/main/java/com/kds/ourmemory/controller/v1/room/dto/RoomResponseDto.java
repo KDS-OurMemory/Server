@@ -1,4 +1,4 @@
-package com.kds.ourmemory.dto.room;
+package com.kds.ourmemory.controller.v1.room.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
