@@ -2,6 +2,7 @@ package com.kds.ourmemory.service.v1.room;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -28,28 +29,26 @@ public class RoomService {
             String currentDate = new SimpleDateFormat("yyyyMMdd").format(System.currentTimeMillis());
             int resultCode = Boolean.TRUE.equals(isAdd) ? 0 : 1;
             return new RoomResponseDto(resultCode, currentDate);
-        }).orElseThrow(() -> new CRoomsException("addMemberToRoom Failed."));
-    }
-
-    public List<Rooms> findAll() {
-        return roomRepo.findAll();
-    }
-
-    public Optional<Rooms> insert(Rooms room) {
-        return Optional.of(roomRepo.save(room));
+        }).orElseThrow(() -> new CRoomsException("Create Room Failed."));
     }
 
     @Transactional
     public boolean addMemberToRoom(List<Long> members, Rooms room) throws CRoomsException {
-        members.stream().forEach(id -> {
-            userRepo.findById(id).map(user -> {
-               user.addRoom(room);
-               room.addUser(user);
-               return true;
-            })
-            .orElseThrow(CRoomsException::new);
-        });
+        Optional.ofNullable(members).map(List::stream)
+            .ifPresent(stream -> stream.forEach(id -> {
+                userRepo.findById(id).filter(Objects::nonNull)
+                .map(user -> {
+                    user.addRoom(room);
+                    room.addUser(user);
+                    return user;
+                 })
+                 .orElseThrow(() -> new CRoomsException("memberId is Not Registered DB. id: " + id));
+             }));
         
         return true;
+    }
+    
+    public Optional<Rooms> insert(Rooms room) {
+        return Optional.of(roomRepo.save(room));
     }
 }

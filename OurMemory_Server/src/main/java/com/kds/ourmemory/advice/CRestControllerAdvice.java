@@ -32,17 +32,17 @@ public class CRestControllerAdvice {
     }
 
 	@ExceptionHandler(CUserNotFoundException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<?> handleCNotFoundUserException(CUserNotFoundException e) {
 	    log.warn("Not Found User From Users. plz check userId.\n {}", e.getMessage());
 		return response(getMessage("userNotFound.msg"), HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(CRoomsException.class)
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<?> handleCRoomsException(CRoomsException e) {
 	    log.warn(e.getMessage(), e);
-	    return response(getMessage("unKnown.msg"), HttpStatus.INTERNAL_SERVER_ERROR);
+	    return response(getMessage("userNotFound.msg"), HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler({Exception.class, RuntimeException.class})

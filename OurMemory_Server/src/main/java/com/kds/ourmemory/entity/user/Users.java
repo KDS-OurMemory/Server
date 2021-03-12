@@ -18,6 +18,7 @@ import javax.persistence.ManyToMany;
 
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.kds.ourmemory.entity.memory.Memorys;
 import com.kds.ourmemory.entity.room.Rooms;
 
 import lombok.AllArgsConstructor;
@@ -76,9 +77,15 @@ public class Users implements Serializable{
 	
 	@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="users_rooms",
-                joinColumns = @JoinColumn(name="user_id"),
+                joinColumns = @JoinColumn(name = "user_id"),
                 inverseJoinColumns = @JoinColumn(name = "room_id"))
 	private List<Rooms> rooms = new ArrayList<>();
+	
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name="users_memorys",
+	            joinColumns = @JoinColumn(name = "user_id"),
+	            inverseJoinColumns = @JoinColumn(name = "memory_id"))
+	private List<Memorys> memorys = new ArrayList<>();
 	
 	public Optional<Users> setRooms(List<Rooms> rooms) {
 	    this.rooms = rooms;
@@ -94,6 +101,23 @@ public class Users implements Serializable{
 	public Optional<Users> addRooms(List<Rooms> rooms) {
 	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
 	    this.rooms.addAll(rooms);
+	    return Optional.of(this);
+	}
+	
+	public Optional<Users> setMemorys(List<Memorys> memorys) {
+	    this.memorys = memorys;
+	    return Optional.of(this);
+	}
+	
+	public Optional<Users> addMemory(Memorys memory) {
+	    Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
+	    this.memorys.add(memory);
+	    return Optional.of(this);
+	}
+	
+	public Optional<Users> addMemorys(List<Memorys> memorys) {
+	    Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
+	    this.memorys.addAll(memorys);
 	    return Optional.of(this);
 	}
 }

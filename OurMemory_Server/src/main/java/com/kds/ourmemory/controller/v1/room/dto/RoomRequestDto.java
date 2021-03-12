@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoomRequestDto {
+    private Long roomId;
     private String name;
     private Long owner;
     private boolean opened;
@@ -22,6 +23,7 @@ public class RoomRequestDto {
     
     public Rooms toEntity() {
         return Rooms.builder()
+                .id(roomId)
                 .name(name)
                 .owner(owner)
                 .regDate(new Date())

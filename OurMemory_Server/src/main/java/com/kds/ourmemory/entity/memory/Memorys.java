@@ -1,13 +1,20 @@
 package com.kds.ourmemory.entity.memory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+
+import com.kds.ourmemory.entity.user.Users;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +36,9 @@ public class Memorys implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "memory_id")
 	private Long id;
+    
+    @Column(nullable = false, name="memory_writer")
+    private Long writer;
 	
 	@Column(nullable = false, name="memory_name")
 	private String name;
@@ -62,4 +72,24 @@ public class Memorys implements Serializable {
 	
 	@Column(nullable = false, name="memory_used")
 	private boolean used;
+	
+	@ManyToMany(mappedBy = "memorys", fetch = FetchType.LAZY)
+    private List<Users> users = new ArrayList<>();
+	
+	public Optional<Memorys> setUsers(List<Users> users) {
+        this.users = users;
+        return Optional.of(this);
+    }
+    
+    public Optional<Memorys> addUser(Users user) {
+        Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
+        this.users.add(user);
+        return Optional.of(this);
+    }
+    
+    public Optional<Memorys> addUsers(List<Users> users) {
+        Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
+        this.users.addAll(users);
+        return Optional.of(this);
+    }
 }
