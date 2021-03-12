@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.kds.ourmemory.entity.room.Rooms;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,16 +15,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoomRequestDto {
-    private Long roomId;
+    @ApiModelProperty(value = "방 이름", required = true)
     private String name;
+    
+    @ApiModelProperty(value = "방장 번호", required = true, example = "4")
     private Long owner;
+    
+    @ApiModelProperty(value = "방 공개 여부", required = true)
     private boolean opened;
     
+    @ApiModelProperty(value = "초대할 멤버", required = false, example = "[2,4]")
     private List<Long> member;
     
     public Rooms toEntity() {
         return Rooms.builder()
-                .id(roomId)
                 .name(name)
                 .owner(owner)
                 .regDate(new Date())
