@@ -14,6 +14,7 @@ import com.kds.ourmemory.controller.v1.room.dto.RoomResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.repository.room.RoomRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
+import com.kds.ourmemory.service.v1.firebase.FirebaseCloudMessageService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 public class RoomService {
     private final RoomRepository roomRepo;
     private final UserRepository userRepo;
+    
+    private final FirebaseCloudMessageService firebaseFcm;
 
     @Transactional
     public RoomResponseDto createRoom(Room room, List<Long> members) throws CRoomException {
@@ -39,6 +42,8 @@ public class RoomService {
                 .map(user -> {
                     user.addRoom(room);
                     room.addUser(user);
+                    
+                    firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - Invited Room", "Invited From " + room.getName());
                     return user;
                  })
                  .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id));
