@@ -1,4 +1,4 @@
-package com.kds.ourmemory.domain;
+package com.kds.ourmemory.entity.userlog;
 
 import java.util.Date;
 
@@ -10,17 +10,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.kds.ourmemory.entity.user.User;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "userlogs")
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserLogs {
+public class UserLog {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +31,7 @@ public class UserLogs {
 	
 	@ManyToOne
 	@JoinColumn(name="user_id")
-	private Users users;
+	private User users;
 	
 	@Column(nullable = false, name="login_date")
 	private Date loginDate;

@@ -1,4 +1,4 @@
-package com.kds.ourmemory.dto.firebase;
+package com.kds.ourmemory.controller.v1.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 @Getter
-public class FcmMessage {
+public class FcmMessageDto {
 	private boolean validate_only;
 	private Message message;
 	

@@ -6,9 +6,9 @@ plugins {
 }
 
 bootWar {
-	archiveBaseName = "OurMemory"
-	archiveFileName = "OurMemory.war"
-	archiveVersion = "0.0.0"
+    archiveVersion = '0.0.0'
+    archiveBaseName = 'OurMemory'
+    archiveFileName = 'OurMemory.war'
 }
 
 group = 'com.kds.ourmemory'
@@ -27,6 +27,8 @@ repositories {
 }
 
 dependencies {
+	implementation 'net.rakugakibox.util:yaml-resource-bundle:1.1'
+	
 	implementation 'com.google.firebase:firebase-admin:7.1.0'
 	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 

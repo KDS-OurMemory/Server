@@ -1,7 +1,14 @@
+server:
+  port: 8080
+
 spring:
   datasource:
     url: jdbc:mysql://kds-ourmemory.cqlnwevakpwc.ap-northeast-2.rds.amazonaws.com:3306/OurMemory?serverTimezone=UTC
     username: ourmemory
     password: ourmemory
-  jpa:    hibernate:      ddl-auto: update # 운영시에는 validate 추천
-    show-sql: true
+  jpa:
+    properties:      hibernate:
+        format_sql: true
+    hibernate:      ddl-auto: update # 운영시에는 validate 추천
+    show-sql: true  messages:    basename: i18n/message/exception
+    encoding: UTF-8

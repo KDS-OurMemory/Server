@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
-import com.kds.ourmemory.dto.firebase.FcmMessage;
+import com.kds.ourmemory.controller.v1.dto.FcmMessageDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,15 +61,15 @@ public class FirebaseCloudMessageService {
 	}
 	
 	private String makeMessage(String targetToken, String title, String body) throws JsonProcessingException {
-		FcmMessage fcsMessage = FcmMessage.builder()
-				.message(FcmMessage.Message.builder()
+		FcmMessageDto fcsMessage = FcmMessageDto.builder()
+				.message(FcmMessageDto.Message.builder()
 					.token(targetToken)
 //					.notification(FcmMessage.Notification.builder()
 //						.title(title)
 //						.body(body)
 //						.build()
 //					)
-					.data(FcmMessage.Data.builder()
+					.data(FcmMessageDto.Data.builder()
 						.title(title)
 						.body(body)
 						.build()
