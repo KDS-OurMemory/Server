@@ -1,5 +1,9 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
+import java.util.Date;
+
+import com.kds.ourmemory.entity.user.Users;
+
 import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,4 +34,20 @@ public class SignUpRequestDto {
 	
 	@ApiParam(value="is Birthday Open other user", required = false)
 	private boolean isBirthdayOpen;
+	
+	public Users toEntity() {
+	    return Users.builder()
+                .id(null)
+                .snsId(snsId)
+                .snsType(snsType)
+                .pushToken(pushToken)
+                .name(name)
+                .birthday(birthday)
+                .isSolar(isSolar)
+                .isBirthdayOpen(isBirthdayOpen)
+                .role("user")
+                .regDate(new Date())
+                .used(true)
+                .build();
+	}
 }

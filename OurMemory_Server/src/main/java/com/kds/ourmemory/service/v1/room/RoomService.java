@@ -27,8 +27,7 @@ public class RoomService {
     public RoomResponseDto createRoom(Rooms room, List<Long> members) throws CRoomsException {
         return insert(room).map(r -> addMemberToRoom(members, r)).map(isAdd -> {
             String currentDate = new SimpleDateFormat("yyyyMMdd").format(System.currentTimeMillis());
-            int resultCode = Boolean.TRUE.equals(isAdd) ? 0 : 1;
-            return new RoomResponseDto(resultCode, currentDate);
+            return new RoomResponseDto(currentDate);
         }).orElseThrow(() -> new CRoomsException("Create Room Failed."));
     }
 

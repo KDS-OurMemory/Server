@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
@@ -18,14 +17,14 @@ public class ApiResult<T> {
     @ApiModelProperty(value = "API 요청 처리 응답 값")
     private final T data;
 
-    @ApiModelProperty(value = "API 요청 처리 상태 코드")
-    private final int status;
+    @ApiModelProperty(value = "API 요청 처리 오류 코드")
+    private final String errorCode;
 
-    public static <T> ApiResult<T> ok(T data, HttpStatus status) {
-        return new ApiResult<>(true, data, status.value());
+    public static <T> ApiResult<T> ok(T data) {
+        return new ApiResult<>(true, data, "0");
     }
 
-    public static ApiResult<?> error(String errorMessage, HttpStatus status) {
-        return new ApiResult<>(false, errorMessage, status.value());
+    public static ApiResult<String> error(String errorCode, String errorMessage) {
+        return new ApiResult<>(false, errorMessage, errorCode);
     }
 }
