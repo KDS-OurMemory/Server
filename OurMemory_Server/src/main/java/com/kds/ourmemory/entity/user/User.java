@@ -18,8 +18,8 @@ import javax.persistence.ManyToMany;
 
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.kds.ourmemory.entity.memory.Memorys;
-import com.kds.ourmemory.entity.room.Rooms;
+import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.room.Room;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,12 +28,12 @@ import lombok.NoArgsConstructor;
 
 
 @DynamicUpdate
-@Entity
+@Entity(name = "users")
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users implements Serializable{
+public class User implements Serializable{
     
 	/**
      * 
@@ -79,43 +79,43 @@ public class Users implements Serializable{
     @JoinTable(name="users_rooms",
                 joinColumns = @JoinColumn(name = "user_id"),
                 inverseJoinColumns = @JoinColumn(name = "room_id"))
-	private List<Rooms> rooms = new ArrayList<>();
+	private List<Room> rooms = new ArrayList<>();
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name="users_memorys",
 	            joinColumns = @JoinColumn(name = "user_id"),
 	            inverseJoinColumns = @JoinColumn(name = "memory_id"))
-	private List<Memorys> memorys = new ArrayList<>();
+	private List<Memory> memorys = new ArrayList<>();
 	
-	public Optional<Users> setRooms(List<Rooms> rooms) {
+	public Optional<User> setRooms(List<Room> rooms) {
 	    this.rooms = rooms;
 	    return Optional.of(this);
 	}
 	
-	public Optional<Users> addRoom(Rooms room) {
+	public Optional<User> addRoom(Room room) {
 	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
 	    this.rooms.add(room);
 	    return Optional.of(this);
 	}
 	
-	public Optional<Users> addRooms(List<Rooms> rooms) {
+	public Optional<User> addRooms(List<Room> rooms) {
 	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
 	    this.rooms.addAll(rooms);
 	    return Optional.of(this);
 	}
 	
-	public Optional<Users> setMemorys(List<Memorys> memorys) {
+	public Optional<User> setMemorys(List<Memory> memorys) {
 	    this.memorys = memorys;
 	    return Optional.of(this);
 	}
 	
-	public Optional<Users> addMemory(Memorys memory) {
+	public Optional<User> addMemory(Memory memory) {
 	    Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
 	    this.memorys.add(memory);
 	    return Optional.of(this);
 	}
 	
-	public Optional<Users> addMemorys(List<Memorys> memorys) {
+	public Optional<User> addMemorys(List<Memory> memorys) {
 	    Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
 	    this.memorys.addAll(memorys);
 	    return Optional.of(this);

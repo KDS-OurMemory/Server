@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.controller.v1.ApiResult;
+import com.kds.ourmemory.controller.v1.user.dto.SignInResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.SignUpRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.SignUpResponseDto;
-import com.kds.ourmemory.entity.user.Users;
 import com.kds.ourmemory.service.v1.user.UserService;
 
 import io.swagger.annotations.Api;
@@ -34,9 +34,9 @@ public class UserController {
 		return ok(service.signUp(request.toEntity()));
 	}
 	
-	@ApiOperation(value="로그인", notes = "snsId 로 사용저 정보 조회 및 리턴")
+	@ApiOperation(value="로그인", notes = "snsId 로 사용자 정보 조회 및 리턴")
 	@GetMapping("/signIn")
-	public ApiResult<Users> signIn(@RequestParam String snsId) throws CUserNotFoundException {
+	public ApiResult<SignInResponseDto> signIn(@RequestParam String snsId) throws CUserNotFoundException {
 		return ok(service.signIn(snsId));
 	}
 }

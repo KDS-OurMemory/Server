@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.kds.ourmemory.advice.exception.CMemorysException;
-import com.kds.ourmemory.advice.exception.CRoomsException;
+import com.kds.ourmemory.advice.exception.CMemoryException;
+import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.advice.exception.CUserException;
 import com.kds.ourmemory.controller.v1.ApiResult;
 
 import lombok.RequiredArgsConstructor;
@@ -39,16 +40,23 @@ public class CRestControllerAdvice {
 		return response(getMessage("userNotFound.code"), getMessage("userNotFound.msg"), HttpStatus.NOT_FOUND);
 	}
 	
-	@ExceptionHandler(CRoomsException.class)
+	@ExceptionHandler(CUserException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<?> handleCUsersException(CUserException e) {
+        log.warn(e.getMessage(), e);
+        return response(getMessage("unKnown.code"), getMessage("unKnown.msg"), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+	
+	@ExceptionHandler(CRoomException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public ResponseEntity<?> handleCRoomsException(CRoomsException e) {
+	public ResponseEntity<?> handleCRoomsException(CRoomException e) {
 	    log.warn(e.getMessage(), e);
 	    return response(getMessage("userNotFound.code"), getMessage("userNotFound.msg"), HttpStatus.NOT_FOUND);
 	}
 	
-	@ExceptionHandler(CMemorysException.class)
+	@ExceptionHandler(CMemoryException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<?> handleCMemorysException(CMemorysException e) {
+    public ResponseEntity<?> handleCMemorysException(CMemoryException e) {
         log.warn(e.getMessage(), e);
         return response(getMessage("unKnown.code"), getMessage("unKnown.msg"), HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -7,9 +7,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.exception.CMemorysException;
+import com.kds.ourmemory.advice.exception.CMemoryException;
 import com.kds.ourmemory.controller.v1.memory.dto.MemoryResponseDto;
-import com.kds.ourmemory.entity.memory.Memorys;
+import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.repository.memory.MemoryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -19,16 +19,16 @@ import lombok.RequiredArgsConstructor;
 public class MemoryService {
     private final MemoryRepository memoryRepo;
     
-    public MemoryResponseDto addMemory(Memorys memory) throws CMemorysException{
+    public MemoryResponseDto addMemory(Memory memory) throws CMemoryException{
         return insert(memory).map(m -> {
             DateFormat format = new SimpleDateFormat("yyyyMMdd");
             String today = format.format(new Date());
             
             return new MemoryResponseDto(today);
-        }).orElseThrow(CMemorysException::new);
+        }).orElseThrow(() -> new CMemoryException("Add Memory to "));
     }
     
-    private Optional<Memorys> insert(Memorys memory) {
+    private Optional<Memory> insert(Memory memory) {
         return Optional.of(memoryRepo.save(memory));
     }
 }

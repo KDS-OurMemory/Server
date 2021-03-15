@@ -4,8 +4,8 @@ import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.kds.ourmemory.entity.memory.Memorys;
+import com.kds.ourmemory.entity.memory.Memory;
 
 @Transactional
-public interface MemoryRepository extends JpaRepository<Memorys, Long>{
+public interface MemoryRepository extends JpaRepository<Memory, Long>{
 }

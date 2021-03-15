@@ -1,20 +1,20 @@
 package com.kds.ourmemory.advice.exception;
 
-public class CUsersException extends RuntimeException{
+public class CMemoryException extends RuntimeException {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
-    public CUsersException(String msg, Throwable t) {
+    public CMemoryException(String msg, Throwable t) {
         super(msg, t);
     }
     
-    public CUsersException(String msg) {
+    public CMemoryException(String msg) {
         super(msg);
     }
     
-    public CUsersException() {
+    public CMemoryException() {
         super();
     }
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.kds.ourmemory.entity.room.Rooms;
+import com.kds.ourmemory.entity.room.Room;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ public class RoomRequestDto {
     @ApiModelProperty(value = "방 이름", required = true)
     private String name;
     
-    @ApiModelProperty(value = "방장 번호", required = true, example = "4")
+    @ApiModelProperty(value = "방장 번호", required = true, example = "50")
     private Long owner;
     
     @ApiModelProperty(value = "방 공개 여부", required = true)
@@ -27,8 +27,8 @@ public class RoomRequestDto {
     @ApiModelProperty(value = "초대할 멤버", required = false, example = "[2,4]")
     private List<Long> member;
     
-    public Rooms toEntity() {
-        return Rooms.builder()
+    public Room toEntity() {
+        return Room.builder()
                 .name(name)
                 .owner(owner)
                 .regDate(new Date())

@@ -8,19 +8,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.kds.ourmemory.entity.user.Users;
+import com.kds.ourmemory.entity.user.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "friends")
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Friends {
+public class Friend {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +29,6 @@ public class Friends {
 	
 	@ManyToOne
 	@JoinColumn(name="user_id")
-	private Users users;
+	private User users;
 
 }

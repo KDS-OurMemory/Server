@@ -6,9 +6,9 @@ import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.kds.ourmemory.entity.user.Users;
+import com.kds.ourmemory.entity.user.User;
 
 @Transactional
-public interface UserRepository extends JpaRepository<Users, Long> {
-	public Optional<Users> findBySnsId(String snsId);
+public interface UserRepository extends JpaRepository<User, Long> {
+	public Optional<User> findBySnsId(String snsId);
 }

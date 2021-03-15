@@ -16,7 +16,7 @@ import javax.persistence.ManyToMany;
 
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.kds.ourmemory.entity.user.Users;
+import com.kds.ourmemory.entity.user.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,12 +24,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @DynamicUpdate
-@Entity
+@Entity(name = "rooms")
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Rooms implements Serializable{
+public class Room implements Serializable{
 
 	/**
      * 
@@ -57,20 +57,20 @@ public class Rooms implements Serializable{
 	private boolean opened;
 	
 	@ManyToMany(mappedBy = "rooms", fetch = FetchType.LAZY)
-	private List<Users> users = new ArrayList<>();
+	private List<User> users = new ArrayList<>();
 	
-	public Optional<Rooms> setUsers(List<Users> users) {
+	public Optional<Room> setUsers(List<User> users) {
 	    this.users = users;
 	    return Optional.of(this);
 	}
 	
-	public Optional<Rooms> addUser(Users user) {
+	public Optional<Room> addUser(User user) {
 	    Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
 	    this.users.add(user);
 	    return Optional.of(this);
 	}
 	
-	public Optional<Rooms> addUsers(List<Users> users) {
+	public Optional<Room> addUsers(List<User> users) {
 	    Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
 	    this.users.addAll(users);
 	    return Optional.of(this);

@@ -14,19 +14,19 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
-import com.kds.ourmemory.entity.user.Users;
+import com.kds.ourmemory.entity.user.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "memorys")
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Memorys implements Serializable {
+public class Memory implements Serializable {
 	/**
      * 
      */
@@ -74,20 +74,20 @@ public class Memorys implements Serializable {
 	private boolean used;
 	
 	@ManyToMany(mappedBy = "memorys", fetch = FetchType.LAZY)
-    private List<Users> users = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 	
-	public Optional<Memorys> setUsers(List<Users> users) {
+	public Optional<Memory> setUsers(List<User> users) {
         this.users = users;
         return Optional.of(this);
     }
     
-    public Optional<Memorys> addUser(Users user) {
+    public Optional<Memory> addUser(User user) {
         Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
         this.users.add(user);
         return Optional.of(this);
     }
     
-    public Optional<Memorys> addUsers(List<Users> users) {
+    public Optional<Memory> addUsers(List<User> users) {
         Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
         this.users.addAll(users);
         return Optional.of(this);
