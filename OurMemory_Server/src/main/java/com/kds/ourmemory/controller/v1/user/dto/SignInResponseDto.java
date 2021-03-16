@@ -20,7 +20,7 @@ public class SignInResponseDto {
     @ApiModelProperty(value="사용자 생일", example = "null")
     private String birthday;
     
-    @ApiModelProperty(value="양력 여부", example = "false")
+    @ApiModelProperty(value="양력 여부", example = "true")
     private boolean isSolar;
     
     @ApiModelProperty(value="생일 공개여부", example = "false")
