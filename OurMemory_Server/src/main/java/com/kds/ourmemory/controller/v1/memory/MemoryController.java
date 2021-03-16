@@ -27,6 +27,6 @@ public class MemoryController {
     @ApiOperation(value="일정 추가", notes = "앱에서 전달받은 데이터로 일정 추가")
     @PostMapping("/memory")
     public ApiResult<MemoryResponseDto> addMemory(@RequestBody MemoryRequestDto request) {
-        return ok(memoryService.addMemory(request.toEntity()));
+        return ok(memoryService.addMemory(request));
     }
 }
