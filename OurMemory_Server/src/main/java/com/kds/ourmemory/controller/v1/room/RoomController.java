@@ -16,7 +16,7 @@ import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertResponseDto;
-import com.kds.ourmemory.controller.v1.room.dto.RoomResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.FindRoomResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.service.v1.room.RoomService;
 
@@ -41,9 +41,9 @@ public class RoomController {
 
     @ApiOperation(value = "방 목록 조회", notes = "사용자가 참여중인 방 목록을 조회한다.")
     @PostMapping(value = "/rooms/{snsId}")
-    public ApiResult<List<RoomResponseDto>> findRooms(@ApiParam(value = "snsId", required = true) @PathVariable String snsId)
+    public ApiResult<List<FindRoomResponseDto>> findRooms(@ApiParam(value = "snsId", required = true) @PathVariable String snsId)
             throws CUserNotFoundException {
-        return ok(roomService.findRooms(snsId).stream().filter(Room::isUsed).map(RoomResponseDto::new)
+        return ok(roomService.findRooms(snsId).stream().filter(Room::isUsed).map(FindRoomResponseDto::new)
                 .collect(Collectors.toList()));
     }
 }

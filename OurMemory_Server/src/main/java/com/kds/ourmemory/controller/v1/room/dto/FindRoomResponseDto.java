@@ -14,7 +14,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class RoomResponseDto {
+public class FindRoomResponseDto {
     @ApiModelProperty(value = "방 번호", example = "5")
     private Long id;
 
@@ -33,7 +33,7 @@ public class RoomResponseDto {
     @ApiModelProperty(value = "방 참여자", example = "[{사용자}, {사용자2}]")
     private List<SignInResponseDto> member;
 
-    public RoomResponseDto(Room room) {
+    public FindRoomResponseDto(Room room) {
         id = room.getId();
         owner = room.getOwner();
         name = room.getName();
