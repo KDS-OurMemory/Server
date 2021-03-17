@@ -46,4 +46,8 @@ public class UserService {
 	private Optional<User> insert(User user) {
 	    return Optional.of(userRepo.save(user));
 	}
+	
+	public Optional<User> findById(Long id) {
+	    return userRepo.findById(id);
+	}
 }
