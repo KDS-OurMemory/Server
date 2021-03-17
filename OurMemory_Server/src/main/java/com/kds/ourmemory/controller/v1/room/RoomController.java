@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +43,7 @@ public class RoomController {
     }
 
     @ApiOperation(value = "방 목록 조회", notes = "사용자가 참여중인 방 목록을 조회한다.")
-    @PostMapping(value = "/rooms/{snsId}")
+    @GetMapping(value = "/rooms/{snsId}")
     public ApiResult<List<FindRoomResponseDto>> findRooms(
             @ApiParam(value = "snsId", required = true) @PathVariable String snsId) throws CUserNotFoundException {
         return ok(roomService.findRooms(snsId).stream().filter(Room::isUsed).map(FindRoomResponseDto::new)
