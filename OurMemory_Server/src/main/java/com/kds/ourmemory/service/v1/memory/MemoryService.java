@@ -1,7 +1,7 @@
 package com.kds.ourmemory.service.v1.memory;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import static com.kds.ourmemory.util.DateUtil.currentDate;
+
 import java.util.Date;
 import java.util.Optional;
 
@@ -39,10 +39,7 @@ public class MemoryService {
                         .build()
                         ).map(memory -> insert(memory))
                 .map(m -> {
-                    DateFormat format = new SimpleDateFormat("yyyyMMdd");
-                    String today = format.format(new Date());
-
-                    return new MemoryResponseDto(today);
+                    return new MemoryResponseDto(currentDate());
                 }).orElseThrow(() -> new CMemoryException("Add Memory to DB Failed."));
     }
     

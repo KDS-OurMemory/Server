@@ -8,5 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MemoryResponseDto {
     @ApiModelProperty(value="일정 추가한 날짜", example = "20210315")
-    private String addTime;
+    private String addDate;
 }

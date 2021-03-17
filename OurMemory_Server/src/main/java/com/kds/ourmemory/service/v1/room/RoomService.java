@@ -1,6 +1,7 @@
 package com.kds.ourmemory.service.v1.room;
 
-import java.text.SimpleDateFormat;
+import static com.kds.ourmemory.util.DateUtil.currentDate;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.controller.v1.room.dto.DeleteResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
@@ -34,14 +36,17 @@ public class RoomService {
                 .map(r -> userRepo.findById(r.getOwner())
                         .map(user -> user.addRoom(r))
                         .map(r::addUser).get())
-                .map(r -> addMemberToRoom(r, members)).map(isAdd -> {
-            String currentDate = new SimpleDateFormat("yyyyMMdd").format(System.currentTimeMillis());
-            return new InsertResponseDto(currentDate);
-        }).orElseThrow(() -> new CRoomException("Create Room Failed."));
+                .map(r -> addMemberToRoom(r, members))
+                .map(r -> new InsertResponseDto(r.getId(), currentDate()))
+                .orElseThrow(() -> new CRoomException("Create Room Failed."));
+    }
+    
+    private Optional<Room> insert(Room room) {
+        return Optional.of(roomRepo.save(room));
     }
 
     @Transactional
-    public boolean addMemberToRoom(Room room, List<Long> members) throws CRoomException {
+    public Room addMemberToRoom(Room room, List<Long> members) throws CRoomException {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> {
                 userRepo.findById(id).filter(Objects::nonNull)
@@ -55,15 +60,20 @@ public class RoomService {
                  .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id));
              }));
         
-        return true;
-    }
-    
-    private Optional<Room> insert(Room room) {
-        return Optional.of(roomRepo.save(room));
+        return room;
     }
     
     public List<Room> findRooms(String snsId) throws CUserNotFoundException {
         return userRepo.findBySnsId(snsId).map(User::getRooms)
                 .orElseThrow(() -> new CUserNotFoundException("Not Found User From snsId: " + snsId));
+    }
+    
+    public DeleteResponseDto delete(Long roomId) throws CRoomException {
+        return roomRepo.findById(roomId)
+                .map(room -> {
+                    room.getUsers().stream().forEach(user -> user.getRooms().remove(room));
+                    roomRepo.delete(room);
+                    return new DeleteResponseDto(currentDate());
+                }).orElseThrow(() -> new CRoomException("Delete Failed: " + roomId));
     }
 }

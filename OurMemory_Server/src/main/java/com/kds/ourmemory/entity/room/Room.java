@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -65,13 +66,11 @@ public class Room implements Serializable{
 	}
 	
 	public Room addUser(User user) {
-	    Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
 	    this.users.add(user);
 	    return this;
 	}
 	
 	public Optional<Room> addUsers(List<User> users) {
-	    Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
 	    this.users.addAll(users);
 	    return Optional.of(this);
     }	

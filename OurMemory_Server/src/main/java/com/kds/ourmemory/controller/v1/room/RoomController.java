@@ -5,6 +5,7 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,9 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.controller.v1.ApiResult;
+import com.kds.ourmemory.controller.v1.room.dto.DeleteResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.FindRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertResponseDto;
-import com.kds.ourmemory.controller.v1.room.dto.FindRoomResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.service.v1.room.RoomService;
 
@@ -41,9 +43,16 @@ public class RoomController {
 
     @ApiOperation(value = "방 목록 조회", notes = "사용자가 참여중인 방 목록을 조회한다.")
     @PostMapping(value = "/rooms/{snsId}")
-    public ApiResult<List<FindRoomResponseDto>> findRooms(@ApiParam(value = "snsId", required = true) @PathVariable String snsId)
-            throws CUserNotFoundException {
+    public ApiResult<List<FindRoomResponseDto>> findRooms(
+            @ApiParam(value = "snsId", required = true) @PathVariable String snsId) throws CUserNotFoundException {
         return ok(roomService.findRooms(snsId).stream().filter(Room::isUsed).map(FindRoomResponseDto::new)
                 .collect(Collectors.toList()));
+    }
+
+    @ApiOperation(value = "방 삭제", notes = "방 번호에 맞는 방을 삭제한다.")
+    @DeleteMapping(value = "/room/{roomId}")
+    public ApiResult<DeleteResponseDto> delete(@ApiParam(value = "roomId", required = true) @PathVariable Long roomId)
+            throws CRoomException {
+        return ok(roomService.delete(roomId));
     }
 }

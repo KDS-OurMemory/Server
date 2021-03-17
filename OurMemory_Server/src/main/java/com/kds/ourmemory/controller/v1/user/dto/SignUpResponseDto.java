@@ -8,5 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SignUpResponseDto {
     @ApiModelProperty(value="사용자 추가한 날짜", example = "20210315")
-	private String joinTime;
+	private String joinDate;
 }
