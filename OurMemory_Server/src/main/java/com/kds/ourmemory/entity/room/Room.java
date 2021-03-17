@@ -64,10 +64,10 @@ public class Room implements Serializable{
 	    return Optional.of(this);
 	}
 	
-	public Optional<Room> addUser(User user) {
+	public Room addUser(User user) {
 	    Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
 	    this.users.add(user);
-	    return Optional.of(this);
+	    return this;
 	}
 	
 	public Optional<Room> addUsers(List<User> users) {

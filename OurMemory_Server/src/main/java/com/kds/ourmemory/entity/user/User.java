@@ -61,10 +61,10 @@ public class User implements Serializable{
 	private String birthday;
 	
 	@Column(nullable = false, name="user_solar_flag")
-	private boolean isSolar;
+	private boolean solar;
 	
 	@Column(nullable = false, name="user_birthday_open_flag")
-	private boolean isBirthdayOpen;
+	private boolean birthdayOpen;
 	
 	@Column(nullable = true, name="user_role")
 	private String role;
@@ -92,10 +92,10 @@ public class User implements Serializable{
 	    return Optional.of(this);
 	}
 	
-	public Optional<User> addRoom(Room room) {
+	public User addRoom(Room room) {
 	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
 	    this.rooms.add(room);
-	    return Optional.of(this);
+	    return this;
 	}
 	
 	public Optional<User> addRooms(List<Room> rooms) {

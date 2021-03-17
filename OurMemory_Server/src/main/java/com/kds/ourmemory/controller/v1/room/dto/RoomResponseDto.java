@@ -19,7 +19,7 @@ public class RoomResponseDto {
     private Long id;
 
     @ApiModelProperty(value = "방 소유자", example = "17")
-    private Long ower;
+    private Long owner;
 
     @ApiModelProperty(value = "방 이름", example = "가족방")
     private String name;
@@ -35,11 +35,11 @@ public class RoomResponseDto {
 
     public RoomResponseDto(Room room) {
         id = room.getId();
-        ower = room.getOwner();
+        owner = room.getOwner();
         name = room.getName();
         regTime = new SimpleDateFormat("yyyyMMdd").format(room.getRegDate());
         opened = room.isOpened();
-        member = room.getUsers().stream().filter(User::isBirthdayOpen).map(SignInResponseDto::new)
+        member = room.getUsers().stream().filter(User::isUsed).map(SignInResponseDto::new)
                 .collect(Collectors.toList());
     }
 }

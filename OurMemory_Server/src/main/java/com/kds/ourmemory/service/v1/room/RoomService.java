@@ -32,16 +32,16 @@ public class RoomService {
     public InsertResponseDto insert(Room room, List<Long> members) throws CRoomException {
         return insert(room)
                 .map(r -> userRepo.findById(r.getOwner())
-                        .map(user -> user.addRoom(r).get())
-                        .map(r::addUser).get().get())
-                .map(r -> addMemberToRoom(members, r)).map(isAdd -> {
+                        .map(user -> user.addRoom(r))
+                        .map(r::addUser).get())
+                .map(r -> addMemberToRoom(r, members)).map(isAdd -> {
             String currentDate = new SimpleDateFormat("yyyyMMdd").format(System.currentTimeMillis());
             return new InsertResponseDto(currentDate);
         }).orElseThrow(() -> new CRoomException("Create Room Failed."));
     }
 
     @Transactional
-    public boolean addMemberToRoom(List<Long> members, Room room) throws CRoomException {
+    public boolean addMemberToRoom(Room room, List<Long> members) throws CRoomException {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> {
                 userRepo.findById(id).filter(Objects::nonNull)
