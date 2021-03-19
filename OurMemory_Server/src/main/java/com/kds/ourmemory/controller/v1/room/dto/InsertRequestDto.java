@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomRequestDto {
+public class InsertRequestDto {
     @ApiModelProperty(value = "방 이름", required = true)
     private String name;
     

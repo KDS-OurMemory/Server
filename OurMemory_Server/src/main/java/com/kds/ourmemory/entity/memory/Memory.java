@@ -37,8 +37,8 @@ public class Memory implements Serializable {
 	@Column(name = "memory_id")
 	private Long id;
     
-    @Column(nullable = false, name="memory_writer")
-    private Long writer;
+    @Column(nullable = false, name="memory_writerId")
+    private Long writerId;
 	
 	@Column(nullable = false, name="memory_name")
 	private String name;

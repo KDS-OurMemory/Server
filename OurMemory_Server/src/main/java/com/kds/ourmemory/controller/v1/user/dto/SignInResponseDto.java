@@ -1,7 +1,5 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
-import org.springframework.beans.BeanUtils;
-
 import com.kds.ourmemory.entity.user.User;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -20,13 +18,17 @@ public class SignInResponseDto {
     @ApiModelProperty(value="사용자 생일", example = "null")
     private String birthday;
     
-    @ApiModelProperty(value="양력 여부", example = "false")
-    private boolean isSolar;
+    @ApiModelProperty(value="양력 여부", example = "true")
+    private boolean solar;
     
     @ApiModelProperty(value="생일 공개여부", example = "false")
-    private boolean isBirthdayOpen;
+    private boolean birthdayOpen;
     
     public SignInResponseDto(User user) {
-        BeanUtils.copyProperties(user, this);
+        id = user.getId();
+        name = user.getName();
+        birthday = user.isBirthdayOpen()? user.getBirthday() : null;
+        solar = user.isSolar();
+        birthdayOpen = user.isBirthdayOpen();
     }
 }

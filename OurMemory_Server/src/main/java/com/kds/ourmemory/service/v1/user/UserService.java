@@ -1,14 +1,13 @@
 package com.kds.ourmemory.service.v1.user;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import static com.kds.ourmemory.util.DateUtil.currentDate;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.advice.exception.CUserException;
+import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.controller.v1.user.dto.SignInResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.SignUpResponseDto;
 import com.kds.ourmemory.entity.user.User;
@@ -26,11 +25,8 @@ public class UserService {
 
 	public SignUpResponseDto signUp(User user) throws CUserException {
 		return insert(user).map(u -> {
-		    DateFormat format = new SimpleDateFormat("yyyyMMdd");
-	        String today = format.format(new Date());
-	        
             firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - SignUp", user.getName() + " is SignUp Success");
-	        return new SignUpResponseDto(today);
+	        return new SignUpResponseDto(currentDate());
 		}).orElseThrow(() -> {
             firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - SignUp", user.getName() + " is SignUp Failed.");
 		    
@@ -45,5 +41,9 @@ public class UserService {
 	
 	private Optional<User> insert(User user) {
 	    return Optional.of(userRepo.save(user));
+	}
+	
+	public Optional<User> findById(Long id) {
+	    return userRepo.findById(id);
 	}
 }

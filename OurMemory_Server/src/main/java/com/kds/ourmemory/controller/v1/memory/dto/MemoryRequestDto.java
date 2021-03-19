@@ -2,8 +2,6 @@ package com.kds.ourmemory.controller.v1.memory.dto;
 
 import java.util.Date;
 
-import com.kds.ourmemory.entity.memory.Memory;
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemoryRequestDto {
-    @ApiModelProperty(value="일정 작성자 번호", required = true, example = "49")
-    private Long writer;
+    @ApiModelProperty(value="일정 작성자 snsId", required = true)
+    private String snsId;
     
     @ApiModelProperty(value="일정 이름", required = true, example = "회의 일정")
     private String name;
@@ -39,21 +37,4 @@ public class MemoryRequestDto {
     
     @ApiModelProperty(value="배경색", required = true, example = "#FFFFFF")
     private String bgColor;
-    
-    public Memory toEntity() {
-        return Memory.builder()
-                .writer(writer)
-                .name(this.name)
-                .contents(contents)
-                .place(place)
-                .startDate(startDate)
-                .endDate(endDate)
-                .bgColor(bgColor)
-                .firstAlarm(firstAlarm)
-                .secondAlarm(secondAlarm)
-                .regDate(new Date())
-                .modDate(null)
-                .used(true)
-                .build();
-    }
 }

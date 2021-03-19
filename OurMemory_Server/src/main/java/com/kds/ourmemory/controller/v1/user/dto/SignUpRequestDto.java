@@ -30,10 +30,10 @@ public class SignUpRequestDto {
 	private String birthday;
 	
 	@ApiModelProperty(value="양력 여부", required = false)
-	private boolean isSolar;
+	private boolean solar;
 	
 	@ApiModelProperty(value="생일 공개여부", required = false)
-	private boolean isBirthdayOpen;
+	private boolean birthdayOpen;
 	
 	public User toEntity() {
 	    return User.builder()
@@ -42,8 +42,8 @@ public class SignUpRequestDto {
                 .pushToken(pushToken)
                 .name(name)
                 .birthday(birthday)
-                .isSolar(isSolar)
-                .isBirthdayOpen(isBirthdayOpen)
+                .solar(solar)
+                .birthdayOpen(birthdayOpen)
                 .role("user")
                 .regDate(new Date())
                 .used(true)
