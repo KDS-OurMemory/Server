@@ -37,10 +37,10 @@ public class MemoryService {
                         .regDate(new Date())
                         .used(true)
                         .build()
-                        ).map(memory -> insert(memory))
-                .map(m -> {
-                    return new MemoryResponseDto(currentDate());
-                }).orElseThrow(() -> new CMemoryException("Add Memory to DB Failed."));
+                        )
+                .map(memory -> insert(memory))
+                .map(m -> new MemoryResponseDto(currentDate()))
+                .orElseThrow(() -> new CMemoryException("Add Memory to DB Failed."));
     }
     
     private Optional<Memory> insert(Memory memory) {
