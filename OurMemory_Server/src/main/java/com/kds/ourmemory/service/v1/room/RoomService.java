@@ -68,10 +68,20 @@ public class RoomService {
                 .orElseThrow(() -> new CUserNotFoundException("Not Found User From snsId: " + snsId));
     }
     
+    /**
+     * Transactional 하는 이유
+     * 
+     * 관계 데이터를 Lazy 타입으로 설정하였기 때문에 지연로딩이 발생하고, 지연로딩된 데이터는 영속성 컨텍스트 범위 내에서만 살아있다.
+     * 해당 로직에 영속성 컨텍스트를 설정하기 위해 Transactional 처리하였다.
+     * 자세한 내용은 아래 링크 참고.
+     * https://doublesprogramming.tistory.com/259
+     */
+    @Transactional
     public DeleteResponseDto delete(Long roomId) throws CRoomException {
         return roomRepo.findById(roomId)
                 .map(room -> {
                     room.getUsers().stream().forEach(user -> user.getRooms().remove(room));
+                    
                     roomRepo.delete(room);
                     return new DeleteResponseDto(currentDate());
                 }).orElseThrow(() -> new CRoomException("Delete Failed: " + roomId));
