@@ -2,6 +2,8 @@ package com.kds.ourmemory.service.v1.room;
 
 import static com.kds.ourmemory.util.DateUtil.currentDate;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -12,8 +14,9 @@ import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
-import com.kds.ourmemory.controller.v1.room.dto.DeleteResponseDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.room.RoomRepository;
@@ -25,24 +28,35 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class RoomService {
-    private final RoomRepository roomRepo;
     private final UserRepository userRepo;
+    private final RoomRepository roomRepo;
     
     private final FirebaseCloudMessageService firebaseFcm;
 
     @Transactional
-    public InsertResponseDto insert(Room room, List<Long> members) throws CRoomException {
-        return insert(room)
-                .map(r -> userRepo.findById(r.getOwner())
-                        .map(user -> user.addRoom(r))
-                        .map(r::addUser).get())
-                .map(r -> addMemberToRoom(r, members))
-                .map(r -> new InsertResponseDto(r.getId(), currentDate()))
-                .orElseThrow(() -> new CRoomException("Create Room Failed."));
-    }
-    
-    private Optional<Room> insert(Room room) {
-        return Optional.of(roomRepo.save(room));
+    public InsertRoomResponseDto insert(InsertRoomRequestDto request) throws CRoomException {
+        return Optional.ofNullable(request.getOwner())
+        .map(ownerId -> userRepo.findById(ownerId).get())
+        .map(user -> {
+            Room room = Room.builder()
+                .user(user)
+                .name(request.getName())
+                .regDate(new Date())
+                .opened(request.isOpened())
+                .used(true)
+                .users(new ArrayList<>())
+                .build();
+            return roomRepo.save(room);
+        })
+        .map(room -> {
+            User owner = room.getUser();
+            owner.addRoom(room);
+            room.addUser(owner);
+            
+            return addMemberToRoom(room, request.getMember());
+        })
+        .map(room -> new InsertRoomResponseDto(room.getId(), currentDate()))
+        .orElseThrow(() -> new CRoomException("Create Room Failed."));
     }
 
     @Transactional
@@ -77,13 +91,15 @@ public class RoomService {
      * https://doublesprogramming.tistory.com/259
      */
     @Transactional
-    public DeleteResponseDto delete(Long roomId) throws CRoomException {
-        return roomRepo.findById(roomId)
+    public DeleteRoomResponseDto delete(Long id) throws CRoomException {
+        return roomRepo.findById(id)
                 .map(room -> {
                     room.getUsers().stream().forEach(user -> user.getRooms().remove(room));
+                    room.getMemorys().stream().forEach(memory -> memory.getRooms().remove(room));
                     
                     roomRepo.delete(room);
-                    return new DeleteResponseDto(currentDate());
-                }).orElseThrow(() -> new CRoomException("Delete Failed: " + roomId));
+                    return new DeleteRoomResponseDto(currentDate());
+                })
+                .orElseThrow(() -> new CRoomException("Delete Failed: " + id));
     }
 }

@@ -9,11 +9,15 @@ import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
+import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 
 import lombok.AllArgsConstructor;
@@ -37,8 +41,9 @@ public class Memory implements Serializable {
 	@Column(name = "memory_id")
 	private Long id;
     
-    @Column(nullable = false, name="memory_writerId")
-    private Long writerId;
+    @ManyToOne(targetEntity = User.class)
+    @JoinColumn(foreignKey = @ForeignKey(name = "memory_writer"))
+    private User user;
 	
 	@Column(nullable = false, name="memory_name")
 	private String name;
@@ -74,9 +79,29 @@ public class Memory implements Serializable {
 	private boolean used;
 	
 	@ManyToMany(mappedBy = "memorys", fetch = FetchType.LAZY)
+    private List<Room> rooms = new ArrayList<>();
+	
+	@ManyToMany(mappedBy = "memorys", fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
 	
-	public Optional<Memory> setUsers(List<User> users) {
+	public Optional<Memory> setRooms(List<Room> rooms) {
+        this.rooms = rooms;
+        return Optional.of(this);
+    }
+    
+    public Optional<Memory> addRoom(Room room) {
+        Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
+        this.rooms.add(room);
+        return Optional.of(this);
+    }
+    
+    public Optional<Memory> addRooms(List<Room> rooms) {
+        Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
+        this.rooms.addAll(rooms);
+        return Optional.of(this);
+    }
+    
+    public Optional<Memory> setUsers(List<User> users) {
         this.users = users;
         return Optional.of(this);
     }

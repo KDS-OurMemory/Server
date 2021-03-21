@@ -6,7 +6,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class MemoryResponseDto {
+public class InsertMemoryResponseDto {
+    @ApiModelProperty(value = "일정 번호", example = "3")
+    private Long id;
+    
     @ApiModelProperty(value="일정 추가한 날짜", example = "20210315")
     private String addDate;
 }

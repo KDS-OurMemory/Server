@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class InsertResponseDto {
+public class InsertRoomResponseDto {
     @ApiModelProperty(value = "방 번호", example = "3")
     private Long id;
     
