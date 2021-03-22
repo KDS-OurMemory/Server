@@ -108,7 +108,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryResponseDto).isNotNull();
         assertThat(insertMemoryResponseDto.getAddDate()).isEqualTo(currentDate());
         
-        log.info("CreateDate: {} roomId: {}", insertMemoryResponseDto.getAddDate(), insertMemoryResponseDto.getId());
+        log.info("CreateDate: {} memoryId: {}", insertMemoryResponseDto.getAddDate(), insertMemoryResponseDto.getId());
     }
     
     @Test

@@ -17,7 +17,6 @@ import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryResponseDto;
 import com.kds.ourmemory.entity.memory.Memory;
-import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.repository.memory.MemoryRepository;
 import com.kds.ourmemory.repository.room.RoomRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -51,18 +50,24 @@ public class MemoryService {
                         .regDate(new Date())
                         .used(true)
                         .build();
-                    memory = memoryRepo.save(memory);
-                    
+                    return memoryRepo.save(memory);
+                })
+                .map(memory -> {
                     // 사용자 - 일정 연결
-                    memory.addUser(user);
+                    Optional.ofNullable(memory.getUser())
+                        .map(writer -> writer.addMemory(memory))
+                        .map(memory::addUser)
+                        .orElseThrow(() -> new CMemoryException("Insert failed Relational Data to users_memorys."));
+                    addMemberToMemory(memory, request.getMembers());
                     
                     // 일정 - 방 연결
-                    Room room = roomRepo.findById(request.getRoomId()).get();
-                    room.addMemory(memory);
-                    memory.addRoom(room);
+                    roomRepo.findById(request.getRoomId())
+                        .map(room -> room.addMemory(memory))
+                        .map(memory::addRoom)
+                        .orElseThrow(() -> new CMemoryException("Insert failed Relational Data to memorys_rooms."));
+                    addRoomToMemory(memory, request.getRoomIds());
                     
-                    addMemberToMemory(memory, request.getMembers());
-                    return addRoomToMemory(memory, request.getRoomIds());
+                    return memory;
                 })
                 .map(memory -> new InsertMemoryResponseDto(memory.getId(), currentDate()))
                 .orElseThrow(() -> new CMemoryException("Add Memory to DB Failed."));

@@ -36,33 +36,32 @@ public class RoomService {
     @Transactional
     public InsertRoomResponseDto insert(InsertRoomRequestDto request) throws CRoomException {
         return Optional.ofNullable(request.getOwner())
-        .map(ownerId -> userRepo.findById(ownerId).get())
-        .map(user -> {
-            Room room = Room.builder()
-                .user(user)
-                .name(request.getName())
-                .regDate(new Date())
-                .opened(request.isOpened())
-                .used(true)
-                .users(new ArrayList<>())
-                .build();
-            return roomRepo.save(room);
-        })
-        .map(room -> {
-            User owner = room.getUser();
-            owner.addRoom(room);
-            room.addUser(owner);
-            
-            return addMemberToRoom(room, request.getMember());
-        })
-        .map(room -> new InsertRoomResponseDto(room.getId(), currentDate()))
-        .orElseThrow(() -> new CRoomException("Create Room Failed."));
+            .map(ownerId -> userRepo.findById(ownerId).get())
+            .map(user -> {
+                Room room = Room.builder()
+                    .user(user)
+                    .name(request.getName())
+                    .regDate(new Date())
+                    .opened(request.isOpened())
+                    .used(true)
+                    .users(new ArrayList<>())
+                    .build();
+                return roomRepo.save(room);
+            })
+            .map(room -> Optional.ofNullable(room.getUser())
+                    .map(owner -> owner.addRoom(room))
+                    .map(room::addUser)
+                    .map(r -> addMemberToRoom(r, request.getMember()))
+                    .orElseThrow(() -> new CRoomException("Insert failed Relational Data to users_rooms."))
+            )
+            .map(room -> new InsertRoomResponseDto(room.getId(), currentDate()))
+            .orElseThrow(() -> new CRoomException("Create Room Failed."));
     }
 
     @Transactional
     public Room addMemberToRoom(Room room, List<Long> members) throws CRoomException {
         Optional.ofNullable(members).map(List::stream)
-            .ifPresent(stream -> stream.forEach(id -> {
+            .ifPresent(stream -> stream.forEach(id -> 
                 userRepo.findById(id).filter(Objects::nonNull)
                 .map(user -> {
                     user.addRoom(room);
@@ -71,8 +70,8 @@ public class RoomService {
                     firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - Invited Room", "Invited From " + room.getName());
                     return user;
                  })
-                 .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id));
-             }));
+                 .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id))
+             ));
         
         return room;
     }
