@@ -1,14 +1,14 @@
 package com.kds.ourmemory.service.v1.memory;
 
 import static com.kds.ourmemory.util.DateUtil.currentDate;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
-import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -18,6 +18,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kds.ourmemory.advice.exception.CMemoryException;
 import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
@@ -51,10 +52,32 @@ class MemoryServiceTest {
     
     @Test
     @Order(1)
+    void Date_변환() throws IOException{
+        String json = "{"
+                + "\"roomId\":61,"
+                + "\"snsId\":\"202\","
+                + "\"name\":\"테스트 일정\","
+                + "\"members\":[2,4],"
+                + "\"contents\":\"테스트 내용\","
+                + "\"place\":\"테스트 장소\","
+                + "\"startDate\":\"2021-03-23 19:00\","
+                + "\"endDate\":\"2021-03-23 21:00\","
+                + "\"bgColor\":\"#FFFFFF\","
+                + "\"roomIds\":[60]"
+                + "}";
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        InsertMemoryRequestDto requestDto = objectMapper.readValue(json, InsertMemoryRequestDto.class);
+//        assertThat(requestDto.getRoomId(), equalTo(61L));
+        log.debug(requestDto.getRoomId() + "");
+    }
+    
+    @Test
+    @Order(1)
     void 방_생성() {
         insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
-        Assertions.assertThat(insertRoomResponseDto).isNotNull();
-        Assertions.assertThat(insertRoomResponseDto.getCreateDate()).isEqualTo(currentDate());
+        assertThat(insertRoomResponseDto).isNotNull();
+        assertThat(insertRoomResponseDto.getCreateDate()).isEqualTo(currentDate());
         
         log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getId());
     }
@@ -65,7 +88,6 @@ class MemoryServiceTest {
         List<Long> members = new ArrayList<>();
         members.add(2L);
         members.add(4L);
-        
         
         InsertMemoryRequestDto insertMemoryRequestDto = new InsertMemoryRequestDto(
                 insertRoomResponseDto.getId(),
@@ -83,8 +105,8 @@ class MemoryServiceTest {
                 );  // 배경색
         
         insertMemoryResponseDto = memoryService.insert(insertMemoryRequestDto);
-        Assertions.assertThat(insertMemoryResponseDto).isNotNull();
-        Assertions.assertThat(insertMemoryResponseDto.getAddDate()).isEqualTo(currentDate());
+        assertThat(insertMemoryResponseDto).isNotNull();
+        assertThat(insertMemoryResponseDto.getAddDate()).isEqualTo(currentDate());
         
         log.info("CreateDate: {} roomId: {}", insertMemoryResponseDto.getAddDate(), insertMemoryResponseDto.getId());
     }
@@ -94,8 +116,8 @@ class MemoryServiceTest {
     void 일정_삭제() throws CRoomException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertMemoryResponseDto.getId());
         
-        Assertions.assertThat(deleteMemoryResponseDto).isNotNull();
-        Assertions.assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
+        assertThat(deleteMemoryResponseDto).isNotNull();
+        assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
     }
     
     @Test
@@ -103,7 +125,7 @@ class MemoryServiceTest {
     void 방_삭제() throws CRoomException {
         DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getId());
         
-        Assertions.assertThat(deleteRoomResponseDto).isNotNull();
-        Assertions.assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());
+        assertThat(deleteRoomResponseDto).isNotNull();
+        assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());
     }
 }
