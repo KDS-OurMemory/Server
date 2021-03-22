@@ -17,9 +17,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
-import com.kds.ourmemory.controller.v1.room.dto.DeleteResponseDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRequestDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.service.v1.user.UserService;
@@ -34,8 +34,8 @@ class RoomServiceTest {
     @Autowired private RoomService roomService;
     @Autowired private UserService userService;
     
-    private InsertRequestDto insertRequestDto;
-    private InsertResponseDto insertResponseDto;
+    private InsertRoomRequestDto insertRoomRequestDto;
+    private InsertRoomResponseDto insertRoomResponseDto;
     
     @BeforeAll
     void setUp() {
@@ -43,23 +43,23 @@ class RoomServiceTest {
         member.add(2L);
         member.add(4L);
         
-        insertRequestDto = new InsertRequestDto("테스트방", 94L, false, member);
+        insertRoomRequestDto = new InsertRoomRequestDto("테스트방", 94L, false, member);
     }
     
     @Test
     @Order(1)
     void 방_생성() {
-        insertResponseDto = roomService.insert(insertRequestDto.toEntity(), insertRequestDto.getMember());
-        Assertions.assertThat(insertResponseDto).isNotNull();
-        Assertions.assertThat(insertResponseDto.getCreateDate()).isEqualTo(currentDate());
+        insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
+        Assertions.assertThat(insertRoomResponseDto).isNotNull();
+        Assertions.assertThat(insertRoomResponseDto.getCreateDate()).isEqualTo(currentDate());
         
-        log.info("CreateDate: {} roomId: {}", insertResponseDto.getCreateDate(), insertResponseDto.getId());
+        log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getId());
     }
     
     @Test
     @Order(2)
     void 방_목록_조회() throws CUserNotFoundException {
-        User user = userService.findById(insertRequestDto.getOwner()).orElseThrow(() -> new CUserNotFoundException("Not Found User: " + insertRequestDto.getOwner()));
+        User user = userService.findById(insertRoomRequestDto.getOwner()).orElseThrow(() -> new CUserNotFoundException("Not Found User: " + insertRoomRequestDto.getOwner()));
         List<Room> responseList = roomService.findRooms(user.getSnsId());
         Assertions.assertThat(responseList).isNotNull();
         
@@ -69,9 +69,9 @@ class RoomServiceTest {
     @Test
     @Order(3)
     void 방_삭제() throws CRoomException {
-        DeleteResponseDto deleteResponseDto = roomService.delete(insertResponseDto.getId());
+        DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getId());
         
-        Assertions.assertThat(deleteResponseDto).isNotNull();
-        Assertions.assertThat(deleteResponseDto.getDeleteDate()).isEqualTo(currentDate());
+        Assertions.assertThat(deleteRoomResponseDto).isNotNull();
+        Assertions.assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());
     }
 }

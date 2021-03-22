@@ -35,7 +35,7 @@ public class FindRoomResponseDto {
 
     public FindRoomResponseDto(Room room) {
         id = room.getId();
-        owner = room.getOwner();
+        owner = room.getOwner().getId();
         name = room.getName();
         regTime = new SimpleDateFormat("yyyyMMdd").format(room.getRegDate());
         opened = room.isOpened();

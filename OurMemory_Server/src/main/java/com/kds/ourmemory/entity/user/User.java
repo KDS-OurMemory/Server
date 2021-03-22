@@ -82,10 +82,10 @@ public class User implements Serializable{
 	private List<Room> rooms = new ArrayList<>();
 	
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name="users_memorys",
-	            joinColumns = @JoinColumn(name = "user_id"),
-	            inverseJoinColumns = @JoinColumn(name = "memory_id"))
-	private List<Memory> memorys = new ArrayList<>();
+    @JoinTable(name="users_memorys",
+                joinColumns = @JoinColumn(name = "user_id"),
+                inverseJoinColumns = @JoinColumn(name = "memory_id"))
+    private List<Memory> memorys = new ArrayList<>();
 	
 	public Optional<User> setRooms(List<Room> rooms) {
 	    this.rooms = rooms;
@@ -103,17 +103,17 @@ public class User implements Serializable{
 	}
 	
 	public Optional<User> setMemorys(List<Memory> memorys) {
-	    this.memorys = memorys;
-	    return Optional.of(this);
-	}
-	
-	public Optional<User> addMemory(Memory memory) {
-	    this.memorys.add(memory);
-	    return Optional.of(this);
-	}
-	
-	public Optional<User> addMemorys(List<Memory> memorys) {
-	    this.memorys.addAll(memorys);
-	    return Optional.of(this);
-	}
+        this.memorys = memorys;
+        return Optional.of(this);
+    }
+    
+    public User addMemory(Memory memory) {
+        this.memorys.add(memory);
+        return this;
+    }
+    
+    public Optional<User> addMemorys(List<Memory> memorys) {
+        this.memorys.addAll(memorys);
+        return Optional.of(this);
+    }
 }
