@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -86,7 +85,7 @@ class MemoryServiceTest {
         Assertions.assertThat(insertMemoryResponseDto).isNotNull();
         Assertions.assertThat(insertMemoryResponseDto.getAddDate()).isEqualTo(currentDate());
         
-        log.info("CreateDate: {} roomId: {}", insertMemoryResponseDto.getAddDate(), insertMemoryResponseDto.getId());
+        log.info("CreateDate: {} memoryId: {}", insertMemoryResponseDto.getAddDate(), insertMemoryResponseDto.getId());
     }
     
     @Test

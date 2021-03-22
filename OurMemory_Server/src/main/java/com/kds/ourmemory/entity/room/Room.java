@@ -91,9 +91,9 @@ public class Room implements Serializable{
         return Optional.of(this);
     }
 
-    public Optional<Room> addMemory(Memory memory) {
+    public Room addMemory(Memory memory) {
         this.memorys.add(memory);
-        return Optional.of(this);
+        return this;
     }
 
     public Optional<Room> addMemorys(List<Memory> memorys) {

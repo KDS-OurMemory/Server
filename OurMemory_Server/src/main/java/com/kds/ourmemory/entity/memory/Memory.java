@@ -89,10 +89,10 @@ public class Memory implements Serializable {
         return Optional.of(this);
     }
     
-    public Optional<Memory> addRoom(Room room) {
+    public Memory addRoom(Room room) {
         Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
         this.rooms.add(room);
-        return Optional.of(this);
+        return this;
     }
     
     public Optional<Memory> addRooms(List<Room> rooms) {
@@ -106,10 +106,10 @@ public class Memory implements Serializable {
         return Optional.of(this);
     }
     
-    public Optional<Memory> addUser(User user) {
+    public Memory addUser(User user) {
         Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
         this.users.add(user);
-        return Optional.of(this);
+        return this;
     }
     
     public Optional<Memory> addUsers(List<User> users) {
