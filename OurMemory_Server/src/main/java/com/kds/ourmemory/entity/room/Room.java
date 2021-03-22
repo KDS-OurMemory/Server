@@ -47,8 +47,8 @@ public class Room implements Serializable{
 	private Long id;
 	
     @ManyToOne(targetEntity = User.class)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "room_owner"))
-	private User user;
+    @JoinColumn(name = "room_owner", foreignKey = @ForeignKey(name = "room_owner"))
+	private User owner;
 	
 	@Column(nullable = false, name="room_name")
 	private String name;

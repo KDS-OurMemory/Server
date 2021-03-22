@@ -36,9 +36,9 @@ public class MemoryService {
     @Transactional
     public InsertMemoryResponseDto insert(InsertMemoryRequestDto request) throws CMemoryException{
         return userRepo.findBySnsId(request.getSnsId())
-                .map(user -> {
+                .map(writer -> {
                     Memory memory = Memory.builder()
-                        .user(user)
+                        .writer(writer)
                         .name(request.getName())
                         .contents(request.getContents())
                         .place(request.getPlace())
@@ -54,19 +54,13 @@ public class MemoryService {
                 })
                 .map(memory -> {
                     // 사용자 - 일정 연결
-                    Optional.ofNullable(memory.getUser())
+                    Optional.ofNullable(memory.getWriter())
                         .map(writer -> writer.addMemory(memory))
                         .map(memory::addUser)
                         .orElseThrow(() -> new CMemoryException("Insert failed Relational Data to users_memorys."));
                     addMemberToMemory(memory, request.getMembers());
                     
-                    // 일정 - 방 연결
-                    roomRepo.findById(request.getRoomId())
-                        .map(room -> room.addMemory(memory))
-                        .map(memory::addRoom)
-                        .orElseThrow(() -> new CMemoryException("Insert failed Relational Data to memorys_rooms."));
                     addRoomToMemory(memory, request.getRoomIds());
-                    
                     return memory;
                 })
                 .map(memory -> new InsertMemoryResponseDto(memory.getId(), currentDate()))

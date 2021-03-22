@@ -50,7 +50,7 @@ public class RoomController {
                 .collect(Collectors.toList()));
     }
 
-    @ApiOperation(value = "방 삭제", notes = "방 번호에 맞는 방을 삭제한다.")
+    @ApiOperation(value = "방 삭제", notes = "방 삭제, 사용자-방-일정 연결된 관계 삭제")
     @DeleteMapping(value = "/room/{roomId}")
     public ApiResult<DeleteRoomResponseDto> delete(@ApiParam(value = "roomId", required = true) @PathVariable Long roomId)
             throws CRoomException {

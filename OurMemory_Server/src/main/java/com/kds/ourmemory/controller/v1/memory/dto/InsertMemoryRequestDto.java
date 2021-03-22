@@ -3,7 +3,7 @@ package com.kds.ourmemory.controller.v1.memory.dto;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InsertMemoryRequestDto {
-    @ApiModelProperty(value = "방 번호", required = true)
-    private Long roomId;
-
     @ApiModelProperty(value = "일정 작성자 snsId", required = true)
     private String snsId;
 
@@ -32,19 +29,19 @@ public class InsertMemoryRequestDto {
     @ApiModelProperty(value = "장소", required = false)
     private String place;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "시작 시간", required = true, example = "2021-03-15 22:11")
     private Date startDate;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "종료 시간", required = true, example = "2021-03-15 23:11")
     private Date endDate;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "첫 번째 알림 시간", required = false, example = "2021-03-14 22:00")
     private Date firstAlarm;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "두 번째 알림 시간", required = false, example = "2021-03-15 21:00")
     private Date secondAlarm;
 

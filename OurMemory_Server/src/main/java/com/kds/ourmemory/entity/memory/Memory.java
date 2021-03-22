@@ -42,8 +42,8 @@ public class Memory implements Serializable {
 	private Long id;
     
     @ManyToOne(targetEntity = User.class)
-    @JoinColumn(foreignKey = @ForeignKey(name = "memory_writer"))
-    private User user;
+    @JoinColumn(name = "memory_writer", foreignKey = @ForeignKey(name = "memory_writer"))
+    private User writer;
 	
 	@Column(nullable = false, name="memory_name")
 	private String name;

@@ -37,9 +37,9 @@ public class RoomService {
     public InsertRoomResponseDto insert(InsertRoomRequestDto request) throws CRoomException {
         return Optional.ofNullable(request.getOwner())
             .map(ownerId -> userRepo.findById(ownerId).get())
-            .map(user -> {
+            .map(owner -> {
                 Room room = Room.builder()
-                    .user(user)
+                    .owner(owner)
                     .name(request.getName())
                     .regDate(new Date())
                     .opened(request.isOpened())
@@ -48,7 +48,7 @@ public class RoomService {
                     .build();
                 return roomRepo.save(room);
             })
-            .map(room -> Optional.ofNullable(room.getUser())
+            .map(room -> Optional.ofNullable(room.getOwner())
                     .map(owner -> owner.addRoom(room))
                     .map(room::addUser)
                     .map(r -> addMemberToRoom(r, request.getMember()))
