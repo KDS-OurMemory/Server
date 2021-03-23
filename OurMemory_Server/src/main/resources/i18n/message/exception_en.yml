@@ -2,6 +2,15 @@
 unKnown:
   code: "9999"
   msg: "An unknown error has occurred."
-userNotFound:
-  code: "1"
-  msg: "This member not exist"
+user:
+  notFound:
+    code: "1"
+    msg: "This member not exist"
+queryString:
+  badParameter:
+    code: "2"
+    msg: "The input value is invalid." 
+DB:
+  incorrectResultSize:
+    code: "3"
+    msg: "The number of viewed data is invalid."
