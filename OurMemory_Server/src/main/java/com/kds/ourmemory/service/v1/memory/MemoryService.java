@@ -1,8 +1,8 @@
 package com.kds.ourmemory.service.v1.memory;
 
 import static com.kds.ourmemory.util.DateUtil.currentDate;
+import static com.kds.ourmemory.util.DateUtil.currentTime;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,6 +17,8 @@ import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryResponseDto;
 import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.room.Room;
+import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.memory.MemoryRepository;
 import com.kds.ourmemory.repository.room.RoomRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -35,7 +37,7 @@ public class MemoryService {
     
     @Transactional
     public InsertMemoryResponseDto insert(InsertMemoryRequestDto request) throws CMemoryException{
-        return userRepo.findBySnsId(request.getSnsId())
+        return findUserBySnsId(request.getSnsId())
                 .map(writer -> {
                     Memory memory = Memory.builder()
                         .writer(writer)
@@ -47,10 +49,10 @@ public class MemoryService {
                         .firstAlarm(request.getFirstAlarm())
                         .secondAlarm(request.getSecondAlarm())
                         .bgColor(request.getBgColor())
-                        .regDate(new Date())
+                        .regDate(currentTime())
                         .used(true)
                         .build();
-                    return memoryRepo.save(memory);
+                    return insert(memory);
                 })
                 .map(memory -> {
                     // 사용자 - 일정 연결
@@ -71,7 +73,7 @@ public class MemoryService {
     public Memory addRoomToMemory(Memory memory, List<Long> roomIds)throws CMemoryException {
         Optional.ofNullable(roomIds).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> {
-                roomRepo.findById(id).filter(Objects::nonNull)
+                findRoomById(id).filter(Objects::nonNull)
                 .map(room -> {
                     room.addMemory(memory);
                     memory.addRoom(room);
@@ -90,7 +92,7 @@ public class MemoryService {
     public Memory addMemberToMemory(Memory memory, List<Long> members)throws CMemoryException {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> {
-                userRepo.findById(id).filter(Objects::nonNull)
+                findUserById(id).filter(Objects::nonNull)
                 .map(user -> {
                     user.addMemory(memory);
                     memory.addUser(user);
@@ -107,13 +109,37 @@ public class MemoryService {
     
     @Transactional
     public DeleteMemoryResponseDto delete(Long id) throws CMemoryException {
-        return memoryRepo.findById(id)
+        return findMemoryById(id)
                 .map(memory -> {
                     memory.getRooms().stream().forEach(room -> room.getMemorys().remove(memory));
                     memory.getUsers().stream().forEach(user -> user.getMemorys().remove(memory));
-                    memoryRepo.delete(memory);
+                    delete(memory);
                     return new DeleteMemoryResponseDto(currentDate());
                 })
                 .orElseThrow(() -> new CMemoryException("Delete Failed: " + id));
+    }
+    
+    private Memory insert(Memory memory) {
+        return memoryRepo.save(memory);
+    }
+    
+    private Optional<Memory> findMemoryById(Long id) {
+        return memoryRepo.findById(id);
+    }
+    
+    private void delete(Memory memory) {
+        memoryRepo.delete(memory);
+    }
+    
+    private Optional<User> findUserById(Long id) {
+        return userRepo.findById(id);
+    }
+    
+    private Optional<User> findUserBySnsId(String snsId) {
+        return userRepo.findBySnsId(snsId);
+    }
+    
+    private Optional<Room> findRoomById(Long id) {
+        return roomRepo.findById(id);
     }
 }

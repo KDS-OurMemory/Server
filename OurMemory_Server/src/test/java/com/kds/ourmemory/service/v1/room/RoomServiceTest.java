@@ -1,11 +1,12 @@
 package com.kds.ourmemory.service.v1.room;
 
 import static com.kds.ourmemory.util.DateUtil.currentDate;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -21,7 +22,6 @@ import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
 import com.kds.ourmemory.entity.room.Room;
-import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.service.v1.user.UserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,18 +40,17 @@ class RoomServiceTest {
     @BeforeAll
     void setUp() {
         List<Long> member = new ArrayList<>();
-        member.add(2L);
-        member.add(4L);
+        member.add(98L);
         
-        insertRoomRequestDto = new InsertRoomRequestDto("테스트방", 94L, false, member);
+        insertRoomRequestDto = new InsertRoomRequestDto("테스트방", 99L, false, member);
     }
     
     @Test
     @Order(1)
     void 방_생성() {
         insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
-        Assertions.assertThat(insertRoomResponseDto).isNotNull();
-        Assertions.assertThat(insertRoomResponseDto.getCreateDate()).isEqualTo(currentDate());
+        assertThat(insertRoomResponseDto).isNotNull();
+        assertThat(insertRoomResponseDto.getCreateDate()).isEqualTo(currentDate());
         
         log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getId());
     }
@@ -59,11 +58,13 @@ class RoomServiceTest {
     @Test
     @Order(2)
     void 방_목록_조회() throws CUserNotFoundException {
-        User user = userService.findById(insertRoomRequestDto.getOwner()).orElseThrow(() -> new CUserNotFoundException("Not Found User: " + insertRoomRequestDto.getOwner()));
-        List<Room> responseList = roomService.findRooms(user.getSnsId());
-        Assertions.assertThat(responseList).isNotNull();
+        List<Room> responseList = Optional.ofNullable(userService.findUser(insertRoomRequestDto.getOwner()))
+            .map(user -> roomService.findRooms(user.getSnsId()))
+            .orElseThrow(() -> new CRoomException("Not Found Room."));
         
-        log.info("responseList : {}", responseList);    // lazy load 때문인지 실패함. 확인 필요.
+        assertThat(responseList).isNotNull();
+        
+        log.info("responseList : {}", responseList);
     }
     
     @Test
@@ -71,7 +72,9 @@ class RoomServiceTest {
     void 방_삭제() throws CRoomException {
         DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getId());
         
-        Assertions.assertThat(deleteRoomResponseDto).isNotNull();
-        Assertions.assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());
+        assertThat(deleteRoomResponseDto).isNotNull();
+        assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());
+        
+        log.info("deleteDate: {}", deleteRoomResponseDto.getDeleteDate());
     }
 }

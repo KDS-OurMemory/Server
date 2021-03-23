@@ -2,18 +2,23 @@ package com.kds.ourmemory.controller.v1.user;
 
 import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kds.ourmemory.advice.exception.CUserException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.controller.v1.ApiResult;
+import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.SignInResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.SignUpRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.SignUpResponseDto;
+import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.service.v1.user.UserService;
 
 import io.swagger.annotations.Api;
@@ -40,5 +45,17 @@ public class UserController {
     public ApiResult<SignInResponseDto> signIn(@ApiParam(value = "snsId", required = true) @PathVariable String snsId)
             throws CUserNotFoundException {
         return ok(service.signIn(snsId));
+    }
+    
+    @ApiOperation(value = "사용자 조회", notes = "userId 로 사용자 조회")
+    @GetMapping("/user")
+    public ApiResult<User> findUser(@ApiParam(value="userId", required = true) @RequestParam Long id) throws CUserNotFoundException {
+        return ok(service.findUser(id));
+    }
+    
+    @ApiOperation(value = "회원 삭제", notes = "사용자 삭제, 사용자-방-일정 연결된 관계 삭제")
+    @DeleteMapping("/user/{userId}")
+    public ApiResult<DeleteUserResponseDto> delete(@ApiParam(value = "userId", required = true) @PathVariable Long userId) throws CUserException{
+        return ok(service.delete(userId));
     }
 }
