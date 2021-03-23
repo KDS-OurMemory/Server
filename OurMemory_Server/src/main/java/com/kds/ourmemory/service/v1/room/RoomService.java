@@ -1,9 +1,9 @@
 package com.kds.ourmemory.service.v1.room;
 
 import static com.kds.ourmemory.util.DateUtil.currentDate;
+import static com.kds.ourmemory.util.DateUtil.currentTime;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,17 +36,17 @@ public class RoomService {
     @Transactional
     public InsertRoomResponseDto insert(InsertRoomRequestDto request) throws CRoomException {
         return Optional.ofNullable(request.getOwner())
-            .map(ownerId -> userRepo.findById(ownerId).get())
+            .map(ownerId -> findUserById(ownerId).get())
             .map(owner -> {
                 Room room = Room.builder()
                     .owner(owner)
                     .name(request.getName())
-                    .regDate(new Date())
+                    .regDate(currentTime())
                     .opened(request.isOpened())
                     .used(true)
                     .users(new ArrayList<>())
                     .build();
-                return roomRepo.save(room);
+                return insertRoom(room).get();
             })
             .map(room -> Optional.ofNullable(room.getOwner())
                     .map(owner -> owner.addRoom(room))
@@ -62,7 +62,7 @@ public class RoomService {
     public Room addMemberToRoom(Room room, List<Long> members) throws CRoomException {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> 
-                userRepo.findById(id).filter(Objects::nonNull)
+                findUserById(id).filter(Objects::nonNull)
                 .map(user -> {
                     user.addRoom(room);
                     room.addUser(user);
@@ -77,7 +77,7 @@ public class RoomService {
     }
     
     public List<Room> findRooms(String snsId) throws CUserNotFoundException {
-        return userRepo.findBySnsId(snsId).map(User::getRooms)
+        return findUserBySnsId(snsId).map(User::getRooms)
                 .orElseThrow(() -> new CUserNotFoundException("Not Found User From snsId: " + snsId));
     }
     
@@ -91,14 +91,34 @@ public class RoomService {
      */
     @Transactional
     public DeleteRoomResponseDto delete(Long id) throws CRoomException {
-        return roomRepo.findById(id)
+        return findRoomById(id)
                 .map(room -> {
                     room.getUsers().stream().forEach(user -> user.getRooms().remove(room));
                     room.getMemorys().stream().forEach(memory -> memory.getRooms().remove(room));
                     
-                    roomRepo.delete(room);
+                    deleteRoom(room);
                     return new DeleteRoomResponseDto(currentDate());
                 })
                 .orElseThrow(() -> new CRoomException("Delete Failed: " + id));
+    }
+    
+    private Optional<Room> insertRoom(Room room) {
+        return Optional.of(roomRepo.save(room));
+    }
+    
+    private Optional<Room> findRoomById(Long id) {
+        return roomRepo.findById(id);
+    }
+    
+    private void deleteRoom(Room room) {
+        roomRepo.delete(room);
+    }
+    
+    private Optional<User> findUserById(Long id) {
+        return userRepo.findById(id);
+    }
+    
+    private Optional<User> findUserBySnsId(String snsId) {
+        return userRepo.findBySnsId(snsId);
     }
 }

@@ -1,6 +1,6 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
-import java.util.Date;
+import static com.kds.ourmemory.util.DateUtil.currentTime;
 
 import com.kds.ourmemory.entity.user.User;
 
@@ -45,7 +45,7 @@ public class SignUpRequestDto {
                 .solar(solar)
                 .birthdayOpen(birthdayOpen)
                 .role("user")
-                .regDate(new Date())
+                .regDate(currentTime())
                 .used(true)
                 .build();
 	}
