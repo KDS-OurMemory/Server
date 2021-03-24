@@ -10,13 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kds.ourmemory.advice.exception.CMemoryException;
 import com.kds.ourmemory.advice.exception.CRoomException;
-import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.advice.exception.CUserException;
+import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.controller.v1.ApiResult;
 
 import lombok.RequiredArgsConstructor;
@@ -29,58 +28,54 @@ public class CRestControllerAdvice {
     
     private final MessageSource messageSource;
     
-    private ResponseEntity<ApiResult<?>> response(String errorCode, String errorMessage, HttpStatus status) {
+    // 통신은 성공했기 때문에 스테이터스를 200으로 설정
+    // errorCode 값으로 에러를 분류하도록 한다.
+    private ResponseEntity<ApiResult<?>> response(String errorCode, String errorMessage) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-        return new ResponseEntity<>(error(errorCode, errorMessage), headers, status);
+        return new ResponseEntity<>(error(errorCode, errorMessage), headers, HttpStatus.OK);
     }
 
 	@ExceptionHandler(CUserNotFoundException.class)
-	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<?> handleCNotFoundUserException(CUserNotFoundException e) {
 	    log.warn(e.getMessage());
-		return response(getMessage("user.notFound.code"), e.getMessage(), HttpStatus.NOT_FOUND);
+		return response(getMessage("user.notFound.code"), e.getMessage());
 	}
 	
 	@ExceptionHandler(CUserException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<?> handleCUsersException(CUserException e) {
         log.warn(e.getMessage(), e);
-        return response(getMessage("unKnown.code"), e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return response(getMessage("unKnown.code"), e.getMessage());
     }
 	
 	@ExceptionHandler(CRoomException.class)
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<?> handleCRoomsException(CRoomException e) {
 	    log.warn(e.getMessage(), e);
-	    return response(getMessage("unKnown.code"), e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+	    return response(getMessage("unKnown.code"), e.getMessage());
 	}
 	
 	@ExceptionHandler(CMemoryException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<?> handleCMemorysException(CMemoryException e) {
         log.warn(e.getMessage(), e);
-        return response(getMessage("unKnown.code"), e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return response(getMessage("unKnown.code"), e.getMessage());
     }
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<?> handleBadParameterException(MissingServletRequestParameterException e) {
 	    log.warn(e.getMessage());
-	    return response(getMessage("queryString.badParameter.code"), e.getMessage(), HttpStatus.BAD_REQUEST);
+	    return response(getMessage("queryString.badParameter.code"), e.getMessage());
 	}
 	
 	@ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<?> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
 	    log.warn(e.getMessage());
-	    return response(getMessage("DB.incorrectResultSize.code"), e.getMessage(), HttpStatus.BAD_REQUEST);
+	    return response(getMessage("DB.incorrectResultSize.code"), e.getMessage());
 	}
 	
 	@ExceptionHandler({Exception.class, RuntimeException.class})
 	public ResponseEntity<?> handleException(Exception e) {
 	    log.error("Unexpected exception occurred: {}", e.getMessage(), e);
-	    return response(getMessage("unKnown.code"), e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+	    return response(getMessage("unKnown.code"), e.getMessage()); 
 	}
 	
 	private String getMessage(String code) {
