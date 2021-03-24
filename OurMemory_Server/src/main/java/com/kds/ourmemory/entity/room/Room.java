@@ -77,11 +77,13 @@ public class Room implements Serializable{
 	}
 	
 	public Room addUser(User user) {
+	    Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
 	    this.users.add(user);
 	    return this;
 	}
 	
 	public Optional<Room> addUsers(List<User> users) {
+	    Optional.ofNullable(this.users).orElseGet(() -> this.users = new ArrayList<>());
 	    this.users.addAll(users);
 	    return Optional.of(this);
     }
@@ -92,11 +94,13 @@ public class Room implements Serializable{
     }
 
     public Room addMemory(Memory memory) {
+        Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
         this.memorys.add(memory);
         return this;
     }
 
     public Optional<Room> addMemorys(List<Memory> memorys) {
+        Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
         this.memorys.addAll(memorys);
         return Optional.of(this);
     }

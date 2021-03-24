@@ -39,22 +39,24 @@ class MemoryServiceTest {
     @BeforeAll
     void setUp() throws ParseException {
         List<Long> members = new ArrayList<>();
-        members.add(2L);
-        members.add(4L);
+        members.add(98L);
+        
+        List<Long> roomIds = new ArrayList<>();
+        roomIds.add(64L);
         
         insertMemoryRequestDto = new InsertMemoryRequestDto(
-                "TEST_SNSID", 
+                "19930724", 
                 "테스트 일정",
                 members,
                 "테스트 내용", 
                 "테스트 장소", 
-                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-22 17:00"), // 시작 시간 
-                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-22 18:00"), // 종료 시간
-                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-21 00:00"),   // 첫 번째 알림
-                null,   // 두 번째 알림
-                "#FFFFFF",
-                null
-                );  // 배경색
+                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-26 17:00"), // 시작 시간 
+                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-26 18:00"), // 종료 시간
+                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-25 17:00"), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF",  // 배경색
+                roomIds     // 공유할 방
+                );  
     }
     
     @Test
