@@ -21,6 +21,15 @@ import com.kds.ourmemory.controller.v1.ApiResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * REST API 예외처리 어드바이스 코드
+ * 
+ * 해당 코드로 캐치된 경우, 통신 자체는 성공한 것이기 때문에 상태코드 값을 200으로 하고
+ * 에러코드 값을 전달하여 프론트에서 분기하도록 한다.
+ * 
+ * @author idean
+ *
+ */
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -28,8 +37,6 @@ public class CRestControllerAdvice {
     
     private final MessageSource messageSource;
     
-    // 통신은 성공했기 때문에 스테이터스를 200으로 설정
-    // errorCode 값으로 에러를 분류하도록 한다.
     private ResponseEntity<ApiResult<?>> response(String errorCode, String errorMessage) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.exception.CMemoryException;
 import com.kds.ourmemory.advice.exception.CRoomException;
+import com.kds.ourmemory.advice.exception.CUserNotFoundException;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryResponseDto;
@@ -136,7 +137,7 @@ public class MemoryService {
             })
             .orElseGet(() -> Optional.ofNullable(memory.getUsers())
                                 .map(users -> {
-                                    String name = StringUtils.join(users.stream().map(User::getId).collect(Collectors.toList()), ", ");
+                                    String name = StringUtils.join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
                                     Long owner = memory.getWriter().getId();
                                     InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false, request.getMembers());
                                     InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
@@ -146,6 +147,11 @@ public class MemoryService {
         
         Optional.ofNullable(mainRoom)
             .map(room -> addRoomToMemory(memory, Arrays.asList(room.getId())));
+    }
+    
+    public List<Memory> findMemorys(String snsId) throws CUserNotFoundException {
+        return findUserBySnsId(snsId).map(User::getMemorys)
+                .orElseThrow(() -> new CUserNotFoundException("Not Found User From snsId: " + snsId));
     }
     
     @Transactional
