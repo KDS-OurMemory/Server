@@ -16,11 +16,14 @@ import lombok.NoArgsConstructor;
 public class InsertMemoryRequestDto {
     @ApiModelProperty(value = "일정 작성자 snsId", required = true)
     private String snsId;
+    
+    @ApiModelProperty(value = "방 번호", required = false, notes = "일정을 등록할 방. 참여자가 있는데 방 번호가 없는 경우, 새로 생성한다.")
+    private Long roomId;
 
     @ApiModelProperty(value = "일정 이름", required = true, example = "회의 일정")
     private String name;
     
-    @ApiModelProperty(value = "일정 참여자", required = true, example = "[2,4,5]")
+    @ApiModelProperty(value = "일정 참여자", required = false, notes = "참여자가 방에 포함된 사람과 다르거나 많을 경우, 방을 새로 생성한다.", example = "[2,4,5]")
     private List<Long> members;
 
     @ApiModelProperty(value = "일정 내용", required = false)
@@ -48,6 +51,6 @@ public class InsertMemoryRequestDto {
     @ApiModelProperty(value = "배경색", required = true, example = "#FFFFFF")
     private String bgColor;
 
-    @ApiModelProperty(value = "공유할 방 목록", required = false)
-    private List<Long> roomIds;
+    @ApiModelProperty(value = "일정을 공유할 방 목록", required = false, notes = "공유할 방의 허락을 받은 뒤 일정을 공유시킨다.")
+    private List<Long> shareRooms;
 }
