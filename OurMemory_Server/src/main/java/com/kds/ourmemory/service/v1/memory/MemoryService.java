@@ -3,7 +3,6 @@ package com.kds.ourmemory.service.v1.memory;
 import static com.kds.ourmemory.util.DateUtil.currentDate;
 import static com.kds.ourmemory.util.DateUtil.currentTime;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -118,8 +117,9 @@ public class MemoryService {
     /**
      * 일정이 포함될 메인 방 설정
      * 
-     * 1. 참여자와 방이 매치되지 않는 경우, 방을 새로 생성 후 일정-방 연결
-     * 2. 매치될 경우, 해당 방-일정 연결
+     * 1. 참여자가 방에 포함되지 않는 경우: 방을 새로 생성 -> 일정-방 연결
+     * 2. 참여자가 방에 포함되는 경우: 방-일정 연결
+     * 3. 참여자와 방이 없는 경우: 일정-사용자만 연결, 개인 일정으로 취급함.
      * 
      * @param memory
      * @param request
@@ -134,20 +134,18 @@ public class MemoryService {
                     .map(User::getId).collect(Collectors.toList())
                     .containsAll(memoryMembers);
             })
-            .orElseGet(() -> {
-                return Optional.ofNullable(memory.getUsers())
-                    .map(users -> {
-                        String name = StringUtils.join(users.stream().map(User::getId).collect(Collectors.toList()), ", ");
-                        Long owner = memory.getWriter().getId();
-                        InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false, request.getMembers());
-                        InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
-                        return roomRepo.findById(insertRoomResponseDto.getId()).get();
-                    })
-                    .orElse(null);
-            });
+            .orElseGet(() -> Optional.ofNullable(memory.getUsers())
+                                .map(users -> {
+                                    String name = StringUtils.join(users.stream().map(User::getId).collect(Collectors.toList()), ", ");
+                                    Long owner = memory.getWriter().getId();
+                                    InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false, request.getMembers());
+                                    InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
+                                    return roomRepo.findById(insertRoomResponseDto.getId()).get();
+                                })
+                                .orElse(null));
         
         Optional.ofNullable(mainRoom)
-            .map(room -> addRoomToMemory(memory, Arrays.asList(new Long[] {room.getId()})));
+            .map(room -> addRoomToMemory(memory, Arrays.asList(room.getId())));
     }
     
     @Transactional
