@@ -24,7 +24,9 @@ import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.service.v1.room.RoomService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,60 +38,46 @@ import lombok.extern.slf4j.Slf4j;
 class MemoryServiceTest {
     
     @Autowired private MemoryService memoryService;
+    @Autowired private RoomService roomService; // 일정을 생성하는 과정에서 생긴 방을 삭제하기 위해 추가
     
     /**
-     * _____________________________________
+     * ______________________________________
      * |참여중인 방|        참여자      |방 생성여부|
      * |=====================================|
-     * |    O   |0 <= 참여자 <= 방 인원|   X    |
+     * |    O   |0 < 참여자 <= 방 인원 |   X    |
      * |    O   |0 < 참여자 != 방 인원 |   O    |
-     * |    X   |0 < 참여자 <= 방 인원 |   O    |
-     * |    X   |0 <= 참여자 <= 방 인원|   O    |
+     * |    O   |0 == 참여자         |   X    |
+     * |    X   |0 < 참여자          |   O    |
      * |    X   |0 == 참여자         |   X    |
      * ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
      */
     
     
-    /**
-     * 참여증인 방 O | 참여자 O | (방에)포함O
-     */
-    private InsertMemoryRequestDto insertRequest_방O_참여자O;
-    private InsertMemoryResponseDto insertResponse_방O_참여자O;
+    private InsertMemoryRequestDto insertRequest_방O_참여자O_포함O;
+    private InsertMemoryResponseDto insertResponse_방O_참여자O_포함O;
     
-    /**
-     * 일정을 등록할 방이 있는 경우
-     * 참여자가 없는 경우
-     */
+    private InsertMemoryRequestDto insertRequest_방O_참여자O_포함X;
+    private InsertMemoryResponseDto insertResponse_방O_참여자O_포함X;
+    
     private InsertMemoryRequestDto insertRequest_방O_참여자X;
     private InsertMemoryResponseDto insertResponse_방O_참여자X;
     
-    /**
-     * 일정을 등록할 방이 없는 경우
-     * 참여자 있는 경우
-     */
     private InsertMemoryRequestDto insertRequest_방X_참여자O;
     private InsertMemoryResponseDto insertResponse_방X_참여자O;
     
-    /**
-     * 일정을 등록할 방이 없는 경우
-     * 참여자 없는 경우
-     */
     private InsertMemoryRequestDto insertRequest_방X_참여자X;
     private InsertMemoryResponseDto insertResponse_방X_참여자X;
     
     @BeforeAll
     void setUp() throws ParseException {
-        List<Long> members = new ArrayList<>();
-        members.add(98L);
         
-        List<Long> roomIds = new ArrayList<>();
-        roomIds.add(64L);
-        
-        insertRequest_방O_참여자O = new InsertMemoryRequestDto(
+        List<Long> member_방O_참여자O_포함O = new ArrayList<>();
+        member_방O_참여자O_포함O.add(99L);
+        insertRequest_방O_참여자O_포함O = new InsertMemoryRequestDto(
                 "19930724",
-                64L,
+                80L,
                 "테스트 일정",
-                members,
+                member_방O_참여자O_포함O,
                 "테스트 내용", 
                 "테스트 장소", 
                 new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-26 17:00"), // 시작 시간 
@@ -97,13 +85,31 @@ class MemoryServiceTest {
                 new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-25 17:00"), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
-                roomIds     // 공유할 방
+                null     // 공유할 방
+                );
+        
+        
+        List<Long> member_방O_참여자O_포함X = new ArrayList<>();
+        member_방O_참여자O_포함X.add(98L);
+        insertRequest_방O_참여자O_포함X = new InsertMemoryRequestDto(
+                "19930724",
+                80L,
+                "테스트 일정",
+                member_방O_참여자O_포함X,
+                "테스트 내용", 
+                "테스트 장소", 
+                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-26 17:00"), // 시작 시간 
+                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-26 18:00"), // 종료 시간
+                new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-25 17:00"), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF",  // 배경색
+                null     // 공유할 방
                 );
         
         
         insertRequest_방O_참여자X = new InsertMemoryRequestDto(
                 "19930724",
-                64L,
+                80L,
                 "테스트 일정",
                 null,
                 "테스트 내용", 
@@ -113,14 +119,16 @@ class MemoryServiceTest {
                 new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-25 17:00"), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
-                roomIds     // 공유할 방
+                null     // 공유할 방
                 );
         
+        List<Long> member_방X_참여자O = new ArrayList<>();
+        member_방X_참여자O.add(98L);
         insertRequest_방X_참여자O = new InsertMemoryRequestDto(
                 "19930724",
                 null,
                 "테스트 일정",
-                members,
+                member_방X_참여자O,
                 "테스트 내용", 
                 "테스트 장소", 
                 new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-26 17:00"), // 시작 시간 
@@ -128,7 +136,7 @@ class MemoryServiceTest {
                 new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-25 17:00"), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
-                roomIds     // 공유할 방
+                null     // 공유할 방
                 );
         
         insertRequest_방X_참여자X = new InsertMemoryRequestDto(
@@ -143,36 +151,38 @@ class MemoryServiceTest {
                 new SimpleDateFormat("yyyy-MM-dd HH:ss").parse("2021-03-25 17:00"), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
-                roomIds     // 공유할 방
+                null     // 공유할 방
                 );
     }
     
     @Test
     @Order(1)
-    void 방O_참여자O_일정_생성() throws CMemoryException {
-        insertResponse_방O_참여자O = memoryService.insert(insertRequest_방O_참여자O);
-        assertThat(insertResponse_방O_참여자O).isNotNull();
-        assertThat(insertResponse_방O_참여자O.getAddDate()).isEqualTo(currentDate());
+    void 방O_참여자O_포함O_일정_생성() throws CMemoryException {
+        insertResponse_방O_참여자O_포함O = memoryService.insert(insertRequest_방O_참여자O_포함O);
+        assertThat(insertResponse_방O_참여자O_포함O).isNotNull();
+        assertThat(insertResponse_방O_참여자O_포함O.getAddDate()).isEqualTo(currentDate());
+        assertThat(insertResponse_방O_참여자O_포함O.getRoomId()).isEqualTo(insertRequest_방O_참여자O_포함O.getRoomId());
         
-        log.info("[방O_참여자O] CreateDate: {} memoryId: {}", insertResponse_방O_참여자O.getAddDate(), insertResponse_방O_참여자O.getId());
+        log.info("[방O_참여자O_포함O] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_방O_참여자O_포함O.getAddDate(),
+                insertResponse_방O_참여자O_포함O.getId(), insertResponse_방O_참여자O_포함O.getRoomId());
     }
     
     @Test
     @Order(2)
     @Transactional
-    void 방O_참여자O_일정_조회() {
-        List<Memory> responseList = memoryService.findMemorys(insertRequest_방O_참여자O.getSnsId());
+    void 방O_참여자O_포함O_일정_조회() {
+        List<Memory> responseList = memoryService.findMemorys(insertRequest_방O_참여자O_포함O.getSnsId());
         assertThat(responseList).isNotNull();
         
-        log.info("[방O_참여자O_일정_조회]");
+        log.info("[방O_참여자O_포함O_일정_조회]");
         responseList.stream().forEach(memory -> log.info("id: {}, name: {}", memory.getId(), memory.getName()));
         log.info("====================================================================================");
     }
     
     @Test
     @Order(3)
-    void 방O_참여자O_일정_삭제() throws CRoomException {
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자O.getId());
+    void 방O_참여자O_포함O_일정_삭제() throws CRoomException {
+        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자O_포함O.getId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -180,16 +190,60 @@ class MemoryServiceTest {
     
     @Test
     @Order(4)
-    void 방O_참여자X_일정_생성() throws CMemoryException {
-        insertResponse_방O_참여자X = memoryService.insert(insertRequest_방O_참여자X);
-        assertThat(insertResponse_방O_참여자X).isNotNull();
-        assertThat(insertResponse_방O_참여자X.getAddDate()).isEqualTo(currentDate());
+    void 방O_참여자O_포함X_일정_생성() throws CMemoryException {
+        insertResponse_방O_참여자O_포함X = memoryService.insert(insertRequest_방O_참여자O_포함X);
+        assertThat(insertResponse_방O_참여자O_포함X).isNotNull();
+        assertThat(insertResponse_방O_참여자O_포함X.getAddDate()).isEqualTo(currentDate());
+        assertThat(insertResponse_방O_참여자O_포함X.getRoomId()).isNotEqualTo(insertRequest_방O_참여자O_포함X.getRoomId());
         
-        log.info("[방O_참여자X_일정_생성] CreateDate: {} memoryId: {}", insertResponse_방O_참여자X.getAddDate(), insertResponse_방O_참여자X.getId());
+        log.info("[방O_참여자O_포함X] CreateDate: {}, memoryId: {}, roomId: {}", insertResponse_방O_참여자O_포함X.getAddDate(),
+                insertResponse_방O_참여자O_포함X.getId(), insertResponse_방O_참여자O_포함X.getRoomId());
     }
     
     @Test
     @Order(5)
+    @Transactional
+    void 방O_참여자O_포함X_일정_조회() {
+        List<Memory> responseList = memoryService.findMemorys(insertRequest_방O_참여자O_포함X.getSnsId());
+        assertThat(responseList).isNotNull();
+        
+        log.info("[방O_참여자O_포함X_일정_조회]");
+        responseList.stream().forEach(memory -> log.info("id: {}, name: {}", memory.getId(), memory.getName()));
+        log.info("====================================================================================");
+    }
+    
+    @Test
+    @Order(6)
+    void 방O_참여자O_포함X_일정_삭제() throws CRoomException {
+        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자O_포함X.getId());
+        
+        assertThat(deleteMemoryResponseDto).isNotNull();
+        assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
+    }
+    
+    @Test
+    @Order(7)
+    void 방O_참여자O_포함X_방_삭제() throws CRoomException {
+        DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertResponse_방O_참여자O_포함X.getRoomId());
+        
+        assertThat(deleteRoomResponseDto).isNotNull();
+        assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());
+    }
+    
+    @Test
+    @Order(8)
+    void 방O_참여자X_일정_생성() throws CMemoryException {
+        insertResponse_방O_참여자X = memoryService.insert(insertRequest_방O_참여자X);
+        assertThat(insertResponse_방O_참여자X).isNotNull();
+        assertThat(insertResponse_방O_참여자X.getAddDate()).isEqualTo(currentDate());
+        assertThat(insertResponse_방O_참여자X.getRoomId()).isEqualTo(insertResponse_방O_참여자X.getRoomId());
+        
+        log.info("[방O_참여자X] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_방O_참여자X.getAddDate(),
+                insertResponse_방O_참여자X.getId(), insertResponse_방O_참여자X.getRoomId());
+    }
+    
+    @Test
+    @Order(9)
     @Transactional
     void 방O_참여자X_일정_조회() {
         List<Memory> responseList = memoryService.findMemorys(insertRequest_방O_참여자X.getSnsId());
@@ -201,7 +255,7 @@ class MemoryServiceTest {
     }
     
     @Test
-    @Order(6)
+    @Order(10)
     void 방O_참여자X_일정_삭제() throws CRoomException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자X.getId());
         
@@ -210,17 +264,19 @@ class MemoryServiceTest {
     }
     
     @Test
-    @Order(7)
+    @Order(11)
     void 방X_참여자O_일정_생성() throws CMemoryException {
         insertResponse_방X_참여자O = memoryService.insert(insertRequest_방X_참여자O);
         assertThat(insertResponse_방X_참여자O).isNotNull();
         assertThat(insertResponse_방X_참여자O.getAddDate()).isEqualTo(currentDate());
+        assertThat(insertResponse_방X_참여자O.getRoomId()).isNotEqualTo(insertRequest_방X_참여자O.getRoomId());
         
-        log.info("[방X_참여자O_일정_생성] CreateDate: {} memoryId: {}", insertResponse_방O_참여자O.getAddDate(), insertResponse_방X_참여자O.getId());
+        log.info("[방X_참여자O] CreateDate: {}, memoryId: {}, roomId: {}", insertResponse_방X_참여자O.getAddDate(),
+                insertResponse_방X_참여자O.getId(), insertResponse_방X_참여자O.getRoomId());
     }
     
     @Test
-    @Order(8)
+    @Order(12)
     @Transactional
     void 방X_참여자O_일정_조회() {
         List<Memory> responseList = memoryService.findMemorys(insertRequest_방X_참여자O.getSnsId());
@@ -232,7 +288,7 @@ class MemoryServiceTest {
     }
     
     @Test
-    @Order(9)
+    @Order(13)
     void 방X_참여자O_일정_삭제() throws CRoomException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방X_참여자O.getId());
         
@@ -241,17 +297,28 @@ class MemoryServiceTest {
     }
     
     @Test
-    @Order(10)
+    @Order(14)
+    void 방X_참여자O_방_삭제() throws CRoomException {
+        DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertResponse_방X_참여자O.getRoomId());
+        
+        assertThat(deleteRoomResponseDto).isNotNull();
+        assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());
+    }
+    
+    @Test
+    @Order(15)
     void 방X_참여자X_일정_생성() throws CMemoryException {
         insertResponse_방X_참여자X = memoryService.insert(insertRequest_방X_참여자X);
         assertThat(insertResponse_방X_참여자X).isNotNull();
         assertThat(insertResponse_방X_참여자X.getAddDate()).isEqualTo(currentDate());
+        assertThat(insertResponse_방X_참여자X.getRoomId()).isNull();
         
-        log.info("[방X_참여자X_일정_생성] CreateDate: {} memoryId: {}", insertResponse_방O_참여자O.getAddDate(), insertResponse_방X_참여자X.getId());
+        log.info("[방X_참여자X] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_방X_참여자X.getAddDate(),
+                insertResponse_방X_참여자X.getId(), insertResponse_방X_참여자X.getRoomId());
     }
     
     @Test
-    @Order(11)
+    @Order(16)
     @Transactional
     void 방X_참여자X_일정_조회() {
         List<Memory> responseList = memoryService.findMemorys(insertRequest_방X_참여자X.getSnsId());
@@ -263,7 +330,7 @@ class MemoryServiceTest {
     }
     
     @Test
-    @Order(12)
+    @Order(17)
     void 방X_참여자X_일정_삭제() throws CRoomException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방X_참여자X.getId());
         

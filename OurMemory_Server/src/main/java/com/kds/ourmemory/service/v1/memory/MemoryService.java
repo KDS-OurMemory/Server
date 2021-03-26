@@ -72,10 +72,10 @@ public class MemoryService {
                     
                     addMemberToMemory(memory, request.getMembers());
                     addRoomToMemory(memory, request.getShareRooms());
-                    relationMainRoom(memory, request);
-                    return memory;
+                    Long roomId = relationMainRoom(memory, request);
+                    
+                    return new InsertMemoryResponseDto(memory.getId(), roomId, currentDate());
                 })
-                .map(memory -> new InsertMemoryResponseDto(memory.getId(), currentDate()))
                 .orElseThrow(() -> new CMemoryException("Add Memory to DB Failed."));
     }
     
@@ -89,7 +89,11 @@ public class MemoryService {
                     memory.addRoom(room);
                     
                     // 방 참여자 모두에게 푸시알림
-                    room.getUsers().stream().forEach(user -> firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - share Memory", "Share Memory " + memory.getName()));
+                    room.getUsers().stream()
+                        .forEach(user -> 
+                            firebaseFcm.sendMessageTo(user.getPushToken(), 
+                                    "OurMemory - 일정 공유", String.format("'%s' 일정에 초대되셨습니다.", memory.getName()))
+                        );
                     return room;
                  })
                  .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id));
@@ -125,7 +129,7 @@ public class MemoryService {
      * @param memory
      * @param request
      */
-    private void relationMainRoom(Memory memory, InsertMemoryRequestDto request) {
+    private Long relationMainRoom(Memory memory, InsertMemoryRequestDto request) {
         Room mainRoom = Optional.ofNullable(request.getRoomId())
             .map(id -> roomRepo.findById(id).get())
             .filter(room -> {
@@ -135,18 +139,33 @@ public class MemoryService {
                     .map(User::getId).collect(Collectors.toList())
                     .containsAll(memoryMembers);
             })
-            .orElseGet(() -> Optional.ofNullable(memory.getUsers())
-                                .map(users -> {
-                                    String name = StringUtils.join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
-                                    Long owner = memory.getWriter().getId();
-                                    InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false, request.getMembers());
-                                    InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
-                                    return roomRepo.findById(insertRoomResponseDto.getId()).get();
+            .orElseGet(() -> Optional.ofNullable(request.getMembers())
+                    .map(members -> {
+                        List<User> users = memory.getUsers();
+                        String name = StringUtils.join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
+                        Long owner = memory.getWriter().getId();
+                        InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false, request.getMembers());
+                        InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
+                        
+                        return roomRepo.findById(insertRoomResponseDto.getId())
+                                .map(room -> {
+                                    room.getUsers().stream()
+                                    .forEach(user -> 
+                                        firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - 방 생성",
+                                                String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.", memory.getName(), room.getName()))
+                                    );
+                                    return room;
                                 })
-                                .orElse(null));
+                                .orElseThrow(() -> new CMemoryException("Insert memory OK. But Failed to create room to include memory."));
+                    })
+                    .orElse(null));
         
-        Optional.ofNullable(mainRoom)
-            .map(room -> addRoomToMemory(memory, Arrays.asList(room.getId())));
+        return Optional.ofNullable(mainRoom)
+            .map(room -> {
+                addRoomToMemory(memory, Arrays.asList(room.getId()));
+                return room.getId();
+                })
+            .orElse(null);
     }
     
     public List<Memory> findMemorys(String snsId) throws CUserNotFoundException {
