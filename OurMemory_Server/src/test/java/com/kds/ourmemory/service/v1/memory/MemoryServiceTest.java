@@ -36,9 +36,22 @@ import lombok.extern.slf4j.Slf4j;
 class MemoryServiceTest {
     
     @Autowired private MemoryService memoryService;
+    
     /**
-     * 일정을 등록할 방이 있는 경우
-     * 참여자가 있는 경우 
+     * _____________________________________
+     * |참여중인 방|        참여자      |방 생성여부|
+     * |=====================================|
+     * |    O   |0 <= 참여자 <= 방 인원|   X    |
+     * |    O   |0 < 참여자 != 방 인원 |   O    |
+     * |    X   |0 < 참여자 <= 방 인원 |   O    |
+     * |    X   |0 <= 참여자 <= 방 인원|   O    |
+     * |    X   |0 == 참여자         |   X    |
+     * ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+     */
+    
+    
+    /**
+     * 참여증인 방 O | 참여자 O | (방에)포함O
      */
     private InsertMemoryRequestDto insertRequest_방O_참여자O;
     private InsertMemoryResponseDto insertResponse_방O_참여자O;
