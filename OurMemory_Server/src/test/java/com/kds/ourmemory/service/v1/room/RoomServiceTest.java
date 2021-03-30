@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -57,6 +59,7 @@ class RoomServiceTest {
     
     @Test
     @Order(2)
+    @Transactional
     void 방_목록_조회() throws CUserNotFoundException {
         List<Room> responseList = Optional.ofNullable(userService.findUser(insertRoomRequestDto.getOwner()))
             .map(user -> roomService.findRooms(user.getSnsId()))
@@ -64,7 +67,9 @@ class RoomServiceTest {
         
         assertThat(responseList).isNotNull();
         
-        log.info("responseList : {}", responseList);
+        log.info("[방_목록_조회]");
+        responseList.stream().forEach(room -> log.info("id: {}, name: {}", room.getId(), room.getName()));
+        log.info("====================================================================================");
     }
     
     @Test
