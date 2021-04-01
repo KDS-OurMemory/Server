@@ -16,6 +16,8 @@ import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
+import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenRequestDto;
+import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenResponseDto;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,40 +29,65 @@ class UserServiceTest {
     
     @Autowired private UserService userService;
     
-    private InsertUserRequestDto signUpRequestDto;
-    private InsertUserResponseDto signUpResponseDto;
+    private InsertUserRequestDto insertUserRequestDto;
+    private InsertUserResponseDto insertUserResponseDto;
     
-    private UserResponseDto signInResponseDto;
+    private UserResponseDto userResponseDto;
+    
+    private PatchUserTokenRequestDto patchUserTokenRequestDto;
     
     @BeforeAll
     void setUp() {
-        signUpRequestDto = new InsertUserRequestDto("TESTS_SNS_ID", 1, "테스트 푸쉬", "테스트 유저", "0730", true, false);
+        String snsId = "TESTS_SNS_ID";
+        insertUserRequestDto = new InsertUserRequestDto(snsId, 1, "테스트 푸쉬", "테스트 유저", "0730", true, false);
+        patchUserTokenRequestDto = new PatchUserTokenRequestDto("testToken");
     }
     
     @Test
     @Order(1)
     void 회원가입() {
-        signUpResponseDto = userService.signUp(signUpRequestDto.toEntity());
-        assertThat(signUpResponseDto).isNotNull();
-        assertThat(signUpResponseDto.getJoinDate()).isEqualTo(currentDate());
-        log.info("joinDate: {}", signUpResponseDto.getJoinDate());
+        insertUserResponseDto = userService.signUp(insertUserRequestDto.toEntity());
+        assertThat(insertUserResponseDto).isNotNull();
+        assertThat(insertUserResponseDto.getJoinDate()).isEqualTo(currentDate());
+        log.info("joinDate: {}", insertUserResponseDto.getJoinDate());
     }
     
     @Test
     @Order(2)
     void 사용자_조회_snsId() {
-        signInResponseDto = userService.signIn(signUpRequestDto.getSnsId());
-        assertThat(signInResponseDto).isNotNull();
-        assertThat(signInResponseDto.getName()).isEqualTo(signUpRequestDto.getName());
-        assertThat(signInResponseDto.getBirthday()).isEqualTo(signInResponseDto.isBirthdayOpen()? signUpRequestDto.getBirthday() : null);
+        userResponseDto = userService.signIn(insertUserRequestDto.getSnsId());
+        assertThat(userResponseDto).isNotNull();
+        assertThat(userResponseDto.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(userResponseDto.getBirthday()).isEqualTo(userResponseDto.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
         
-        log.info("userId: {}, userName: {}", signInResponseDto.getUserId(), signInResponseDto.getName());
+        log.info("userId: {}, userName: {}", userResponseDto.getUserId(), userResponseDto.getName());
+    }
+    
+    @Test
+    @Order(3)
+    void 사용자_토큰_변경() {
+        userResponseDto = userService.signIn(insertUserRequestDto.getSnsId());
+        assertThat(userResponseDto).isNotNull();
+        assertThat(userResponseDto.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(userResponseDto.getBirthday()).isEqualTo(userResponseDto.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
+        
+        log.info("before Token: {}", userResponseDto.getPushToken());
+        
+        PatchUserTokenResponseDto patchUserTokenResponseDto = userService.patchToken(insertUserRequestDto.getSnsId(), patchUserTokenRequestDto) ;
+        assertThat(patchUserTokenResponseDto).isNotNull();
+        assertThat(patchUserTokenResponseDto.getPatchDate()).isEqualTo(currentDate());
+        
+        userResponseDto = userService.signIn(insertUserRequestDto.getSnsId());
+        assertThat(userResponseDto).isNotNull();
+        assertThat(userResponseDto.getPushToken()).isEqualTo(patchUserTokenRequestDto.getPushToken());
+        
+        log.info("after Token: {}", userResponseDto.getPushToken());
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void 사용자_삭제() {
-        DeleteUserResponseDto deleteUserResponseDto = userService.delete(signInResponseDto.getUserId());
+        DeleteUserResponseDto deleteUserResponseDto = userService.delete(userResponseDto.getUserId());
         assertThat(deleteUserResponseDto).isNotNull();
         assertThat(deleteUserResponseDto.getDeleteDate()).isEqualTo(currentDate());
         

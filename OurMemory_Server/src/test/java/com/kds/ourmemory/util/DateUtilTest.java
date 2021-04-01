@@ -17,15 +17,15 @@ class DateUtilTest {
     
     @Test
     void 날짜_계산() {
-        String currentDate = DateUtil.currentDate();
+        Date currentDate = DateUtil.currentDate();
         assertThat(currentDate).isEqualTo("20210401");
         
-        log.info(currentDate);
+        log.info(currentDate.toString());
     }
 
     @Test
     void 날짜_포맷_변환() {
-        log.info(DateUtil.formatDate(new Date()));
+        log.info(DateUtil.formatDate(new Date()).toString());
     }
     
     @Test

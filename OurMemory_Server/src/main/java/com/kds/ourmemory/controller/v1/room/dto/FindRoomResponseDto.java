@@ -1,8 +1,10 @@
 package com.kds.ourmemory.controller.v1.room.dto;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
@@ -22,8 +24,9 @@ public class FindRoomResponseDto {
     @ApiModelProperty(value = "방 이름", example = "가족방")
     private String name;
 
-    @ApiModelProperty(value = "방 생성일", example = "20210316")
-    private String regDate;
+    @JsonFormat(pattern = "yyyyMMdd")
+    @ApiModelProperty(value = "방 생성일", notes = "yyyyMMdd", example = "20210316")
+    private Date regDate;
 
     @ApiModelProperty(value = "방 공개여부", example = "false")
     private boolean opened;

@@ -50,11 +50,13 @@ public class FindMemoryResponseDto {
     @ApiModelProperty(value = "두 번째 알림 시간", notes = "yyyy-MM-dd HH:mm")
     private Date secondAlarm;
     
+    @JsonFormat(pattern = "yyyyMMdd")
     @ApiModelProperty(value = "일정 등록날짜", notes = "yyyyMMdd")
-    private String regDate;
+    private Date regDate;
     
+    @JsonFormat(pattern = "yyyyMMdd")
     @ApiModelProperty(value = "일정 수정날짜", notes = "yyyyMMdd")
-    private String modDate;
+    private Date modDate;
     
     @ApiModelProperty(value = "일정 참여자", notes = "일정을 생성한 사람도 참여자에 포함되어 전달됨.", example = "[{참여자1}, {참여자2}]")
     private List<UserResponseDto> members = new ArrayList<>();
