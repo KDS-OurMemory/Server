@@ -14,8 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
-import com.kds.ourmemory.controller.v1.user.dto.SignUpRequestDto;
-import com.kds.ourmemory.controller.v1.user.dto.SignUpResponseDto;
+import com.kds.ourmemory.controller.v1.user.dto.InsertUserRequestDto;
+import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,14 +27,14 @@ class UserServiceTest {
     
     @Autowired private UserService userService;
     
-    private SignUpRequestDto signUpRequestDto;
-    private SignUpResponseDto signUpResponseDto;
+    private InsertUserRequestDto signUpRequestDto;
+    private InsertUserResponseDto signUpResponseDto;
     
     private UserResponseDto signInResponseDto;
     
     @BeforeAll
     void setUp() {
-        signUpRequestDto = new SignUpRequestDto("TESTS_SNS_ID", 1, "테스트 푸쉬", "테스트 유저", "0730", true, false);
+        signUpRequestDto = new InsertUserRequestDto("TESTS_SNS_ID", 1, "테스트 푸쉬", "테스트 유저", "0730", true, false);
     }
     
     @Test
@@ -54,13 +54,13 @@ class UserServiceTest {
         assertThat(signInResponseDto.getName()).isEqualTo(signUpRequestDto.getName());
         assertThat(signInResponseDto.getBirthday()).isEqualTo(signInResponseDto.isBirthdayOpen()? signUpRequestDto.getBirthday() : null);
         
-        log.info("userId: {}, userName: {}", signInResponseDto.getId(), signInResponseDto.getName());
+        log.info("userId: {}, userName: {}", signInResponseDto.getUserId(), signInResponseDto.getName());
     }
 
     @Test
     @Order(3)
     void 사용자_삭제() {
-        DeleteUserResponseDto deleteUserResponseDto = userService.delete(signInResponseDto.getId());
+        DeleteUserResponseDto deleteUserResponseDto = userService.delete(signInResponseDto.getUserId());
         assertThat(deleteUserResponseDto).isNotNull();
         assertThat(deleteUserResponseDto.getDeleteDate()).isEqualTo(currentDate());
         

@@ -54,7 +54,7 @@ class RoomServiceTest {
         assertThat(insertRoomResponseDto).isNotNull();
         assertThat(insertRoomResponseDto.getCreateDate()).isEqualTo(currentDate());
         
-        log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getId());
+        log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getRoomId());
     }
     
     @Test
@@ -75,7 +75,7 @@ class RoomServiceTest {
     @Test
     @Order(3)
     void 방_삭제() throws CRoomException {
-        DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getId());
+        DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getRoomId());
         
         assertThat(deleteRoomResponseDto).isNotNull();
         assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());

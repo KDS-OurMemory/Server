@@ -86,11 +86,6 @@ public class Memory implements Serializable {
 	
 	@ManyToMany(mappedBy = "memorys", fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
-	
-	public Optional<Memory> setRooms(List<Room> rooms) {
-        this.rooms = rooms;
-        return Optional.of(this);
-    }
     
     public Memory addRoom(Room room) {
         Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
@@ -101,11 +96,6 @@ public class Memory implements Serializable {
     public Optional<Memory> addRooms(List<Room> rooms) {
         Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
         this.rooms.addAll(rooms);
-        return Optional.of(this);
-    }
-    
-    public Optional<Memory> setUsers(List<User> users) {
-        this.users = users;
         return Optional.of(this);
     }
     

@@ -12,7 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
-import com.kds.ourmemory.controller.v1.dto.FcmMessageDto;
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmMessageDto;
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +26,14 @@ import okhttp3.Response;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FirebaseCloudMessageService {
+public class FcmService {
 	private final String API_URL = "https://fcm.googleapis.com/v1/projects/our-memory-ed357/messages:send";
 	private final ObjectMapper objectMapper;
 	
-	public void sendMessageTo(String targetToken, String title, String body) {
+	public void sendMessageTo(FcmRequestDto requestDto) {
 		Response response = null;
 		try {
-			String message = makeMessage(targetToken, title, body);
+			String message = makeMessage(requestDto.getToken(), requestDto.getTitle(), requestDto.getBody());
 			
 			OkHttpClient client = new OkHttpClient();
 			RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));

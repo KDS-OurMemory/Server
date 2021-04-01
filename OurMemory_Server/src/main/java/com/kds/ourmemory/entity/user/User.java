@@ -89,11 +89,6 @@ public class User implements Serializable{
                 inverseJoinColumns = @JoinColumn(name = "memory_id"))
     private List<Memory> memorys = new ArrayList<>();
 	
-	public Optional<User> setRooms(List<Room> rooms) {
-	    this.rooms = rooms;
-	    return Optional.of(this);
-	}
-	
 	public User addRoom(Room room) {
 	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
 	    this.rooms.add(room);
@@ -106,11 +101,6 @@ public class User implements Serializable{
 	    return Optional.of(this);
 	}
 	
-	public Optional<User> setMemorys(List<Memory> memorys) {
-        this.memorys = memorys;
-        return Optional.of(this);
-    }
-    
     public User addMemory(Memory memory) {
         Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
         this.memorys.add(memory);
@@ -121,5 +111,9 @@ public class User implements Serializable{
         Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
         this.memorys.addAll(memorys);
         return Optional.of(this);
+    }
+    
+    public void setPushToken(String pushToken) {
+        this.pushToken = pushToken;
     }
 }

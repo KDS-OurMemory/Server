@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class SignUpResponseDto {
+public class InsertUserResponseDto {
     @ApiModelProperty(value="사용자 추가한 날짜", example = "20210315")
 	private String joinDate;
 }

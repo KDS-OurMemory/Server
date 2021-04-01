@@ -13,14 +13,17 @@ public class ApiResult<T> {
     @ApiModelProperty(value = "API 요청 처리 결과 코드", example = "0: 성공, 그 외: 오류 코드")
     private final String resultcode;
     
+    @ApiModelProperty(value = "처리 결과 메시지")
+    private final String message;
+    
     @ApiModelProperty(value = "API 요청 처리 응답 값")
-    private final T data;
+    private final T response;
 
     public static <T> ApiResult<T> ok(T data) {
-        return new ApiResult<>("0", data);
+        return new ApiResult<>("00", "성공", data);
     }
 
     public static ApiResult<String> error(String errorCode, String errorMessage) {
-        return new ApiResult<>(errorCode, errorMessage);
+        return new ApiResult<>(errorCode, errorMessage, null);
     }
 }

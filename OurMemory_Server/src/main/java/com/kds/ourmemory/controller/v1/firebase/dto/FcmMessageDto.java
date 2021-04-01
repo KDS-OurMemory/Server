@@ -1,4 +1,4 @@
-package com.kds.ourmemory.controller.v1.dto;
+package com.kds.ourmemory.controller.v1.firebase.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

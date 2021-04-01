@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
@@ -21,7 +22,7 @@ import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.room.RoomRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
-import com.kds.ourmemory.service.v1.firebase.FirebaseCloudMessageService;
+import com.kds.ourmemory.service.v1.firebase.FcmService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +32,7 @@ public class RoomService {
     private final UserRepository userRepo;
     private final RoomRepository roomRepo;
     
-    private final FirebaseCloudMessageService firebaseFcm;
+    private final FcmService firebaseFcm;
 
     @Transactional
     public InsertRoomResponseDto insert(InsertRoomRequestDto request) throws CRoomException {
@@ -67,7 +68,7 @@ public class RoomService {
                     user.addRoom(room);
                     room.addUser(user);
                     
-                    firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - Invited Room", "Invited From " + room.getName());
+                    firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - Invited Room", "Invited From " + room.getName()));
                     return user;
                  })
                  .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id))

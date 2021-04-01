@@ -16,6 +16,7 @@ import com.kds.ourmemory.advice.exception.CMemoryException;
 import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.advice.exception.CUserException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.advice.exception.CUserPatchTokenException;
 import com.kds.ourmemory.controller.v1.ApiResult;
 
 import lombok.RequiredArgsConstructor;
@@ -46,43 +47,49 @@ public class CRestControllerAdvice {
 	@ExceptionHandler(CUserNotFoundException.class)
 	public ResponseEntity<?> handleCNotFoundUserException(CUserNotFoundException e) {
 	    log.warn(e.getMessage());
-		return response(getMessage("user.notFound.code"), e.getMessage());
+		return response(getMessage("user.notFound.code"), getMessage("user.notFound.msg"));
+	}
+	
+	@ExceptionHandler(CUserPatchTokenException.class)
+	public ResponseEntity<?> handleCUserPatchTokenException(CUserPatchTokenException e) {
+	    log.warn(e.getMessage());
+	    return response(getMessage("user.patch.failTokenUpdate.code"), getMessage("user.patch.failTokenUpdate.msg"));
 	}
 	
 	@ExceptionHandler(CUserException.class)
     public ResponseEntity<?> handleCUsersException(CUserException e) {
         log.warn(e.getMessage(), e);
-        return response(getMessage("unKnown.code"), e.getMessage());
+        return response(getMessage("unKnown.code"), getMessage("unKnown.msg"));
     }
 	
 	@ExceptionHandler(CRoomException.class)
 	public ResponseEntity<?> handleCRoomsException(CRoomException e) {
 	    log.warn(e.getMessage(), e);
-	    return response(getMessage("unKnown.code"), e.getMessage());
+	    return response(getMessage("unKnown.code"), getMessage("unKnown.msg"));
 	}
 	
 	@ExceptionHandler(CMemoryException.class)
     public ResponseEntity<?> handleCMemorysException(CMemoryException e) {
         log.warn(e.getMessage(), e);
-        return response(getMessage("unKnown.code"), e.getMessage());
+        return response(getMessage("unKnown.code"), getMessage("unKnown.msg"));
     }
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<?> handleBadParameterException(MissingServletRequestParameterException e) {
 	    log.warn(e.getMessage());
-	    return response(getMessage("queryString.badParameter.code"), e.getMessage());
+	    return response(getMessage("queryString.badParameter.code"), getMessage("queryString.badParameter.msg"));
 	}
 	
 	@ExceptionHandler(IncorrectResultSizeDataAccessException.class)
 	public ResponseEntity<?> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
 	    log.warn(e.getMessage());
-	    return response(getMessage("DB.incorrectResultSize.code"), e.getMessage());
+	    return response(getMessage("DB.incorrectResultSize.code"), getMessage("DB.incorrectResultSize.msg"));
 	}
 	
 	@ExceptionHandler({Exception.class, RuntimeException.class})
 	public ResponseEntity<?> handleException(Exception e) {
 	    log.error("Unexpected exception occurred: {}", e.getMessage(), e);
-	    return response(getMessage("unKnown.code"), e.getMessage()); 
+	    return response(getMessage("unKnown.code"), getMessage("unKnown.msg")); 
 	}
 	
 	private String getMessage(String code) {
