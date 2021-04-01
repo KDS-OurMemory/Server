@@ -3,8 +3,6 @@ package com.kds.ourmemory.service.v1.user;
 import static com.kds.ourmemory.util.DateUtil.currentDate;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.transaction.Transactional;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -15,10 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
-import com.kds.ourmemory.controller.v1.user.dto.SignInResponseDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.SignUpRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.SignUpResponseDto;
-import com.kds.ourmemory.entity.user.User;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +30,7 @@ class UserServiceTest {
     private SignUpRequestDto signUpRequestDto;
     private SignUpResponseDto signUpResponseDto;
     
-    private SignInResponseDto signInResponseDto;
+    private UserResponseDto signInResponseDto;
     
     @BeforeAll
     void setUp() {
@@ -62,17 +59,6 @@ class UserServiceTest {
 
     @Test
     @Order(3)
-    @Transactional
-    void 사용자_조회_userId() {
-        User user = userService.findUser(signInResponseDto.getId());
-        assertThat(user).isNotNull();
-        assertThat(user.getSnsId()).isEqualTo(signUpRequestDto.getSnsId());
-        
-        log.info("user: {}", user.toString());
-    }
-    
-    @Test
-    @Order(4)
     void 사용자_삭제() {
         DeleteUserResponseDto deleteUserResponseDto = userService.delete(signInResponseDto.getId());
         assertThat(deleteUserResponseDto).isNotNull();

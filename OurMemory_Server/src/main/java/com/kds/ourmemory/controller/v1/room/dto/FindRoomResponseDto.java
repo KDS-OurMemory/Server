@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.kds.ourmemory.controller.v1.user.dto.SignInResponseDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 
@@ -29,7 +29,7 @@ public class FindRoomResponseDto {
     private boolean opened;
 
     @ApiModelProperty(value = "방 참여자", example = "[{사용자}, {사용자2}]")
-    private List<SignInResponseDto> members;
+    private List<UserResponseDto> members;
 
     public FindRoomResponseDto(Room room) {
         id = room.getId();
@@ -37,7 +37,7 @@ public class FindRoomResponseDto {
         name = room.getName();
         regTime = new SimpleDateFormat("yyyyMMdd").format(room.getRegDate());
         opened = room.isOpened();
-        members = room.getUsers().stream().filter(User::isUsed).map(SignInResponseDto::new)
+        members = room.getUsers().stream().filter(User::isUsed).map(UserResponseDto::new)
                 .collect(Collectors.toList());
     }
 }

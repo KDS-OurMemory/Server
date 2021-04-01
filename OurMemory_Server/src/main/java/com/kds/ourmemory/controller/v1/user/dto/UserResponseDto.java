@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SignInResponseDto {
+public class UserResponseDto {
     @ApiModelProperty(value="사용자 번호", example = "49")
     private Long id;
     
@@ -24,7 +24,7 @@ public class SignInResponseDto {
     @ApiModelProperty(value="생일 공개여부", example = "false")
     private boolean birthdayOpen;
     
-    public SignInResponseDto(User user) {
+    public UserResponseDto(User user) {
         id = user.getId();
         name = user.getName();
         birthday = user.isBirthdayOpen()? user.getBirthday() : null;

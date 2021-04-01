@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.kds.ourmemory.controller.v1.user.dto.SignInResponseDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
 
@@ -51,7 +51,7 @@ public class FindMemoryResponseDto {
     private Date modDate;
     
     @ApiModelProperty(value = "일정 참여자", notes = "일정을 생성한 사람도 참여자에 포함되어 전달됨.", example = "[{참여자1}, {참여자2}]")
-    private List<SignInResponseDto> members = new ArrayList<>();
+    private List<UserResponseDto> members = new ArrayList<>();
     
     public FindMemoryResponseDto(Memory memory) {
         id = memory.getId();
@@ -67,7 +67,7 @@ public class FindMemoryResponseDto {
         regDate = memory.getRegDate();
         modDate = memory.getModDate();
         
-        members = memory.getUsers().stream().filter(User::isUsed).map(SignInResponseDto::new)
+        members = memory.getUsers().stream().filter(User::isUsed).map(UserResponseDto::new)
                 .collect(Collectors.toList());
     }
 }

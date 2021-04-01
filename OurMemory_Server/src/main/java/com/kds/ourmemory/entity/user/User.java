@@ -23,12 +23,12 @@ import com.kds.ourmemory.entity.room.Room;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 
-@ToString
+@EqualsAndHashCode
 @DynamicUpdate
 @Entity(name = "users")
 @Builder
