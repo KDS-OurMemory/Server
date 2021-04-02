@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
+import com.kds.ourmemory.advice.v1.room.exception.RoomAddMemberException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.controller.v1.room.RoomController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,18 @@ public class RoomControllerAdvice extends RestControllerAdviceResult{
     public ResponseEntity<?> handleRoomNotFoundException(RoomNotFoundException e) {
         log.warn(e.getMessage());
         return response(RoomResultCode.NOT_FOUND);
+    }
+    
+    @ExceptionHandler(RoomNotFoundOwnerException.class)
+    public ResponseEntity<?> handleRoomNotFoundOwnerException(RoomNotFoundOwnerException e) {
+        log.warn(e.getMessage());
+        return response(RoomResultCode.NOT_FOUND_OWNER);
+    }
+    
+    @ExceptionHandler(RoomAddMemberException.class)
+    public ResponseEntity<?> handleRoomAddMemberException(RoomAddMemberException e) {
+        log.warn(e.getMessage());
+        return response(RoomResultCode.ADD_MEMBER_ERROR);
     }
     
     @ExceptionHandler(RoomInternalServerException.class)

@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CommonResultCode implements ResultCode{
+    SUCCESS("00", "성공"),
     BAD_PARAMETER("C400", "입력값이 잘못되었습니다."),
     NOT_FOUND("C404", "URL이 잘못되었습니다."),
     INCORRECT_RESULT_SIZE("C001", "DB로부터 조회된 데이터 갯수가 잘못되었습니다."),

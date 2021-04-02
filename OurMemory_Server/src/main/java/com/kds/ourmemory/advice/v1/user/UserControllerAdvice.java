@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
-import com.kds.ourmemory.advice.v1.user.exception.UserInterServerException;
+import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
-import com.kds.ourmemory.advice.v1.user.exception.UserPatchTokenException;
 import com.kds.ourmemory.controller.v1.user.UserController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,14 +30,8 @@ public class UserControllerAdvice extends RestControllerAdviceResult{
         return response(UserResultCode.NOT_FOUND);
     }
     
-    @ExceptionHandler(UserPatchTokenException.class)
-    public ResponseEntity<?> handleUserPatchTokenException(UserPatchTokenException e) {
-        log.warn(e.getMessage());
-        return response(UserResultCode.PATCH_TOKEN_ERROR);
-    }
-    
-    @ExceptionHandler(UserInterServerException.class)
-    public ResponseEntity<?> handleUserInternalServerException(UserInterServerException e) {
+    @ExceptionHandler(UserInternalServerException.class)
+    public ResponseEntity<?> handleUserInternalServerException(UserInternalServerException e) {
         log.warn(e.getMessage(), e);
         return response(UserResultCode.INTERNAL_SERVER_ERROR);
     }

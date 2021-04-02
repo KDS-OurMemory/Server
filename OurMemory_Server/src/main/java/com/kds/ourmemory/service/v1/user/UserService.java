@@ -10,9 +10,8 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.v1.user.exception.UserInterServerException;
+import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
-import com.kds.ourmemory.advice.v1.user.exception.UserPatchTokenException;
 import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenRequestDto;
@@ -37,9 +36,9 @@ public class UserService {
     // 사용자와 관련된 일정을 작업하기 위해 추가
 	private final MemoryService memoryService;
 
-	public InsertUserResponseDto signUp(User user) throws UserInterServerException {
+	public InsertUserResponseDto signUp(User user) throws UserInternalServerException {
 		return insert(user).map(u -> new InsertUserResponseDto(currentDate()))
-		.orElseThrow(() -> new UserInterServerException("signUP Failed."));
+		.orElseThrow(() -> new UserInternalServerException("signUP Failed."));
 	}
 
 	public UserResponseDto signIn(String snsId) throws UserNotFoundException {
@@ -47,20 +46,20 @@ public class UserService {
 				.orElseThrow(() -> new UserNotFoundException("Not found user matched to snsId: " + snsId));
 	}
 	
-	@Transactional
+    @Transactional
     public PatchUserTokenResponseDto patchToken(String snsId, PatchUserTokenRequestDto request)
-            throws UserPatchTokenException, UserNotFoundException {
+            throws UserInternalServerException, UserNotFoundException {
         return Optional.ofNullable(request.getPushToken())
-                .map(token -> findUserBySnsId(snsId).orElseThrow(() -> new UserNotFoundException("Not found user for snsId")))
+                .map(token -> findUserBySnsId(snsId)
+                        .orElseThrow(() -> new UserNotFoundException("Not found user matched to snsId: " + snsId)))
                 .map(user -> {
                     user.setPushToken(request.getPushToken());
-                return new PatchUserTokenResponseDto(currentDate());
-            })
-            .orElseThrow(() -> new UserPatchTokenException("Failed token update."));
+                    return new PatchUserTokenResponseDto(currentDate());
+                }).orElseThrow(() -> new UserInternalServerException("Failed token update."));
     }
 	
 	@Transactional
-	public DeleteUserResponseDto delete(Long userId) throws UserInterServerException {
+	public DeleteUserResponseDto delete(Long userId) throws UserInternalServerException {
 	    return findUserById(userId).map(user -> {
 	        /* 
 	         * 내림차순으로 탐색
@@ -100,7 +99,7 @@ public class UserService {
 	        delete(user);
 	        return new DeleteUserResponseDto(currentDate());
 	    })
-	    .orElseThrow(() -> new UserInterServerException("User Delete Failed: " + userId));
+	    .orElseThrow(() -> new UserInternalServerException("User Delete Failed: " + userId));
 	}
 	
 	private Optional<User> insert(User user) {
@@ -111,7 +110,7 @@ public class UserService {
 	    return userRepo.findById(id);
 	}
 	
-	private Optional<User> findUserBySnsId(String snsId) {
+	public Optional<User> findUserBySnsId(String snsId) {
 	    return userRepo.findBySnsId(snsId);
 	}
 	

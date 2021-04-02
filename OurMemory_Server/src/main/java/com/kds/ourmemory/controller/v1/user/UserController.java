@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kds.ourmemory.advice.v1.user.exception.UserInterServerException;
+import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
@@ -60,7 +60,7 @@ public class UserController {
     @ApiOperation(value = "회원 삭제", notes = "아래 순서로 데이터 및 사용자가 삭제됩니다.\n\n 1. 사용자-방-일정 연결된 관계 삭제 \n 2. 사용자가 생성한 방/일정 삭제 \n 3. 사용자 삭제")
     @DeleteMapping("/user/{userId}")
     public ApiResult<DeleteUserResponseDto> delete(
-            @ApiParam(value = "userId", required = true) @PathVariable Long userId) throws UserInterServerException {
+            @ApiParam(value = "userId", required = true) @PathVariable Long userId) throws UserInternalServerException {
         return ok(service.delete(userId));
     }
 }
