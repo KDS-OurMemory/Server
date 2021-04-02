@@ -19,8 +19,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.kds.ourmemory.advice.exception.CMemoryException;
-import com.kds.ourmemory.advice.exception.CRoomException;
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryResponseDto;
@@ -157,7 +157,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(1)
-    void 방O_참여자O_포함O_일정_생성() throws CMemoryException {
+    void 방O_참여자O_포함O_일정_생성() throws MemoryInternalServerException {
         insertResponse_방O_참여자O_포함O = memoryService.insert(insertRequest_방O_참여자O_포함O);
         assertThat(insertResponse_방O_참여자O_포함O).isNotNull();
         assertThat(insertResponse_방O_참여자O_포함O.getAddDate()).isEqualTo(currentDate());
@@ -181,7 +181,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(3)
-    void 방O_참여자O_포함O_일정_삭제() throws CRoomException {
+    void 방O_참여자O_포함O_일정_삭제() throws RoomInternalServerException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자O_포함O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
@@ -190,7 +190,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(4)
-    void 방O_참여자O_포함X_일정_생성() throws CMemoryException {
+    void 방O_참여자O_포함X_일정_생성() throws MemoryInternalServerException {
         insertResponse_방O_참여자O_포함X = memoryService.insert(insertRequest_방O_참여자O_포함X);
         assertThat(insertResponse_방O_참여자O_포함X).isNotNull();
         assertThat(insertResponse_방O_참여자O_포함X.getAddDate()).isEqualTo(currentDate());
@@ -214,7 +214,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(6)
-    void 방O_참여자O_포함X_일정_삭제() throws CRoomException {
+    void 방O_참여자O_포함X_일정_삭제() throws RoomInternalServerException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자O_포함X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
@@ -223,7 +223,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(7)
-    void 방O_참여자O_포함X_방_삭제() throws CRoomException {
+    void 방O_참여자O_포함X_방_삭제() throws RoomInternalServerException {
         DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertResponse_방O_참여자O_포함X.getRoomId());
         
         assertThat(deleteRoomResponseDto).isNotNull();
@@ -232,7 +232,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(8)
-    void 방O_참여자X_일정_생성() throws CMemoryException {
+    void 방O_참여자X_일정_생성() throws MemoryInternalServerException {
         insertResponse_방O_참여자X = memoryService.insert(insertRequest_방O_참여자X);
         assertThat(insertResponse_방O_참여자X).isNotNull();
         assertThat(insertResponse_방O_참여자X.getAddDate()).isEqualTo(currentDate());
@@ -256,7 +256,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(10)
-    void 방O_참여자X_일정_삭제() throws CRoomException {
+    void 방O_참여자X_일정_삭제() throws RoomInternalServerException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
@@ -265,7 +265,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(11)
-    void 방X_참여자O_일정_생성() throws CMemoryException {
+    void 방X_참여자O_일정_생성() throws MemoryInternalServerException {
         insertResponse_방X_참여자O = memoryService.insert(insertRequest_방X_참여자O);
         assertThat(insertResponse_방X_참여자O).isNotNull();
         assertThat(insertResponse_방X_참여자O.getAddDate()).isEqualTo(currentDate());
@@ -289,7 +289,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(13)
-    void 방X_참여자O_일정_삭제() throws CRoomException {
+    void 방X_참여자O_일정_삭제() throws RoomInternalServerException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방X_참여자O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
@@ -298,7 +298,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(14)
-    void 방X_참여자O_방_삭제() throws CRoomException {
+    void 방X_참여자O_방_삭제() throws RoomInternalServerException {
         DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertResponse_방X_참여자O.getRoomId());
         
         assertThat(deleteRoomResponseDto).isNotNull();
@@ -307,7 +307,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(15)
-    void 방X_참여자X_일정_생성() throws CMemoryException {
+    void 방X_참여자X_일정_생성() throws MemoryInternalServerException {
         insertResponse_방X_참여자X = memoryService.insert(insertRequest_방X_참여자X);
         assertThat(insertResponse_방X_참여자X).isNotNull();
         assertThat(insertResponse_방X_참여자X.getAddDate()).isEqualTo(currentDate());
@@ -331,7 +331,7 @@ class MemoryServiceTest {
     
     @Test
     @Order(17)
-    void 방X_참여자X_일정_삭제() throws CRoomException {
+    void 방X_참여자X_일정_삭제() throws RoomInternalServerException {
         DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방X_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();

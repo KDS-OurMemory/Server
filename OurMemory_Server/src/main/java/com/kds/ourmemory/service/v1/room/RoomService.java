@@ -12,8 +12,8 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.exception.CRoomException;
-import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
+import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
@@ -32,10 +32,10 @@ public class RoomService {
     private final UserRepository userRepo;
     private final RoomRepository roomRepo;
     
-    private final FcmService firebaseFcm;
+    private final FcmService fcmService;
 
     @Transactional
-    public InsertRoomResponseDto insert(InsertRoomRequestDto request) throws CRoomException {
+    public InsertRoomResponseDto insert(InsertRoomRequestDto request) throws RoomInternalServerException {
         return Optional.ofNullable(request.getOwner())
             .map(ownerId -> findUserById(ownerId).get())
             .map(owner -> {
@@ -53,14 +53,14 @@ public class RoomService {
                     .map(owner -> owner.addRoom(room))
                     .map(room::addUser)
                     .map(r -> addMemberToRoom(r, request.getMember()))
-                    .orElseThrow(() -> new CRoomException("Insert failed Relational Data to users_rooms."))
+                    .orElseThrow(() -> new RoomInternalServerException("Insert failed Relational Data to users_rooms."))
             )
             .map(room -> new InsertRoomResponseDto(room.getId(), currentDate()))
-            .orElseThrow(() -> new CRoomException("Create Room Failed."));
+            .orElseThrow(() -> new RoomInternalServerException("Create Room Failed."));
     }
 
     @Transactional
-    public Room addMemberToRoom(Room room, List<Long> members) throws CRoomException {
+    public Room addMemberToRoom(Room room, List<Long> members) throws RoomInternalServerException {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> 
                 findUserById(id).filter(Objects::nonNull)
@@ -68,18 +68,19 @@ public class RoomService {
                     user.addRoom(room);
                     room.addUser(user);
                     
-                    firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - Invited Room", "Invited From " + room.getName()));
+                    fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - 방 참여",
+                                    String.format("'%s' 방에 초대되셨습니다.", room.getName())));
                     return user;
                  })
-                 .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id))
+                 .orElseThrow(() -> new RoomInternalServerException("memberId is Not Registered DB. id: " + id))
              ));
         
         return room;
     }
     
-    public List<Room> findRooms(String snsId) throws CUserNotFoundException {
+    public List<Room> findRooms(String snsId) throws UserNotFoundException {
         return findUserBySnsId(snsId).map(User::getRooms)
-                .orElseThrow(() -> new CUserNotFoundException("Not Found User From snsId: " + snsId));
+                .orElseThrow(() -> new UserNotFoundException("Not Found User From snsId: " + snsId));
     }
     
     /**
@@ -91,7 +92,7 @@ public class RoomService {
      * https://doublesprogramming.tistory.com/259
      */
     @Transactional
-    public DeleteRoomResponseDto delete(Long id) throws CRoomException {
+    public DeleteRoomResponseDto delete(Long id) throws RoomInternalServerException {
         return findRoomById(id)
                 .map(room -> {
                     room.getUsers().stream().forEach(user -> user.getRooms().remove(room));
@@ -100,7 +101,7 @@ public class RoomService {
                     deleteRoom(room);
                     return new DeleteRoomResponseDto(currentDate());
                 })
-                .orElseThrow(() -> new CRoomException("Delete Failed: " + id));
+                .orElseThrow(() -> new RoomInternalServerException("Delete Failed: " + id));
     }
     
     private Optional<Room> insertRoom(Room room) {

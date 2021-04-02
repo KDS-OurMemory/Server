@@ -18,8 +18,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.kds.ourmemory.advice.exception.CRoomException;
-import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
+import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
@@ -60,10 +60,10 @@ class RoomServiceTest {
     @Test
     @Order(2)
     @Transactional
-    void 방_목록_조회() throws CUserNotFoundException {
+    void 방_목록_조회() throws UserNotFoundException {
         List<Room> responseList = Optional.ofNullable(userService.findUserById(insertRoomRequestDto.getOwner()).get())
             .map(user -> roomService.findRooms(user.getSnsId()))
-            .orElseThrow(() -> new CRoomException("Not Found Room."));
+            .orElseThrow(() -> new RoomInternalServerException("Not Found Room."));
         
         assertThat(responseList).isNotNull();
         
@@ -74,7 +74,7 @@ class RoomServiceTest {
     
     @Test
     @Order(3)
-    void 방_삭제() throws CRoomException {
+    void 방_삭제() throws RoomInternalServerException {
         DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getRoomId());
         
         assertThat(deleteRoomResponseDto).isNotNull();

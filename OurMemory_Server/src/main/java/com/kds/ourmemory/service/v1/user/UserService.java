@@ -10,10 +10,9 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.exception.CUserException;
-import com.kds.ourmemory.advice.exception.CUserNotFoundException;
-import com.kds.ourmemory.advice.exception.CUserPatchTokenException;
-import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
+import com.kds.ourmemory.advice.v1.user.exception.UserInterServerException;
+import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
+import com.kds.ourmemory.advice.v1.user.exception.UserPatchTokenException;
 import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenRequestDto;
@@ -21,7 +20,6 @@ import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
-import com.kds.ourmemory.service.v1.firebase.FcmService;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
 import com.kds.ourmemory.service.v1.room.RoomService;
 
@@ -32,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepo;
-	private final FcmService firebaseFcm;
 	
 	// 사용자와 관련된 방을 작업하기 위해 추가
 	private final RoomService roomService;
@@ -40,36 +37,30 @@ public class UserService {
     // 사용자와 관련된 일정을 작업하기 위해 추가
 	private final MemoryService memoryService;
 
-	public InsertUserResponseDto signUp(User user) throws CUserException {
-		return insert(user).map(u -> {
-            firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - SignUp", user.getName() + " is SignUp Success"));
-	        return new InsertUserResponseDto(currentDate());
-		})
-		.orElseThrow(() -> {
-            firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - SignUp", user.getName() + " is SignUp Failed."));
-		    throw new CUserException("signUP Failed.");
-		});
+	public InsertUserResponseDto signUp(User user) throws UserInterServerException {
+		return insert(user).map(u -> new InsertUserResponseDto(currentDate()))
+		.orElseThrow(() -> new UserInterServerException("signUP Failed."));
 	}
 
-	public UserResponseDto signIn(String snsId) throws CUserNotFoundException {
+	public UserResponseDto signIn(String snsId) throws UserNotFoundException {
 		return findUserBySnsId(snsId).map(UserResponseDto::new)
-				.orElseThrow(() -> new CUserNotFoundException("Not found user matched to snsId: " + snsId));
+				.orElseThrow(() -> new UserNotFoundException("Not found user matched to snsId: " + snsId));
 	}
 	
 	@Transactional
     public PatchUserTokenResponseDto patchToken(String snsId, PatchUserTokenRequestDto request)
-            throws CUserPatchTokenException, CUserNotFoundException {
+            throws UserPatchTokenException, UserNotFoundException {
         return Optional.ofNullable(request.getPushToken())
-                .map(token -> findUserBySnsId(snsId).orElseThrow(() -> new CUserNotFoundException("Not found user for snsId")))
+                .map(token -> findUserBySnsId(snsId).orElseThrow(() -> new UserNotFoundException("Not found user for snsId")))
                 .map(user -> {
                     user.setPushToken(request.getPushToken());
                 return new PatchUserTokenResponseDto(currentDate());
             })
-            .orElseThrow(() -> new CUserPatchTokenException("Failed token update."));
+            .orElseThrow(() -> new UserPatchTokenException("Failed token update."));
     }
 	
 	@Transactional
-	public DeleteUserResponseDto delete(Long userId) throws CUserException {
+	public DeleteUserResponseDto delete(Long userId) throws UserInterServerException {
 	    return findUserById(userId).map(user -> {
 	        /* 
 	         * 내림차순으로 탐색
@@ -109,7 +100,7 @@ public class UserService {
 	        delete(user);
 	        return new DeleteUserResponseDto(currentDate());
 	    })
-	    .orElseThrow(() -> new CUserException("User Delete Failed: " + userId));
+	    .orElseThrow(() -> new UserInterServerException("User Delete Failed: " + userId));
 	}
 	
 	private Optional<User> insert(User user) {
