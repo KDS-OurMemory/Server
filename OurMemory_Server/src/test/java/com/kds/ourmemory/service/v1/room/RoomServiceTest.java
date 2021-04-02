@@ -54,14 +54,14 @@ class RoomServiceTest {
         assertThat(insertRoomResponseDto).isNotNull();
         assertThat(insertRoomResponseDto.getCreateDate()).isEqualTo(currentDate());
         
-        log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getId());
+        log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getRoomId());
     }
     
     @Test
     @Order(2)
     @Transactional
     void 방_목록_조회() throws CUserNotFoundException {
-        List<Room> responseList = Optional.ofNullable(userService.findUser(insertRoomRequestDto.getOwner()))
+        List<Room> responseList = Optional.ofNullable(userService.findUserById(insertRoomRequestDto.getOwner()).get())
             .map(user -> roomService.findRooms(user.getSnsId()))
             .orElseThrow(() -> new CRoomException("Not Found Room."));
         
@@ -75,7 +75,7 @@ class RoomServiceTest {
     @Test
     @Order(3)
     void 방_삭제() throws CRoomException {
-        DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getId());
+        DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getRoomId());
         
         assertThat(deleteRoomResponseDto).isNotNull();
         assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());

@@ -8,11 +8,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
-public class DeleteUserResponseDto {
+@Getter
+public class PatchUserTokenResponseDto {
     
     @JsonFormat(pattern = "yyyyMMdd")
-    @ApiModelProperty(value = "사용자 삭제 날짜", notes = "yyyyMMdd", example = "20210401")
-    private Date deleteDate;
+    @ApiModelProperty(value = "업데이트 날짜", notes = "yyyyMMdd", example = "20210401")
+    private Date patchDate;
 }

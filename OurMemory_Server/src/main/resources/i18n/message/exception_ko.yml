@@ -4,13 +4,18 @@ unKnown:
   msg: "알수 없는 오류가 발생하였습니다."
 user:
   notFound:
-    code: "1"
+    code: "U001"
     msg: "존재하지 않는 회원입니다."
+  patch:
+    failTokenUpdate:
+      code: "U002"
+      msg: "푸시토큰 업데이트에 실패하였습니다."
+      
 queryString:
   badParameter:
-    code: "2"
+    code: "CO001"
     msg: "입력 값이 잘못되었습니다." 
 DB:
   incorrectResultSize:
-    code: "3"
+    code: "CO002"
     msg: "조회된 데이터 갯수가 잘못되었습니다."

@@ -4,9 +4,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
-public class SignUpResponseDto {
-    @ApiModelProperty(value="사용자 추가한 날짜", example = "20210315")
-	private String joinDate;
+@Getter
+public class PatchUserTokenRequestDto {
+    @ApiModelProperty(value = "변경할 FCM 푸시토큰 값")
+    private String pushToken;
 }

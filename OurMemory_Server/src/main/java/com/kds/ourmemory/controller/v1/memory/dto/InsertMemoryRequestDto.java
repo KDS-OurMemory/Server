@@ -33,19 +33,19 @@ public class InsertMemoryRequestDto {
     private String place;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "시작 시간", required = true, notes = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "시작 시간", required = true, notes = "yyyy-MM-dd HH:mm", example = "2021-04-03 19:00")
     private Date startDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "종료 시간", required = true, notes = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "종료 시간", required = true, notes = "yyyy-MM-dd HH:mm", example = "2021-04-03 21:00")
     private Date endDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "첫 번째 알림 시간", required = false, notes = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "첫 번째 알림 시간", required = false, notes = "yyyy-MM-dd HH:mm", example = "2021-04-01 12:00")
     private Date firstAlarm;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "두 번째 알림 시간", required = false, notes = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "두 번째 알림 시간", required = false, notes = "yyyy-MM-dd HH:mm", example = "2021-04-02 12:00")
     private Date secondAlarm;
 
     @ApiModelProperty(value = "배경색", required = true, example = "#FFFFFF")

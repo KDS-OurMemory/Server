@@ -4,13 +4,18 @@ unKnown:
   msg: "An unknown error has occurred."
 user:
   notFound:
-    code: "1"
+    code: "U001"
     msg: "This member not exist"
+  patch:
+    failTokenUpdate:
+      code: "U002"
+      msg: "Failed pushToken update." 
+  
 queryString:
   badParameter:
-    code: "2"
+    code: "CO001"
     msg: "The input value is invalid." 
 DB:
   incorrectResultSize:
-    code: "3"
+    code: "CO002"
     msg: "The number of viewed data is invalid."

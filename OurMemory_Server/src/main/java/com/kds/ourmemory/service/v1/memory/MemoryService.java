@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.kds.ourmemory.advice.exception.CMemoryException;
 import com.kds.ourmemory.advice.exception.CRoomException;
 import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryResponseDto;
@@ -28,7 +29,7 @@ import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.memory.MemoryRepository;
 import com.kds.ourmemory.repository.room.RoomRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
-import com.kds.ourmemory.service.v1.firebase.FirebaseCloudMessageService;
+import com.kds.ourmemory.service.v1.firebase.FcmService;
 import com.kds.ourmemory.service.v1.room.RoomService;
 
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class MemoryService {
     private final MemoryRepository memoryRepo;
     private final RoomRepository roomRepo;
     
-    private final FirebaseCloudMessageService firebaseFcm;
+    private final FcmService firebaseFcm;
     
     @Transactional
     public InsertMemoryResponseDto insert(InsertMemoryRequestDto request) throws CMemoryException{
@@ -91,8 +92,9 @@ public class MemoryService {
                     // 방 참여자 모두에게 푸시알림
                     room.getUsers().stream()
                         .forEach(user -> 
-                            firebaseFcm.sendMessageTo(user.getPushToken(), 
-                                    "OurMemory - 일정 공유", String.format("'%s' 일정에 초대되셨습니다.", memory.getName()))
+                                        firebaseFcm.sendMessageTo(
+                                                new FcmRequestDto(user.getPushToken(), "OurMemory - 일정 공유",
+                                                        String.format("'%s' 일정에 초대되셨습니다.", memory.getName())))
                         );
                     return room;
                  })
@@ -112,7 +114,7 @@ public class MemoryService {
                     memory.addUser(user);
                     
                     // 일정 참여자에게 푸시알림
-                    firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - share Memory", "Share Memory " + memory.getName());
+                    firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - share Memory", "Share Memory " + memory.getName()));
                     return user;
                  })
                  .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id));
@@ -147,12 +149,14 @@ public class MemoryService {
                         InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false, request.getMembers());
                         InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
                         
-                        return roomRepo.findById(insertRoomResponseDto.getId())
+                        return roomRepo.findById(insertRoomResponseDto.getRoomId())
                                 .map(room -> {
                                     room.getUsers().stream()
                                     .forEach(user -> 
-                                        firebaseFcm.sendMessageTo(user.getPushToken(), "OurMemory - 방 생성",
-                                                String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.", memory.getName(), room.getName()))
+                                                firebaseFcm.sendMessageTo(
+                                                        new FcmRequestDto(user.getPushToken(), "OurMemory - 방 생성",
+                                                                String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.",
+                                                                        memory.getName(), room.getName())))
                                     );
                                     return room;
                                 })

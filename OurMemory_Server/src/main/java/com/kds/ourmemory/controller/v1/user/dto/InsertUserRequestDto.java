@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignUpRequestDto {
+public class InsertUserRequestDto {
 	
 	@ApiModelProperty(value="SNS 로그인 번호", required = true)
 	private String snsId;
