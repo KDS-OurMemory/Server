@@ -12,11 +12,10 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.v1.room.exception.RoomAddMemberException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomDataRelationException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
-import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
@@ -41,7 +40,7 @@ public class RoomService {
 
     @Transactional
     public InsertRoomResponseDto insert(InsertRoomRequestDto request)
-            throws RoomAddMemberException, RoomNotFoundOwnerException, RoomInternalServerException {
+            throws RoomDataRelationException, RoomNotFoundOwnerException, RoomInternalServerException {
         return Optional.ofNullable(request.getOwner())
                 .map(ownerId -> findUserById(ownerId).orElseThrow(
                         () -> new RoomNotFoundOwnerException("Not found user matched to userId: " + ownerId)))
@@ -60,14 +59,14 @@ public class RoomService {
                         .map(owner -> owner.addRoom(room))
                         .map(room::addUser)
                         .map(r -> addMemberToRoom(r, request.getMember()))
-                        .orElseThrow(() -> new RoomAddMemberException("Insert failed Relational Data to users_rooms."))
+                        .orElseThrow(() -> new RoomDataRelationException("Insert failed Relational Data to users_rooms."))
                 )
                 .map(room -> new InsertRoomResponseDto(room.getId(), currentDate()))
                 .orElseThrow(() -> new RoomInternalServerException("Create Room Failed."));
     }
 
     @Transactional
-    public Room addMemberToRoom(Room room, List<Long> members) throws RoomAddMemberException {
+    public Room addMemberToRoom(Room room, List<Long> members) throws RoomDataRelationException {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> 
                 findUserById(id).filter(Objects::nonNull)
@@ -79,7 +78,7 @@ public class RoomService {
                                     String.format("'%s' 방에 초대되셨습니다.", room.getName())));
                     return user;
                  })
-                 .orElseThrow(() -> new RoomAddMemberException("memberId is Not Registered DB. id: " + id))
+                 .orElseThrow(() -> new RoomDataRelationException("memberId is Not Registered DB. id: " + id))
              ));
         
         return room;

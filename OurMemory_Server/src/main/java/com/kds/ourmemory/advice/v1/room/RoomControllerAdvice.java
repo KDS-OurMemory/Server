@@ -7,13 +7,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
-import com.kds.ourmemory.advice.v1.room.exception.RoomAddMemberException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomDataRelationException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.controller.v1.room.RoomController;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Because the communication was successful, the status code value is set to 200 
@@ -21,32 +19,27 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author idean
  */
-@Slf4j
 @RestControllerAdvice(assignableTypes = RoomController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RoomControllerAdvice extends RestControllerAdviceResult{
 
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<?> handleRoomNotFoundException(RoomNotFoundException e) {
-        log.warn(e.getMessage());
-        return response(RoomResultCode.NOT_FOUND);
+        return response(RoomResultCode.NOT_FOUND, e);
     }
     
     @ExceptionHandler(RoomNotFoundOwnerException.class)
     public ResponseEntity<?> handleRoomNotFoundOwnerException(RoomNotFoundOwnerException e) {
-        log.warn(e.getMessage());
-        return response(RoomResultCode.NOT_FOUND_OWNER);
+        return response(RoomResultCode.NOT_FOUND_OWNER, e);
     }
     
-    @ExceptionHandler(RoomAddMemberException.class)
-    public ResponseEntity<?> handleRoomAddMemberException(RoomAddMemberException e) {
-        log.warn(e.getMessage());
-        return response(RoomResultCode.ADD_MEMBER_ERROR);
+    @ExceptionHandler(RoomDataRelationException.class)
+    public ResponseEntity<?> handleRoomAddMemberException(RoomDataRelationException e) {
+        return response(RoomResultCode.DATA_RELATION_ERROR, e);
     }
     
     @ExceptionHandler(RoomInternalServerException.class)
     public ResponseEntity<?> handleRoomInternalServerException(RoomInternalServerException e) {
-        log.warn(e.getMessage(), e);
-        return response(RoomResultCode.INTERNAL_SERVER_ERROR);
+        return response(RoomResultCode.INTERNAL_SERVER_ERROR, e);
     }
 }

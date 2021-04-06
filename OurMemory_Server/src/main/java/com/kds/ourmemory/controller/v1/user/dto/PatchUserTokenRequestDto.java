@@ -3,7 +3,9 @@ package com.kds.ourmemory.controller.v1.user.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 public class PatchUserTokenRequestDto {
