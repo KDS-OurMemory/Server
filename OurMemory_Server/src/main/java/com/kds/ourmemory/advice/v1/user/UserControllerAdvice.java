@@ -10,6 +10,7 @@ import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserTokenUpdateException;
+import com.kds.ourmemory.advice.v1.user.exception.UserUpdateException;
 import com.kds.ourmemory.controller.v1.user.UserController;
 
 /**
@@ -25,6 +26,11 @@ public class UserControllerAdvice extends RestControllerAdviceResult{
     @ExceptionHandler(UserTokenUpdateException.class)
     public ResponseEntity<?> handleUserTokenUpdateException(UserTokenUpdateException e) {
         return response(UserResultCode.TOKEN_UPDATE_ERROR, e);
+    }
+    
+    @ExceptionHandler(UserUpdateException.class)
+    public ResponseEntity<?> handleUserUpdateException(UserUpdateException e) {
+        return response(UserResultCode.USER_UPDATE_ERROR, e);
     }
     
     @ExceptionHandler(UserNotFoundException.class)

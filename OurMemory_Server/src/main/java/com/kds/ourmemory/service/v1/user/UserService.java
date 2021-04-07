@@ -13,10 +13,13 @@ import org.springframework.stereotype.Service;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserTokenUpdateException;
+import com.kds.ourmemory.advice.v1.user.exception.UserUpdateException;
 import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenResponseDto;
+import com.kds.ourmemory.controller.v1.user.dto.PutUserRequestDto;
+import com.kds.ourmemory.controller.v1.user.dto.PutUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -49,10 +52,19 @@ public class UserService {
             throws UserTokenUpdateException, UserNotFoundException {
         return Optional.ofNullable(request.getPushToken())
                 .map(token -> {
-                    findUserById(userId).get().setPushToken(token);
+                    findUserById(userId).get().changePushToken(token);
                     return new PatchUserTokenResponseDto(currentDate());
                 })
                 .orElseThrow(() -> new UserTokenUpdateException("Failed token update."));
+    }
+    
+    public PutUserResponseDto update(Long userId, PutUserRequestDto request) throws UserUpdateException{
+        return findUserById(userId)
+                .map(user -> {
+                    user.updateUser(request);
+                    return new PutUserResponseDto(currentDate());
+                })
+                .orElseThrow(() -> new UserUpdateException("User update failed: " + userId));
     }
     
     /**
