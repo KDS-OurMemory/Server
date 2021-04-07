@@ -41,9 +41,9 @@ public class MemoryController {
     }
     
     @ApiOperation(value = "일정 조회", notes = "사용자가 생성했거나 참여중인 일정을 조회한다.")
-    @GetMapping("/memory/{snsId}")
-    public ApiResult<List<FindMemoryResponseDto>> findMemorys(@ApiParam(value = "snsId", required = true) @PathVariable String snsId) {
-        return ok(memoryService.findMemorys(snsId).stream().filter(Memory::isUsed).map(FindMemoryResponseDto::new)
+    @GetMapping("/memory/{userId}")
+    public ApiResult<List<FindMemoryResponseDto>> findMemorys(@ApiParam(value = "userId", required = true) @PathVariable Long userId) {
+        return ok(memoryService.findMemorys(userId).stream().filter(Memory::isUsed).map(FindMemoryResponseDto::new)
                 .collect(Collectors.toList()));
     }
     

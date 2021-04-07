@@ -23,9 +23,9 @@ import com.kds.ourmemory.controller.v1.room.RoomController;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RoomControllerAdvice extends RestControllerAdviceResult{
 
-    @ExceptionHandler(RoomNotFoundException.class)
-    public ResponseEntity<?> handleRoomNotFoundException(RoomNotFoundException e) {
-        return response(RoomResultCode.NOT_FOUND, e);
+    @ExceptionHandler(RoomDataRelationException.class)
+    public ResponseEntity<?> handleRoomAddMemberException(RoomDataRelationException e) {
+        return response(RoomResultCode.DATA_RELATION_ERROR, e);
     }
     
     @ExceptionHandler(RoomNotFoundOwnerException.class)
@@ -33,9 +33,9 @@ public class RoomControllerAdvice extends RestControllerAdviceResult{
         return response(RoomResultCode.NOT_FOUND_OWNER, e);
     }
     
-    @ExceptionHandler(RoomDataRelationException.class)
-    public ResponseEntity<?> handleRoomAddMemberException(RoomDataRelationException e) {
-        return response(RoomResultCode.DATA_RELATION_ERROR, e);
+    @ExceptionHandler(RoomNotFoundException.class)
+    public ResponseEntity<?> handleRoomNotFoundException(RoomNotFoundException e) {
+        return response(RoomResultCode.NOT_FOUND, e);
     }
     
     @ExceptionHandler(RoomInternalServerException.class)

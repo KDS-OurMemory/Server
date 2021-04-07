@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
-import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenResponseDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,8 +38,7 @@ class UserServiceTest {
     
     @BeforeAll
     void setUp() {
-        String snsId = "TESTS_SNS_ID";
-        insertUserRequestDto = new InsertUserRequestDto(snsId, 1, "테스트 푸쉬", "테스트 유저", "0730", true, false);
+        insertUserRequestDto = new InsertUserRequestDto("TESTS_SNS_ID", 1, "테스트 푸쉬", "테스트 유저", "0730", true, false);
         patchUserTokenRequestDto = new PatchUserTokenRequestDto("testToken");
     }
     
@@ -55,7 +54,7 @@ class UserServiceTest {
     @Test
     @Order(2)
     void 사용자_조회_snsId() {
-        userResponseDto = userService.signIn(insertUserRequestDto.getSnsId());
+        userResponseDto = userService.signIn(insertUserResponseDto.getUserId());
         assertThat(userResponseDto).isNotNull();
         assertThat(userResponseDto.getName()).isEqualTo(insertUserRequestDto.getName());
         assertThat(userResponseDto.getBirthday()).isEqualTo(userResponseDto.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
@@ -66,18 +65,18 @@ class UserServiceTest {
     @Test
     @Order(3)
     void 사용자_토큰_변경() {
-        userResponseDto = userService.signIn(insertUserRequestDto.getSnsId());
+        userResponseDto = userService.signIn(insertUserResponseDto.getUserId());
         assertThat(userResponseDto).isNotNull();
         assertThat(userResponseDto.getName()).isEqualTo(insertUserRequestDto.getName());
         assertThat(userResponseDto.getBirthday()).isEqualTo(userResponseDto.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
         
         log.info("before Token: {}", userResponseDto.getPushToken());
         
-        PatchUserTokenResponseDto patchUserTokenResponseDto = userService.patchToken(insertUserRequestDto.getSnsId(), patchUserTokenRequestDto) ;
+        PatchUserTokenResponseDto patchUserTokenResponseDto = userService.patchToken(insertUserResponseDto.getUserId(), patchUserTokenRequestDto) ;
         assertThat(patchUserTokenResponseDto).isNotNull();
         assertThat(patchUserTokenResponseDto.getPatchDate()).isEqualTo(currentDate());
         
-        userResponseDto = userService.signIn(insertUserRequestDto.getSnsId());
+        userResponseDto = userService.signIn(insertUserResponseDto.getUserId());
         assertThat(userResponseDto).isNotNull();
         assertThat(userResponseDto.getPushToken()).isEqualTo(patchUserTokenRequestDto.getPushToken());
         

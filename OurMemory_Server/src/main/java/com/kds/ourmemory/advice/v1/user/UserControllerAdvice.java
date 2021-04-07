@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
+import com.kds.ourmemory.advice.v1.user.exception.UserTokenUpdateException;
 import com.kds.ourmemory.controller.v1.user.UserController;
 
 /**
@@ -20,6 +21,11 @@ import com.kds.ourmemory.controller.v1.user.UserController;
 @RestControllerAdvice(assignableTypes = UserController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class UserControllerAdvice extends RestControllerAdviceResult{
+    
+    @ExceptionHandler(UserTokenUpdateException.class)
+    public ResponseEntity<?> handleUserTokenUpdateException(UserTokenUpdateException e) {
+        return response(UserResultCode.TOKEN_UPDATE_ERROR, e);
+    }
     
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<?> handleUserNotFoundException(UserNotFoundException e) {

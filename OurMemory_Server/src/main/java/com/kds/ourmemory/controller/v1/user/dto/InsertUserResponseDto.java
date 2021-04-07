@@ -11,8 +11,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class InsertUserResponseDto {
+    @ApiModelProperty(value = "사용자 번호")
+    private Long userId;
     
     @JsonFormat(pattern = "yyyyMMdd")
-    @ApiModelProperty(value="사용자 추가한 날짜", notes = "yyyyMMdd", example = "20210401")
+    @ApiModelProperty(value = "사용자 추가한 날짜", notes = "yyyyMMdd", example = "20210401")
 	private Date joinDate;
 }

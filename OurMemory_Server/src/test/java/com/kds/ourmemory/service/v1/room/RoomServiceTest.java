@@ -62,7 +62,7 @@ class RoomServiceTest {
     @Transactional
     void 방_목록_조회() throws UserNotFoundException {
         List<Room> responseList = Optional.ofNullable(userService.findUserById(insertRoomRequestDto.getOwner()).get())
-            .map(user -> roomService.findRooms(user.getSnsId()))
+            .map(user -> roomService.findRooms(user.getId()))
             .orElseThrow(() -> new RoomInternalServerException("Not Found Room."));
         
         assertThat(responseList).isNotNull();

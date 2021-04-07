@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
+import com.kds.ourmemory.advice.v1.user.exception.UserTokenUpdateException;
 import com.kds.ourmemory.controller.v1.user.dto.DeleteUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenRequestDto;
@@ -28,90 +29,98 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class UserService {
 
+    private final RoomService roomService;
+    private final MemoryService memoryService;
+    
 	private final UserRepository userRepo;
-	
-	// 사용자와 관련된 방을 작업하기 위해 추가
-	private final RoomService roomService;
-	
-    // 사용자와 관련된 일정을 작업하기 위해 추가
-	private final MemoryService memoryService;
 
 	public InsertUserResponseDto signUp(User user) throws UserInternalServerException {
-		return insert(user).map(u -> new InsertUserResponseDto(currentDate()))
+		return insert(user).map(u -> new InsertUserResponseDto(u.getId(), currentDate()))
 		.orElseThrow(() -> new UserInternalServerException("signUP Failed."));
 	}
 
-	public UserResponseDto signIn(String snsId) throws UserNotFoundException {
-		return findUserBySnsId(snsId).map(UserResponseDto::new)
-				.orElseThrow(() -> new UserNotFoundException("Not found user matched to snsId: " + snsId));
+	public UserResponseDto signIn(Long userId) throws UserNotFoundException {
+		return findUserById(userId).map(UserResponseDto::new)
+				.orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
 	}
 	
     @Transactional
-    public PatchUserTokenResponseDto patchToken(String snsId, PatchUserTokenRequestDto request)
-            throws UserInternalServerException, UserNotFoundException {
+    public PatchUserTokenResponseDto patchToken(Long userId, PatchUserTokenRequestDto request)
+            throws UserTokenUpdateException, UserNotFoundException {
         return Optional.ofNullable(request.getPushToken())
-                .map(token -> findUserBySnsId(snsId)
-                        .orElseThrow(() -> new UserNotFoundException("Not found user matched to snsId: " + snsId)))
-                .map(user -> {
-                    user.setPushToken(request.getPushToken());
+                .map(token -> {
+                    findUserById(userId).get().setPushToken(token);
                     return new PatchUserTokenResponseDto(currentDate());
-                }).orElseThrow(() -> new UserInternalServerException("Failed token update."));
+                })
+                .orElseThrow(() -> new UserTokenUpdateException("Failed token update."));
     }
-	
-	@Transactional
-	public DeleteUserResponseDto delete(Long userId) throws UserInternalServerException {
-	    return findUserById(userId).map(user -> {
-	        /* 
-	         * 내림차순으로 탐색
-	         * 오름차순으로 탐색할 경우, room 이 삭제되면 인덱스가 바뀌어서 이후 값들을 탐색하는데 오류가 발생한다.
-	         * */
-	        user.getRooms().stream()
-    	        .collect(Collectors.toCollection(LinkedList::new)) 
-    	        .descendingIterator()
-    	        .forEachRemaining(room -> {
-    	            // 사용자가 생성한 방 삭제
-    	            Optional.of(room.getOwner())
-    	                .filter(user::equals)
-    	                .ifPresent(u -> roomService.delete(room.getId()));
     
-    	            // 사용자-방 관계 삭제
-    	            room.getUsers().remove(user);
-    	        });
+    /**
+     * 사용자 삭제 기능 구현
+     * 
+     *  1. 사용자-방-일정 연결된 관계 삭제
+     *  2. 사용자가 생성한 방,일정 삭제
+     *  3. 사용자 삭제
+     * 
+     * 테스트로 생성한 사용자를 삭제하기 위해 임의 추가함
+     * 실제 서비스에선 삭제대신 탈퇴기능을 사용하기 때문에 서비스 코드 대신 테스트 코드에 기능을 작성함.
+     * 
+     * @param userId
+     * @return DeleteUserResponseDto
+     * @throws UserInternalServerException
+     */
+    @Transactional
+    public DeleteUserResponseDto delete(Long userId) throws UserInternalServerException {
+        return findUserById(userId).map(user -> {
+            /* 
+             * 내림차순으로 탐색
+             * 오름차순으로 탐색할 경우, room 이 삭제되면 인덱스가 바뀌어서 이후 값들을 탐색하는데 오류가 발생한다.
+             * */
+            user.getRooms().stream()
+                .collect(Collectors.toCollection(LinkedList::new)) 
+                .descendingIterator()
+                .forEachRemaining(room -> {
+                    // 사용자가 생성한 방 삭제
+                    Optional.of(room.getOwner())
+                        .filter(user::equals)
+                        .ifPresent(u -> roomService.delete(room.getId()));
+    
+                    // 사용자-방 관계 삭제
+                    room.getUsers().remove(user);
+                });
 
-	        /* 
+            /* 
              * 내림차순으로 탐색
              * 오름차순으로 탐색할 경우, memory 가 삭제되면 인덱스가 바뀌어서 이후 값들을 탐색하는데 오류가 발생한다.
              * */
-	        user.getMemorys().stream()
-    	        .collect(Collectors.toCollection(LinkedList::new))
-    	        .descendingIterator()
-    	        .forEachRemaining(memory -> {
-    	            // 사용자가 생성한 일정 삭제
-    	            Optional.of(memory.getWriter())
-    	                .filter(user::equals)
-    	                .ifPresent(u -> memoryService.delete(memory.getId()));
+            user.getMemorys().stream()
+                .collect(Collectors.toCollection(LinkedList::new))
+                .descendingIterator()
+                .forEachRemaining(memory -> {
+                    // 사용자가 생성한 일정 삭제
+                    Optional.of(memory.getWriter())
+                        .filter(user::equals)
+                        .ifPresent(u -> memoryService.delete(memory.getId()));
     
-    	            // 사용자-일정 관계 삭제
-    	            memory.getUsers().remove(user);
-    	        });
-	        
-	        // 사용자 삭제
-	        delete(user);
-	        return new DeleteUserResponseDto(currentDate());
-	    })
-	    .orElseThrow(() -> new UserInternalServerException("User Delete Failed: " + userId));
-	}
+                    // 사용자-일정 관계 삭제
+                    memory.getUsers().remove(user);
+                });
+            
+            // 사용자 삭제
+            delete(user);
+            return new DeleteUserResponseDto(currentDate());
+        })
+        .orElseThrow(() -> new UserInternalServerException("User Delete Failed: " + userId));
+    }
 	
 	private Optional<User> insert(User user) {
 	    return Optional.of(userRepo.save(user));
 	}
 	
-	public Optional<User> findUserById(Long id) {
-	    return userRepo.findById(id);
-	}
-	
-	public Optional<User> findUserBySnsId(String snsId) {
-	    return userRepo.findBySnsId(snsId);
+	public Optional<User> findUserById(Long id) throws UserNotFoundException {
+	    return userRepo.findById(id)
+	            .map(Optional::of)
+	            .orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + id));
 	}
 	
 	private void delete(User user) {

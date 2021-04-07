@@ -48,11 +48,11 @@ public class MemoryService {
     
     @Transactional
     public InsertMemoryResponseDto insert(InsertMemoryRequestDto request)
-            throws MemoryNotFoundWriterException, MemoryDataRelationException, MemoryInternalServerException {
+            throws MemoryNotFoundWriterException, MemoryDataRelationException, MemoryInternalServerException, UserNotFoundException {
         return Optional.ofNullable(request)
                 .map(req -> {
-                    return findUserBySnsId(req.getSnsId())
-                            .orElseThrow(() -> new MemoryNotFoundWriterException("Not found user matched to snsId: " + req.getSnsId()));
+                    return findUserById(req.getUserId())
+                            .orElseThrow(() -> new MemoryNotFoundWriterException("Not found user matched to userId: " + req.getUserId()));
                 })
                 .map(writer -> {
                     Memory memory = Memory.builder()
@@ -108,7 +108,8 @@ public class MemoryService {
     }
     
     @Transactional
-    public void addMemberToMemory(Memory memory, List<Long> members)throws MemoryDataRelationException {
+    public void addMemberToMemory(Memory memory, List<Long> members)
+            throws MemoryDataRelationException, UserNotFoundException {
         Optional.ofNullable(members).map(List::stream).ifPresent(stream -> stream.forEach(id -> {
             findUserById(id).filter(Objects::nonNull).map(user -> {
                 user.addMemory(memory);
@@ -173,9 +174,9 @@ public class MemoryService {
             .orElse(null);
     }
     
-    public List<Memory> findMemorys(String snsId) throws UserNotFoundException {
-        return findUserBySnsId(snsId).map(User::getMemorys)
-                .orElseThrow(() -> new UserNotFoundException("Not Found User From snsId: " + snsId));
+    public List<Memory> findMemorys(Long userId) throws MemoryNotFoundWriterException, UserNotFoundException {
+        return findUserById(userId).map(User::getMemorys)
+                .orElseThrow(() -> new MemoryNotFoundWriterException("Not found writer from userId: " + userId));
     }
     
     @Transactional
@@ -202,12 +203,10 @@ public class MemoryService {
         memoryRepo.delete(memory);
     }
     
-    private Optional<User> findUserById(Long id) {
-        return userRepo.findById(id);
-    }
-    
-    private Optional<User> findUserBySnsId(String snsId) {
-        return userRepo.findBySnsId(snsId);
+    private Optional<User> findUserById(Long id) throws UserNotFoundException{
+        return userRepo.findById(id)
+                .map(Optional::of)
+                .orElseThrow(() -> new UserNotFoundException("Not found user from userId: " + id));
     }
     
     private Optional<Room> findRoomById(Long id) {

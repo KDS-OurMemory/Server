@@ -23,8 +23,8 @@ import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.room.RoomRepository;
+import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FcmService;
-import com.kds.ourmemory.service.v1.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,8 +33,9 @@ import lombok.RequiredArgsConstructor;
 public class RoomService {
     private final RoomRepository roomRepo;
     
-    // 방과 관련된 사용자를 작업하기 위해 추가
-    private final UserService userService;
+    // 방과 관련된 사용자를 작업하기 위해 추가 
+    // -> 서비스 코드를 받을 경우 무한루프에 걸려 어쩔 수 없이 레포지토리 직접 가져옴
+    private final UserRepository userRepo;
     
     private final FcmService fcmService;
 
@@ -84,9 +85,9 @@ public class RoomService {
         return room;
     }
     
-    public List<Room> findRooms(String snsId) throws RoomNotFoundException {
-        return findUserBySnsId(snsId).map(User::getRooms)
-                .orElseThrow(() -> new RoomNotFoundException("Not Found rooms from user matched to snsId: " + snsId));
+    public List<Room> findRooms(Long userId) throws RoomNotFoundException {
+        return findUserById(userId).map(User::getRooms)
+                .orElseThrow(() -> new RoomNotFoundException("Not Found rooms from user matched to userId: " + userId));
     }
     
     /**
@@ -123,10 +124,6 @@ public class RoomService {
     }
     
     private Optional<User> findUserById(Long id) {
-        return userService.findUserById(id);
-    }
-    
-    private Optional<User> findUserBySnsId(String snsId) {
-        return userService.findUserBySnsId(snsId);
+        return userRepo.findById(id);
     }
 }

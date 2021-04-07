@@ -43,10 +43,10 @@ public class RoomController {
     }
 
     @ApiOperation(value = "방 목록 조회", notes = "사용자가 참여중인 방 목록을 조회한다.")
-    @GetMapping(value = "/rooms/{snsId}")
+    @GetMapping(value = "/rooms/{userId}")
     public ApiResult<List<FindRoomResponseDto>> findRooms(
-            @ApiParam(value = "snsId", required = true) @PathVariable String snsId) throws UserNotFoundException {
-        return ok(roomService.findRooms(snsId).stream().filter(Room::isUsed).map(FindRoomResponseDto::new)
+            @ApiParam(value = "userId", required = true) @PathVariable Long userId) throws UserNotFoundException {
+        return ok(roomService.findRooms(userId).stream().filter(Room::isUsed).map(FindRoomResponseDto::new)
                 .collect(Collectors.toList()));
     }
 

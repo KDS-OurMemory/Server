@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InsertMemoryRequestDto {
-    @ApiModelProperty(value = "일정 작성자 snsId", required = true)
-    private String snsId;
+    @ApiModelProperty(value = "일정 작성자 번호", required = true)
+    private Long userId;
     
     @ApiModelProperty(value = "방 번호", required = false, notes = "일정을 등록할 방. 참여자가 있는데 방 번호가 없는 경우, 새로 생성한다.")
     private Long roomId;
