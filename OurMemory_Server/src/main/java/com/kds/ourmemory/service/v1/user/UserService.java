@@ -75,7 +75,6 @@ public class UserService {
      *  3. 사용자 삭제
      * 
      * 테스트로 생성한 사용자를 삭제하기 위해 임의 추가함
-     * 실제 서비스에선 삭제대신 탈퇴기능을 사용하기 때문에 서비스 코드 대신 테스트 코드에 기능을 작성함.
      * 
      * @param userId
      * @return DeleteUserResponseDto

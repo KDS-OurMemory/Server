@@ -408,6 +408,18 @@ class MemoryServiceTest {
     
     @AfterAll
     void 사용자_삭제() {
+        DeleteRoomResponseDto deleteRoomDto = roomService.delete(메인방.getRoomId());
+        assertThat(deleteRoomDto).isNotNull();
+        assertThat(deleteRoomDto.getDeleteDate()).isEqualTo(currentDate());
+        
+        deleteRoomDto = roomService.delete(공유방1.getRoomId());
+        assertThat(deleteRoomDto).isNotNull();
+        assertThat(deleteRoomDto.getDeleteDate()).isEqualTo(currentDate());
+        
+        deleteRoomDto = roomService.delete(공유방2.getRoomId());
+        assertThat(deleteRoomDto).isNotNull();
+        assertThat(deleteRoomDto.getDeleteDate()).isEqualTo(currentDate());
+        
         DeleteUserResponseDto deleteUserDto = userService.delete(생성자.getId());
         assertThat(deleteUserDto).isNotNull();
         assertThat(deleteUserDto.getDeleteDate()).isEqualTo(currentDate());
@@ -420,16 +432,6 @@ class MemoryServiceTest {
         assertThat(deleteUserDto).isNotNull();
         assertThat(deleteUserDto.getDeleteDate()).isEqualTo(currentDate());
         
-        DeleteRoomResponseDto deleteRoomDto = roomService.delete(메인방.getRoomId());
-        assertThat(deleteRoomDto).isNotNull();
-        assertThat(deleteRoomDto.getDeleteDate()).isEqualTo(currentDate());
         
-        deleteRoomDto = roomService.delete(공유방1.getRoomId());
-        assertThat(deleteRoomDto).isNotNull();
-        assertThat(deleteRoomDto.getDeleteDate()).isEqualTo(currentDate());
-        
-        deleteRoomDto = roomService.delete(공유방2.getRoomId());
-        assertThat(deleteRoomDto).isNotNull();
-        assertThat(deleteRoomDto.getDeleteDate()).isEqualTo(currentDate());
     }
 }
