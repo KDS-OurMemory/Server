@@ -38,14 +38,15 @@ public class UserService {
 	private final UserRepository userRepo;
 
 	public InsertUserResponseDto signUp(User user) throws UserInternalServerException {
-		return insert(user).map(u -> new InsertUserResponseDto(u.getId(), currentDate()))
-		.orElseThrow(() -> new UserInternalServerException("signUP Failed."));
+		return insert(user)
+		        .map(u -> new InsertUserResponseDto(u.getId(), currentDate()))
+		        .orElseThrow(() -> new UserInternalServerException("signUp Failed."));
 	}
 
-	public UserResponseDto signIn(Long userId) throws UserNotFoundException {
-		return findUserById(userId).map(UserResponseDto::new)
-				.orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
-	}
+    public UserResponseDto signIn(String snsId, int snsType) throws UserNotFoundException, UserInternalServerException {
+        return findUserBySnsIdAndSnsType(snsId, snsType).map(UserResponseDto::new)
+                .orElseThrow(() -> new UserInternalServerException("User Found Failed: " + snsId));
+    }
 	
     @Transactional
     public PatchUserTokenResponseDto patchToken(Long userId, PatchUserTokenRequestDto request)
@@ -132,6 +133,12 @@ public class UserService {
 	    return userRepo.findById(id)
 	            .map(Optional::of)
 	            .orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + id));
+	}
+	
+	private Optional<User> findUserBySnsIdAndSnsType(String snsId, int snsType) throws UserNotFoundException{
+	    return userRepo.findBySnsIdAndSnsType(snsId, snsType)
+	            .map(Optional::of)
+	            .orElseThrow(() -> new UserNotFoundException(String.format("Not found user matched to snsId: %s, snsType: %d", snsId, snsType)));
 	}
 	
 	private void delete(User user) {

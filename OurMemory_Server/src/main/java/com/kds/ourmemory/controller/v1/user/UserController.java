@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
@@ -44,10 +45,12 @@ public class UserController {
     }
 
     @ApiOperation(value = "로그인", notes = "userId 로 사용자 정보 조회 및 리턴")
-    @GetMapping("/user/{userId}")
-    public ApiResult<UserResponseDto> signIn(@ApiParam(value = "userId", required = true) @PathVariable Long userId)
+    @GetMapping("/user")
+    public ApiResult<UserResponseDto> signIn(
+            @ApiParam(value = "snsId", required = true) @RequestParam String snsId,
+            @ApiParam(value = "snsType", required = true) @RequestParam int snsType)
             throws UserNotFoundException {
-        return ok(service.signIn(userId));
+        return ok(service.signIn(snsId, snsType));
     }
 
     @ApiOperation(value = "푸시 토큰 업데이트", notes = "userId 로 사용자를 찾아 푸시토큰 값을 업데이트한다.")

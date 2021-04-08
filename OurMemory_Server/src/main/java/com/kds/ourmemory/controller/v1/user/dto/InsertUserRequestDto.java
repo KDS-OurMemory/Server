@@ -40,6 +40,7 @@ public class InsertUserRequestDto {
                 .snsId(snsId)
                 .snsType(snsType)
                 .pushToken(pushToken)
+                .push(true)
                 .name(name)
                 .birthday(birthday)
                 .solar(solar)

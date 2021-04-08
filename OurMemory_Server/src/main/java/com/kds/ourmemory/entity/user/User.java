@@ -59,6 +59,9 @@ public class User implements Serializable{
 	@Column(nullable = true, name="user_push_token")
 	private String pushToken;
 	
+	@Column(nullable = false, name="user_fcm_push_flag")
+    private boolean push;
+	
 	@Column(nullable = true, name="user_name")
 	private String name;
 	
@@ -70,9 +73,6 @@ public class User implements Serializable{
 	
 	@Column(nullable = false, name="user_birthday_open_flag")
 	private boolean birthdayOpen;
-	
-	@Column(nullable = true, columnDefinition = "boolean default true", name="user_fcm_push_flag")
-	private Boolean push;
 	
 	@Column(nullable = true, name="user_role")
 	private String role;
