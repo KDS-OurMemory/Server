@@ -16,11 +16,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.kds.ourmemory.controller.v1.user.dto.PutUserRequestDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -34,7 +37,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User implements Serializable{
     
 	/**
@@ -55,6 +58,9 @@ public class User implements Serializable{
 	
 	@Column(nullable = true, name="user_push_token")
 	private String pushToken;
+	
+	@Column(nullable = false, name="user_fcm_push_flag")
+    private boolean push;
 	
 	@Column(nullable = true, name="user_name")
 	private String name;
@@ -113,7 +119,17 @@ public class User implements Serializable{
         return Optional.of(this);
     }
     
-    public void setPushToken(String pushToken) {
-        this.pushToken = pushToken;
+    public void changePushToken(String pushToken) {
+        this.pushToken = StringUtils.isNotBlank(pushToken)? pushToken: this.pushToken;
+    }
+    
+    public void updateUser(PutUserRequestDto request) {
+        Optional.ofNullable(request)
+            .ifPresent(req -> {
+                Optional.ofNullable(request.getName()).ifPresent(n -> this.name = n);
+                Optional.ofNullable(request.getBirthday()).ifPresent(b -> this.birthday = b);
+                Optional.ofNullable(request.getBirthdayOpen()).ifPresent(b -> this.birthdayOpen = b);
+                Optional.ofNullable(request.getPush()).ifPresent(p -> this.push = p);
+            });
     }
 }

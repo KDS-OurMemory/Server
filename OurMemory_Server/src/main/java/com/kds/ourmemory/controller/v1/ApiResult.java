@@ -1,5 +1,7 @@
 package com.kds.ourmemory.controller.v1;
 
+import com.kds.ourmemory.advice.v1.common.CommonResultCode;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,7 +22,7 @@ public class ApiResult<T> {
     private final T response;
 
     public static <T> ApiResult<T> ok(T data) {
-        return new ApiResult<>("00", "성공", data);
+        return new ApiResult<>(CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMsg(), data);
     }
 
     public static ApiResult<String> error(String errorCode, String errorMessage) {

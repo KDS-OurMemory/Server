@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /
 
 spring:
   datasource:
@@ -11,5 +13,6 @@ spring:
     properties:      hibernate:
         format_sql: true
     hibernate:      ddl-auto: update # 운영시에는 validate 추천
-    show-sql: true  messages:    basename: i18n/message/exception
-    encoding: UTF-8
+    show-sql: true  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:    add-mappings: false

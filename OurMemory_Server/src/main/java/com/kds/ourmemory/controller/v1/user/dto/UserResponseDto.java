@@ -26,6 +26,9 @@ public class UserResponseDto {
 
     @ApiModelProperty(value = "FCM 푸시 토큰")
     private String pushToken;
+    
+    @ApiModelProperty(value = "푸시 사용여부")
+    private boolean push;
 
     public UserResponseDto(User user) {
         userId = user.getId();
@@ -34,5 +37,6 @@ public class UserResponseDto {
         solar = user.isSolar();
         birthdayOpen = user.isBirthdayOpen();
         pushToken = user.getPushToken();
+        push = user.isPush();
     }
 }

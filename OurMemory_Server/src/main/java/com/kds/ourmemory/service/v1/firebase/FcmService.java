@@ -3,7 +3,6 @@ package com.kds.ourmemory.service.v1.firebase;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -53,34 +52,16 @@ public class FcmService {
 		} catch (IOException e) {
 			log.error(e.toString());
 		} finally {
-			Consumer<Response> bodyClose = rsp -> Optional.ofNullable(rsp).ifPresent(r -> r.body().close());
-			Consumer<Response> responseClose = rsp -> Optional.ofNullable(rsp).ifPresent(r -> r.close());
-			
-			bodyClose.accept(response);
-			responseClose.accept(response);
+			Optional.ofNullable(response)
+			    .ifPresent(rsp -> {
+			        rsp.body().close();
+                    rsp.close(); 
+			    });
 		}
 	}
 	
 	private String makeMessage(String targetToken, String title, String body) throws JsonProcessingException {
-		FcmMessageDto fcsMessage = FcmMessageDto.builder()
-				.message(FcmMessageDto.Message.builder()
-					.token(targetToken)
-//					.notification(FcmMessage.Notification.builder()
-//						.title(title)
-//						.body(body)
-//						.build()
-//					)
-					.data(FcmMessageDto.Data.builder()
-						.title(title)
-						.body(body)
-						.build()
-					)
-					.build()
-				)
-				.validate_only(false)
-				.build();
-		
-		return objectMapper.writeValueAsString(fcsMessage);
+		return objectMapper.writeValueAsString(new FcmMessageDto(targetToken, title, body, false));
 	}
 	
 	private String getAccessToken() throws IOException {

@@ -14,9 +14,10 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.exception.CMemoryException;
-import com.kds.ourmemory.advice.exception.CRoomException;
-import com.kds.ourmemory.advice.exception.CUserNotFoundException;
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryDataRelationException;
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
+import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
@@ -46,8 +47,13 @@ public class MemoryService {
     private final FcmService firebaseFcm;
     
     @Transactional
-    public InsertMemoryResponseDto insert(InsertMemoryRequestDto request) throws CMemoryException{
-        return findUserBySnsId(request.getSnsId())
+    public InsertMemoryResponseDto insert(InsertMemoryRequestDto request)
+            throws MemoryNotFoundWriterException, MemoryDataRelationException, MemoryInternalServerException, UserNotFoundException {
+        return Optional.ofNullable(request)
+                .map(req -> {
+                    return findUserById(req.getUserId())
+                            .orElseThrow(() -> new MemoryNotFoundWriterException("Not found user matched to userId: " + req.getUserId()));
+                })
                 .map(writer -> {
                     Memory memory = Memory.builder()
                         .writer(writer)
@@ -62,63 +68,60 @@ public class MemoryService {
                         .regDate(currentTime())
                         .used(true)
                         .build();
-                    return insert(memory);
+                    return insert(memory)
+                            .orElseThrow(() -> new MemoryInternalServerException("Add Memory to DB Failed."));
                 })
                 .map(memory -> {
-                    // 사용자 - 일정 연결
+                    // 일정 - 작성자 연결
                     Optional.ofNullable(memory.getWriter())
                         .map(writer -> writer.addMemory(memory))
                         .map(memory::addUser)
-                        .orElseThrow(() -> new CMemoryException("Insert failed Relational Data to users_memorys."));
+                        .orElseThrow(() -> new MemoryDataRelationException(
+                                String.format("Failed to relation the memory '%s' with the writer '%s'",
+                                        memory.getName(), memory.getWriter().getName())));
                     
+                    // 일정 - 참여자 연결
                     addMemberToMemory(memory, request.getMembers());
                     addRoomToMemory(memory, request.getShareRooms());
                     Long roomId = relationMainRoom(memory, request);
                     
                     return new InsertMemoryResponseDto(memory.getId(), roomId, currentDate());
                 })
-                .orElseThrow(() -> new CMemoryException("Add Memory to DB Failed."));
+                .orElseThrow(() -> new MemoryInternalServerException("Add Memory to DB Failed."));
     }
     
     @Transactional
-    public Memory addRoomToMemory(Memory memory, List<Long> roomIds)throws CMemoryException {
-        Optional.ofNullable(roomIds).map(List::stream)
-            .ifPresent(stream -> stream.forEach(id -> {
-                findRoomById(id).filter(Objects::nonNull)
-                .map(room -> {
-                    room.addMemory(memory);
-                    memory.addRoom(room);
-                    
-                    // 방 참여자 모두에게 푸시알림
-                    room.getUsers().stream()
-                        .forEach(user -> 
-                                        firebaseFcm.sendMessageTo(
-                                                new FcmRequestDto(user.getPushToken(), "OurMemory - 일정 공유",
-                                                        String.format("'%s' 일정에 초대되셨습니다.", memory.getName())))
-                        );
-                    return room;
-                 })
-                 .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id));
-             }));
-        
-        return memory;
+    public void addRoomToMemory(Memory memory, List<Long> roomIds) throws MemoryDataRelationException {
+        Optional.ofNullable(roomIds).map(List::stream).ifPresent(stream -> stream.forEach(id -> {
+            findRoomById(id).filter(Objects::nonNull).map(room -> {
+                room.addMemory(memory);
+                memory.addRoom(room);
+
+                room.getUsers().stream()
+                        .forEach(user -> firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(),
+                                "OurMemory - 일정 공유", String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName()))));
+                return room;
+            })
+            .orElseThrow(() -> new MemoryDataRelationException(
+                    String.format("Failed to relation the memory '%s' with the room '%s'", memory.getName(), id)));
+        }));
     }
     
     @Transactional
-    public void addMemberToMemory(Memory memory, List<Long> members)throws CMemoryException {
-        Optional.ofNullable(members).map(List::stream)
-            .ifPresent(stream -> stream.forEach(id -> {
-                findUserById(id).filter(Objects::nonNull)
-                .map(user -> {
-                    user.addMemory(memory);
-                    memory.addUser(user);
-                    
-                    // 일정 참여자에게 푸시알림
-                    firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - share Memory", "Share Memory " + memory.getName()));
-                    return user;
-                 })
-                 .orElseThrow(() -> new CRoomException("memberId is Not Registered DB. id: " + id));
-             }));
+    public void addMemberToMemory(Memory memory, List<Long> members)
+            throws MemoryDataRelationException, UserNotFoundException {
+        Optional.ofNullable(members).map(List::stream).ifPresent(stream -> stream.forEach(id -> {
+            findUserById(id).filter(Objects::nonNull).map(user -> {
+                user.addMemory(memory);
+                memory.addUser(user);
+
+                firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - 일정 공유",
+                        String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
+                return user;
+            })
+            .orElseThrow(() -> new MemoryDataRelationException(
+                    String.format("Failed to relation the memory '%s' with the memberId '%d'", memory.getName(), id)));
+        }));
     }
     
     /**
@@ -131,7 +134,7 @@ public class MemoryService {
      * @param memory
      * @param request
      */
-    private Long relationMainRoom(Memory memory, InsertMemoryRequestDto request) {
+    private Long relationMainRoom(Memory memory, InsertMemoryRequestDto request) throws MemoryInternalServerException{
         Room mainRoom = Optional.ofNullable(request.getRoomId())
             .map(id -> roomRepo.findById(id).get())
             .filter(room -> {
@@ -142,27 +145,26 @@ public class MemoryService {
                     .containsAll(memoryMembers);
             })
             .orElseGet(() -> Optional.ofNullable(request.getMembers())
-                    .map(members -> {
-                        List<User> users = memory.getUsers();
-                        String name = StringUtils.join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
-                        Long owner = memory.getWriter().getId();
-                        InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false, request.getMembers());
-                        InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
-                        
-                        return roomRepo.findById(insertRoomResponseDto.getRoomId())
-                                .map(room -> {
-                                    room.getUsers().stream()
-                                    .forEach(user -> 
-                                                firebaseFcm.sendMessageTo(
-                                                        new FcmRequestDto(user.getPushToken(), "OurMemory - 방 생성",
-                                                                String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.",
-                                                                        memory.getName(), room.getName())))
-                                    );
-                                    return room;
-                                })
-                                .orElseThrow(() -> new CMemoryException("Insert memory OK. But Failed to create room to include memory."));
-                    })
-                    .orElse(null));
+                .map(members -> {
+                    List<User> users = memory.getUsers();
+                    String name = StringUtils.join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
+                    Long owner = memory.getWriter().getId();
+                    InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false, request.getMembers());
+                    InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
+                    
+                    return roomRepo.findById(insertRoomResponseDto.getRoomId())
+                        .map(room -> {
+                            room.getUsers().stream()
+                            .forEach(user -> firebaseFcm.sendMessageTo(
+                                            new FcmRequestDto(user.getPushToken(), "OurMemory - 방 생성",
+                                                    String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.",
+                                                            memory.getName(), room.getName())))
+                            );
+                            return room;
+                        })
+                        .orElseThrow(() -> new MemoryInternalServerException("Insert memory OK. But Failed to create room to include memory."));
+                })
+                .orElse(null));
         
         return Optional.ofNullable(mainRoom)
             .map(room -> {
@@ -172,13 +174,13 @@ public class MemoryService {
             .orElse(null);
     }
     
-    public List<Memory> findMemorys(String snsId) throws CUserNotFoundException {
-        return findUserBySnsId(snsId).map(User::getMemorys)
-                .orElseThrow(() -> new CUserNotFoundException("Not Found User From snsId: " + snsId));
+    public List<Memory> findMemorys(Long userId) throws MemoryNotFoundWriterException, UserNotFoundException {
+        return findUserById(userId).map(User::getMemorys)
+                .orElseThrow(() -> new MemoryNotFoundWriterException("Not found writer from userId: " + userId));
     }
     
     @Transactional
-    public DeleteMemoryResponseDto delete(Long id) throws CMemoryException {
+    public DeleteMemoryResponseDto delete(Long id) throws MemoryInternalServerException {
         return findMemoryById(id)
                 .map(memory -> {
                     memory.getRooms().stream().forEach(room -> room.getMemorys().remove(memory));
@@ -186,11 +188,11 @@ public class MemoryService {
                     delete(memory);
                     return new DeleteMemoryResponseDto(currentDate());
                 })
-                .orElseThrow(() -> new CMemoryException("Delete Failed: " + id));
+                .orElseThrow(() -> new MemoryInternalServerException("Delete Failed: " + id));
     }
     
-    private Memory insert(Memory memory) {
-        return memoryRepo.save(memory);
+    private Optional<Memory> insert(Memory memory) {
+        return Optional.of(memoryRepo.save(memory));
     }
     
     private Optional<Memory> findMemoryById(Long id) {
@@ -201,12 +203,10 @@ public class MemoryService {
         memoryRepo.delete(memory);
     }
     
-    private Optional<User> findUserById(Long id) {
-        return userRepo.findById(id);
-    }
-    
-    private Optional<User> findUserBySnsId(String snsId) {
-        return userRepo.findBySnsId(snsId);
+    private Optional<User> findUserById(Long id) throws UserNotFoundException{
+        return userRepo.findById(id)
+                .map(Optional::of)
+                .orElseThrow(() -> new UserNotFoundException("Not found user from userId: " + id));
     }
     
     private Optional<Room> findRoomById(Long id) {
