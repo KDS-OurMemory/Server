@@ -102,8 +102,11 @@ public class RoomService {
     public DeleteRoomResponseDto delete(Long id) throws RoomInternalServerException {
         return findRoomById(id)
                 .map(room -> {
-                    room.getUsers().stream().forEach(user -> user.getRooms().remove(room));
-                    room.getMemorys().stream().forEach(memory -> memory.getRooms().remove(room));
+                    Optional.ofNullable(room.getUsers())
+                            .ifPresent(users -> users.stream().forEach(user -> user.getRooms().remove(room)));
+                    
+                    Optional.ofNullable(room.getMemorys())
+                            .ifPresent(memorys -> memorys.stream().forEach(memory -> memory.getRooms().remove(room)));
                     
                     deleteRoom(room);
                     return new DeleteRoomResponseDto(currentDate());

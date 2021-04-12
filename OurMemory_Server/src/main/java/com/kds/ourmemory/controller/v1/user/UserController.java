@@ -44,7 +44,7 @@ public class UserController {
         return ok(service.signUp(request.toEntity()));
     }
 
-    @ApiOperation(value = "로그인", notes = "userId 로 사용자 정보 조회 및 리턴")
+    @ApiOperation(value = "로그인", notes = "snsId 및 snsType 으로 사용자 정보 조회 및 리턴")
     @GetMapping("/user")
     public ApiResult<UserResponseDto> signIn(
             @ApiParam(value = "snsId", required = true) @RequestParam String snsId,
