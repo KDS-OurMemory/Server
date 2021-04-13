@@ -96,25 +96,25 @@ public class User implements Serializable{
     private List<Memory> memorys = new ArrayList<>();
 	
 	public User addRoom(Room room) {
-	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
+	    this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;
 	    this.rooms.add(room);
 	    return this;
 	}
 	
 	public Optional<User> addRooms(List<Room> rooms) {
-	    Optional.ofNullable(this.rooms).orElseGet(() -> this.rooms = new ArrayList<>());
+	    this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;
 	    this.rooms.addAll(rooms);
 	    return Optional.of(this);
 	}
 	
     public User addMemory(Memory memory) {
-        Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
+        this.memorys = this.memorys == null? new ArrayList<>() : this.memorys;
         this.memorys.add(memory);
         return this;
     }
     
     public Optional<User> addMemorys(List<Memory> memorys) {
-        Optional.ofNullable(this.memorys).orElseGet(() -> this.memorys = new ArrayList<>());
+        this.memorys = this.memorys == null? new ArrayList<>() : this.memorys;
         this.memorys.addAll(memorys);
         return Optional.of(this);
     }

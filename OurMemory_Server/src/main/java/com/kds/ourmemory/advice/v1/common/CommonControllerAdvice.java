@@ -4,6 +4,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,9 +29,10 @@ public class CommonControllerAdvice extends RestControllerAdviceResult{
         return response(CommonResultCode.INCORRECT_RESULT_SIZE, e);
     }
     
+    
     /* Http Status Error */
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-	public ResponseEntity<?> handleBadParameterException(MissingServletRequestParameterException e) {
+    @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
+	public ResponseEntity<?> handleBadParameterException(Exception e) {
 	    return response(CommonResultCode.BAD_PARAMETER, e);
 	}
 	

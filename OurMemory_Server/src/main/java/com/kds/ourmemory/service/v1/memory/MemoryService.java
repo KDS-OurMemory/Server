@@ -68,7 +68,9 @@ public class MemoryService {
                         .regDate(currentTime())
                         .used(true)
                         .build();
-                    return insertMemory(memory).get();
+                    
+                    return insertMemory(memory).orElseThrow(() -> new MemoryInternalServerException(
+                            String.format("Memory '%s' insert failed.", memory.getName())));
                 })
                 .map(memory -> {
                     // 일정 - 작성자 연결
@@ -203,19 +205,19 @@ public class MemoryService {
     /**
      * Memory Repository 
      */
-    private Optional<Memory> insertMemory(Memory memory) throws MemoryInternalServerException {
-        return Optional.ofNullable(memoryRepo.save(memory))
-                .map(Optional::of)
-                .orElseThrow(() -> new MemoryInternalServerException(
-                        String.format("Memory '%s' insert failed.", memory.getName())));
+    private Optional<Memory> insertMemory(Memory memory) {
+        return Optional.ofNullable(memoryRepo.save(memory));
     }
     
     private Optional<Memory> findMemory(Long id) {
-        return memoryRepo.findById(id);
+        return Optional.ofNullable(id)
+                .map(memoryRepo::findById)
+                .orElseGet(Optional::empty);
     }
     
     private void deleteMemory(Memory memory) {
-        memoryRepo.delete(memory);
+        Optional.ofNullable(memory)
+            .ifPresent(memoryRepo::delete);
     }
     
     /**
@@ -225,7 +227,9 @@ public class MemoryService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {
-        return userRepo.findById(id);
+        return Optional.ofNullable(id)
+                .map(userRepo::findById)
+                .orElseGet(Optional::empty);
     }
     
     /**
@@ -235,6 +239,8 @@ public class MemoryService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<Room> findRoom(Long id) {
-        return roomRepo.findById(id);
+        return Optional.ofNullable(id)
+                .map(roomRepo::findById)
+                .orElseGet(Optional::empty);
     }
 }

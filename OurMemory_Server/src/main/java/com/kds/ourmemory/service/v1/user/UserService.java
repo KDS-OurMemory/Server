@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
-import com.kds.ourmemory.advice.v1.user.exception.UserTokenUpdateException;
-import com.kds.ourmemory.advice.v1.user.exception.UserUpdateException;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenResponseDto;
@@ -29,35 +27,55 @@ public class UserService {
 	private final UserRepository userRepo;
 
 	public InsertUserResponseDto signUp(User user) throws UserInternalServerException {
-		return userRepo.insertUser(user)
+		return insertUser(user)
 		        .map(u -> new InsertUserResponseDto(u.getId(), currentDate()))
-		        .orElseThrow(() -> new UserInternalServerException("signUp Failed."));
+                .orElseThrow(() -> new UserInternalServerException(
+                        String.format("User '%s' insert failed.", user.getName())));
 	}
 
-    public UserResponseDto signIn(String snsId, int snsType) throws UserNotFoundException, UserInternalServerException {
-        return userRepo.findBySnsIdAndSnsType(snsId, snsType)
+    public UserResponseDto signIn(int snsType, String snsId) throws UserNotFoundException {
+        return findUser(snsType, snsId)
                 .map(UserResponseDto::new)
-                .orElseThrow(() -> new UserInternalServerException("User Found Failed: " + snsId));
+                .orElseThrow(() -> new UserNotFoundException(
+                        String.format("Not found user matched snsType '%d' and snsId '%s'.", snsType, snsId)));
     }
 	
     @Transactional
     public PatchUserTokenResponseDto patchToken(Long userId, PatchUserTokenRequestDto request)
-            throws UserTokenUpdateException, UserNotFoundException {
-        return Optional.ofNullable(request.getPushToken())
-                .map(token -> {
-                    userRepo.findById(userId).get().changePushToken(token);
-                    return new PatchUserTokenResponseDto(currentDate());
-                })
-                .orElseThrow(() -> new UserTokenUpdateException("Failed token update."));
+            throws UserNotFoundException {
+        return findUser(userId).map(user -> {
+            user.changePushToken(request.getPushToken());
+            return new PatchUserTokenResponseDto(currentDate());
+        })
+        .orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
     }
     
     @Transactional
-    public PutUserResponseDto update(Long userId, PutUserRequestDto request) throws UserUpdateException{
-        return userRepo.findById(userId)
+    public PutUserResponseDto update(Long userId, PutUserRequestDto request) throws UserNotFoundException{
+        return findUser(userId)
                 .map(user -> {
                     user.updateUser(request);
                     return new PutUserResponseDto(currentDate());
                 })
-                .orElseThrow(() -> new UserUpdateException("User update failed: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
+    }
+    
+    /**
+     * User Repository
+     */
+    private Optional<User> insertUser(User user)  {
+        return Optional.ofNullable(userRepo.save(user));
+    }
+    
+    private Optional<User> findUser(Long id) {
+        return Optional.ofNullable(id)
+                .map(userRepo::findById)
+                .orElseGet(Optional::empty);
+    }
+    
+    private Optional<User> findUser(int snsType, String snsId) {
+        return Optional.ofNullable(snsId)
+                .map(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType))
+                .orElseGet(Optional::empty);
     }
 }

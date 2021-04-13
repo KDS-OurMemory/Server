@@ -1,16 +1,18 @@
 package com.kds.ourmemory.advice.v1.user;
 
+import javax.validation.UnexpectedTypeException;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
-import com.kds.ourmemory.advice.v1.user.exception.UserTokenUpdateException;
-import com.kds.ourmemory.advice.v1.user.exception.UserUpdateException;
 import com.kds.ourmemory.controller.v1.user.UserController;
 
 /**
@@ -23,14 +25,13 @@ import com.kds.ourmemory.controller.v1.user.UserController;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class UserControllerAdvice extends RestControllerAdviceResult{
     
-    @ExceptionHandler(UserTokenUpdateException.class)
-    public ResponseEntity<?> handleUserTokenUpdateException(UserTokenUpdateException e) {
-        return response(UserResultCode.TOKEN_UPDATE_ERROR, e);
-    }
-    
-    @ExceptionHandler(UserUpdateException.class)
-    public ResponseEntity<?> handleUserUpdateException(UserUpdateException e) {
-        return response(UserResultCode.USER_UPDATE_ERROR, e);
+    /* Http Status Error */
+    @ExceptionHandler({ 
+        MethodArgumentNotValidException.class, 
+        HttpMessageNotReadableException.class,
+        UnexpectedTypeException.class })
+    public ResponseEntity<?> handleMethodArgumentNotValidException(Exception e) {
+        return response(UserResultCode.BAD_PARAMETER, e);
     }
     
     @ExceptionHandler(UserNotFoundException.class)

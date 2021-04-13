@@ -1,13 +1,16 @@
 package com.kds.ourmemory.advice.v1.memory;
 
+import javax.validation.UnexpectedTypeException;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryBadParameterException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryDataRelationException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
@@ -43,8 +46,8 @@ public class MemoryControllerAdvice extends RestControllerAdviceResult{
     
     
     /* HTTP Status Error */
-    @ExceptionHandler(MemoryBadParameterException.class)
-    public ResponseEntity<?> handleMemoryBadParameterException(MemoryBadParameterException e) {
+    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class, UnexpectedTypeException.class})
+    public ResponseEntity<?> handleMethodArgumentNotValidException(Exception e) {
         return response(MemoryResultCode.BAD_PARAMETER, e);
     }
     

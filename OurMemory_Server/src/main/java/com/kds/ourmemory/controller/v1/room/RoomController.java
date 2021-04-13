@@ -5,6 +5,8 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +40,7 @@ public class RoomController {
 
     @ApiOperation(value = "방 생성", notes = "앱에서 전달받은 데이터로 방 생성 및 사용자 추가")
     @PostMapping(value = "/room")
-    public ApiResult<InsertRoomResponseDto> insert(@RequestBody InsertRoomRequestDto request) throws RoomInternalServerException {
+    public ApiResult<InsertRoomResponseDto> insert(@Valid @RequestBody InsertRoomRequestDto request) throws RoomInternalServerException {
         return ok(roomService.insert(request));
     }
 

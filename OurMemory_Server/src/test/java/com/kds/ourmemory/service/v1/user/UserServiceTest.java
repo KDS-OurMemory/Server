@@ -42,7 +42,7 @@ class UserServiceTest {
     
     @BeforeAll
     void setUp() {
-        insertUserRequestDto = new InsertUserRequestDto("TESTS_SNS_ID", 1, "테스트 푸쉬", "테스트 유저", "0730", true, false);
+        insertUserRequestDto = new InsertUserRequestDto(1, "TESTS_SNS_ID", "테스트 푸쉬", "테스트 유저", "0720", true, false);
         patchUserTokenRequestDto = new PatchUserTokenRequestDto("testToken");
         putUserRequestDto = new PutUserRequestDto("이름 업데이트!", "0903", true, false);
     }
@@ -66,7 +66,7 @@ class UserServiceTest {
         assertThat(insRes.getJoinDate()).isEqualTo(currentDate());
         log.info("joinDate: {}", insRes.getJoinDate());
         
-        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsId(), insertUserRequestDto.getSnsType());
+        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
         assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
         assertThat(userRes.getBirthday()).isEqualTo(userRes.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
@@ -83,7 +83,7 @@ class UserServiceTest {
         assertThat(insRes.getJoinDate()).isEqualTo(currentDate());
         log.info("joinDate: {}", insRes.getJoinDate());
         
-        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsId(), insertUserRequestDto.getSnsType());
+        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
         assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
         assertThat(userRes.getBirthday()).isEqualTo(userRes.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
@@ -94,7 +94,7 @@ class UserServiceTest {
         assertThat(patchUserTokenResponseDto).isNotNull();
         assertThat(patchUserTokenResponseDto.getPatchDate()).isEqualTo(currentDate());
         
-        userRes = userService.signIn(insertUserRequestDto.getSnsId(), insertUserRequestDto.getSnsType());
+        userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
         assertThat(userRes.getPushToken()).isEqualTo(patchUserTokenRequestDto.getPushToken());
         
@@ -110,7 +110,7 @@ class UserServiceTest {
         assertThat(insRes.getJoinDate()).isEqualTo(currentDate());
         log.info("joinDate: {}", insRes.getJoinDate());
         
-        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsId(), insertUserRequestDto.getSnsType());
+        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
         assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
         assertThat(userRes.getBirthday()).isEqualTo(userRes.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
@@ -122,7 +122,7 @@ class UserServiceTest {
         assertThat(putUserResponseDto).isNotNull();
         assertThat(putUserResponseDto.getUpdateDate()).isEqualTo(currentDate());
         
-        userRes = userService.signIn(insertUserRequestDto.getSnsId(), insertUserRequestDto.getSnsType());
+        userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
         assertThat(userRes.getBirthday()).isEqualTo(userRes.isBirthdayOpen()? putUserRequestDto.getBirthday(): null);   // 생일 비공개일 경우 값을 생일이 null이 된다.
         assertThat(userRes.getName()).isEqualTo(putUserRequestDto.getName());

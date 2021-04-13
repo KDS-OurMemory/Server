@@ -5,6 +5,8 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +38,7 @@ public class MemoryController {
 
     @ApiOperation(value="일정 추가", notes = "일정을 추가하고 일정-방-사용자 의 관계를 설정한다.")
     @PostMapping("/memory")
-    public ApiResult<InsertMemoryResponseDto> addMemory(@RequestBody InsertMemoryRequestDto request) {
+    public ApiResult<InsertMemoryResponseDto> addMemory(@Valid @RequestBody InsertMemoryRequestDto request) {
         return ok(memoryService.insert(request));
     }
     

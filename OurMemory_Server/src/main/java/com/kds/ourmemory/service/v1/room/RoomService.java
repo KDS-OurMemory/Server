@@ -15,7 +15,6 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomDataRelationException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNullException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
@@ -101,7 +100,7 @@ public class RoomService {
      * https://doublesprogramming.tistory.com/259
      */
     @Transactional
-    public DeleteRoomResponseDto delete(Long id) throws RoomNotFoundException, RoomInternalServerException {
+    public DeleteRoomResponseDto delete(Long id) throws RoomNotFoundException {
         return findRoom(id)
                 .map(room -> {
                     Optional.ofNullable(room.getUsers())
@@ -113,7 +112,7 @@ public class RoomService {
                     deleteRoom(room);
                     return new DeleteRoomResponseDto(currentDate());
                 })
-                .orElseThrow(() -> new RoomInternalServerException("Delete Failed: " + id));
+                .orElseThrow(() -> new RoomNotFoundException("Not found room matched roomId: " + id));
     }
     
     /**
@@ -124,11 +123,14 @@ public class RoomService {
     }
     
     private Optional<Room> findRoom(Long id) {
-        return roomRepo.findById(id);
+        return Optional.ofNullable(id)
+                .map(roomRepo::findById)
+                .orElseGet(Optional::empty);
     }
     
-    private void deleteRoom(Room room) throws RoomNullException{
-        roomRepo.delete(room);
+    private void deleteRoom(Room room) {
+        Optional.ofNullable(room)
+            .ifPresent(roomRepo::delete);
     }
     
     /**
@@ -138,6 +140,8 @@ public class RoomService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {
-        return userRepo.findById(id);
+        return Optional.ofNullable(id)
+                .map(userRepo::findById)
+                .orElseGet(Optional::empty);
     }
 }
