@@ -11,6 +11,7 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomDataRelationException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNullException;
 import com.kds.ourmemory.controller.v1.room.RoomController;
 
 /**
@@ -23,6 +24,7 @@ import com.kds.ourmemory.controller.v1.room.RoomController;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RoomControllerAdvice extends RestControllerAdviceResult{
 
+    /* Custom Error */
     @ExceptionHandler(RoomDataRelationException.class)
     public ResponseEntity<?> handleRoomAddMemberException(RoomDataRelationException e) {
         return response(RoomResultCode.DATA_RELATION_ERROR, e);
@@ -33,6 +35,12 @@ public class RoomControllerAdvice extends RestControllerAdviceResult{
         return response(RoomResultCode.NOT_FOUND_OWNER, e);
     }
     
+    @ExceptionHandler(RoomNullException.class)
+    public ResponseEntity<?> handleRoomNullException(RoomNullException e) {
+        return response(RoomResultCode.ROOM_NULL_ERROR, e);
+    }
+    
+    /* Http Status Error */
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<?> handleRoomNotFoundException(RoomNotFoundException e) {
         return response(RoomResultCode.NOT_FOUND, e);

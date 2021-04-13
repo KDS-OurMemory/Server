@@ -21,7 +21,15 @@ import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class CommonControllerAdvice extends RestControllerAdviceResult{
-	@ExceptionHandler(MissingServletRequestParameterException.class)
+	
+    /* Custom Error */
+    @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
+    public ResponseEntity<?> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
+        return response(CommonResultCode.INCORRECT_RESULT_SIZE, e);
+    }
+    
+    /* Http Status Error */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<?> handleBadParameterException(MissingServletRequestParameterException e) {
 	    return response(CommonResultCode.BAD_PARAMETER, e);
 	}
@@ -35,11 +43,6 @@ public class CommonControllerAdvice extends RestControllerAdviceResult{
 	public ResponseEntity<?> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
 	    return response(CommonResultCode.UNSUPPORTED_MEDIA_TYPE, e);
 	}
-	
-	@ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-    public ResponseEntity<?> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
-        return response(CommonResultCode.INCORRECT_RESULT_SIZE, e);
-    }
 	
 	@ExceptionHandler({Exception.class, RuntimeException.class})
 	public ResponseEntity<?> handleException(Exception e) {

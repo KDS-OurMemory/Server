@@ -5,7 +5,6 @@ import static com.kds.ourmemory.util.DateUtil.currentTime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -16,6 +15,7 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomDataRelationException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNullException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
@@ -33,8 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class RoomService {
     private final RoomRepository roomRepo;
     
-    // 방과 관련된 사용자를 작업하기 위해 추가 
-    // -> 서비스 코드를 받을 경우 무한루프에 걸려 어쩔 수 없이 레포지토리 직접 가져옴
+    // 방과 관련된 사용자 데이터를 작업하기 위해 추가 
     private final UserRepository userRepo;
     
     private final FcmService fcmService;
@@ -42,9 +41,7 @@ public class RoomService {
     @Transactional
     public InsertRoomResponseDto insert(InsertRoomRequestDto request)
             throws RoomDataRelationException, RoomNotFoundOwnerException, RoomInternalServerException {
-        return Optional.ofNullable(request.getOwner())
-                .map(ownerId -> findUserById(ownerId).orElseThrow(
-                        () -> new RoomNotFoundOwnerException("Not found user matched to userId: " + ownerId)))
+        return findUser(request.getOwner())
                 .map(owner -> {
                     Room room = Room.builder()
                         .owner(owner)
@@ -54,23 +51,28 @@ public class RoomService {
                         .used(true)
                         .users(new ArrayList<>())
                         .build();
-                    return insertRoom(room).get();
+                    return insertRoom(room)
+                            .orElseThrow(() -> new RoomInternalServerException(String.format(
+                                    "Insert room failed. [name: %s, owner: %s]", request.getName(), owner.getName())));
                 })
-                .map(room -> Optional.of(room.getOwner())
-                        .map(owner -> owner.addRoom(room))
-                        .map(room::addUser)
-                        .map(r -> addMemberToRoom(r, request.getMember()))
-                        .orElseThrow(() -> new RoomDataRelationException("Insert failed Relational Data to users_rooms."))
-                )
+                .map(room -> {
+                    // 생성자 - 방 연결
+                    room.getOwner().addRoom(room);
+                    room.addUser(room.getOwner());
+                    
+                    // 참여자 - 방 연결
+                    return addMemberToRoom(room, request.getMember());
+                })
                 .map(room -> new InsertRoomResponseDto(room.getId(), currentDate()))
-                .orElseThrow(() -> new RoomInternalServerException("Create Room Failed."));
+                .orElseThrow(() -> new RoomNotFoundOwnerException(
+                        "Not found user matched to userId: " + request.getOwner()));
     }
 
     @Transactional
     public Room addMemberToRoom(Room room, List<Long> members) throws RoomDataRelationException {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> 
-                findUserById(id).filter(Objects::nonNull)
+                findUser(id)
                 .map(user -> {
                     user.addRoom(room);
                     room.addUser(user);
@@ -79,14 +81,14 @@ public class RoomService {
                                     String.format("'%s' 방에 초대되셨습니다.", room.getName())));
                     return user;
                  })
-                 .orElseThrow(() -> new RoomDataRelationException("memberId is Not Registered DB. id: " + id))
+                 .orElseThrow(() -> new RoomNotFoundOwnerException("Not found member matched to userId: " + id))
              ));
         
         return room;
     }
     
     public List<Room> findRooms(Long userId) throws RoomNotFoundException {
-        return findUserById(userId).map(User::getRooms)
+        return findUser(userId).map(User::getRooms)
                 .orElseThrow(() -> new RoomNotFoundException("Not Found rooms from user matched to userId: " + userId));
     }
     
@@ -99,8 +101,8 @@ public class RoomService {
      * https://doublesprogramming.tistory.com/259
      */
     @Transactional
-    public DeleteRoomResponseDto delete(Long id) throws RoomInternalServerException {
-        return findRoomById(id)
+    public DeleteRoomResponseDto delete(Long id) throws RoomNotFoundException, RoomInternalServerException {
+        return findRoom(id)
                 .map(room -> {
                     Optional.ofNullable(room.getUsers())
                             .ifPresent(users -> users.stream().forEach(user -> user.getRooms().remove(room)));
@@ -114,19 +116,28 @@ public class RoomService {
                 .orElseThrow(() -> new RoomInternalServerException("Delete Failed: " + id));
     }
     
+    /**
+     * Room Repository
+     */
     private Optional<Room> insertRoom(Room room) {
-        return Optional.of(roomRepo.save(room));
+        return Optional.ofNullable(roomRepo.save(room));
     }
     
-    private Optional<Room> findRoomById(Long id) {
+    private Optional<Room> findRoom(Long id) {
         return roomRepo.findById(id);
     }
     
-    private void deleteRoom(Room room) {
+    private void deleteRoom(Room room) throws RoomNullException{
         roomRepo.delete(room);
     }
     
-    private Optional<User> findUserById(Long id) {
+    /**
+     * User Repository
+     * 
+     * When working with a service code, the service code is connected to each other 
+     * and is caught in an infinite loop in the injection of dependencies.
+     */
+    private Optional<User> findUser(Long id) {
         return userRepo.findById(id);
     }
 }

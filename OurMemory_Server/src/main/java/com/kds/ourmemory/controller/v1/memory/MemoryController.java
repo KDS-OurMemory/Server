@@ -50,6 +50,6 @@ public class MemoryController {
     @ApiOperation(value = "일정 삭제", notes = "일정 삭제, 사용자-일정-방 연결된 관계 삭제")
     @DeleteMapping("/memory/{memoryId}")
     public ApiResult<DeleteMemoryResponseDto> deleteMemory(@ApiParam(value = "memoryId", required = true) @PathVariable Long memoryId) {
-        return ok(memoryService.delete(memoryId));
+        return ok(memoryService.deleteMemory(memoryId));
     }
 }

@@ -159,7 +159,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자O_포함O.getMemoryId());
+        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자O_포함O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -268,7 +268,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자O_포함X.getMemoryId());
+        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자O_포함X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -375,7 +375,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방O_참여자X.getMemoryId());
+        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -483,7 +483,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방X_참여자O.getMemoryId());
+        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -589,7 +589,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.delete(insertResponse_방X_참여자X.getMemoryId());
+        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
