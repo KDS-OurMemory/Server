@@ -1,8 +1,12 @@
 package com.kds.ourmemory.advice.v1.room;
 
+import javax.validation.UnexpectedTypeException;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -23,6 +27,7 @@ import com.kds.ourmemory.controller.v1.room.RoomController;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RoomControllerAdvice extends RestControllerAdviceResult{
 
+    /* Custom Error */
     @ExceptionHandler(RoomDataRelationException.class)
     public ResponseEntity<?> handleRoomAddMemberException(RoomDataRelationException e) {
         return response(RoomResultCode.DATA_RELATION_ERROR, e);
@@ -31,6 +36,13 @@ public class RoomControllerAdvice extends RestControllerAdviceResult{
     @ExceptionHandler(RoomNotFoundOwnerException.class)
     public ResponseEntity<?> handleRoomNotFoundOwnerException(RoomNotFoundOwnerException e) {
         return response(RoomResultCode.NOT_FOUND_OWNER, e);
+    }
+    
+    
+    /* Http Status Error */
+    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class, UnexpectedTypeException.class})
+    public ResponseEntity<?> handleMethodArgumentNotValidException(Exception e) {
+        return response(RoomResultCode.BAD_PARAMETER, e);
     }
     
     @ExceptionHandler(RoomNotFoundException.class)

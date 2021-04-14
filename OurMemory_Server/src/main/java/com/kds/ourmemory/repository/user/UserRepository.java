@@ -10,5 +10,5 @@ import com.kds.ourmemory.entity.user.User;
 
 @Transactional
 public interface UserRepository extends JpaRepository<User, Long> {
-	public Optional<User> findBySnsIdAndSnsType(String snsId, int snsType);
+    public Optional<User> findBySnsIdAndSnsType(String snsId, int snsType);
 }
