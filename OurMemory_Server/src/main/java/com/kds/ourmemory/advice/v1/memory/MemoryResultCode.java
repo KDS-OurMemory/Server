@@ -9,9 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MemoryResultCode implements ResultCode{
     /* Custom Error */
-    DATA_RELATION_ERROR("M001", "일정에 대한 관계테이블 작업 중 알 수 없는 오류가 발생하였습니다."),
-    NOT_FOUND_WRITER("M002", "일정 생성자의 정보를 찾을 수 없습니다. 생성자의 회원 번호를 확인해주시기 바랍니다."),
-    NOT_FOUND_ROOM("M003", "일정을 등록시킬 방을 찾을 수 없습니다."),
+    NOT_FOUND_WRITER("M001", "일정 생성자의 정보를 찾을 수 없습니다. 생성자의 회원 번호를 확인해주시기 바랍니다."),
+    NOT_FOUND_ROOM("M002", "일정을 등록시킬 방을 찾을 수 없습니다. 방 번호를 확인해주시기 바랍니다."),
     
     
     /* Http Status Error */

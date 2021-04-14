@@ -26,14 +26,14 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepo;
 
-	public InsertUserResponseDto signUp(User user) throws UserInternalServerException {
+	public InsertUserResponseDto signUp(User user) {
 		return insertUser(user)
 		        .map(u -> new InsertUserResponseDto(u.getId(), currentDate()))
                 .orElseThrow(() -> new UserInternalServerException(
                         String.format("User '%s' insert failed.", user.getName())));
 	}
 
-    public UserResponseDto signIn(int snsType, String snsId) throws UserNotFoundException {
+    public UserResponseDto signIn(int snsType, String snsId) {
         return findUser(snsType, snsId)
                 .map(UserResponseDto::new)
                 .orElseThrow(() -> new UserNotFoundException(
@@ -41,8 +41,7 @@ public class UserService {
     }
 	
     @Transactional
-    public PatchUserTokenResponseDto patchToken(Long userId, PatchUserTokenRequestDto request)
-            throws UserNotFoundException {
+    public PatchUserTokenResponseDto patchToken(Long userId, PatchUserTokenRequestDto request) {
         return findUser(userId).map(user -> {
             user.changePushToken(request.getPushToken());
             return new PatchUserTokenResponseDto(currentDate());
@@ -51,7 +50,7 @@ public class UserService {
     }
     
     @Transactional
-    public PutUserResponseDto update(Long userId, PutUserRequestDto request) throws UserNotFoundException{
+    public PutUserResponseDto update(Long userId, PutUserRequestDto request) {
         return findUser(userId)
                 .map(user -> {
                     user.updateUser(request);

@@ -14,10 +14,8 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
 
 /**
- * Because the communication was successful, the status code value is set to 200 
- * and the error code value and message are passed.
- * 
- * @author idean
+ * Because the communication was successful, the status code value is set to 200.
+ * And the error code value and message are passed.
  */
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)

@@ -14,12 +14,10 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryDataRelationException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
-import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
@@ -51,8 +49,7 @@ public class MemoryService {
     private final FcmService firebaseFcm;
     
     @Transactional
-    public InsertMemoryResponseDto insert(InsertMemoryRequestDto request)
-            throws MemoryNotFoundWriterException, MemoryDataRelationException, MemoryInternalServerException {
+    public InsertMemoryResponseDto insert(InsertMemoryRequestDto request) {
         return findUser(request.getUserId())
                 .map(writer -> {
                     Memory memory = Memory.builder()
@@ -78,8 +75,8 @@ public class MemoryService {
                     memory.addUser(memory.getWriter());
                     
                     // 일정 - 참여자 연결
-                    addMemberToMemory(memory, request.getMembers());
-                    addRoomToMemory(memory, request.getShareRooms());
+                    relationMemoryToMember(memory, request.getMembers());
+                    relationMemoryToRoom(memory, request.getShareRooms());
                     Long roomId = relationMainRoom(memory, request);
                     
                     return new InsertMemoryResponseDto(memory.getId(), roomId, currentDate());
@@ -89,8 +86,9 @@ public class MemoryService {
     }
     
     @Transactional
-    public void addRoomToMemory(Memory memory, List<Long> roomIds) throws MemoryDataRelationException {
-        Optional.ofNullable(roomIds).map(List::stream).ifPresent(stream -> stream.forEach(id -> {
+    public void relationMemoryToRoom(Memory memory, List<Long> roomIds) {
+        Optional.ofNullable(roomIds)
+        .map(List::stream).ifPresent(stream -> stream.forEach(id -> 
             findRoom(id)
             .filter(Objects::nonNull)
             .map(room -> {
@@ -102,15 +100,14 @@ public class MemoryService {
                                 "OurMemory - 일정 공유", String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName()))));
                 return room;
             })
-            .orElseThrow(() -> new MemoryDataRelationException(
-                    String.format("Failed to relation the memory '%s' with the room '%s'", memory.getName(), id)));
-        }));
+            .orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))
+        ));
     }
     
     @Transactional
-    public void addMemberToMemory(Memory memory, List<Long> members)
-            throws MemoryDataRelationException, UserNotFoundException {
-        Optional.ofNullable(members).map(List::stream).ifPresent(stream -> stream.forEach(id -> {
+    public void relationMemoryToMember(Memory memory, List<Long> members) {
+        Optional.ofNullable(members).map(List::stream)
+        .ifPresent(stream -> stream.forEach(id -> 
             findUser(id).filter(Objects::nonNull).map(user -> {
                 user.addMemory(memory);
                 memory.addUser(user);
@@ -119,9 +116,8 @@ public class MemoryService {
                         String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
                 return user;
             })
-            .orElseThrow(() -> new MemoryDataRelationException(
-                    String.format("Failed to relation the memory '%s' with the memberId '%d'", memory.getName(), id)));
-        }));
+            .orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))
+        ));
     }
     
     /**
@@ -138,7 +134,7 @@ public class MemoryService {
      * @param memory
      * @param request 
      */
-    private Long relationMainRoom(Memory memory, InsertMemoryRequestDto request) throws MemoryNotFoundRoomException {
+    private Long relationMainRoom(Memory memory, InsertMemoryRequestDto request) {
         Room mainRoom = findRoom(request.getRoomId())
                 // 1. 메인방이 있는 경우 -> 참여자가 전부 포함되는지 확인
                 .filter(room -> {
@@ -179,19 +175,19 @@ public class MemoryService {
         return Optional.ofNullable(mainRoom)
                 // 일정과 연결할 방이 있는 경우
                 .map(room -> {
-                    addRoomToMemory(memory, Arrays.asList(room.getId()));
+                    relationMemoryToRoom(memory, Arrays.asList(room.getId()));
                     return room.getId();
                 }).orElse(null);
     }
     
-    public List<Memory> findMemorys(Long userId) throws MemoryNotFoundWriterException {
+    public List<Memory> findMemorys(Long userId) {
         return findUser(userId)
                 .map(User::getMemorys)
                 .orElseThrow(() -> new MemoryNotFoundWriterException("Not found writer from userId: " + userId));
     }
     
     @Transactional
-    public DeleteMemoryResponseDto deleteMemory(Long id) throws MemoryNotFoundException {
+    public DeleteMemoryResponseDto deleteMemory(Long id) {
         return findMemory(id)
                 .map(memory -> {
                     memory.getRooms().stream().forEach(room -> room.getMemorys().remove(memory));

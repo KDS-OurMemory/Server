@@ -11,9 +11,9 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import com.kds.ourmemory.advice.v1.room.exception.RoomDataRelationException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
@@ -38,8 +38,7 @@ public class RoomService {
     private final FcmService fcmService;
 
     @Transactional
-    public InsertRoomResponseDto insert(InsertRoomRequestDto request)
-            throws RoomDataRelationException, RoomNotFoundOwnerException, RoomInternalServerException {
+    public InsertRoomResponseDto insert(InsertRoomRequestDto request) {
         return findUser(request.getOwner())
                 .map(owner -> {
                     Room room = Room.builder()
@@ -68,7 +67,7 @@ public class RoomService {
     }
 
     @Transactional
-    public Room addMemberToRoom(Room room, List<Long> members) throws RoomDataRelationException {
+    public Room addMemberToRoom(Room room, List<Long> members) {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> 
                 findUser(id)
@@ -80,15 +79,15 @@ public class RoomService {
                                     String.format("'%s' 방에 초대되셨습니다.", room.getName())));
                     return user;
                  })
-                 .orElseThrow(() -> new RoomNotFoundOwnerException("Not found member matched to userId: " + id))
+                 .orElseThrow(() -> new RoomNotFoundMemberException("Not found member matched to userId: " + id))
              ));
         
         return room;
     }
     
-    public List<Room> findRooms(Long userId) throws RoomNotFoundException {
+    public List<Room> findRooms(Long userId) {
         return findUser(userId).map(User::getRooms)
-                .orElseThrow(() -> new RoomNotFoundException("Not Found rooms from user matched to userId: " + userId));
+                .orElseThrow(() -> new RoomNotFoundOwnerException("Not Found user matched to userId: " + userId));
     }
     
     /**
@@ -100,7 +99,7 @@ public class RoomService {
      * https://doublesprogramming.tistory.com/259
      */
     @Transactional
-    public DeleteRoomResponseDto delete(Long id) throws RoomNotFoundException {
+    public DeleteRoomResponseDto delete(Long id) {
         return findRoom(id)
                 .map(room -> {
                     Optional.ofNullable(room.getUsers())

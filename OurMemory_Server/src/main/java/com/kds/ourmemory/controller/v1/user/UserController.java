@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
-import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserRequestDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
@@ -40,16 +38,14 @@ public class UserController {
 
     @ApiOperation(value = "회원가입", notes = "앱에서 전달받은 데이터로 회원가입 진행")
     @PostMapping("/user")
-    public ApiResult<InsertUserResponseDto> signUp(@Valid @RequestBody InsertUserRequestDto request)
-            throws UserInternalServerException {
+    public ApiResult<InsertUserResponseDto> signUp(@Valid @RequestBody InsertUserRequestDto request) {
         return ok(service.signUp(request.toEntity()));
     }
 
     @ApiOperation(value = "로그인", notes = "snsId 및 snsType 으로 사용자 정보 조회 및 리턴")
     @GetMapping("/user")
-    public ApiResult<UserResponseDto> signIn(
-            @ApiParam(value = "snsType", required = true) @RequestParam int snsType,
-            @ApiParam(value = "snsId", required = true) @RequestParam String snsId) throws UserNotFoundException {
+    public ApiResult<UserResponseDto> signIn(@ApiParam(value = "snsType", required = true) @RequestParam int snsType,
+            @ApiParam(value = "snsId", required = true) @RequestParam String snsId) {
         return ok(service.signIn(snsType, snsId));
     }
 
@@ -57,14 +53,13 @@ public class UserController {
     @PatchMapping("/user/{userId}")
     public ApiResult<PatchUserTokenResponseDto> patchToken(
             @ApiParam(value = "userId", required = true) @PathVariable Long userId,
-            @Valid @RequestBody PatchUserTokenRequestDto request) throws UserNotFoundException {
+            @Valid @RequestBody PatchUserTokenRequestDto request) {
         return ok(service.patchToken(userId, request));
     }
-    
+
     @ApiOperation(value = "사용자 정보 업데이트", notes = "전달받은 값이 있는 경우 업데이트한다.")
     @PutMapping("/user/{userId}")
-    public ApiResult<PutUserResponseDto> update(
-            @ApiParam(value = "userId", required = true) @PathVariable Long userId,
+    public ApiResult<PutUserResponseDto> update(@ApiParam(value = "userId", required = true) @PathVariable Long userId,
             @Valid @RequestBody PutUserRequestDto request) {
         return ok(service.update(userId, request));
     }

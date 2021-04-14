@@ -16,10 +16,8 @@ import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.user.UserController;
 
 /**
- * Because the communication was successful, the status code value is set to 200 
- * and the error code value and message are passed.
- * 
- * @author idean
+ * Because the communication was successful, the status code value is set to 200.
+ * And the error code value and message are passed.
  */
 @RestControllerAdvice(assignableTypes = UserController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)

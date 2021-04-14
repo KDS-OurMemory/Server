@@ -33,25 +33,28 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping(value = "/v1")
 public class MemoryController {
-    
     private final MemoryService memoryService;
 
-    @ApiOperation(value="일정 추가", notes = "일정을 추가하고 일정-방-사용자 의 관계를 설정한다.")
+    @ApiOperation(value = "일정 추가", notes = "일정을 추가하고 일정-방-사용자 의 관계를 설정한다.")
     @PostMapping("/memory")
     public ApiResult<InsertMemoryResponseDto> addMemory(@Valid @RequestBody InsertMemoryRequestDto request) {
         return ok(memoryService.insert(request));
     }
-    
+
     @ApiOperation(value = "일정 조회", notes = "사용자가 생성했거나 참여중인 일정을 조회한다.")
     @GetMapping("/memory/{userId}")
-    public ApiResult<List<FindMemoryResponseDto>> findMemorys(@ApiParam(value = "userId", required = true) @PathVariable Long userId) {
-        return ok(memoryService.findMemorys(userId).stream().filter(Memory::isUsed).map(FindMemoryResponseDto::new)
+    public ApiResult<List<FindMemoryResponseDto>> findMemorys(
+            @ApiParam(value = "userId", required = true) @PathVariable Long userId) {
+        return ok(memoryService.findMemorys(userId).stream()
+                .filter(Memory::isUsed)
+                .map(FindMemoryResponseDto::new)
                 .collect(Collectors.toList()));
     }
-    
+
     @ApiOperation(value = "일정 삭제", notes = "일정 삭제, 사용자-일정-방 연결된 관계 삭제")
     @DeleteMapping("/memory/{memoryId}")
-    public ApiResult<DeleteMemoryResponseDto> deleteMemory(@ApiParam(value = "memoryId", required = true) @PathVariable Long memoryId) {
+    public ApiResult<DeleteMemoryResponseDto> deleteMemory(
+            @ApiParam(value = "memoryId", required = true) @PathVariable Long memoryId) {
         return ok(memoryService.deleteMemory(memoryId));
     }
 }

@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
-import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
 import com.kds.ourmemory.controller.v1.room.dto.FindRoomResponseDto;
@@ -40,22 +38,24 @@ public class RoomController {
 
     @ApiOperation(value = "방 생성", notes = "앱에서 전달받은 데이터로 방 생성 및 사용자 추가")
     @PostMapping(value = "/room")
-    public ApiResult<InsertRoomResponseDto> insert(@Valid @RequestBody InsertRoomRequestDto request) throws RoomInternalServerException {
+    public ApiResult<InsertRoomResponseDto> insert(@Valid @RequestBody InsertRoomRequestDto request) {
         return ok(roomService.insert(request));
     }
 
     @ApiOperation(value = "방 목록 조회", notes = "사용자가 참여중인 방 목록을 조회한다.")
     @GetMapping(value = "/rooms/{userId}")
     public ApiResult<List<FindRoomResponseDto>> findRooms(
-            @ApiParam(value = "userId", required = true) @PathVariable Long userId) throws UserNotFoundException {
-        return ok(roomService.findRooms(userId).stream().filter(Room::isUsed).map(FindRoomResponseDto::new)
+            @ApiParam(value = "userId", required = true) @PathVariable Long userId) {
+        return ok(roomService.findRooms(userId).stream()
+                .filter(Room::isUsed)
+                .map(FindRoomResponseDto::new)
                 .collect(Collectors.toList()));
     }
 
     @ApiOperation(value = "방 삭제", notes = "방 삭제, 사용자-방-일정 연결된 관계 삭제")
     @DeleteMapping(value = "/room/{roomId}")
-    public ApiResult<DeleteRoomResponseDto> delete(@ApiParam(value = "roomId", required = true) @PathVariable Long roomId)
-            throws RoomInternalServerException {
+    public ApiResult<DeleteRoomResponseDto> delete(
+            @ApiParam(value = "roomId", required = true) @PathVariable Long roomId) {
         return ok(roomService.delete(roomId));
     }
 }

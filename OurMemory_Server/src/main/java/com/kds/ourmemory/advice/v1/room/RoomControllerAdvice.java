@@ -11,31 +11,29 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
-import com.kds.ourmemory.advice.v1.room.exception.RoomDataRelationException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.controller.v1.room.RoomController;
 
 /**
- * Because the communication was successful, the status code value is set to 200 
- * and the error code value and message are passed.
- * 
- * @author idean
+ * Because the communication was successful, the status code value is set to 200.
+ * And the error code value and message are passed.
  */
 @RestControllerAdvice(assignableTypes = RoomController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RoomControllerAdvice extends RestControllerAdviceResult{
 
     /* Custom Error */
-    @ExceptionHandler(RoomDataRelationException.class)
-    public ResponseEntity<?> handleRoomAddMemberException(RoomDataRelationException e) {
-        return response(RoomResultCode.DATA_RELATION_ERROR, e);
-    }
-    
     @ExceptionHandler(RoomNotFoundOwnerException.class)
     public ResponseEntity<?> handleRoomNotFoundOwnerException(RoomNotFoundOwnerException e) {
         return response(RoomResultCode.NOT_FOUND_OWNER, e);
+    }
+    
+    @ExceptionHandler(RoomNotFoundMemberException.class)
+    public ResponseEntity<?> handleRoomNotFoundMemberException (RoomNotFoundMemberException e) {
+        return response(RoomResultCode.NOT_FOUND_MEMBER, e);
     }
     
     
