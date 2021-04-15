@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 public class FcmRequestDto {
     private String token;
+    private String deviceOs;
     private String title;
     private String body;
     

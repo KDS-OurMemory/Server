@@ -75,8 +75,8 @@ public class RoomService {
                     user.addRoom(room);
                     room.addUser(user);
                     
-                    fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - 방 참여",
-                                    String.format("'%s' 방에 초대되셨습니다.", room.getName())));
+                    fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
+                            "OurMemory - 방 참여", String.format("'%s' 방에 초대되셨습니다.", room.getName())));
                     return user;
                  })
                  .orElseThrow(() -> new RoomNotFoundMemberException("Not found member matched to userId: " + id))

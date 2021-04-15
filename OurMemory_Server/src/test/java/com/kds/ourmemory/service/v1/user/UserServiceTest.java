@@ -42,7 +42,7 @@ class UserServiceTest {
     
     @BeforeAll
     void setUp() {
-        insertUserRequestDto = new InsertUserRequestDto(1, "TESTS_SNS_ID", "before pushToken", "테스트 유저", "0720", true, false);
+        insertUserRequestDto = new InsertUserRequestDto(1, "TESTS_SNS_ID", "before pushToken", "테스트 유저", "0720", true, false, "Android");
         patchUserTokenRequestDto = new PatchUserTokenRequestDto("after pushToken");
         putUserRequestDto = new PutUserRequestDto("이름 업데이트!", "0903", true, false);
     }

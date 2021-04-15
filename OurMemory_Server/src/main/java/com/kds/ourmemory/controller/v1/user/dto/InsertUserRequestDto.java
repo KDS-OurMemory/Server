@@ -36,6 +36,9 @@ public class InsertUserRequestDto {
 	@ApiModelProperty(value="생일 공개여부", required = false)
 	private boolean birthdayOpen;
 	
+	@ApiModelProperty(value="디바이스 OS", required = true)
+	private String deviceOs;
+	
 	public User toEntity() {
 	    return User.builder()
                 .snsId(snsId)
@@ -46,6 +49,7 @@ public class InsertUserRequestDto {
                 .birthday(birthday)
                 .solar(solar)
                 .birthdayOpen(birthdayOpen)
+                .deviceOs(deviceOs)
                 .role("user")
                 .regDate(currentTime())
                 .used(true)

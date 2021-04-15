@@ -83,6 +83,9 @@ public class User implements Serializable{
 	@Column(nullable = false, name="user_used_flag")
 	private boolean used;
 	
+	@Column(nullable = false, name="user_device_os")
+	private String deviceOs;
+	
 	@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="users_rooms",
                 joinColumns = @JoinColumn(name = "user_id"),
@@ -126,10 +129,10 @@ public class User implements Serializable{
     public void updateUser(PutUserRequestDto request) {
         Optional.ofNullable(request)
             .ifPresent(req -> {
-                Optional.ofNullable(request.getName()).ifPresent(n -> this.name = n);
-                Optional.ofNullable(request.getBirthday()).ifPresent(b -> this.birthday = b);
-                Optional.ofNullable(request.getBirthdayOpen()).ifPresent(b -> this.birthdayOpen = b);
-                Optional.ofNullable(request.getPush()).ifPresent(p -> this.push = p);
+                Optional.ofNullable(request.getName()).ifPresent(name -> this.name = name);
+                Optional.ofNullable(request.getBirthday()).ifPresent(birthday -> this.birthday = birthday);
+                Optional.ofNullable(request.getBirthdayOpen()).ifPresent(birthdayOpen -> this.birthdayOpen = birthdayOpen);
+                Optional.ofNullable(request.getPush()).ifPresent(push -> this.push = push);
             });
     }
 }

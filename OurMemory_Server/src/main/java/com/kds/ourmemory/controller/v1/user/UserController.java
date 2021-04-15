@@ -42,8 +42,8 @@ public class UserController {
 
     @ApiOperation(value = "로그인", notes = "snsId 및 snsType 으로 사용자 정보 조회 및 리턴")
     @GetMapping("/user")
-    public ApiResult<UserResponseDto> signIn(@ApiParam(value = "snsType", required = true) @RequestParam int snsType,
-            @ApiParam(value = "snsId", required = true) @RequestParam String snsId) {
+    public ApiResult<UserResponseDto> signIn(@ApiParam(value = "snsType", required = true) @RequestParam(required = false) Integer snsType,
+            @ApiParam(value = "snsId", required = true) @RequestParam(required = false) String snsId) {
         return ok(service.signIn(snsType, snsId));
     }
 

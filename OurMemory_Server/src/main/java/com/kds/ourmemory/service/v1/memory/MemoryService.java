@@ -66,8 +66,9 @@ public class MemoryService {
                         .used(true)
                         .build();
                     
-                    return insertMemory(memory).orElseThrow(() -> new MemoryInternalServerException(
-                            String.format("Memory '%s' insert failed.", memory.getName())));
+                    return insertMemory(memory)
+                            .orElseThrow(() -> new MemoryInternalServerException(
+                                    String.format("Memory '%s' insert failed.", memory.getName())));
                 })
                 .map(memory -> {
                     // 일정 - 작성자 연결
@@ -96,7 +97,7 @@ public class MemoryService {
                 memory.addRoom(room);
 
                 room.getUsers().stream()
-                        .forEach(user -> firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(),
+                        .forEach(user -> firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
                                 "OurMemory - 일정 공유", String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName()))));
                 return room;
             })
@@ -112,7 +113,7 @@ public class MemoryService {
                 user.addMemory(memory);
                 memory.addUser(user);
 
-                firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), "OurMemory - 일정 공유",
+                firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(), "OurMemory - 일정 공유",
                         String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
                 return user;
             })
@@ -161,7 +162,7 @@ public class MemoryService {
                             // 푸시 알림
                             return findRoom(insertRoomResponseDto.getRoomId()).map(room -> {
                                 room.getUsers().stream().forEach(
-                                        user -> firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(),
+                                        user -> firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
                                                 "OurMemory - 방 생성", String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.",
                                                         memory.getName(), room.getName()))));
                                 return room;
