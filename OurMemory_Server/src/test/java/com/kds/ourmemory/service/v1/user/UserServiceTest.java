@@ -42,8 +42,8 @@ class UserServiceTest {
     
     @BeforeAll
     void setUp() {
-        insertUserRequestDto = new InsertUserRequestDto(1, "TESTS_SNS_ID", "테스트 푸쉬", "테스트 유저", "0720", true, false);
-        patchUserTokenRequestDto = new PatchUserTokenRequestDto("testToken");
+        insertUserRequestDto = new InsertUserRequestDto(1, "TESTS_SNS_ID", "before pushToken", "테스트 유저", "0720", true, false);
+        patchUserTokenRequestDto = new PatchUserTokenRequestDto("after pushToken");
         putUserRequestDto = new PutUserRequestDto("이름 업데이트!", "0903", true, false);
     }
     
@@ -90,7 +90,7 @@ class UserServiceTest {
         
         log.info("before Token: {}", userRes.getPushToken());
         
-        PatchUserTokenResponseDto patchUserTokenResponseDto = userService.patchToken(userRes.getUserId(), patchUserTokenRequestDto) ;
+        PatchUserTokenResponseDto patchUserTokenResponseDto = userService.patchToken(userRes.getUserId(), patchUserTokenRequestDto.getPushToken()) ;
         assertThat(patchUserTokenResponseDto).isNotNull();
         assertThat(patchUserTokenResponseDto.getPatchDate()).isEqualTo(currentDate());
         

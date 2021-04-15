@@ -2,8 +2,6 @@ package com.kds.ourmemory.controller.v1.user;
 
 import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 
-import javax.validation.Valid;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +36,7 @@ public class UserController {
 
     @ApiOperation(value = "회원가입", notes = "앱에서 전달받은 데이터로 회원가입 진행")
     @PostMapping("/user")
-    public ApiResult<InsertUserResponseDto> signUp(@Valid @RequestBody InsertUserRequestDto request) {
+    public ApiResult<InsertUserResponseDto> signUp(@RequestBody InsertUserRequestDto request) {
         return ok(service.signUp(request.toEntity()));
     }
 
@@ -52,15 +50,15 @@ public class UserController {
     @ApiOperation(value = "푸시 토큰 업데이트", notes = "userId 로 사용자를 찾아 푸시토큰 값을 업데이트한다.")
     @PatchMapping("/user/{userId}")
     public ApiResult<PatchUserTokenResponseDto> patchToken(
-            @ApiParam(value = "userId", required = true) @PathVariable Long userId,
-            @Valid @RequestBody PatchUserTokenRequestDto request) {
-        return ok(service.patchToken(userId, request));
+            @ApiParam(value = "userId", required = true) @PathVariable long userId,
+            @RequestBody PatchUserTokenRequestDto request) {
+        return ok(service.patchToken(userId, request.getPushToken()));
     }
 
     @ApiOperation(value = "사용자 정보 업데이트", notes = "전달받은 값이 있는 경우 업데이트한다.")
     @PutMapping("/user/{userId}")
-    public ApiResult<PutUserResponseDto> update(@ApiParam(value = "userId", required = true) @PathVariable Long userId,
-            @Valid @RequestBody PutUserRequestDto request) {
+    public ApiResult<PutUserResponseDto> update(@ApiParam(value = "userId", required = true) @PathVariable long userId,
+            @RequestBody PutUserRequestDto request) {
         return ok(service.update(userId, request));
     }
 }

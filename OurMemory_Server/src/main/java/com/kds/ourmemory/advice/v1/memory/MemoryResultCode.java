@@ -14,7 +14,7 @@ public enum MemoryResultCode implements ResultCode{
     
     
     /* Http Status Error */
-    BAD_PARAMETER("M400", "일정 기능과 관련된 요청 변수 값이 잘못되었습니다. API 요청 프로토콜을 확인하시기 바랍니다."),
+    BAD_REQUEST("M400", "일정 기능과 관련된 요청 변수 값이 잘못되었습니다. API 요청 프로토콜을 확인하시기 바랍니다."),
     NOT_FOUND("M404", "입력한 값에 해당하는 일정을 찾을 수 없습니다."),
     INTERNAL_SERVER_ERROR("M500", "일정에 대한 작업 중 알 수 없는 오류가 발생하였습니다.")
     ;

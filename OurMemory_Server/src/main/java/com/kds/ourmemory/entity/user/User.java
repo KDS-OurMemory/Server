@@ -49,12 +49,12 @@ public class User implements Serializable{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")	// JPARepository 에서 스네이크 표기법을 지원하지 않아 카멜로 수정
 	private Long id;
-	
+
+    @Column(nullable = false, name="user_sns_type") // 1: 카카오, 2: 구글, 3: 네이버
+    private int snsType;
+    
 	@Column(nullable = false, name="user_sns_id")
 	private String snsId;
-	
-	@Column(nullable = false, name="user_sns_type")	// 1: 카카오, 2: 구글, 3: 네이버
-	private int snsType;
 	
 	@Column(nullable = true, name="user_push_token")
 	private String pushToken;
