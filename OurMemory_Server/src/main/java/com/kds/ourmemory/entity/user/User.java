@@ -19,7 +19,7 @@ import javax.persistence.ManyToMany;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.kds.ourmemory.controller.v1.user.dto.PutUserRequestDto;
+import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 
@@ -126,7 +126,7 @@ public class User implements Serializable{
         this.pushToken = StringUtils.isNotBlank(pushToken)? pushToken: this.pushToken;
     }
     
-    public void updateUser(PutUserRequestDto request) {
+    public void updateUser(PutUserDto.Request request) {
         Optional.ofNullable(request)
             .ifPresent(req -> {
                 Optional.ofNullable(request.getName()).ifPresent(name -> this.name = name);

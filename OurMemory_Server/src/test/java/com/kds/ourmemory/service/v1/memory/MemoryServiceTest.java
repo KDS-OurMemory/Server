@@ -19,11 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
-import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryResponseDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
+import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -106,9 +104,9 @@ class MemoryServiceTest {
          */
         List<Long> 메인방_참여자 = new ArrayList<>();
         메인방_참여자.add(참여자_포함O.getId());
-        InsertRoomResponseDto 메인방 = roomService.insert(new InsertRoomRequestDto("메인방", 생성자.getId(), false, 메인방_참여자));
-        InsertRoomResponseDto 공유방1 = roomService.insert(new InsertRoomRequestDto("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
-        InsertRoomResponseDto 공유방2 = roomService.insert(new InsertRoomRequestDto("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 메인방 = roomService.insert(new InsertRoomDto.Request("메인방", 생성자.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방1 = roomService.insert(new InsertRoomDto.Request("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방2 = roomService.insert(new InsertRoomDto.Request("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
         
         List<Long> 공유방_목록 = new ArrayList<>();
         공유방_목록.add(공유방1.getRoomId());
@@ -119,7 +117,7 @@ class MemoryServiceTest {
          */
         List<Long> member_방O_참여자O_포함O = new ArrayList<>();
         member_방O_참여자O_포함O.add(참여자_포함O.getId());
-        InsertMemoryRequestDto insertRequest_방O_참여자O_포함O = new InsertMemoryRequestDto(
+        InsertMemoryDto.Request insertRequest_방O_참여자O_포함O = new InsertMemoryDto.Request(
                 생성자.getId(),
                 메인방.getRoomId(),
                 "테스트 일정",
@@ -137,7 +135,7 @@ class MemoryServiceTest {
         /**
          * 1. 일정 생성
          */
-        InsertMemoryResponseDto insertResponse_방O_참여자O_포함O = memoryService.insert(insertRequest_방O_참여자O_포함O);
+        InsertMemoryDto.Response insertResponse_방O_참여자O_포함O = memoryService.insert(insertRequest_방O_참여자O_포함O);
         assertThat(insertResponse_방O_참여자O_포함O).isNotNull();
         assertThat(insertResponse_방O_참여자O_포함O.getAddDate()).isEqualTo(currentDate());
         assertThat(insertResponse_방O_참여자O_포함O.getRoomId()).isEqualTo(insertRequest_방O_참여자O_포함O.getRoomId());
@@ -159,7 +157,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자O_포함O.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자O_포함O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -216,9 +214,9 @@ class MemoryServiceTest {
          */
         List<Long> 메인방_참여자 = new ArrayList<>();
         메인방_참여자.add(참여자_포함O.getId());
-        InsertRoomResponseDto 메인방 = roomService.insert(new InsertRoomRequestDto("메인방", 생성자.getId(), false, 메인방_참여자));
-        InsertRoomResponseDto 공유방1 = roomService.insert(new InsertRoomRequestDto("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
-        InsertRoomResponseDto 공유방2 = roomService.insert(new InsertRoomRequestDto("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 메인방 = roomService.insert(new InsertRoomDto.Request("메인방", 생성자.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방1 = roomService.insert(new InsertRoomDto.Request("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방2 = roomService.insert(new InsertRoomDto.Request("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
         
         List<Long> 공유방_목록 = new ArrayList<>();
         공유방_목록.add(공유방1.getRoomId());
@@ -229,7 +227,7 @@ class MemoryServiceTest {
          */
         List<Long> member_방O_참여자O_포함X = new ArrayList<>();
         member_방O_참여자O_포함X.add(참여자_포함X.getId());
-        InsertMemoryRequestDto insertRequest_방O_참여자O_포함X = new InsertMemoryRequestDto(
+        InsertMemoryDto.Request insertRequest_방O_참여자O_포함X = new InsertMemoryDto.Request(
                 생성자.getId(),
                 메인방.getRoomId(),
                 "테스트 일정",
@@ -247,7 +245,7 @@ class MemoryServiceTest {
         /**
          * 1. 일정 생성
          */
-        InsertMemoryResponseDto insertResponse_방O_참여자O_포함X = memoryService.insert(insertRequest_방O_참여자O_포함X);
+        InsertMemoryDto.Response insertResponse_방O_참여자O_포함X = memoryService.insert(insertRequest_방O_참여자O_포함X);
         assertThat(insertResponse_방O_참여자O_포함X).isNotNull();
         assertThat(insertResponse_방O_참여자O_포함X.getAddDate()).isEqualTo(currentDate());
         assertThat(insertResponse_방O_참여자O_포함X.getRoomId()).isNotEqualTo(insertRequest_방O_참여자O_포함X.getRoomId());
@@ -268,7 +266,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자O_포함X.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자O_포함X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -325,9 +323,9 @@ class MemoryServiceTest {
          */
         List<Long> 메인방_참여자 = new ArrayList<>();
         메인방_참여자.add(참여자_포함O.getId());
-        InsertRoomResponseDto 메인방 = roomService.insert(new InsertRoomRequestDto("메인방", 생성자.getId(), false, 메인방_참여자));
-        InsertRoomResponseDto 공유방1 = roomService.insert(new InsertRoomRequestDto("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
-        InsertRoomResponseDto 공유방2 = roomService.insert(new InsertRoomRequestDto("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 메인방 = roomService.insert(new InsertRoomDto.Request("메인방", 생성자.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방1 = roomService.insert(new InsertRoomDto.Request("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방2 = roomService.insert(new InsertRoomDto.Request("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
         
         List<Long> 공유방_목록 = new ArrayList<>();
         공유방_목록.add(공유방1.getRoomId());
@@ -336,7 +334,7 @@ class MemoryServiceTest {
         /**
          * 0-3. 요청 생성
          */
-        InsertMemoryRequestDto insertRequest_방O_참여자X = new InsertMemoryRequestDto(
+        InsertMemoryDto.Request insertRequest_방O_참여자X = new InsertMemoryDto.Request(
                 생성자.getId(),
                 메인방.getRoomId(),
                 "테스트 일정",
@@ -354,7 +352,7 @@ class MemoryServiceTest {
         /**
          * 1. 일정 생성
          */
-        InsertMemoryResponseDto insertResponse_방O_참여자X = memoryService.insert(insertRequest_방O_참여자X);
+        InsertMemoryDto.Response insertResponse_방O_참여자X = memoryService.insert(insertRequest_방O_참여자X);
         assertThat(insertResponse_방O_참여자X).isNotNull();
         assertThat(insertResponse_방O_참여자X.getAddDate()).isEqualTo(currentDate());
         assertThat(insertResponse_방O_참여자X.getRoomId()).isEqualTo(insertResponse_방O_참여자X.getRoomId());
@@ -375,7 +373,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자X.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -432,8 +430,8 @@ class MemoryServiceTest {
          */
         List<Long> 메인방_참여자 = new ArrayList<>();
         메인방_참여자.add(참여자_포함O.getId());
-        InsertRoomResponseDto 공유방1 = roomService.insert(new InsertRoomRequestDto("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
-        InsertRoomResponseDto 공유방2 = roomService.insert(new InsertRoomRequestDto("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방1 = roomService.insert(new InsertRoomDto.Request("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방2 = roomService.insert(new InsertRoomDto.Request("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
         
         List<Long> 공유방_목록 = new ArrayList<>();
         공유방_목록.add(공유방1.getRoomId());
@@ -444,7 +442,7 @@ class MemoryServiceTest {
          */
         List<Long> member_방X_참여자O = new ArrayList<>();
         member_방X_참여자O.add(참여자_포함O.getId());
-        InsertMemoryRequestDto insertRequest_방X_참여자O = new InsertMemoryRequestDto(
+        InsertMemoryDto.Request insertRequest_방X_참여자O = new InsertMemoryDto.Request(
                 생성자.getId(),
                 null,
                 "테스트 일정",
@@ -462,7 +460,7 @@ class MemoryServiceTest {
         /**
          * 1. 일정 생성
          */
-        InsertMemoryResponseDto insertResponse_방X_참여자O = memoryService.insert(insertRequest_방X_참여자O);
+        InsertMemoryDto.Response insertResponse_방X_참여자O = memoryService.insert(insertRequest_방X_참여자O);
         assertThat(insertResponse_방X_참여자O).isNotNull();
         assertThat(insertResponse_방X_참여자O.getAddDate()).isEqualTo(currentDate());
         assertThat(insertResponse_방X_참여자O.getRoomId()).isNotEqualTo(insertRequest_방X_참여자O.getRoomId());
@@ -483,7 +481,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자O.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());
@@ -540,8 +538,8 @@ class MemoryServiceTest {
          */
         List<Long> 메인방_참여자 = new ArrayList<>();
         메인방_참여자.add(참여자_포함O.getId());
-        InsertRoomResponseDto 공유방1 = roomService.insert(new InsertRoomRequestDto("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
-        InsertRoomResponseDto 공유방2 = roomService.insert(new InsertRoomRequestDto("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방1 = roomService.insert(new InsertRoomDto.Request("공유방1", 참여자_포함O.getId(), false, 메인방_참여자));
+        InsertRoomDto.Response 공유방2 = roomService.insert(new InsertRoomDto.Request("공유방2", 참여자_포함X.getId(), false, 메인방_참여자));
         
         List<Long> 공유방_목록 = new ArrayList<>();
         공유방_목록.add(공유방1.getRoomId());
@@ -550,7 +548,7 @@ class MemoryServiceTest {
         /**
          * 0-3. 요청 생성
          */
-        InsertMemoryRequestDto insertRequest_방X_참여자X = new InsertMemoryRequestDto(
+        InsertMemoryDto.Request insertRequest_방X_참여자X = new InsertMemoryDto.Request(
                 생성자.getId(),
                 null,
                 "테스트 일정",
@@ -568,7 +566,7 @@ class MemoryServiceTest {
         /**
          * 1. 일정 생성
          */
-        InsertMemoryResponseDto insertResponse_방X_참여자X = memoryService.insert(insertRequest_방X_참여자X);
+        InsertMemoryDto.Response insertResponse_방X_참여자X = memoryService.insert(insertRequest_방X_참여자X);
         assertThat(insertResponse_방X_참여자X).isNotNull();
         assertThat(insertResponse_방X_참여자X.getAddDate()).isEqualTo(currentDate());
         assertThat(insertResponse_방X_참여자X.getRoomId()).isNull();
@@ -589,7 +587,7 @@ class MemoryServiceTest {
         /**
          * 3. 일정 삭제
          */
-        DeleteMemoryResponseDto deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자X.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(deleteMemoryResponseDto.getDeleteDate()).isEqualTo(currentDate());

@@ -19,11 +19,9 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
-import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryResponseDto;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryRequestDto;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryResponseDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
+import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
@@ -49,7 +47,7 @@ public class MemoryService {
     private final FcmService firebaseFcm;
     
     @Transactional
-    public InsertMemoryResponseDto insert(InsertMemoryRequestDto request) {
+    public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
         return findUser(request.getUserId())
                 .map(writer -> {
                     Memory memory = Memory.builder()
@@ -80,7 +78,7 @@ public class MemoryService {
                     relationMemoryToRoom(memory, request.getShareRooms());
                     Long roomId = relationMainRoom(memory, request);
                     
-                    return new InsertMemoryResponseDto(memory.getId(), roomId, currentDate());
+                    return new InsertMemoryDto.Response(memory.getId(), roomId, currentDate());
                 })
                 .orElseThrow(() -> new MemoryNotFoundWriterException(
                         "Not found writer matched to userId: " + request.getUserId()));
@@ -135,7 +133,7 @@ public class MemoryService {
      * @param memory
      * @param request 
      */
-    private Long relationMainRoom(Memory memory, InsertMemoryRequestDto request) {
+    private Long relationMainRoom(Memory memory, InsertMemoryDto.Request request) {
         Room mainRoom = findRoom(request.getRoomId())
                 // 1. 메인방이 있는 경우 -> 참여자가 전부 포함되는지 확인
                 .filter(room -> {
@@ -153,11 +151,11 @@ public class MemoryService {
                             String name = StringUtils
                                     .join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
                             Long owner = memory.getWriter().getId();
-                            InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto(name, owner, false,
+                            InsertRoomDto.Request insertRoomRequestDto = new InsertRoomDto.Request(name, owner, false,
                                     request.getMembers());
                             
                             // 방 생성
-                            InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
+                            InsertRoomDto.Response insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
 
                             // 푸시 알림
                             return findRoom(insertRoomResponseDto.getRoomId()).map(room -> {
@@ -188,13 +186,13 @@ public class MemoryService {
     }
     
     @Transactional
-    public DeleteMemoryResponseDto deleteMemory(Long id) {
+    public DeleteMemoryDto.Response deleteMemory(Long id) {
         return findMemory(id)
                 .map(memory -> {
                     memory.getRooms().stream().forEach(room -> room.getMemorys().remove(memory));
                     memory.getUsers().stream().forEach(user -> user.getMemorys().remove(memory));
                     deleteMemory(memory);
-                    return new DeleteMemoryResponseDto(currentDate());
+                    return new DeleteMemoryDto.Response(currentDate());
                 })
                 .orElseThrow(() -> new MemoryNotFoundException("Not found memory matched to memoryid: " + id));
     }

@@ -14,13 +14,10 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserRequestDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserResponseDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenRequestDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchUserTokenResponseDto;
-import com.kds.ourmemory.controller.v1.user.dto.PutUserRequestDto;
-import com.kds.ourmemory.controller.v1.user.dto.PutUserResponseDto;
-import com.kds.ourmemory.controller.v1.user.dto.UserResponseDto;
+import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
+import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,27 +28,27 @@ import lombok.extern.slf4j.Slf4j;
 class UserServiceTest {
     @Autowired private UserService userService;
     
-    // insert
-    private InsertUserRequestDto insertUserRequestDto;
+    // Insert
+    private InsertUserDto.Request insertUserRequestDto;
     
-    // patch
-    private PatchUserTokenRequestDto patchUserTokenRequestDto;
+    // Patch
+    private PatchTokenDto.Request patchUserTokenRequestDto;
     
-    // update
-    private PutUserRequestDto putUserRequestDto;
+    // Update
+    private PutUserDto.Request putUserRequestDto;
     
     @BeforeAll
     void setUp() {
-        insertUserRequestDto = new InsertUserRequestDto(1, "TESTS_SNS_ID", "before pushToken", "테스트 유저", "0720", true, false, "Android");
-        patchUserTokenRequestDto = new PatchUserTokenRequestDto("after pushToken");
-        putUserRequestDto = new PutUserRequestDto("이름 업데이트!", "0903", true, false);
+        insertUserRequestDto = new InsertUserDto.Request(1, "TESTS_SNS_ID", "before pushToken", "테스트 유저", "0720", true, false, "Android");
+        patchUserTokenRequestDto = new PatchTokenDto.Request("after pushToken");
+        putUserRequestDto = new PutUserDto.Request("이름 업데이트!", "0903", true, false);
     }
     
     @Test
     @Order(1)
     @Transactional
     void 회원가입() {
-        InsertUserResponseDto insRes = userService.signUp(insertUserRequestDto.toEntity());
+        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isEqualTo(currentDate());
         log.info("joinDate: {}", insRes.getJoinDate());
@@ -61,12 +58,12 @@ class UserServiceTest {
     @Order(2)
     @Transactional
     void 사용자_조회_snsId() {
-        InsertUserResponseDto insRes = userService.signUp(insertUserRequestDto.toEntity());
+        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isEqualTo(currentDate());
         log.info("joinDate: {}", insRes.getJoinDate());
         
-        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
+        FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
         assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
         assertThat(userRes.getBirthday()).isEqualTo(userRes.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
@@ -78,19 +75,19 @@ class UserServiceTest {
     @Order(3)
     @Transactional
     void 사용자_토큰_변경() {
-        InsertUserResponseDto insRes = userService.signUp(insertUserRequestDto.toEntity());
+        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isEqualTo(currentDate());
         log.info("joinDate: {}", insRes.getJoinDate());
         
-        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
+        FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
         assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
         assertThat(userRes.getBirthday()).isEqualTo(userRes.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
         
         log.info("before Token: {}", userRes.getPushToken());
         
-        PatchUserTokenResponseDto patchUserTokenResponseDto = userService.patchToken(userRes.getUserId(), patchUserTokenRequestDto.getPushToken()) ;
+        PatchTokenDto.Response patchUserTokenResponseDto = userService.patchToken(userRes.getUserId(), patchUserTokenRequestDto) ;
         assertThat(patchUserTokenResponseDto).isNotNull();
         assertThat(patchUserTokenResponseDto.getPatchDate()).isEqualTo(currentDate());
         
@@ -105,12 +102,12 @@ class UserServiceTest {
     @Order(4)
     @Transactional
     void 사용자_수정() {
-        InsertUserResponseDto insRes = userService.signUp(insertUserRequestDto.toEntity());
+        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isEqualTo(currentDate());
         log.info("joinDate: {}", insRes.getJoinDate());
         
-        UserResponseDto userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
+        FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
         assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
         assertThat(userRes.getBirthday()).isEqualTo(userRes.isBirthdayOpen()? insertUserRequestDto.getBirthday() : null);
@@ -118,7 +115,7 @@ class UserServiceTest {
         log.info("before name:{}, birthday: {}, birthdayOpen: {}, push: {}", userRes.getName(),
                 userRes.getBirthday(), userRes.isBirthdayOpen(), userRes.isPush());
         
-        PutUserResponseDto putUserResponseDto = userService.update(userRes.getUserId(), putUserRequestDto);
+        PutUserDto.Response putUserResponseDto = userService.update(userRes.getUserId(), putUserRequestDto);
         assertThat(putUserResponseDto).isNotNull();
         assertThat(putUserResponseDto.getUpdateDate()).isEqualTo(currentDate());
         

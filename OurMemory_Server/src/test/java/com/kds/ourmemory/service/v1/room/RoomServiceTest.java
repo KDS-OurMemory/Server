@@ -18,9 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
-import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -89,12 +88,12 @@ class RoomServiceTest {
         /**
          * 0-2. 요청 생성
          */
-        InsertRoomRequestDto insertRoomRequestDto = new InsertRoomRequestDto("테스트방", 생성자.getId(), false, member);
+        InsertRoomDto.Request insertRoomRequestDto = new InsertRoomDto.Request("테스트방", 생성자.getId(), false, member);
         
         /**
          * 1. 방 생성
          */
-        InsertRoomResponseDto insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
+        InsertRoomDto.Response insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
         assertThat(insertRoomResponseDto).isNotNull();
         assertThat(insertRoomResponseDto.getCreateDate()).isEqualTo(currentDate());
         
@@ -116,7 +115,7 @@ class RoomServiceTest {
         /**
          * 3. 방 삭제    
          */
-        DeleteRoomResponseDto deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getRoomId());
+        DeleteRoomDto.Response deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getRoomId());
         
         assertThat(deleteRoomResponseDto).isNotNull();
         assertThat(deleteRoomResponseDto.getDeleteDate()).isEqualTo(currentDate());

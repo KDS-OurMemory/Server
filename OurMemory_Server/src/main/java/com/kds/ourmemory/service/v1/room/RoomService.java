@@ -16,9 +16,8 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
-import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomResponseDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomRequestDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomResponseDto;
+import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.room.RoomRepository;
@@ -38,7 +37,7 @@ public class RoomService {
     private final FcmService fcmService;
 
     @Transactional
-    public InsertRoomResponseDto insert(InsertRoomRequestDto request) {
+    public InsertRoomDto.Response insert(InsertRoomDto.Request request) {
         return findUser(request.getOwner())
                 .map(owner -> {
                     Room room = Room.builder()
@@ -61,7 +60,7 @@ public class RoomService {
                     // 참여자 - 방 연결
                     return addMemberToRoom(room, request.getMember());
                 })
-                .map(room -> new InsertRoomResponseDto(room.getId(), currentDate()))
+                .map(room -> new InsertRoomDto.Response(room.getId(), currentDate()))
                 .orElseThrow(() -> new RoomNotFoundOwnerException(
                         "Not found user matched to userId: " + request.getOwner()));
     }
@@ -99,7 +98,7 @@ public class RoomService {
      * https://doublesprogramming.tistory.com/259
      */
     @Transactional
-    public DeleteRoomResponseDto delete(Long id) {
+    public DeleteRoomDto.Response delete(Long id) {
         return findRoom(id)
                 .map(room -> {
                     Optional.ofNullable(room.getUsers())
@@ -109,7 +108,7 @@ public class RoomService {
                             .ifPresent(memorys -> memorys.stream().forEach(memory -> memory.getRooms().remove(room)));
                     
                     deleteRoom(room);
-                    return new DeleteRoomResponseDto(currentDate());
+                    return new DeleteRoomDto.Response(currentDate());
                 })
                 .orElseThrow(() -> new RoomNotFoundException("Not found room matched roomId: " + id));
     }
