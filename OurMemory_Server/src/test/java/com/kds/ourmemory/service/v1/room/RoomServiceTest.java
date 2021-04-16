@@ -53,6 +53,7 @@ class RoomServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("Android")
                     .build());
        
         User 참여자1 = userRepo.save(
@@ -66,6 +67,7 @@ class RoomServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         User 참여자2 = userRepo.save(
@@ -79,6 +81,7 @@ class RoomServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         List<Long> member = new ArrayList<>();

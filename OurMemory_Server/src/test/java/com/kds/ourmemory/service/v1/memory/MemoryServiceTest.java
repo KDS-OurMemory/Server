@@ -71,6 +71,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         User 참여자_포함O = userRepo.save(
@@ -84,6 +85,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("Android")
                     .build());
         
         User 참여자_포함X = userRepo.save(
@@ -97,6 +99,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         /**
@@ -181,6 +184,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         User 참여자_포함O = userRepo.save(
@@ -194,6 +198,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         User 참여자_포함X = userRepo.save(
@@ -207,6 +212,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("Android")
                     .build());
         
         /**
@@ -290,6 +296,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("Android")
                     .build());
         
         User 참여자_포함O = userRepo.save(
@@ -303,6 +310,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("Android")
                     .build());
         
         User 참여자_포함X = userRepo.save(
@@ -316,6 +324,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         /**
@@ -397,6 +406,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         User 참여자_포함O = userRepo.save(
@@ -410,6 +420,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         User 참여자_포함X = userRepo.save(
@@ -423,6 +434,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("Android")
                     .build());
         
         /**
@@ -505,6 +517,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("Android")
                     .build());
         
         User 참여자_포함O = userRepo.save(
@@ -518,6 +531,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("Android")
                     .build());
         
         User 참여자_포함X = userRepo.save(
@@ -531,6 +545,7 @@ class MemoryServiceTest {
                     .birthdayOpen(true)
                     .regDate(currentDate())
                     .used(true)
+                    .deviceOs("iOS")
                     .build());
         
         /**
