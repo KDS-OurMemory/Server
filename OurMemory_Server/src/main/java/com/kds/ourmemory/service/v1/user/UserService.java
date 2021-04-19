@@ -34,6 +34,8 @@ public class UserService {
         
         checkNotNull(request.getSnsType(), "SNS 인증방식(snsType)이 입력되지 않았습니다. 인증방식 값을 입력해주세요.");
         
+        checkArgument(StringUtils.isNoneBlank(request.getSnsId()), "SNS ID 는 빈 값이 될 수 없습니다.");
+        
         User user = request.toEntity();
         return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), currentDate()))
                 .orElseThrow(() -> new UserInternalServerException(
@@ -42,7 +44,7 @@ public class UserService {
 
     public FindUserDto.Response signIn(int snsType, String snsId) {
         checkArgument(1 <= snsType && snsType <= 3, "지원하지 않는 SNS 인증방식입니다. 카카오(1), 구글(2), 네이버(3) 중에 입력해주시기 바랍니다.");
-        checkArgument(StringUtils.isNoneBlank(snsId), "snsId 값은 빈 값이 될 수 없습니다.");
+        checkArgument(StringUtils.isNoneBlank(snsId), "SNS ID 는 빈 값이 될 수 없습니다.");
 
         return findUser(snsType, snsId).map(FindUserDto.Response::new)
                 .orElseThrow(() -> new UserNotFoundException(

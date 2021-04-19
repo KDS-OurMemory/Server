@@ -1,5 +1,6 @@
 package com.kds.ourmemory.service.v1.memory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.kds.ourmemory.util.DateUtil.currentDate;
 import static com.kds.ourmemory.util.DateUtil.currentTime;
 
@@ -42,16 +43,24 @@ public class MemoryService {
     
     private final MemoryRepository memoryRepo;
 
-    // Memory-Add User Relationship Table to Work with
+    // Add to work in memory and user relationship tables
     private final UserRepository userRepo;
     
-    // Memory-Add Room Relationship Table to Work with    
+    // Add to work in memory and rooms relationship tables    
     private final RoomRepository roomRepo;
     
     private final FcmService fcmService;
     
     @Transactional
     public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
+        checkNotNull(request.getUserId(), "일정 작성자 번호가 입력되지 않았습니다. 일정을 생성하는 사용자의 번호를 입력해주세요.");
+        checkNotNull(request.getName(), "일정 제목이 입력되지 않았습니다. 일정 제목을 입력해주세요.");
+        
+        checkNotNull(request.getStartDate(), "일정 시작시간이 입력되지 않았습니다. 일정 시작시간을 입력해주세요.");
+        checkNotNull(request.getEndDate(), "일정 종료시간이 입력되지 않았습니다. 일정 종료시간을 입력해주세요.");
+        
+        checkNotNull(request.getBgColor(), "일정 배경색이 지정되지 않았습니다. 배경색을 지정해주세요.");
+        
         return findUser(request.getUserId())
                 .map(writer -> {
                     Memory memory = Memory.builder()
@@ -73,11 +82,11 @@ public class MemoryService {
                                     String.format("Memory '%s' insert failed.", memory.getName())));
                 })
                 .map(memory -> {
-                    // Relation memory to writer
+                    // Relation memory and writer
                     memory.getWriter().addMemory(memory);
                     memory.addUser(memory.getWriter());
                     
-                    // Relation memory to members
+                    // Relation memory and members
                     relationMemoryToMembers(memory, request.getMembers());
                     relationMemoryToRoom(memory, request.getShareRooms());
                     Long roomId = relationMainRoom(memory, request);
@@ -89,7 +98,7 @@ public class MemoryService {
     }
     
     @Transactional
-    public void relationMemoryToRoom(Memory memory, List<Long> roomIds) {
+    private void relationMemoryToRoom(Memory memory, List<Long> roomIds) {
         Optional.ofNullable(roomIds)
         .map(List::stream).ifPresent(stream -> stream.forEach(id -> 
             findRoom(id)
@@ -108,7 +117,7 @@ public class MemoryService {
     }
     
     @Transactional
-    public void relationMemoryToMembers(Memory memory, List<Long> members) {
+    private void relationMemoryToMembers(Memory memory, List<Long> members) {
         Optional.ofNullable(members).map(List::stream)
                 .ifPresent(stream -> stream.forEach(id -> findUser(id).filter(Objects::nonNull).map(user -> {
                     user.addMemory(memory);
@@ -180,14 +189,14 @@ public class MemoryService {
                 }).orElse(null);
     }
     
-    public List<Memory> findMemorys(Long userId) {
+    public List<Memory> findMemorys(long userId) {
         return findUser(userId)
                 .map(User::getMemorys)
                 .orElseThrow(() -> new MemoryNotFoundWriterException("Not found writer from userId: " + userId));
     }
     
     @Transactional
-    public DeleteMemoryDto.Response deleteMemory(Long id) {
+    public DeleteMemoryDto.Response deleteMemory(long id) {
         return findMemory(id)
                 .map(memory -> {
                     memory.getRooms().stream().forEach(room -> room.getMemorys().remove(memory));

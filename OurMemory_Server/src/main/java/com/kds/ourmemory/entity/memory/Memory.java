@@ -1,5 +1,7 @@
 package com.kds.ourmemory.entity.memory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,20 +25,17 @@ import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @DynamicUpdate
 @Entity(name = "memorys")
-@Builder
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Memory implements Serializable {
 	/**
-     * 
+     * Default Serial Id
      */
     private static final long serialVersionUID = 1L;
 
@@ -58,10 +57,10 @@ public class Memory implements Serializable {
 	@Column(nullable = true, name="memory_place")
 	private String place;
 	
-	@Column(nullable = true, name="memory_start_date")
+	@Column(nullable = false, name="memory_start_date")
 	private Date startDate;
 	
-	@Column(nullable = true, name="memory_end_date")
+	@Column(nullable = false, name="memory_end_date")
 	private Date endDate;
 	
 	@Column(nullable = false, name="memory_bg_color")
@@ -87,6 +86,32 @@ public class Memory implements Serializable {
 	
 	@ManyToMany(mappedBy = "memorys", fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
+	
+	@Builder
+    public Memory(Long id, User writer, String name, String contents, String place, Date startDate, Date endDate, String bgColor,
+            Date firstAlarm, Date secondAlarm, Date regDate, Date modDate, boolean used) {
+	    checkNotNull(writer, "사용자 번호에 맞는 일정 작성자 정보가 없습니다. 일정 작성자 번호를 확인해주세요.");
+        checkNotNull(name, "일정 제목이 입력되지 않았습니다. 일정 제목을 입력해주세요.");
+        
+        checkNotNull(startDate, "일정 시작시간이 입력되지 않았습니다. 일정 시작시간을 입력해주세요.");
+        checkNotNull(endDate, "일정 종료시간이 입력되지 않았습니다. 일정 종료시간을 입력해주세요.");
+        
+        checkNotNull(bgColor, "일정 배경색이 지정되지 않았습니다. 배경색을 지정해주세요.");
+        
+        this.id = id;
+        this.writer = writer;
+        this.name = name;
+        this.contents = contents;
+        this.place = place;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.bgColor = bgColor;
+        this.firstAlarm = firstAlarm;
+        this.secondAlarm = secondAlarm;
+        this.regDate = regDate;
+        this.modDate = modDate;
+        this.used = used;
+    }
     
     public Memory addRoom(Room room) {
         this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;

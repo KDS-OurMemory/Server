@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.kds.ourmemory.util.DateUtil.currentDate;
 import static com.kds.ourmemory.util.DateUtil.currentTime;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class RoomService {
     private final RoomRepository roomRepo;
     
-    // 방과 관련된 사용자 데이터를 작업하기 위해 추가 
+    // Add to work in rooms and user relationship tables
     private final UserRepository userRepo;
     
     private final FcmService fcmService;
@@ -40,6 +39,8 @@ public class RoomService {
     @Transactional
     public InsertRoomDto.Response insert(InsertRoomDto.Request request) {
         checkNotNull(request.getName(), "방 이름이 입력되지 않았습니다. 방 이름을 입력해주세요.");
+        
+        checkNotNull(request.getOwner(), "방장 번호가 입력되지 않았습니다. 방장 번호를 입력해주세요.");
         
         return findUser(request.getOwner())
                 .map(owner -> {
@@ -49,18 +50,17 @@ public class RoomService {
                         .regDate(currentTime())
                         .opened(request.isOpened())
                         .used(true)
-                        .users(new ArrayList<>())
                         .build();
                     return insertRoom(room)
                             .orElseThrow(() -> new RoomInternalServerException(String.format(
                                     "Insert room failed. [name: %s, owner: %s]", request.getName(), owner.getName())));
                 })
                 .map(room -> {
-                    // 생성자 - 방 연결
+                    // Relation room and owner
                     room.getOwner().addRoom(room);
                     room.addUser(room.getOwner());
                     
-                    // 참여자 - 방 연결
+                    // Relation room and members
                     return addMemberToRoom(room, request.getMember());
                 })
                 .map(room -> new InsertRoomDto.Response(room.getId(), currentDate()))
@@ -69,7 +69,7 @@ public class RoomService {
     }
 
     @Transactional
-    public Room addMemberToRoom(Room room, List<Long> members) {
+    private Room addMemberToRoom(Room room, List<Long> members) {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> 
                 findUser(id)

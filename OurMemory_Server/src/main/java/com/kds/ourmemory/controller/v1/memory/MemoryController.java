@@ -41,7 +41,7 @@ public class MemoryController {
     @ApiOperation(value = "일정 조회", notes = "사용자가 생성했거나 참여중인 일정을 조회한다.")
     @GetMapping("/memorys/{userId}")
     public ApiResult<List<FindMemorysDto.Response>> findMemorys(
-            @ApiParam(value = "userId", required = true) @PathVariable Long userId) {
+            @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(memoryService.findMemorys(userId).stream()
                 .filter(Memory::isUsed)
                 .map(FindMemorysDto.Response::new)
@@ -51,7 +51,7 @@ public class MemoryController {
     @ApiOperation(value = "일정 삭제", notes = "일정 삭제, 사용자-일정-방 연결된 관계 삭제")
     @DeleteMapping("/memory/{memoryId}")
     public ApiResult<DeleteMemoryDto.Response> deleteMemory(
-            @ApiParam(value = "memoryId", required = true) @PathVariable Long memoryId) {
+            @ApiParam(value = "memoryId", required = true) @PathVariable long memoryId) {
         return ok(memoryService.deleteMemory(memoryId));
     }
 }

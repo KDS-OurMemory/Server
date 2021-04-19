@@ -1,5 +1,8 @@
 package com.kds.ourmemory.entity.user;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +27,6 @@ import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,9 +36,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @DynamicUpdate
 @Entity(name = "users")
-@Builder
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User implements Serializable{
     
@@ -97,6 +97,30 @@ public class User implements Serializable{
                 joinColumns = @JoinColumn(name = "user_id"),
                 inverseJoinColumns = @JoinColumn(name = "memory_id"))
     private List<Memory> memorys = new ArrayList<>();
+	
+	@Builder
+    public User(Long id, int snsType, String snsId, String pushToken, boolean push, String name, String birthday,
+            boolean solar, boolean birthdayOpen, String role, Date regDate, boolean used, String deviceOs) {
+	    checkArgument(1 <= snsType && snsType <= 3, "지원하지 않는 SNS 인증방식입니다. 카카오(1), 구글(2), 네이버(3) 중에 입력해주시기 바랍니다.");
+        checkArgument(StringUtils.isNoneBlank(snsId), "SNS ID 는 빈 값이 될 수 없습니다.");
+        
+	    checkNotNull(name, "이름이 입력되지 않았습니다. 이름을 입력해주세요.");
+        checkArgument(StringUtils.isNoneBlank(name), "이름은 빈 값이 될 수 없습니다.");
+        
+        this.id = id;
+        this.snsType = snsType;
+        this.snsId = snsId;
+        this.pushToken = pushToken;
+        this.push = push;
+        this.name = name;
+        this.birthday = birthday;
+        this.solar = solar;
+        this.birthdayOpen = solar;
+        this.role = role;
+        this.regDate = regDate;
+        this.used = used;
+        this.deviceOs = deviceOs;
+    }
 	
 	public User addRoom(Room room) {
 	    this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;

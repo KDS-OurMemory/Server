@@ -23,7 +23,7 @@ public class InsertUserDto {
         @ApiModelProperty(value="SNS 인증방식", required = true, example = "1: 카카오, 2:구글, 3: 네이버")
         private Integer snsType;
         
-        @ApiModelProperty(value="SNS 로그인 번호", required = true)
+        @ApiModelProperty(value="SNS 로그인 Id", required = true)
         private String snsId;
         
         @ApiModelProperty(value="FCM 토큰", required = true)
