@@ -37,14 +37,18 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class MemoryService {
     
-    // 일정 생성 시, 방이 생성되는 경우가 있기 때문에 추가함
+    // When creating a memory, added because sometimes a room is created
     private final RoomService roomService;
     
-    private final UserRepository userRepo;
     private final MemoryRepository memoryRepo;
+
+    // Memory-Add User Relationship Table to Work with
+    private final UserRepository userRepo;
+    
+    // Memory-Add Room Relationship Table to Work with    
     private final RoomRepository roomRepo;
     
-    private final FcmService firebaseFcm;
+    private final FcmService fcmService;
     
     @Transactional
     public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
@@ -69,12 +73,12 @@ public class MemoryService {
                                     String.format("Memory '%s' insert failed.", memory.getName())));
                 })
                 .map(memory -> {
-                    // 일정 - 작성자 연결
+                    // Relation memory to writer
                     memory.getWriter().addMemory(memory);
                     memory.addUser(memory.getWriter());
                     
-                    // 일정 - 참여자 연결
-                    relationMemoryToMember(memory, request.getMembers());
+                    // Relation memory to members
+                    relationMemoryToMembers(memory, request.getMembers());
                     relationMemoryToRoom(memory, request.getShareRooms());
                     Long roomId = relationMainRoom(memory, request);
                     
@@ -95,7 +99,7 @@ public class MemoryService {
                 memory.addRoom(room);
 
                 room.getUsers().stream()
-                        .forEach(user -> firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
+                        .forEach(user -> fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
                                 "OurMemory - 일정 공유", String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName()))));
                 return room;
             })
@@ -104,49 +108,46 @@ public class MemoryService {
     }
     
     @Transactional
-    public void relationMemoryToMember(Memory memory, List<Long> members) {
+    public void relationMemoryToMembers(Memory memory, List<Long> members) {
         Optional.ofNullable(members).map(List::stream)
-        .ifPresent(stream -> stream.forEach(id -> 
-            findUser(id).filter(Objects::nonNull).map(user -> {
-                user.addMemory(memory);
-                memory.addUser(user);
+                .ifPresent(stream -> stream.forEach(id -> findUser(id).filter(Objects::nonNull).map(user -> {
+                    user.addMemory(memory);
+                    memory.addUser(user);
 
-                firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(), "OurMemory - 일정 공유",
-                        String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
-                return user;
-            })
-            .orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))
-        ));
+                    fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
+                            "OurMemory - 일정 공유", String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
+                    return user;
+                }).orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))));
     }
-    
+
     /**
-     * 일정이 포함될 메인 방 설정
-     * 
-     * 1. 메인방이 있는 경우
-     *  1) 참여자가 없거나 방에 전부 포함되는 경우 -> 방 생성X, 일정-방 연결
-     *  2) 참여자가 방에 포함되지 않는 경우 -> 방 생성 및 푸시알림, 일정-방 연결
-     * 
-     * 2. 메인방이 없는 경우
-     *  1) 참여자가 있는 경우 -> 방 생성 및 푸시알림, 일정-방 연결
-     *  2) 참여자가 없는 경우 -> 일정-사용자만 연결, 개인 일정으로 취급함.
+     * Set main room to include memory
+    *
+    * 1. If there is a main room
+    *   1) If there are no participants or all rooms are included -> Create room X, memory-to-room connection
+    *   2) If participants are not included in the room -> Create room and push notification, memory - room connection
+    *
+    * 2. If there is no main room
+    *   1) If there are participants -> Create room and push notification, memory-to-room connection
+    *   2) If no participants are present -> Memory is connect to user and treated as personal memory.
      * 
      * @param memory
      * @param request 
      */
     private Long relationMainRoom(Memory memory, InsertMemoryDto.Request request) {
         Room mainRoom = findRoom(request.getRoomId())
-                // 1. 메인방이 있는 경우 -> 참여자가 전부 포함되는지 확인
+                // 1. If there is a main room -> Ensure that all participants are included
                 .filter(room -> {
                     List<Long> memoryMembers = memory.getUsers().stream().map(User::getId).collect(Collectors.toList());
 
                     return room.getUsers().stream().map(User::getId).collect(Collectors.toList())
                             .containsAll(memoryMembers);
                 })
-                // 1-2) 참여자가 메인방에 포함되지 않는 경우, 2. 메인방이 없는 경우
+                // 1-2) Participants are not included in the main room OR 2. If there is no main room
                 .orElseGet(() -> Optional.ofNullable(request.getMembers())
-                        // 1) 참여자가 있는 경우 -> 방 생성 후 푸시알림
+                        // 1) If there are participants -> Create room and push notification
                         .map(members -> {
-                            // 프로토콜 작성
+                            // Create make room protocol
                             List<User> users = memory.getUsers();
                             String name = StringUtils
                                     .join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
@@ -154,13 +155,13 @@ public class MemoryService {
                             InsertRoomDto.Request insertRoomRequestDto = new InsertRoomDto.Request(name, owner, false,
                                     request.getMembers());
                             
-                            // 방 생성
+                            // make room
                             InsertRoomDto.Response insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
 
-                            // 푸시 알림
+                            // push message
                             return findRoom(insertRoomResponseDto.getRoomId()).map(room -> {
                                 room.getUsers().stream().forEach(
-                                        user -> firebaseFcm.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
+                                        user -> fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
                                                 "OurMemory - 방 생성", String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.",
                                                         memory.getName(), room.getName()))));
                                 return room;
@@ -168,11 +169,11 @@ public class MemoryService {
                                     String.format("Unable to find a room to include the memory '%s'. roomId: %d",
                                             memory.getName(), insertRoomResponseDto.getRoomId())));
                         })
-                        // 참여자가 없는 경우
+                        // If no participants are present
                         .orElse(null));
 
         return Optional.ofNullable(mainRoom)
-                // 일정과 연결할 방이 있는 경우
+                // If a room exists to associate with the memory
                 .map(room -> {
                     relationMemoryToRoom(memory, Arrays.asList(room.getId()));
                     return room.getId();

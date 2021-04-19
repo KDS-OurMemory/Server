@@ -35,7 +35,7 @@ public class InsertRoomDto {
     @AllArgsConstructor
     public static class Response {
         @ApiModelProperty(value = "방 번호", example = "3")
-        private Long roomId;
+        private long roomId;
         
         @JsonFormat(pattern = "yyyyMMdd")
         @ApiModelProperty(value="방 생성한 날짜", notes = "yyyyMMdd", example = "20210401")

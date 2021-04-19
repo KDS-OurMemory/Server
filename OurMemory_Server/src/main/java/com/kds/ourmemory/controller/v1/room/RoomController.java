@@ -42,7 +42,7 @@ public class RoomController {
     @ApiOperation(value = "방 목록 조회", notes = "사용자가 참여중인 방 목록을 조회한다.")
     @GetMapping(value = "/rooms/{userId}")
     public ApiResult<List<FindRoomsDto.Response>> findRooms(
-            @ApiParam(value = "userId", required = true) @PathVariable Long userId) {
+            @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(roomService.findRooms(userId).stream()
                 .filter(Room::isUsed)
                 .map(FindRoomsDto.Response::new)
@@ -52,7 +52,7 @@ public class RoomController {
     @ApiOperation(value = "방 삭제", notes = "방 삭제, 사용자-방-일정 연결된 관계 삭제")
     @DeleteMapping(value = "/room/{roomId}")
     public ApiResult<DeleteRoomDto.Response> delete(
-            @ApiParam(value = "roomId", required = true) @PathVariable Long roomId) {
+            @ApiParam(value = "roomId", required = true) @PathVariable long roomId) {
         return ok(roomService.delete(roomId));
     }
 }

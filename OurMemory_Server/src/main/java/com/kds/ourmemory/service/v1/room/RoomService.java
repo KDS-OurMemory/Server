@@ -1,5 +1,6 @@
 package com.kds.ourmemory.service.v1.room;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.kds.ourmemory.util.DateUtil.currentDate;
 import static com.kds.ourmemory.util.DateUtil.currentTime;
 
@@ -38,6 +39,8 @@ public class RoomService {
 
     @Transactional
     public InsertRoomDto.Response insert(InsertRoomDto.Request request) {
+        checkNotNull(request.getName(), "방 이름이 입력되지 않았습니다. 방 이름을 입력해주세요.");
+        
         return findUser(request.getOwner())
                 .map(owner -> {
                     Room room = Room.builder()
@@ -84,7 +87,7 @@ public class RoomService {
         return room;
     }
     
-    public List<Room> findRooms(Long userId) {
+    public List<Room> findRooms(long userId) {
         return findUser(userId).map(User::getRooms)
                 .orElseThrow(() -> new RoomNotFoundOwnerException("Not Found user matched to userId: " + userId));
     }
@@ -98,7 +101,7 @@ public class RoomService {
      * https://doublesprogramming.tistory.com/259
      */
     @Transactional
-    public DeleteRoomDto.Response delete(Long id) {
+    public DeleteRoomDto.Response delete(long id) {
         return findRoom(id)
                 .map(room -> {
                     Optional.ofNullable(room.getUsers())

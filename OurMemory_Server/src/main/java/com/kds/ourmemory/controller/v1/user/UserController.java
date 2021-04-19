@@ -37,14 +37,14 @@ public class UserController {
         return ok(service.signUp(request));
     }
 
-    @ApiOperation(value = "로그인", notes = "snsId 및 snsType 으로 사용자 정보 조회 및 리턴")
+    @ApiOperation(value = "로그인", notes = "SNS Id, 인증방식(snsType) 으로 사용자 정보 조회 및 리턴")
     @GetMapping("/user")
     public ApiResult<FindUserDto.Response> signIn(@ApiParam(value = "snsType", required = true) @RequestParam int snsType,
             @ApiParam(value = "snsId", required = true) @RequestParam String snsId) {
         return ok(service.signIn(snsType, snsId));
     }
 
-    @ApiOperation(value = "푸시 토큰 업데이트", notes = "userId 로 사용자를 찾아 푸시토큰 값을 업데이트한다.")
+    @ApiOperation(value = "푸시 토큰 업데이트", notes = "사용자 번호로 사용자를 찾아 푸시토큰 값을 업데이트한다.")
     @PatchMapping("/user/{userId}")
     public ApiResult<PatchTokenDto.Response> patchToken(
             @ApiParam(value = "userId", required = true) @PathVariable long userId,

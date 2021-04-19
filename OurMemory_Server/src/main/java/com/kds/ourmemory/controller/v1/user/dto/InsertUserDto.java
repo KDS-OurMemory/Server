@@ -20,8 +20,8 @@ public class InsertUserDto {
     @AllArgsConstructor
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Request {
-        @ApiModelProperty(value="SNS 종류", required = true, example = "1: 카카오, 2:구글, 3: 네이버")
-        private int snsType;
+        @ApiModelProperty(value="SNS 인증방식", required = true, example = "1: 카카오, 2:구글, 3: 네이버")
+        private Integer snsType;
         
         @ApiModelProperty(value="SNS 로그인 번호", required = true)
         private String snsId;

@@ -32,6 +32,8 @@ public class UserService {
         checkNotNull(request.getName(), "이름이 입력되지 않았습니다. 이름을 입력해주세요.");
         checkArgument(StringUtils.isNoneBlank(request.getName()), "이름은 빈 값이 될 수 없습니다.");
         
+        checkNotNull(request.getSnsType(), "SNS 인증방식(snsType)이 입력되지 않았습니다. 인증방식 값을 입력해주세요.");
+        
         User user = request.toEntity();
         return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), currentDate()))
                 .orElseThrow(() -> new UserInternalServerException(
@@ -74,11 +76,14 @@ public class UserService {
     }
 
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id).map(userRepo::findById).orElseGet(Optional::empty);
+        return Optional.ofNullable(id)
+                .map(userRepo::findById)
+                .orElseGet(Optional::empty);
     }
 
     private Optional<User> findUser(int snsType, String snsId) {
-        return Optional.ofNullable(snsId).map(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType))
+        return Optional.ofNullable(snsId)
+                .map(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType))
                 .orElseGet(Optional::empty);
     }
 }

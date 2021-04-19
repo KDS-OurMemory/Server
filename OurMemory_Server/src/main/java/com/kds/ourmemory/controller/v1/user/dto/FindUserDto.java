@@ -13,7 +13,7 @@ public class FindUserDto {
     @Getter
     public static class Response {
         @ApiModelProperty(value = "사용자 번호", example = "49")
-        private Long userId;
+        private long userId;
 
         @ApiModelProperty(value = "사용자 이름", example = "김동영")
         private String name;

@@ -1,15 +1,12 @@
 package com.kds.ourmemory.advice.v1.memory;
 
-import static com.kds.ourmemory.advice.v1.memory.MemoryResultCode.BAD_REQUEST;
-import static com.kds.ourmemory.advice.v1.memory.MemoryResultCode.INTERNAL_SERVER_ERROR;
-import static com.kds.ourmemory.advice.v1.memory.MemoryResultCode.NOT_FOUND;
-import static com.kds.ourmemory.advice.v1.memory.MemoryResultCode.NOT_FOUND_ROOM;
-import static com.kds.ourmemory.advice.v1.memory.MemoryResultCode.NOT_FOUND_WRITER;
+import static com.kds.ourmemory.advice.v1.memory.MemoryResultCode.*;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -41,9 +38,14 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse{
     
     
     /* HTTP Status Error */
-    @ExceptionHandler({HttpMessageNotReadableException.class})
+    @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<?> handleBadRequestException(Exception e) {
         return response(BAD_REQUEST, e);
+    }
+    
+    @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
+    public ResponseEntity<?> handleCustomBadRequestException(Exception e) {
+        return response(BAD_REQUEST.getCode(), e.getMessage(), e);
     }
     
     @ExceptionHandler(MemoryNotFoundException.class)

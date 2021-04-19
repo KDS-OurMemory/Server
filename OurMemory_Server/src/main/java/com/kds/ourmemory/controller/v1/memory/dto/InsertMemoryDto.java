@@ -63,7 +63,7 @@ public class InsertMemoryDto {
     @AllArgsConstructor
     public static class Response {
         @ApiModelProperty(value = "일정 번호", example = "3")
-        private Long memoryId;
+        private long memoryId;
         
         @ApiModelProperty(value = "방 번호", notes = "일정이 포함된 기준 방의 번호, 방에 포함되지 않는 경우 null 리턴됨.", example = "65")
         private Long roomId;

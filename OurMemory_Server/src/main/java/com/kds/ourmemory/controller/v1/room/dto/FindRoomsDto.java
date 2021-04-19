@@ -20,10 +20,10 @@ public class FindRoomsDto {
     @Getter
     public static class Response {
         @ApiModelProperty(value = "방 번호", example = "5")
-        private Long roomId;
+        private long roomId;
 
         @ApiModelProperty(value = "방 소유자 번호", example = "17")
-        private Long ownerId;
+        private long ownerId;
 
         @ApiModelProperty(value = "방 이름", example = "가족방")
         private String name;
@@ -54,7 +54,7 @@ public class FindRoomsDto {
         @Getter
         private class Member {
             @ApiModelProperty(value = "사용자 번호", example = "49")
-            private Long userId;
+            private long userId;
 
             @ApiModelProperty(value = "사용자 이름", example = "김동영")
             private String name;

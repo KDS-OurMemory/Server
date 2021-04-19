@@ -1,15 +1,12 @@
 package com.kds.ourmemory.advice.v1.room;
 
-import static com.kds.ourmemory.advice.v1.room.RoomResultCode.BAD_REQUEST;
-import static com.kds.ourmemory.advice.v1.room.RoomResultCode.INTERNAL_SERVER_ERROR;
-import static com.kds.ourmemory.advice.v1.room.RoomResultCode.NOT_FOUND;
-import static com.kds.ourmemory.advice.v1.room.RoomResultCode.NOT_FOUND_MEMBER;
-import static com.kds.ourmemory.advice.v1.room.RoomResultCode.NOT_FOUND_OWNER;
+import static com.kds.ourmemory.advice.v1.room.RoomResultCode.*;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -41,9 +38,14 @@ public class RoomControllerAdvice extends RestControllerAdviceResponse{
     
     
     /* Http Status Error */
-    @ExceptionHandler({HttpMessageNotReadableException.class})
+    @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<?> handleBadRequestException(Exception e) {
         return response(BAD_REQUEST, e);
+    }
+    
+    @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
+    public ResponseEntity<?> handleCustomBadRequestException(Exception e) {
+        return response(BAD_REQUEST.getCode(), e.getMessage(), e);
     }
     
     @ExceptionHandler(RoomNotFoundException.class)
