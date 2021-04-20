@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -42,8 +44,7 @@ class RoomServiceTest {
     /**
      * Assert time format -> delete sec
      * 
-     * This is because time difference occurs after room creation due to relation
-     * table work.
+     * This is because time difference occurs after room creation due to relation table work.
      */
     private DateTimeFormatter format;
 
@@ -59,14 +60,41 @@ class RoomServiceTest {
         /**
          * 0-1. Create owner, member
          */
-        User 생성자 = userRepo.save(User.builder().snsId("생성자_snsId").snsType(1).pushToken("생성자 토큰").name("생성자")
-                .birthday("0724").solar(true).birthdayOpen(true).used(true).deviceOs("Android").build());
+        User 생성자 = userRepo.save(User.builder()
+                .snsId("생성자_snsId")
+                .snsType(1)
+                .pushToken("생성자 토큰")
+                .name("생성자")
+                .birthday("0724")
+                .solar(true)
+                .birthdayOpen(true)
+                .used(true)
+                .deviceOs("Android")
+                .build());
 
-        User 참여자1 = userRepo.save(User.builder().snsId("참여자1_snsId").snsType(2).pushToken("참여자1 토큰").name("참여자1")
-                .birthday("0519").solar(true).birthdayOpen(true).used(true).deviceOs("iOS").build());
+        User 참여자1 = userRepo.save(User.builder()
+                .snsId("참여자1_snsId")
+                .snsType(2)
+                .pushToken("참여자1 토큰")
+                .name("참여자1")
+                .birthday("0519")
+                .solar(true)
+                .birthdayOpen(true)
+                .used(true)
+                .deviceOs("iOS")
+                .build());
 
-        User 참여자2 = userRepo.save(User.builder().snsId("참여자2_snsId").snsType(2).pushToken("참여자2 토큰").name("참여자2")
-                .birthday("0807").solar(true).birthdayOpen(true).used(true).deviceOs("iOS").build());
+        User 참여자2 = userRepo.save(User.builder()
+                .snsId("참여자2_snsId")
+                .snsType(2)
+                .pushToken("참여자2 토큰")
+                .name("참여자2")
+                .birthday("0807")
+                .solar(true)
+                .birthdayOpen(true)
+                .used(true)
+                .deviceOs("iOS")
+                .build());
 
         List<Long> member = new ArrayList<>();
         member.add(참여자1.getId());
@@ -82,8 +110,7 @@ class RoomServiceTest {
          */
         InsertRoomDto.Response insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
         assertThat(insertRoomResponseDto).isNotNull();
-        assertThat(LocalDateTime.parse(insertRoomResponseDto.getCreateDate(), format).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(insertRoomResponseDto.getCreateDate())).isTrue();
 
         log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getRoomId());
 
@@ -106,9 +133,13 @@ class RoomServiceTest {
         DeleteRoomDto.Response deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getRoomId());
 
         assertThat(deleteRoomResponseDto).isNotNull();
-        assertThat(LocalDateTime.parse(deleteRoomResponseDto.getDeleteDate(), format).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(deleteRoomResponseDto.getDeleteDate())).isTrue();
 
         log.info("deleteDate: {}", deleteRoomResponseDto.getDeleteDate());
+    }
+    
+    boolean isNow(String time) {
+        return StringUtils.equals(LocalDateTime.now().format(format),
+                LocalDateTime.parse(time, BaseTimeEntity.format).format(format));
     }
 }

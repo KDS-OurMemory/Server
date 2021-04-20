@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -20,6 +21,7 @@ import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
 import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +42,7 @@ class UserServiceTest {
     // Update
     private PutUserDto.Request putUserRequestDto;
 
-    // time Format -> for delete ms
+    // time Format -> for delete second
     private DateTimeFormatter format;
 
     @BeforeAll
@@ -60,6 +62,7 @@ class UserServiceTest {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isNotNull();
+        assertThat(isNow(insRes.getJoinDate())).isTrue();
         
         log.info("joinDate: {}", insRes.getJoinDate());
     }
@@ -71,6 +74,8 @@ class UserServiceTest {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isNotNull();
+        assertThat(isNow(insRes.getJoinDate())).isTrue();
+        
         log.info("joinDate: {}", insRes.getJoinDate());
 
         FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(),
@@ -90,6 +95,7 @@ class UserServiceTest {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isNotNull();
+        assertThat(isNow(insRes.getJoinDate())).isTrue();
         log.info("joinDate: {}", insRes.getJoinDate());
 
         FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(),
@@ -104,8 +110,7 @@ class UserServiceTest {
         PatchTokenDto.Response patchUserTokenResponseDto = userService.patchToken(userRes.getUserId(),
                 patchUserTokenRequestDto);
         assertThat(patchUserTokenResponseDto).isNotNull();
-        assertThat(patchUserTokenResponseDto.getPatchDate())
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(patchUserTokenResponseDto.getPatchDate())).isTrue();
 
         userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
@@ -121,6 +126,7 @@ class UserServiceTest {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isNotNull();
+        assertThat(isNow(insRes.getJoinDate())).isTrue();
         log.info("joinDate: {}", insRes.getJoinDate());
 
         FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(),
@@ -130,13 +136,12 @@ class UserServiceTest {
         assertThat(userRes.getBirthday())
                 .isEqualTo(userRes.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
 
-        log.info("before name:{}, birthday: {}, birthdayOpen: {}, push: {}", userRes.getName(), userRes.getBirthday(),
+        log.info("before name: {}, birthday: {}, birthdayOpen: {}, push: {}", userRes.getName(), userRes.getBirthday(),
                 userRes.isBirthdayOpen(), userRes.isPush());
 
         PutUserDto.Response putUserResponseDto = userService.update(userRes.getUserId(), putUserRequestDto);
         assertThat(putUserResponseDto).isNotNull();
-        assertThat(putUserResponseDto.getUpdateDate())
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(putUserResponseDto.getUpdateDate())).isTrue();
 
         userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
         assertThat(userRes).isNotNull();
@@ -145,7 +150,12 @@ class UserServiceTest {
         assertThat(userRes.isBirthdayOpen()).isEqualTo(putUserRequestDto.getBirthdayOpen());
         assertThat(userRes.isPush()).isEqualTo(putUserRequestDto.getPush());
 
-        log.info("after name:{}, birthday: {}, birthdayOpen: {}, push: {}", userRes.getName(), userRes.getBirthday(),
+        log.info("after name: {}, birthday: {}, birthdayOpen: {}, push: {}", userRes.getName(), userRes.getBirthday(),
                 userRes.isBirthdayOpen(), userRes.isPush());
+    }
+    
+    boolean isNow(String time) {
+        return StringUtils.equals(LocalDateTime.now().format(format),
+                LocalDateTime.parse(time, BaseTimeEntity.format).format(format));
     }
 }

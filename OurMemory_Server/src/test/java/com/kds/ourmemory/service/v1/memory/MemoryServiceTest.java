@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -47,6 +49,7 @@ class MemoryServiceTest {
      * This is because time difference occurs after room creation due to relation table work.
      */
     private DateTimeFormatter format;
+    private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
     
     /**
      * Test case
@@ -64,6 +67,7 @@ class MemoryServiceTest {
     @BeforeAll
     void setUp() {
         format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
     
     @Test
@@ -137,9 +141,9 @@ class MemoryServiceTest {
                 member_방O_참여자O_포함O,
                 "테스트 내용", 
                 "테스트 장소", 
-                LocalDateTime.parse("2021-03-26 17:00"), // 시작 시간 
-                LocalDateTime.parse("2021-03-26 18:00"), // 종료 시간
-                LocalDateTime.parse("2021-03-25 17:00"), // 첫 번째 알림
+                LocalDateTime.parse("2021-03-26 17:00", alertTimeFormat), // 시작 시간 
+                LocalDateTime.parse("2021-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2021-03-25 17:00", alertTimeFormat), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 공유방_목록     // 공유할 방
@@ -150,8 +154,7 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertRsp_방O_참여자O_포함O = memoryService.insert(insertReq_방O_참여자O_포함O);
         assertThat(insertRsp_방O_참여자O_포함O).isNotNull();
-        assertThat(LocalDateTime.parse(insertRsp_방O_참여자O_포함O.getAddDate(), format).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(insertRsp_방O_참여자O_포함O.getAddDate())).isTrue();
         assertThat(insertRsp_방O_참여자O_포함O.getRoomId()).isEqualTo(insertReq_방O_참여자O_포함O.getRoomId());
         
         log.info("[방O_참여자O_포함O] CreateDate: {} memoryId: {}, roomId: {}", insertRsp_방O_참여자O_포함O.getAddDate(),
@@ -174,8 +177,7 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertRsp_방O_참여자O_포함O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate(), format).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
     }
     
     @Test
@@ -249,9 +251,9 @@ class MemoryServiceTest {
                 member_방O_참여자O_포함X,
                 "테스트 내용", 
                 "테스트 장소", 
-                LocalDateTime.parse("2021-03-26 17:00"), // 시작 시간 
-                LocalDateTime.parse("2021-03-26 18:00"), // 종료 시간
-                LocalDateTime.parse("2021-03-25 17:00"), // 첫 번째 알림
+                LocalDateTime.parse("2021-03-26 17:00", alertTimeFormat), // 시작 시간 
+                LocalDateTime.parse("2021-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2021-03-25 17:00", alertTimeFormat), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 공유방_목록     // 공유할 방
@@ -262,7 +264,7 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertResponse_방O_참여자O_포함X = memoryService.insert(insertRequest_방O_참여자O_포함X);
         assertThat(insertResponse_방O_참여자O_포함X).isNotNull();
-        assertThat(LocalDateTime.parse(insertResponse_방O_참여자O_포함X.getAddDate()).format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(insertResponse_방O_참여자O_포함X.getAddDate())).isTrue();
         assertThat(insertResponse_방O_참여자O_포함X.getRoomId()).isNotEqualTo(insertRequest_방O_참여자O_포함X.getRoomId());
         
         log.info("[방O_참여자O_포함X] CreateDate: {}, memoryId: {}, roomId: {}", insertResponse_방O_참여자O_포함X.getAddDate(),
@@ -284,8 +286,7 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자O_포함X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate(), format).format(format))
-        .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
     }
     
     @Test
@@ -357,9 +358,9 @@ class MemoryServiceTest {
                 null,
                 "테스트 내용", 
                 "테스트 장소", 
-                LocalDateTime.parse("2021-03-26 17:00"), // 시작 시간 
-                LocalDateTime.parse("2021-03-26 18:00"), // 종료 시간
-                LocalDateTime.parse("2021-03-25 17:00"), // 첫 번째 알림
+                LocalDateTime.parse("2021-03-26 17:00", alertTimeFormat), // 시작 시간 
+                LocalDateTime.parse("2021-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2021-03-25 17:00", alertTimeFormat), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 공유방_목록     // 공유할 방
@@ -370,8 +371,7 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertResponse_방O_참여자X = memoryService.insert(insertRequest_방O_참여자X);
         assertThat(insertResponse_방O_참여자X).isNotNull();
-        assertThat(LocalDateTime.parse(insertResponse_방O_참여자X.getAddDate()).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(insertResponse_방O_참여자X.getAddDate())).isTrue();
         assertThat(insertResponse_방O_참여자X.getRoomId()).isEqualTo(insertResponse_방O_참여자X.getRoomId());
         
         log.info("[방O_참여자X] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_방O_참여자X.getAddDate(),
@@ -393,8 +393,7 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate()).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
     }
     
     @Test
@@ -467,9 +466,9 @@ class MemoryServiceTest {
                 member_방X_참여자O,
                 "테스트 내용", 
                 "테스트 장소", 
-                LocalDateTime.parse("2021-03-26 17:00"), // 시작 시간 
-                LocalDateTime.parse("2021-03-26 18:00"), // 종료 시간
-                LocalDateTime.parse("2021-03-25 17:00"), // 첫 번째 알림
+                LocalDateTime.parse("2021-03-26 17:00", alertTimeFormat), // 시작 시간 
+                LocalDateTime.parse("2021-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2021-03-25 17:00", alertTimeFormat), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 공유방_목록     // 공유할 방
@@ -480,8 +479,7 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertResponse_방X_참여자O = memoryService.insert(insertRequest_방X_참여자O);
         assertThat(insertResponse_방X_참여자O).isNotNull();
-        assertThat(LocalDateTime.parse(insertResponse_방X_참여자O.getAddDate()).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(insertResponse_방X_참여자O.getAddDate())).isTrue();
         assertThat(insertResponse_방X_참여자O.getRoomId()).isNotEqualTo(insertRequest_방X_참여자O.getRoomId());
         
         log.info("[방X_참여자O] CreateDate: {}, memoryId: {}, roomId: {}", insertResponse_방X_참여자O.getAddDate(),
@@ -503,8 +501,7 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate()).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
     }
     
     @Test
@@ -575,9 +572,9 @@ class MemoryServiceTest {
                 null,
                 "테스트 내용", 
                 "테스트 장소", 
-                LocalDateTime.parse("2021-03-26 17:00"), // 시작 시간 
-                LocalDateTime.parse("2021-03-26 18:00"), // 종료 시간
-                LocalDateTime.parse("2021-03-25 17:00"), // 첫 번째 알림
+                LocalDateTime.parse("2021-03-26 17:00", alertTimeFormat), // 시작 시간 
+                LocalDateTime.parse("2021-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2021-03-25 17:00", alertTimeFormat), // 첫 번째 알림
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 공유방_목록     // 공유할 방
@@ -588,8 +585,7 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertResponse_방X_참여자X = memoryService.insert(insertRequest_방X_참여자X);
         assertThat(insertResponse_방X_참여자X).isNotNull();
-        assertThat(LocalDateTime.parse(insertResponse_방X_참여자X.getAddDate(), format).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(insertResponse_방X_참여자X.getAddDate())).isTrue();
         assertThat(insertResponse_방X_참여자X.getRoomId()).isNull();
         
         log.info("[방X_참여자X] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_방X_참여자X.getAddDate(),
@@ -611,7 +607,11 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate()).format(format))
-                .isEqualTo(LocalDateTime.now().format(format));
+        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
+    }
+    
+    boolean isNow(String time) {
+        return StringUtils.equals(LocalDateTime.now().format(format),
+                LocalDateTime.parse(time, BaseTimeEntity.format).format(format));
     }
 }
