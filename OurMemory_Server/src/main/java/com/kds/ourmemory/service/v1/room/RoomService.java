@@ -1,9 +1,8 @@
 package com.kds.ourmemory.service.v1.room;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.kds.ourmemory.util.DateUtil.currentDate;
-import static com.kds.ourmemory.util.DateUtil.currentTime;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +17,7 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.room.RoomRepository;
@@ -47,7 +47,6 @@ public class RoomService {
                     Room room = Room.builder()
                         .owner(owner)
                         .name(request.getName())
-                        .regDate(currentTime())
                         .opened(request.isOpened())
                         .used(true)
                         .build();
@@ -63,12 +62,11 @@ public class RoomService {
                     // Relation room and members
                     return addMemberToRoom(room, request.getMember());
                 })
-                .map(room -> new InsertRoomDto.Response(room.getId(), currentDate()))
+                .map(room -> new InsertRoomDto.Response(room.getId(), room.getRegDate()))
                 .orElseThrow(() -> new RoomNotFoundOwnerException(
                         "Not found user matched to userId: " + request.getOwner()));
     }
 
-    @Transactional
     private Room addMemberToRoom(Room room, List<Long> members) {
         Optional.ofNullable(members).map(List::stream)
             .ifPresent(stream -> stream.forEach(id -> 
@@ -111,7 +109,7 @@ public class RoomService {
                             .ifPresent(memorys -> memorys.stream().forEach(memory -> memory.getRooms().remove(room)));
                     
                     deleteRoom(room);
-                    return new DeleteRoomDto.Response(currentDate());
+                    return new DeleteRoomDto.Response(BaseTimeEntity.CLocalDateTime.formatTime(LocalDateTime.now()));
                 })
                 .orElseThrow(() -> new RoomNotFoundException("Not found room matched roomId: " + id));
     }

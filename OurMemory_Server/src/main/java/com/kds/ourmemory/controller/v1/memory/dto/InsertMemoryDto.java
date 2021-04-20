@@ -1,9 +1,10 @@
 package com.kds.ourmemory.controller.v1.memory.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -38,19 +39,19 @@ public class InsertMemoryDto {
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         @ApiModelProperty(value = "시작 시간", required = true, notes = "yyyy-MM-dd HH:mm", example = "2021-04-03 19:00")
-        private Date startDate;
+        private LocalDateTime startDate;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         @ApiModelProperty(value = "종료 시간", required = true, notes = "yyyy-MM-dd HH:mm", example = "2021-04-03 21:00")
-        private Date endDate;
+        private LocalDateTime endDate;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         @ApiModelProperty(value = "첫 번째 알림 시간", required = false, notes = "yyyy-MM-dd HH:mm", example = "2021-04-01 12:00")
-        private Date firstAlarm;
+        private LocalDateTime firstAlarm;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         @ApiModelProperty(value = "두 번째 알림 시간", required = false, notes = "yyyy-MM-dd HH:mm", example = "2021-04-02 12:00")
-        private Date secondAlarm;
+        private LocalDateTime secondAlarm;
 
         @ApiModelProperty(value = "배경색", required = true, example = "#FFFFFF")
         private String bgColor;
@@ -68,8 +69,7 @@ public class InsertMemoryDto {
         @ApiModelProperty(value = "방 번호", notes = "일정이 포함된 기준 방의 번호, 방에 포함되지 않는 경우 null 리턴됨.", example = "65")
         private Long roomId;
         
-        @JsonFormat(pattern = "yyyyMMdd")
-        @ApiModelProperty(value="일정 추가한 날짜", notes = "yyyyMMdd", example = "20210401")
-        private Date addDate;
+        @ApiModelProperty(value="일정 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:49:33")
+        private BaseTimeEntity.CLocalDateTime addDate;
     }
 }

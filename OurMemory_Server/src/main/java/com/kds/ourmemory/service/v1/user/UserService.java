@@ -2,7 +2,6 @@ package com.kds.ourmemory.service.v1.user;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.kds.ourmemory.util.DateUtil.currentDate;
 
 import java.util.Optional;
 
@@ -37,7 +36,7 @@ public class UserService {
         checkArgument(StringUtils.isNoneBlank(request.getSnsId()), "SNS ID 는 빈 값이 될 수 없습니다.");
         
         User user = request.toEntity();
-        return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), currentDate()))
+        return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), u.getRegDate()))
                 .orElseThrow(() -> new UserInternalServerException(
                         String.format("User '%s' insert failed.", user.getName())));
     }
@@ -51,22 +50,24 @@ public class UserService {
                         String.format("Not found user matched snsType '%d' and snsId '%s'.", snsType, snsId)));
     }
 
-    @Transactional
     public PatchTokenDto.Response patchToken(long userId, PatchTokenDto.Request request) {
         checkNotNull(request.getPushToken(), "토큰 값이 입력되지 않았습니다. 토큰 값을 입력해주세요.");
         checkArgument(StringUtils.isNoneBlank(request.getPushToken()), "토큰 값은 빈 값이 될 수 없습니다.");
 
         return findUser(userId).map(user -> {
             user.changePushToken(request.getPushToken());
-            return new PatchTokenDto.Response(currentDate());
+            
+            return updateUser(user).map(u -> new PatchTokenDto.Response(u.getModDate()))
+                    .orElseThrow(() -> new UserInternalServerException("Failed to patch for user token."));
         }).orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
     }
 
-    @Transactional
     public PutUserDto.Response update(long userId, PutUserDto.Request request) {
         return findUser(userId).map(user -> {
             user.updateUser(request);
-            return new PutUserDto.Response(currentDate());
+            
+            return updateUser(user).map(u -> new PutUserDto.Response(u.getModDate()))
+                    .orElseThrow(() -> new UserInternalServerException("Failed to update for user data."));
         }).orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
     }
 
@@ -87,5 +88,9 @@ public class UserService {
         return Optional.ofNullable(snsId)
                 .map(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType))
                 .orElseGet(Optional::empty);
+    }
+    
+    private Optional<User> updateUser(User user) {
+        return Optional.ofNullable(userRepo.save(user));
     }
 }

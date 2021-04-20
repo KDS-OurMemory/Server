@@ -1,8 +1,6 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -34,8 +32,7 @@ public class PutUserDto {
     @AllArgsConstructor
     @Getter
     public static class Response {
-        @JsonFormat(pattern = "yyyyMMdd")
-        @ApiModelProperty(value = "업데이트 날짜", notes = "yyyyMMdd", example = "20210407")
-        private Date updateDate;
+        @ApiModelProperty(value = "업데이트 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:21:33")
+        private BaseTimeEntity.CLocalDateTime updateDate;
     }
 }

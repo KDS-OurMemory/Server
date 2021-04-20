@@ -1,8 +1,6 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -25,8 +23,7 @@ public class PatchTokenDto {
     @Getter
     public static class Response {
         
-        @JsonFormat(pattern = "yyyyMMdd")
-        @ApiModelProperty(value = "업데이트 날짜", notes = "yyyyMMdd", example = "20210401")
-        private Date patchDate;
+        @ApiModelProperty(value = "업데이트 날짜", notes = "yyyy-MM-dd HH:mm:ss")
+        private BaseTimeEntity.CLocalDateTime patchDate;
     }
 }

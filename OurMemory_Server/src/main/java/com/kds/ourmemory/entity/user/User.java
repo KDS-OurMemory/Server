@@ -5,8 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.Column;
@@ -23,25 +23,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 
-@EqualsAndHashCode
 @DynamicUpdate
 @Entity(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User implements Serializable{
+public class User extends BaseTimeEntity implements Serializable {
     
 	/**
-     * 
+     * Default Serial Id
      */
     private static final long serialVersionUID = 1L;
 
@@ -77,9 +76,6 @@ public class User implements Serializable{
 	@Column(nullable = true, name="user_role")
 	private String role;
 	
-	@Column(nullable = false, name="reg_date")
-	private Date regDate;
-	
 	@Column(nullable = false, name="user_used_flag")
 	private boolean used;
 	
@@ -100,7 +96,7 @@ public class User implements Serializable{
 	
 	@Builder
     public User(Long id, int snsType, String snsId, String pushToken, boolean push, String name, String birthday,
-            boolean solar, boolean birthdayOpen, String role, Date regDate, boolean used, String deviceOs) {
+            boolean solar, boolean birthdayOpen, String role, boolean used, String deviceOs) {
 	    checkArgument(1 <= snsType && snsType <= 3, "지원하지 않는 SNS 인증방식입니다. 카카오(1), 구글(2), 네이버(3) 중에 입력해주시기 바랍니다.");
         checkArgument(StringUtils.isNoneBlank(snsId), "SNS ID 는 빈 값이 될 수 없습니다.");
         
@@ -117,7 +113,6 @@ public class User implements Serializable{
         this.solar = solar;
         this.birthdayOpen = solar;
         this.role = role;
-        this.regDate = regDate;
         this.used = used;
         this.deviceOs = deviceOs;
     }
@@ -153,10 +148,10 @@ public class User implements Serializable{
     public void updateUser(PutUserDto.Request request) {
         Optional.ofNullable(request)
             .ifPresent(req -> {
-                Optional.ofNullable(request.getName()).ifPresent(name -> this.name = name);
-                Optional.ofNullable(request.getBirthday()).ifPresent(birthday -> this.birthday = birthday);
-                Optional.ofNullable(request.getBirthdayOpen()).ifPresent(birthdayOpen -> this.birthdayOpen = birthdayOpen);
-                Optional.ofNullable(request.getPush()).ifPresent(push -> this.push = push);
+                name = Objects.nonNull(request.getName())? request.getName() :  name;
+                birthday = Objects.nonNull(request.getBirthday())? request.getBirthday() : birthday;
+                birthdayOpen = Objects.nonNull(request.getBirthdayOpen())? request.getBirthdayOpen() : birthdayOpen;
+                push = Objects.nonNull(request.getPush())? request.getPush() : push;
             });
     }
 }

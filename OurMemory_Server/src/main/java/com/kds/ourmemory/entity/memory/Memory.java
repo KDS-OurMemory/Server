@@ -3,8 +3,8 @@ package com.kds.ourmemory.entity.memory;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +21,7 @@ import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 
@@ -28,12 +29,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@ToString(exclude = {"rooms", "users"})
 @DynamicUpdate
 @Entity(name = "memorys")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Memory implements Serializable {
+public class Memory extends BaseTimeEntity implements Serializable {
 	/**
      * Default Serial Id
      */
@@ -58,25 +61,19 @@ public class Memory implements Serializable {
 	private String place;
 	
 	@Column(nullable = false, name="memory_start_date")
-	private Date startDate;
+	private LocalDateTime startDate;
 	
 	@Column(nullable = false, name="memory_end_date")
-	private Date endDate;
+	private LocalDateTime endDate;
 	
 	@Column(nullable = false, name="memory_bg_color")
 	private String bgColor;
 	
 	@Column(nullable = true, name="memory_first_alarm")
-	private Date firstAlarm;
+	private LocalDateTime firstAlarm;
 	
 	@Column(nullable = true, name="memory_second_alarm")
-	private Date secondAlarm;
-	
-	@Column(nullable = false, name="reg_date")
-	private Date regDate;
-	
-	@Column(nullable = true, name="mod_date")
-	private Date modDate;
+	private LocalDateTime secondAlarm;
 	
 	@Column(nullable = false, name="memory_used")
 	private boolean used;
@@ -88,8 +85,8 @@ public class Memory implements Serializable {
     private List<User> users = new ArrayList<>();
 	
 	@Builder
-    public Memory(Long id, User writer, String name, String contents, String place, Date startDate, Date endDate, String bgColor,
-            Date firstAlarm, Date secondAlarm, Date regDate, Date modDate, boolean used) {
+    public Memory(Long id, User writer, String name, String contents, String place, LocalDateTime startDate, LocalDateTime endDate, String bgColor,
+            LocalDateTime firstAlarm, LocalDateTime secondAlarm, boolean used) {
 	    checkNotNull(writer, "사용자 번호에 맞는 일정 작성자 정보가 없습니다. 일정 작성자 번호를 확인해주세요.");
         checkNotNull(name, "일정 제목이 입력되지 않았습니다. 일정 제목을 입력해주세요.");
         
@@ -108,8 +105,6 @@ public class Memory implements Serializable {
         this.bgColor = bgColor;
         this.firstAlarm = firstAlarm;
         this.secondAlarm = secondAlarm;
-        this.regDate = regDate;
-        this.modDate = modDate;
         this.used = used;
     }
     

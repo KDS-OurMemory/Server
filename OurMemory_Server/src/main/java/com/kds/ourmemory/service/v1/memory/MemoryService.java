@@ -1,9 +1,8 @@
 package com.kds.ourmemory.service.v1.memory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.kds.ourmemory.util.DateUtil.currentDate;
-import static com.kds.ourmemory.util.DateUtil.currentTime;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +22,7 @@ import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
@@ -73,7 +73,6 @@ public class MemoryService {
                         .firstAlarm(request.getFirstAlarm())
                         .secondAlarm(request.getSecondAlarm())
                         .bgColor(request.getBgColor())
-                        .regDate(currentTime())
                         .used(true)
                         .build();
                     
@@ -91,7 +90,7 @@ public class MemoryService {
                     relationMemoryToRoom(memory, request.getShareRooms());
                     Long roomId = relationMainRoom(memory, request);
                     
-                    return new InsertMemoryDto.Response(memory.getId(), roomId, currentDate());
+                    return new InsertMemoryDto.Response(memory.getId(), roomId, memory.getRegDate());
                 })
                 .orElseThrow(() -> new MemoryNotFoundWriterException(
                         "Not found writer matched to userId: " + request.getUserId()));
@@ -202,7 +201,7 @@ public class MemoryService {
                     memory.getRooms().stream().forEach(room -> room.getMemorys().remove(memory));
                     memory.getUsers().stream().forEach(user -> user.getMemorys().remove(memory));
                     deleteMemory(memory);
-                    return new DeleteMemoryDto.Response(currentDate());
+                    return new DeleteMemoryDto.Response(BaseTimeEntity.CLocalDateTime.formatTime(LocalDateTime.now()));
                 })
                 .orElseThrow(() -> new MemoryNotFoundException("Not found memory matched to memoryid: " + id));
     }

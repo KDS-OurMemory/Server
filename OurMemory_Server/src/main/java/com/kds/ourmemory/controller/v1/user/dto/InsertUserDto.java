@@ -1,10 +1,6 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
-import static com.kds.ourmemory.util.DateUtil.currentTime;
-
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.User;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -56,7 +52,6 @@ public class InsertUserDto {
                     .birthdayOpen(birthdayOpen)
                     .deviceOs(deviceOs)
                     .role("user")
-                    .regDate(currentTime())
                     .used(true)
                     .build();
         }
@@ -68,8 +63,7 @@ public class InsertUserDto {
         @ApiModelProperty(value = "사용자 번호")
         private Long userId;
         
-        @JsonFormat(pattern = "yyyyMMdd")
-        @ApiModelProperty(value = "사용자 추가한 날짜", notes = "yyyyMMdd", example = "20210401")
-        private Date joinDate;
+        @ApiModelProperty(value = "사용자 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-0420 11:03")
+        private BaseTimeEntity.CLocalDateTime joinDate;
     }
 }

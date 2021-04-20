@@ -1,14 +1,14 @@
 package com.kds.ourmemory.controller.v1.memory.dto;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
-import com.kds.ourmemory.util.DateUtil;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -37,30 +37,28 @@ public class FindMemorysDto {
         
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         @ApiModelProperty(value = "시작 시간", notes = "yyyy-MM-dd HH:mm")
-        private Date startDate;
+        private LocalDateTime startDate;
         
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         @ApiModelProperty(value = "종료 시간", notes = "yyyy-MM-dd HH:mm")
-        private Date endDate;
+        private LocalDateTime endDate;
         
         @ApiModelProperty(value = "배경색", example = "#FFFFFF")
         private String bgColor;
         
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         @ApiModelProperty(value = "첫 번째 알림 시간", notes = "yyyy-MM-dd HH:mm")
-        private Date firstAlarm;
+        private LocalDateTime firstAlarm;
         
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         @ApiModelProperty(value = "두 번째 알림 시간", notes = "yyyy-MM-dd HH:mm")
-        private Date secondAlarm;
+        private LocalDateTime secondAlarm;
         
-        @JsonFormat(pattern = "yyyyMMdd")
-        @ApiModelProperty(value = "일정 등록날짜", notes = "yyyyMMdd")
-        private Date regDate;
+        @ApiModelProperty(value = "일정 등록날짜", notes = "yyyy-MM-dd HH:mm:ss")
+        private BaseTimeEntity.CLocalDateTime regDate;
         
-        @JsonFormat(pattern = "yyyyMMdd")
-        @ApiModelProperty(value = "일정 수정날짜", notes = "yyyyMMdd")
-        private Date modDate;
+        @ApiModelProperty(value = "일정 수정날짜", notes = "yyyy-MM-dd HH:mm:ss")
+        private BaseTimeEntity.CLocalDateTime modDate;
         
         @ApiModelProperty(value = "일정 참여자", notes = "일정을 생성한 사람도 참여자에 포함되어 전달됨.", example = "[{참여자1}, {참여자2}]")
         private List<Member> members = new ArrayList<>();
@@ -71,13 +69,13 @@ public class FindMemorysDto {
             name = memory.getName();
             contents = memory.getContents();
             place = memory.getPlace();
-            startDate = DateUtil.formatTime(memory.getStartDate());
-            endDate = DateUtil.formatTime(memory.getEndDate());
+            startDate = memory.getStartDate();
+            endDate = memory.getEndDate();
             bgColor = memory.getBgColor();
-            firstAlarm = DateUtil.formatTime(memory.getFirstAlarm());
-            secondAlarm = DateUtil.formatTime(memory.getSecondAlarm());
-            regDate = DateUtil.formatDate(memory.getRegDate());
-            modDate = DateUtil.formatDate(memory.getModDate());
+            firstAlarm = memory.getFirstAlarm();
+            secondAlarm = memory.getSecondAlarm();
+            regDate = memory.getRegDate();
+            modDate = memory.getModDate();
             
             members = memory.getUsers().stream().filter(User::isUsed).map(Member::new)
                     .collect(Collectors.toList());

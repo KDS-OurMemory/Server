@@ -1,9 +1,8 @@
 package com.kds.ourmemory.controller.v1.room.dto;
 
-import java.util.Date;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -37,8 +36,7 @@ public class InsertRoomDto {
         @ApiModelProperty(value = "방 번호", example = "3")
         private long roomId;
         
-        @JsonFormat(pattern = "yyyyMMdd")
-        @ApiModelProperty(value="방 생성한 날짜", notes = "yyyyMMdd", example = "20210401")
-        private Date createDate;
+        @ApiModelProperty(value="방 생성한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:33:05")
+        private BaseTimeEntity.CLocalDateTime createDate;
     }
 }

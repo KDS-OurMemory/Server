@@ -1,13 +1,11 @@
 package com.kds.ourmemory.controller.v1.room.dto;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
-import com.kds.ourmemory.util.DateUtil;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -28,9 +26,8 @@ public class FindRoomsDto {
         @ApiModelProperty(value = "방 이름", example = "가족방")
         private String name;
 
-        @JsonFormat(pattern = "yyyyMMdd")
-        @ApiModelProperty(value = "방 생성일", notes = "yyyyMMdd", example = "20210316")
-        private Date regDate;
+        @ApiModelProperty(value = "방 생성일", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:33:05")
+        private BaseTimeEntity.CLocalDateTime regDate;
 
         @ApiModelProperty(value = "방 공개여부", example = "false")
         private boolean opened;
@@ -42,7 +39,7 @@ public class FindRoomsDto {
             roomId = room.getId();
             ownerId = room.getOwner().getId();
             name = room.getName();
-            regDate = DateUtil.formatDate(room.getRegDate());
+            regDate = room.getRegDate();
             opened = room.isOpened();
             members = room.getUsers().stream().filter(User::isUsed).map(Member::new)
                     .collect(Collectors.toList());
