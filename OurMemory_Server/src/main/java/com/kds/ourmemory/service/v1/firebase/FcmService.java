@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
-import com.kds.ourmemory.controller.v1.firebase.dto.FcmMessageDto;
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmiOSDto;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 
 import lombok.RequiredArgsConstructor;
@@ -61,7 +61,7 @@ public class FcmService {
 	}
 	
 	private String makeMessage(String targetToken, String title, String body) throws JsonProcessingException {
-		return objectMapper.writeValueAsString(new FcmMessageDto(targetToken, title, body, false));
+		return objectMapper.writeValueAsString(new FcmiOSDto(targetToken, title, body, false));
 	}
 	
 	private String getAccessToken() throws IOException {

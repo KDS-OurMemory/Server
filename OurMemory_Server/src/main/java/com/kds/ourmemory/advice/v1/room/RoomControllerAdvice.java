@@ -1,57 +1,60 @@
 package com.kds.ourmemory.advice.v1.room;
 
-import javax.validation.UnexpectedTypeException;
+import static com.kds.ourmemory.advice.v1.room.RoomResultCode.*;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.kds.ourmemory.advice.v1.RestControllerAdviceResult;
-import com.kds.ourmemory.advice.v1.room.exception.RoomDataRelationException;
+import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.controller.v1.room.RoomController;
 
 /**
- * Because the communication was successful, the status code value is set to 200 
- * and the error code value and message are passed.
- * 
- * @author idean
+ * Because the communication was successful, the status code value is set to 200.
+ * And the error code value and message are passed.
  */
-@RestControllerAdvice(assignableTypes = RoomController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class RoomControllerAdvice extends RestControllerAdviceResult{
+@RestControllerAdvice(assignableTypes = RoomController.class)
+public class RoomControllerAdvice extends RestControllerAdviceResponse{
 
     /* Custom Error */
-    @ExceptionHandler(RoomDataRelationException.class)
-    public ResponseEntity<?> handleRoomAddMemberException(RoomDataRelationException e) {
-        return response(RoomResultCode.DATA_RELATION_ERROR, e);
-    }
-    
     @ExceptionHandler(RoomNotFoundOwnerException.class)
     public ResponseEntity<?> handleRoomNotFoundOwnerException(RoomNotFoundOwnerException e) {
-        return response(RoomResultCode.NOT_FOUND_OWNER, e);
+        return response(NOT_FOUND_OWNER, e);
+    }
+    
+    @ExceptionHandler(RoomNotFoundMemberException.class)
+    public ResponseEntity<?> handleRoomNotFoundMemberException (RoomNotFoundMemberException e) {
+        return response(NOT_FOUND_MEMBER, e);
     }
     
     
     /* Http Status Error */
-    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class, UnexpectedTypeException.class})
-    public ResponseEntity<?> handleMethodArgumentNotValidException(Exception e) {
-        return response(RoomResultCode.BAD_PARAMETER, e);
+    @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<?> handleBadRequestException(Exception e) {
+        return response(BAD_REQUEST, e);
+    }
+    
+    @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
+    public ResponseEntity<?> handleCustomBadRequestException(Exception e) {
+        return response(BAD_REQUEST.getCode(), e.getMessage(), e);
     }
     
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<?> handleRoomNotFoundException(RoomNotFoundException e) {
-        return response(RoomResultCode.NOT_FOUND, e);
+        return response(NOT_FOUND, e);
     }
     
     @ExceptionHandler(RoomInternalServerException.class)
     public ResponseEntity<?> handleRoomInternalServerException(RoomInternalServerException e) {
-        return response(RoomResultCode.INTERNAL_SERVER_ERROR, e);
+        return response(INTERNAL_SERVER_ERROR, e);
     }
 }
