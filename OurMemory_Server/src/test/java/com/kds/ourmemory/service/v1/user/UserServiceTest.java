@@ -104,7 +104,7 @@ class UserServiceTest {
         PatchTokenDto.Response patchUserTokenResponseDto = userService.patchToken(userRes.getUserId(),
                 patchUserTokenRequestDto);
         assertThat(patchUserTokenResponseDto).isNotNull();
-        assertThat(patchUserTokenResponseDto.getPatchDate().getTime().format(format))
+        assertThat(patchUserTokenResponseDto.getPatchDate())
                 .isEqualTo(LocalDateTime.now().format(format));
 
         userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
@@ -135,7 +135,7 @@ class UserServiceTest {
 
         PutUserDto.Response putUserResponseDto = userService.update(userRes.getUserId(), putUserRequestDto);
         assertThat(putUserResponseDto).isNotNull();
-        assertThat(putUserResponseDto.getUpdateDate().getTime().format(format))
+        assertThat(putUserResponseDto.getUpdateDate())
                 .isEqualTo(LocalDateTime.now().format(format));
 
         userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());

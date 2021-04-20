@@ -3,7 +3,6 @@ package com.kds.ourmemory.controller.v1.room.dto;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 
@@ -27,7 +26,7 @@ public class FindRoomsDto {
         private String name;
 
         @ApiModelProperty(value = "방 생성일", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:33:05")
-        private BaseTimeEntity.CLocalDateTime regDate;
+        private String regDate;
 
         @ApiModelProperty(value = "방 공개여부", example = "false")
         private boolean opened;
@@ -39,7 +38,7 @@ public class FindRoomsDto {
             roomId = room.getId();
             ownerId = room.getOwner().getId();
             name = room.getName();
-            regDate = room.getRegDate();
+            regDate = room.formatRegDate();
             opened = room.isOpened();
             members = room.getUsers().stream().filter(User::isUsed).map(Member::new)
                     .collect(Collectors.toList());

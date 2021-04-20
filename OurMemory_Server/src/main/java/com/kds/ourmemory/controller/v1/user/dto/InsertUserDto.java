@@ -1,6 +1,5 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.User;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -64,6 +63,6 @@ public class InsertUserDto {
         private Long userId;
         
         @ApiModelProperty(value = "사용자 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-0420 11:03")
-        private BaseTimeEntity.CLocalDateTime joinDate;
+        private String joinDate;
     }
 }

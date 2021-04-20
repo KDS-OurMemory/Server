@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
 
@@ -55,10 +54,10 @@ public class FindMemorysDto {
         private LocalDateTime secondAlarm;
         
         @ApiModelProperty(value = "일정 등록날짜", notes = "yyyy-MM-dd HH:mm:ss")
-        private BaseTimeEntity.CLocalDateTime regDate;
+        private String regDate;
         
         @ApiModelProperty(value = "일정 수정날짜", notes = "yyyy-MM-dd HH:mm:ss")
-        private BaseTimeEntity.CLocalDateTime modDate;
+        private String modDate;
         
         @ApiModelProperty(value = "일정 참여자", notes = "일정을 생성한 사람도 참여자에 포함되어 전달됨.", example = "[{참여자1}, {참여자2}]")
         private List<Member> members = new ArrayList<>();
@@ -74,8 +73,8 @@ public class FindMemorysDto {
             bgColor = memory.getBgColor();
             firstAlarm = memory.getFirstAlarm();
             secondAlarm = memory.getSecondAlarm();
-            regDate = memory.getRegDate();
-            modDate = memory.getModDate();
+            regDate = memory.formatRegDate();
+            modDate = memory.formatModDate();
             
             members = memory.getUsers().stream().filter(User::isUsed).map(Member::new)
                     .collect(Collectors.toList());

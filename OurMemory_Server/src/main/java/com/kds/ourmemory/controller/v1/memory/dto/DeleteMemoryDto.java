@@ -1,7 +1,5 @@
 package com.kds.ourmemory.controller.v1.memory.dto;
 
-import com.kds.ourmemory.entity.BaseTimeEntity;
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,6 +13,6 @@ public class DeleteMemoryDto {
     @AllArgsConstructor
     public static class Response {
         @ApiModelProperty(value = "일정 삭제 날짜", notes = "yyyy-MM-dd HH:mm:ss")
-        private BaseTimeEntity.CLocalDateTime deleteDate;
+        private String deleteDate;
     }
 }

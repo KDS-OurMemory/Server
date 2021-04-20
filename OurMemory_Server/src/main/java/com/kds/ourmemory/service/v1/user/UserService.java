@@ -36,7 +36,7 @@ public class UserService {
         checkArgument(StringUtils.isNoneBlank(request.getSnsId()), "SNS ID 는 빈 값이 될 수 없습니다.");
         
         User user = request.toEntity();
-        return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), u.getRegDate()))
+        return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), u.formatRegDate()))
                 .orElseThrow(() -> new UserInternalServerException(
                         String.format("User '%s' insert failed.", user.getName())));
     }
@@ -57,7 +57,7 @@ public class UserService {
         return findUser(userId).map(user -> {
             user.changePushToken(request.getPushToken());
             
-            return updateUser(user).map(u -> new PatchTokenDto.Response(u.getModDate()))
+            return updateUser(user).map(u -> new PatchTokenDto.Response(u.formatModDate()))
                     .orElseThrow(() -> new UserInternalServerException("Failed to patch for user token."));
         }).orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
     }
@@ -66,7 +66,7 @@ public class UserService {
         return findUser(userId).map(user -> {
             user.updateUser(request);
             
-            return updateUser(user).map(u -> new PutUserDto.Response(u.getModDate()))
+            return updateUser(user).map(u -> new PutUserDto.Response(u.formatModDate()))
                     .orElseThrow(() -> new UserInternalServerException("Failed to update for user data."));
         }).orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
     }

@@ -1,7 +1,5 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
-import com.kds.ourmemory.entity.BaseTimeEntity;
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,6 +31,6 @@ public class PutUserDto {
     @Getter
     public static class Response {
         @ApiModelProperty(value = "업데이트 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:21:33")
-        private BaseTimeEntity.CLocalDateTime updateDate;
+        private String updateDate;
     }
 }

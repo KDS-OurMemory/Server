@@ -1,7 +1,5 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
-import com.kds.ourmemory.entity.BaseTimeEntity;
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +22,6 @@ public class PatchTokenDto {
     public static class Response {
         
         @ApiModelProperty(value = "업데이트 날짜", notes = "yyyy-MM-dd HH:mm:ss")
-        private BaseTimeEntity.CLocalDateTime patchDate;
+        private String patchDate;
     }
 }

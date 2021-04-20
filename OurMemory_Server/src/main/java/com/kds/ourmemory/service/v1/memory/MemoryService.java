@@ -2,7 +2,6 @@ package com.kds.ourmemory.service.v1.memory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -90,7 +89,7 @@ public class MemoryService {
                     relationMemoryToRoom(memory, request.getShareRooms());
                     Long roomId = relationMainRoom(memory, request);
                     
-                    return new InsertMemoryDto.Response(memory.getId(), roomId, memory.getRegDate());
+                    return new InsertMemoryDto.Response(memory.getId(), roomId, memory.formatRegDate());
                 })
                 .orElseThrow(() -> new MemoryNotFoundWriterException(
                         "Not found writer matched to userId: " + request.getUserId()));
@@ -201,7 +200,7 @@ public class MemoryService {
                     memory.getRooms().stream().forEach(room -> room.getMemorys().remove(memory));
                     memory.getUsers().stream().forEach(user -> user.getMemorys().remove(memory));
                     deleteMemory(memory);
-                    return new DeleteMemoryDto.Response(BaseTimeEntity.CLocalDateTime.formatTime(LocalDateTime.now()));
+                    return new DeleteMemoryDto.Response(BaseTimeEntity.formatNow());
                 })
                 .orElseThrow(() -> new MemoryNotFoundException("Not found memory matched to memoryid: " + id));
     }

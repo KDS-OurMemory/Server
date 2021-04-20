@@ -82,7 +82,7 @@ class RoomServiceTest {
          */
         InsertRoomDto.Response insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
         assertThat(insertRoomResponseDto).isNotNull();
-        assertThat(insertRoomResponseDto.getCreateDate().getTime().format(format))
+        assertThat(LocalDateTime.parse(insertRoomResponseDto.getCreateDate(), format).format(format))
                 .isEqualTo(LocalDateTime.now().format(format));
 
         log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getRoomId());
@@ -106,7 +106,7 @@ class RoomServiceTest {
         DeleteRoomDto.Response deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getRoomId());
 
         assertThat(deleteRoomResponseDto).isNotNull();
-        assertThat(deleteRoomResponseDto.getDeleteDate().getTime().format(format))
+        assertThat(LocalDateTime.parse(deleteRoomResponseDto.getDeleteDate(), format).format(format))
                 .isEqualTo(LocalDateTime.now().format(format));
 
         log.info("deleteDate: {}", deleteRoomResponseDto.getDeleteDate());

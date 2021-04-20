@@ -150,7 +150,8 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertRsp_방O_참여자O_포함O = memoryService.insert(insertReq_방O_참여자O_포함O);
         assertThat(insertRsp_방O_참여자O_포함O).isNotNull();
-        assertThat(insertRsp_방O_참여자O_포함O.getAddDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(insertRsp_방O_참여자O_포함O.getAddDate(), format).format(format))
+                .isEqualTo(LocalDateTime.now().format(format));
         assertThat(insertRsp_방O_참여자O_포함O.getRoomId()).isEqualTo(insertReq_방O_참여자O_포함O.getRoomId());
         
         log.info("[방O_참여자O_포함O] CreateDate: {} memoryId: {}, roomId: {}", insertRsp_방O_참여자O_포함O.getAddDate(),
@@ -173,7 +174,8 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertRsp_방O_참여자O_포함O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(deleteMemoryResponseDto.getDeleteDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate(), format).format(format))
+                .isEqualTo(LocalDateTime.now().format(format));
     }
     
     @Test
@@ -260,7 +262,7 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertResponse_방O_참여자O_포함X = memoryService.insert(insertRequest_방O_참여자O_포함X);
         assertThat(insertResponse_방O_참여자O_포함X).isNotNull();
-        assertThat(insertResponse_방O_참여자O_포함X.getAddDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(insertResponse_방O_참여자O_포함X.getAddDate()).format(format)).isEqualTo(LocalDateTime.now().format(format));
         assertThat(insertResponse_방O_참여자O_포함X.getRoomId()).isNotEqualTo(insertRequest_방O_참여자O_포함X.getRoomId());
         
         log.info("[방O_참여자O_포함X] CreateDate: {}, memoryId: {}, roomId: {}", insertResponse_방O_참여자O_포함X.getAddDate(),
@@ -282,7 +284,8 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자O_포함X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(deleteMemoryResponseDto.getDeleteDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate(), format).format(format))
+        .isEqualTo(LocalDateTime.now().format(format));
     }
     
     @Test
@@ -367,7 +370,8 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertResponse_방O_참여자X = memoryService.insert(insertRequest_방O_참여자X);
         assertThat(insertResponse_방O_참여자X).isNotNull();
-        assertThat(insertResponse_방O_참여자X.getAddDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(insertResponse_방O_참여자X.getAddDate()).format(format))
+                .isEqualTo(LocalDateTime.now().format(format));
         assertThat(insertResponse_방O_참여자X.getRoomId()).isEqualTo(insertResponse_방O_참여자X.getRoomId());
         
         log.info("[방O_참여자X] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_방O_참여자X.getAddDate(),
@@ -389,7 +393,8 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방O_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(deleteMemoryResponseDto.getDeleteDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate()).format(format))
+                .isEqualTo(LocalDateTime.now().format(format));
     }
     
     @Test
@@ -475,7 +480,8 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertResponse_방X_참여자O = memoryService.insert(insertRequest_방X_참여자O);
         assertThat(insertResponse_방X_참여자O).isNotNull();
-        assertThat(insertResponse_방X_참여자O.getAddDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(insertResponse_방X_참여자O.getAddDate()).format(format))
+                .isEqualTo(LocalDateTime.now().format(format));
         assertThat(insertResponse_방X_참여자O.getRoomId()).isNotEqualTo(insertRequest_방X_참여자O.getRoomId());
         
         log.info("[방X_참여자O] CreateDate: {}, memoryId: {}, roomId: {}", insertResponse_방X_참여자O.getAddDate(),
@@ -497,7 +503,8 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자O.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(deleteMemoryResponseDto.getDeleteDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate()).format(format))
+                .isEqualTo(LocalDateTime.now().format(format));
     }
     
     @Test
@@ -581,7 +588,8 @@ class MemoryServiceTest {
          */
         InsertMemoryDto.Response insertResponse_방X_참여자X = memoryService.insert(insertRequest_방X_참여자X);
         assertThat(insertResponse_방X_참여자X).isNotNull();
-        assertThat(insertResponse_방X_참여자X.getAddDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(insertResponse_방X_참여자X.getAddDate(), format).format(format))
+                .isEqualTo(LocalDateTime.now().format(format));
         assertThat(insertResponse_방X_참여자X.getRoomId()).isNull();
         
         log.info("[방X_참여자X] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_방X_참여자X.getAddDate(),
@@ -603,6 +611,7 @@ class MemoryServiceTest {
         DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_방X_참여자X.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(deleteMemoryResponseDto.getDeleteDate().getTime().format(format)).isEqualTo(LocalDateTime.now().format(format));
+        assertThat(LocalDateTime.parse(deleteMemoryResponseDto.getDeleteDate()).format(format))
+                .isEqualTo(LocalDateTime.now().format(format));
     }
 }

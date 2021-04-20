@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -70,6 +69,6 @@ public class InsertMemoryDto {
         private Long roomId;
         
         @ApiModelProperty(value="일정 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:49:33")
-        private BaseTimeEntity.CLocalDateTime addDate;
+        private String addDate;
     }
 }

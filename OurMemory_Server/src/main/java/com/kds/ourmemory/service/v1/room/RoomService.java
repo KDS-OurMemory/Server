@@ -2,7 +2,6 @@ package com.kds.ourmemory.service.v1.room;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,7 +61,7 @@ public class RoomService {
                     // Relation room and members
                     return addMemberToRoom(room, request.getMember());
                 })
-                .map(room -> new InsertRoomDto.Response(room.getId(), room.getRegDate()))
+                .map(room -> new InsertRoomDto.Response(room.getId(), room.formatRegDate()))
                 .orElseThrow(() -> new RoomNotFoundOwnerException(
                         "Not found user matched to userId: " + request.getOwner()));
     }
@@ -109,7 +108,7 @@ public class RoomService {
                             .ifPresent(memorys -> memorys.stream().forEach(memory -> memory.getRooms().remove(room)));
                     
                     deleteRoom(room);
-                    return new DeleteRoomDto.Response(BaseTimeEntity.CLocalDateTime.formatTime(LocalDateTime.now()));
+                    return new DeleteRoomDto.Response(BaseTimeEntity.formatNow());
                 })
                 .orElseThrow(() -> new RoomNotFoundException("Not found room matched roomId: " + id));
     }
