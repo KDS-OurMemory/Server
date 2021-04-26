@@ -34,5 +34,8 @@
 
     `참여자가 전부 포함된 방이 있다면, 해당 방에 입장하여 일정을 생성해보세요. 입장한 방에 일정이 추가됩니다.`
 
-## 4. 프로젝트 문서
+## 4. ERD
+![ERD](https://raw.githubusercontent.com/idean3885/Server/develop/docs/ERD.PNG)
+
+## 5. 프로젝트 문서
   * Notion  https://www.notion.so/App-Server-22cd97ca1d92443298ca67b8a8c18f8c
