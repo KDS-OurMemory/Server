@@ -32,7 +32,7 @@ class MemoryControllerTest {
         ApiResult<List<FindMemorysDto.Response>> responseDto = memoryController.findMemorys(99L);
         
         assertThat(responseDto).isNotNull();
-        assertThat(responseDto.getResultcode()).isEqualTo("0");
+        assertThat(responseDto.getResultcode()).isEqualTo("00");
         assertThat(responseDto.getResponse()).isNotNull();
         
         log.debug(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseDto));
