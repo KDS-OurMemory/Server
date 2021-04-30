@@ -6,7 +6,7 @@
 2. [개요](#2-개요)
 3. [주요기능](#3-주요기능)
 4. [ERD](#4-ERD)
-5. [CI/CD](#5-CI/CD)
+5. [CI&CD](#5-CI&CD)
 6. [프로젝트 문서](#6-프로젝트-문서)
 
 ## 1. 환경
@@ -39,7 +39,7 @@
 ## 4. ERD
 ![ERD](https://raw.githubusercontent.com/idean3885/Server/develop/docs/ERD.PNG)
 
-## 5. CI/CD
+## 5. CI&CD
  * Jenkins http://34.64.158.97/
  * id/pwd : Guest/Guest
  * 프로젝트 : KDS-OurMemory-Server
