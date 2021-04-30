@@ -55,16 +55,16 @@ public class User extends BaseTimeEntity implements Serializable {
 	@Column(nullable = false, name="user_sns_id")
 	private String snsId;
 	
-	@Column(nullable = true, name="user_push_token")
+	@Column(name="user_push_token")
 	private String pushToken;
 	
 	@Column(nullable = false, name="user_fcm_push_flag")
     private boolean push;
 	
-	@Column(nullable = true, name="user_name")
+	@Column(name="user_name")
 	private String name;
 	
-	@Column(nullable = true, name="user_birthday")
+	@Column(name="user_birthday")
 	private String birthday;
 	
 	@Column(nullable = false, name="user_solar_flag")
@@ -73,7 +73,7 @@ public class User extends BaseTimeEntity implements Serializable {
 	@Column(nullable = false, name="user_birthday_open_flag")
 	private boolean birthdayOpen;
 	
-	@Column(nullable = true, name="user_role")
+	@Column(name="user_role")
 	private String role;
 	
 	@Column(nullable = false, name="user_used_flag")
@@ -89,10 +89,10 @@ public class User extends BaseTimeEntity implements Serializable {
 	private List<Room> rooms = new ArrayList<>();
 	
 	@ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name="users_memorys",
+    @JoinTable(name="users_memories",
                 joinColumns = @JoinColumn(name = "user_id"),
                 inverseJoinColumns = @JoinColumn(name = "memory_id"))
-    private List<Memory> memorys = new ArrayList<>();
+    private List<Memory> memories = new ArrayList<>();
 	
 	@Builder
     public User(Long id, int snsType, String snsId, String pushToken, boolean push, String name, String birthday,
@@ -130,14 +130,14 @@ public class User extends BaseTimeEntity implements Serializable {
 	}
 	
     public User addMemory(Memory memory) {
-        this.memorys = this.memorys == null? new ArrayList<>() : this.memorys;
-        this.memorys.add(memory);
+        this.memories = this.memories == null? new ArrayList<>() : this.memories;
+        this.memories.add(memory);
         return this;
     }
     
-    public Optional<User> addMemorys(List<Memory> memorys) {
-        this.memorys = this.memorys == null? new ArrayList<>() : this.memorys;
-        this.memorys.addAll(memorys);
+    public Optional<User> addMemories(List<Memory> memories) {
+        this.memories = this.memories == null? new ArrayList<>() : this.memories;
+        this.memories.addAll(memories);
         return Optional.of(this);
     }
     
