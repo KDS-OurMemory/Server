@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
-import com.kds.ourmemory.controller.v1.memory.dto.FindMemorysDto;
+import com.kds.ourmemory.controller.v1.memory.dto.FindMemoriesDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
@@ -40,11 +40,11 @@ public class MemoryController {
 
     @ApiOperation(value = "일정 조회", notes = "사용자가 생성했거나 참여중인 일정을 조회한다.")
     @GetMapping("/memories/{userId}")
-    public ApiResult<List<FindMemorysDto.Response>> findMemories(
+    public ApiResult<List<FindMemoriesDto.Response>> findMemories(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(memoryService.findMemories(userId).stream()
                 .filter(Memory::isUsed)
-                .map(FindMemorysDto.Response::new)
+                .map(FindMemoriesDto.Response::new)
                 .collect(Collectors.toList()));
     }
 

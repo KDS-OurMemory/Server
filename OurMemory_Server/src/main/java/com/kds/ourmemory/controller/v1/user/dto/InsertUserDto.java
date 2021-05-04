@@ -2,6 +2,7 @@ package com.kds.ourmemory.controller.v1.user.dto;
 
 import com.kds.ourmemory.entity.user.User;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,8 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class InsertUserDto {
-    
+
+    @ApiModel(value = "InsertUser.Request", description = "nested class in InsertUserDto")
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,13 +29,13 @@ public class InsertUserDto {
         @ApiModelProperty(value="사용자명(또는 닉네임)", required = true)
         private String name;
         
-        @ApiModelProperty(value="생일", required = false, example = "0717")
+        @ApiModelProperty(value="생일", example = "0717")
         private String birthday;
         
-        @ApiModelProperty(value="양력 여부", required = false)
+        @ApiModelProperty(value="양력 여부")
         private boolean solar;
         
-        @ApiModelProperty(value="생일 공개여부", required = false)
+        @ApiModelProperty(value="생일 공개여부")
         private boolean birthdayOpen;
         
         @ApiModelProperty(value="디바이스 OS", required = true)
@@ -55,14 +57,15 @@ public class InsertUserDto {
                     .build();
         }
     }
-    
+
+    @ApiModel(value = "InsertUser.Response", description = "nested class in InsertUserDto.class")
     @Getter
     @AllArgsConstructor
     public static class Response {
         @ApiModelProperty(value = "사용자 번호")
-        private Long userId;
+        private final Long userId;
         
         @ApiModelProperty(value = "사용자 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-0420 11:03")
-        private String joinDate;
+        private final String joinDate;
     }
 }

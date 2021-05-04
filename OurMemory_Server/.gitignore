@@ -22,5 +22,5 @@ bin/
 src/main/resources/application.yml
 
 # Custom
-log/
+logs/
 src/main/resources/FCM_ServiceKey.json

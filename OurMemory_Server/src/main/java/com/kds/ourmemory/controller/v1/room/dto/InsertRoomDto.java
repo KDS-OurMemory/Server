@@ -2,6 +2,7 @@ package com.kds.ourmemory.controller.v1.room.dto;
 
 import java.util.List;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class InsertRoomDto {
 
+    @ApiModel(value = "InsertRoom.Request", description = "nested class in InsertRoomDto")
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,17 +26,18 @@ public class InsertRoomDto {
         @ApiModelProperty(value = "방 공개 여부", required = true)
         private boolean opened;
         
-        @ApiModelProperty(value = "초대할 멤버", required = false, example = "[2,4]")
+        @ApiModelProperty(value = "초대할 멤버", example = "[2,4]")
         private List<Long> member;
     }
-    
+
+    @ApiModel(value = "InsertRoom.Response", description = "nested class in InsertRoomDto")
     @Getter
     @AllArgsConstructor
     public static class Response {
         @ApiModelProperty(value = "방 번호", example = "3")
-        private long roomId;
+        private final long roomId;
         
         @ApiModelProperty(value="방 생성한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:33:05")
-        private String createDate;
+        private final String createDate;
     }
 }
