@@ -19,6 +19,7 @@
 .gradle
 /build/
 bin/
+src/main/resources/application.yml
 
 # Custom
 log/
