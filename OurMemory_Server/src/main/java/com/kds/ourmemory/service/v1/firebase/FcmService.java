@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
+import com.kds.ourmemory.config.CustomConfig;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FcmService {
 	private final ObjectMapper objectMapper;
+	private final CustomConfig customConfig;
 
 	public void sendMessageTo(FcmDto.Request requestDto) {
 		Response response = null;
@@ -61,10 +63,8 @@ public class FcmService {
 	}
 	
 	private String getAccessToken() throws IOException {
-		String firebaseConfigPath = "firebase/firebase_FCM_ServiceKey.json";
-		
 		GoogleCredentials googleCredentials = GoogleCredentials
-				.fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
+				.fromStream(new ClassPathResource(customConfig.getFcmKey()).getInputStream())
 				.createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 		
 		googleCredentials.refreshIfExpired();
