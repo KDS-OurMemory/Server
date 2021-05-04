@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +14,8 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FindRoomsDto {
-    
+
+    @ApiModel(value = "FindRooms.Response", description = "nested class in FindRoomsDto")
     @Getter
     public static class Response {
         @ApiModelProperty(value = "방 번호", example = "5")
@@ -47,6 +49,7 @@ public class FindRoomsDto {
         /**
          * Room Member non static inner class
          */
+        @ApiModel(value = "FindRooms.Response.Member", description = "inner class in FindRoomsDto.Response")
         @Getter
         private class Member {
             @ApiModelProperty(value = "사용자 번호", example = "49")

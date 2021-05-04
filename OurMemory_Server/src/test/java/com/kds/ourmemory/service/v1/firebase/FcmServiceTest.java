@@ -1,5 +1,6 @@
 package com.kds.ourmemory.service.v1.firebase;
 
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -7,28 +8,30 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
-
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
 class FcmServiceTest {
 
-    @Autowired
-    private FcmService fcmService;
+    private final FcmService fcmService;
     
     private final String[] OS = {"Android", "iOS"};
     
-    private FcmRequestDto fcmRequestDto;
+    private FcmDto.Request fcmRequestDto;
+
+    @Autowired
+    private FcmServiceTest(FcmService fcmService) {
+        this.fcmService = fcmService;
+    }
     
     @BeforeAll
     void setUp() {
-        String token = "e6KA7UP6zkPPlWML-vRQSe:APA91bGCUDyclRT8HrJjcB83GGuuR0a7y9V_SiqbgBWV-rfd9sx2JdCD9UORbmpWDb6QR3PK5hAFGlntN5wlR-8t76_dgiLwc8BHryKJu55eVeB96Z2KbHEowxHDDb77ycCxX08f_BAW";
+        String token = "d1h25BbiRayuirLMzEUCaI:APA91bHd272ownws5ZvkFnnohTq3QDN0weRlUUqx_XJHBlYZz6F0yxBotIb_7zAr1nMqUKtEOWxJT-Jho5IH0vpiYgHE5GKQQs-1kIK5xhDaWapOoiTTfIN0y0_ayRonBQRxeOKQ7RpS";
         
-        fcmRequestDto = new FcmRequestDto(token, OS[0], "테스트 타이틀", "테스트 바디");
+        fcmRequestDto = new FcmDto.Request(token, OS[0], "테스트 타이틀", "테스트 바디");
     }
     
     @Test
-    void 푸시테스트() {
+    void Push() {
         fcmService.sendMessageTo(fcmRequestDto);
     }
 }

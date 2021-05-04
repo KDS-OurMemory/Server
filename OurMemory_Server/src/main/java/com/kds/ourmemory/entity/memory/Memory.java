@@ -33,7 +33,7 @@ import lombok.ToString;
 
 @ToString(exclude = {"rooms", "users"})
 @DynamicUpdate
-@Entity(name = "memorys")
+@Entity(name = "memories")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Memory extends BaseTimeEntity implements Serializable {
@@ -54,10 +54,10 @@ public class Memory extends BaseTimeEntity implements Serializable {
 	@Column(nullable = false, name="memory_name")
 	private String name;
 	
-	@Column(nullable = true, name="memory_contents")
+	@Column(name="memory_contents")
 	private String contents;
 	
-	@Column(nullable = true, name="memory_place")
+	@Column(name="memory_place")
 	private String place;
 	
 	@Column(nullable = false, name="memory_start_date")
@@ -69,19 +69,19 @@ public class Memory extends BaseTimeEntity implements Serializable {
 	@Column(nullable = false, name="memory_bg_color")
 	private String bgColor;
 	
-	@Column(nullable = true, name="memory_first_alarm")
+	@Column(name="memory_first_alarm")
 	private LocalDateTime firstAlarm;
 	
-	@Column(nullable = true, name="memory_second_alarm")
+	@Column(name="memory_second_alarm")
 	private LocalDateTime secondAlarm;
 	
 	@Column(nullable = false, name="memory_used")
 	private boolean used;
 	
-	@ManyToMany(mappedBy = "memorys", fetch = FetchType.LAZY)
+	@ManyToMany(mappedBy = "memories", fetch = FetchType.LAZY)
     private List<Room> rooms = new ArrayList<>();
 	
-	@ManyToMany(mappedBy = "memorys", fetch = FetchType.LAZY)
+	@ManyToMany(mappedBy = "memories", fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
 	
 	@Builder

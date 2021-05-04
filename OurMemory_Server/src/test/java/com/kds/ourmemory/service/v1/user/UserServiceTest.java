@@ -30,8 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserServiceTest {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     // Insert
     private InsertUserDto.Request insertUserRequestDto;
@@ -42,8 +41,17 @@ class UserServiceTest {
     // Update
     private PutUserDto.Request putUserRequestDto;
 
-    // time Format -> for delete second
+    /**
+     * Assert time format -> delete sec
+     *
+     * This is because time difference occurs after room creation due to relation table work.
+     */
     private DateTimeFormatter format;
+
+    @Autowired
+    private UserServiceTest(UserService userService) {
+        this.userService = userService;
+    }
 
     @BeforeAll
     void setUp() {
@@ -52,13 +60,13 @@ class UserServiceTest {
         patchUserTokenRequestDto = new PatchTokenDto.Request("after pushToken");
         putUserRequestDto = new PutUserDto.Request("이름 업데이트!", "0903", true, false);
 
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
 
     @Test
     @Order(1)
     @Transactional
-    void 회원가입() {
+    void SignIn() {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isNotNull();
@@ -70,7 +78,7 @@ class UserServiceTest {
     @Test
     @Order(2)
     @Transactional
-    void 사용자_조회_snsId() {
+    void User_Read() {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isNotNull();
@@ -91,7 +99,7 @@ class UserServiceTest {
     @Test
     @Order(3)
     @Transactional
-    void 사용자_토큰_변경() {
+    void User_Patch_Token() {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isNotNull();
@@ -122,7 +130,7 @@ class UserServiceTest {
     @Test
     @Order(4)
     @Transactional
-    void 사용자_수정() {
+    void User_Update() {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
         assertThat(insRes.getJoinDate()).isNotNull();

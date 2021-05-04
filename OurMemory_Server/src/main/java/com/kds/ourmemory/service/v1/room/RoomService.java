@@ -7,13 +7,13 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import org.springframework.stereotype.Service;
 
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
-import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
@@ -67,14 +67,14 @@ public class RoomService {
     }
 
     private Room addMemberToRoom(Room room, List<Long> members) {
-        Optional.ofNullable(members).map(List::stream)
-            .ifPresent(stream -> stream.forEach(id -> 
+        Optional.ofNullable(members)
+            .ifPresent(mem -> mem.forEach(id ->
                 findUser(id)
                 .map(user -> {
                     user.addRoom(room);
                     room.addUser(user);
                     
-                    fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
+                    fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
                             "OurMemory - 방 참여", String.format("'%s' 방에 초대되셨습니다.", room.getName())));
                     return user;
                  })
@@ -102,11 +102,11 @@ public class RoomService {
         return findRoom(id)
                 .map(room -> {
                     Optional.ofNullable(room.getUsers())
-                            .ifPresent(users -> users.stream().forEach(user -> user.getRooms().remove(room)));
-                    
-                    Optional.ofNullable(room.getMemorys())
-                            .ifPresent(memorys -> memorys.stream().forEach(memory -> memory.getRooms().remove(room)));
-                    
+                            .ifPresent(users -> users.forEach(user -> user.getRooms().remove(room)));
+
+                    Optional.ofNullable(room.getMemories())
+                            .ifPresent(memories -> memories.forEach(memory -> memory.getRooms().remove(room)));
+
                     deleteRoom(room);
                     return new DeleteRoomDto.Response(BaseTimeEntity.formatNow());
                 })
@@ -117,18 +117,15 @@ public class RoomService {
      * Room Repository
      */
     private Optional<Room> insertRoom(Room room) {
-        return Optional.ofNullable(roomRepo.save(room));
+        return Optional.of(roomRepo.save(room));
     }
     
     private Optional<Room> findRoom(Long id) {
-        return Optional.ofNullable(id)
-                .map(roomRepo::findById)
-                .orElseGet(Optional::empty);
+        return Optional.ofNullable(id).flatMap(roomRepo::findById);
     }
     
     private void deleteRoom(Room room) {
-        Optional.ofNullable(room)
-            .ifPresent(roomRepo::delete);
+        Optional.ofNullable(room).ifPresent(roomRepo::delete);
     }
     
     /**
@@ -138,8 +135,6 @@ public class RoomService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id)
-                .map(userRepo::findById)
-                .orElseGet(Optional::empty);
+        return Optional.ofNullable(id).flatMap(userRepo::findById);
     }
 }
