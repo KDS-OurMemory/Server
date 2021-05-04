@@ -1,37 +1,20 @@
 package com.kds.ourmemory.entity.room;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.user.User;
+import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.hibernate.annotations.DynamicUpdate;
-
-import com.kds.ourmemory.entity.BaseTimeEntity;
-import com.kds.ourmemory.entity.memory.Memory;
-import com.kds.ourmemory.entity.user.User;
-
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-@ToString(exclude = {"users", "memorys"})
+@ToString(exclude = {"users", "memories"})
 @DynamicUpdate
 @Entity(name = "rooms")
 @Getter
@@ -41,7 +24,7 @@ public class Room extends BaseTimeEntity implements Serializable{
 	/**
      * Default Serial Id
      */
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,10 +48,10 @@ public class Room extends BaseTimeEntity implements Serializable{
 	private List<User> users = new ArrayList<>();
 	
 	@ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name="rooms_memorys",
+    @JoinTable(name="rooms_memories",
                 joinColumns = @JoinColumn(name = "room_id"),
                 inverseJoinColumns = @JoinColumn(name = "memory_id"))
-    private List<Memory> memorys = new ArrayList<>();
+    private List<Memory> memories = new ArrayList<>();
 	
 	@Builder
 	public Room(Long id, User owner, String name, boolean used, boolean opened) {
@@ -99,20 +82,20 @@ public class Room extends BaseTimeEntity implements Serializable{
 	    return Optional.of(this);
     }
 	
-    public Optional<Room> setMemorys(List<Memory> memorys) {
-        this.memorys = memorys;
+    public Optional<Room> setMemories(List<Memory> memories) {
+        this.memories = memories;
         return Optional.of(this);
     }
 
     public Room addMemory(Memory memory) {
-        this.memorys = this.memorys==null? new ArrayList<>() : this.memorys;
-        this.memorys.add(memory);
+        this.memories = this.memories==null? new ArrayList<>() : this.memories;
+        this.memories.add(memory);
         return this;
     }
 
-    public Optional<Room> addMemorys(List<Memory> memorys) {
-        this.memorys = this.memorys==null? new ArrayList<>() : this.memorys;
-        this.memorys.addAll(memorys);
+    public Optional<Room> addMemories(List<Memory> memories) {
+        this.memories = this.memories==null? new ArrayList<>() : this.memories;
+        this.memories.addAll(memories);
         return Optional.of(this);
     }
 }

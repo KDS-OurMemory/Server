@@ -1,5 +1,6 @@
 package com.kds.ourmemory.controller.v1.room.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeleteRoomDto {
 
+    @ApiModel(value = "DeleteRoom.Response", description = "nested class in DeleteRoomDto")
     @Getter
     @AllArgsConstructor
     public static class Response {

@@ -2,14 +2,12 @@ package com.kds.ourmemory.service.v1.memory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +15,6 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerExceptio
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
-import com.kds.ourmemory.controller.v1.firebase.dto.FcmRequestDto;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
@@ -100,13 +97,12 @@ public class MemoryService {
         Optional.ofNullable(roomIds)
         .map(List::stream).ifPresent(stream -> stream.forEach(id -> 
             findRoom(id)
-            .filter(Objects::nonNull)
             .map(room -> {
                 room.addMemory(memory);
                 memory.addRoom(room);
 
-                room.getUsers().stream()
-                        .forEach(user -> fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
+                room.getUsers()
+                        .forEach(user -> fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
                                 "OurMemory - 일정 공유", String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName()))));
                 return room;
             })
@@ -116,12 +112,12 @@ public class MemoryService {
     
     @Transactional
     private void relationMemoryToMembers(Memory memory, List<Long> members) {
-        Optional.ofNullable(members).map(List::stream)
-                .ifPresent(stream -> stream.forEach(id -> findUser(id).filter(Objects::nonNull).map(user -> {
+        Optional.ofNullable(members)
+                .ifPresent(mem -> mem.forEach(id -> findUser(id).map(user -> {
                     user.addMemory(memory);
                     memory.addUser(user);
 
-                    fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
+                    fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
                             "OurMemory - 일정 공유", String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
                     return user;
                 }).orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))));
@@ -138,8 +134,8 @@ public class MemoryService {
     *   1) If there are participants -> Create room and push notification, memory-to-room connection
     *   2) If no participants are present -> Memory is connect to user and treated as personal memory.
      * 
-     * @param memory
-     * @param request 
+     * @param memory targetMemory
+     * @param request Request Data
      */
     private Long relationMainRoom(Memory memory, InsertMemoryDto.Request request) {
         Room mainRoom = findRoom(request.getRoomId())
@@ -167,8 +163,8 @@ public class MemoryService {
 
                             // push message
                             return findRoom(insertRoomResponseDto.getRoomId()).map(room -> {
-                                room.getUsers().stream().forEach(
-                                        user -> fcmService.sendMessageTo(new FcmRequestDto(user.getPushToken(), user.getDeviceOs(),
+                                room.getUsers().forEach(
+                                        user -> fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
                                                 "OurMemory - 방 생성", String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.",
                                                         memory.getName(), room.getName()))));
                                 return room;
@@ -182,14 +178,14 @@ public class MemoryService {
         return Optional.ofNullable(mainRoom)
                 // If a room exists to associate with the memory
                 .map(room -> {
-                    relationMemoryToRoom(memory, Arrays.asList(room.getId()));
+                    relationMemoryToRoom(memory, Collections.singletonList(room.getId()));
                     return room.getId();
                 }).orElse(null);
     }
     
-    public List<Memory> findMemorys(long userId) {
+    public List<Memory> findMemories(long userId) {
         return findUser(userId)
-                .map(User::getMemorys)
+                .map(User::getMemories)
                 .orElseThrow(() -> new MemoryNotFoundWriterException("Not found writer from userId: " + userId));
     }
     
@@ -197,8 +193,8 @@ public class MemoryService {
     public DeleteMemoryDto.Response deleteMemory(long id) {
         return findMemory(id)
                 .map(memory -> {
-                    memory.getRooms().stream().forEach(room -> room.getMemorys().remove(memory));
-                    memory.getUsers().stream().forEach(user -> user.getMemorys().remove(memory));
+                    memory.getRooms().forEach(room -> room.getMemories().remove(memory));
+                    memory.getUsers().forEach(user -> user.getMemories().remove(memory));
                     deleteMemory(memory);
                     return new DeleteMemoryDto.Response(BaseTimeEntity.formatNow());
                 })
@@ -209,18 +205,15 @@ public class MemoryService {
      * Memory Repository 
      */
     private Optional<Memory> insertMemory(Memory memory) {
-        return Optional.ofNullable(memoryRepo.save(memory));
+        return Optional.of(memoryRepo.save(memory));
     }
     
     private Optional<Memory> findMemory(Long id) {
-        return Optional.ofNullable(id)
-                .map(memoryRepo::findById)
-                .orElseGet(Optional::empty);
+        return Optional.ofNullable(id).flatMap(memoryRepo::findById);
     }
     
     private void deleteMemory(Memory memory) {
-        Optional.ofNullable(memory)
-            .ifPresent(memoryRepo::delete);
+        Optional.ofNullable(memory).ifPresent(memoryRepo::delete);
     }
     
     /**
@@ -230,9 +223,7 @@ public class MemoryService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id)
-                .map(userRepo::findById)
-                .orElseGet(Optional::empty);
+        return Optional.ofNullable(id).flatMap(userRepo::findById);
     }
     
     /**
@@ -242,8 +233,6 @@ public class MemoryService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<Room> findRoom(Long id) {
-        return Optional.ofNullable(id)
-                .map(roomRepo::findById)
-                .orElseGet(Optional::empty);
+        return Optional.ofNullable(id).flatMap(roomRepo::findById);
     }
 }

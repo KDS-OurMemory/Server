@@ -21,6 +21,6 @@ public enum CommonResultCode implements ResultCode{
     INTERNAL_SERVER_ERROR("C500", "알 수 없는 오류가 발생하였습니다.")
     ;
     
-    private String code;
-    private String msg;
+    private final String code;
+    private final String msg;
 }
