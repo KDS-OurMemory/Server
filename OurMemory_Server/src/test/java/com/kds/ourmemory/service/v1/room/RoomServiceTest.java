@@ -45,7 +45,7 @@ class RoomServiceTest {
 
     @BeforeAll
     void setUp() {
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
     }
 
     @Test

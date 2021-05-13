@@ -1,6 +1,8 @@
 package com.kds.ourmemory.service.v1.friend;
 
-import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
+import com.kds.ourmemory.advice.v1.friend.exception.FriendInternalServerException;
+import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundFriendException;
+import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundUserException;
 import com.kds.ourmemory.controller.v1.friend.dto.InsertFriendDto;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.user.User;
@@ -32,21 +34,23 @@ public class FriendService {
         return findUser(userId)
                 .map(user -> {
                     List<Friend> friends = request.getFriendsId().stream()
-                            .map(friendId ->
-                                    findUser(friendId).map(friend -> insertFriend(new Friend(user, friend)).get())
-                                            .orElseThrow(() -> new UserNotFoundException("Not found user matched friendId:" + friendId))
-                            ).collect(Collectors.toList());
+                            .map(friendId -> findUser(friendId)
+                                    .map(friend -> insertFriend(new Friend(user, friend))
+                                            .orElseThrow(() -> new FriendInternalServerException(String.format(
+                                                    "Insert Friend failed. [userId: %d, friendId: %d]", userId, friendId))))
+                                    .orElseThrow(() -> new FriendNotFoundFriendException("Not found user matched friendId: " + friendId)))
+                            .collect(Collectors.toList());
 
                     return new InsertFriendDto.Response(friends.get(0).formatRegDate());
                 })
-                .orElseThrow(() -> new UserNotFoundException("Not found user matched userId:" + userId));
+                .orElseThrow(() -> new FriendNotFoundUserException("Not found user matched userId:" + userId));
     }
 
     // Not found friend -> None Error, just empty -> return emptyList
     public List<User> findFriends(long userId) {
         return findFriendsByUserId(userId)
                 .map(friends -> friends.stream().map(Friend::getFriend).collect(Collectors.toList()))
-                .orElseGet(() -> new ArrayList<>());
+                .orElseGet(ArrayList::new);
     }
 
     /**
@@ -57,7 +61,7 @@ public class FriendService {
     }
 
     private Optional<List<Friend>> findFriendsByUserId(Long userId) {
-        return Optional.ofNullable(userId).flatMap(friendRepo::FindByUserId);
+        return Optional.ofNullable(userId).flatMap(friendRepo::findByUserId);
     }
 
     /**

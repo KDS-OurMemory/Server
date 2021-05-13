@@ -60,7 +60,7 @@ class UserServiceTest {
         patchUserTokenRequestDto = new PatchTokenDto.Request("after pushToken");
         putUserRequestDto = new PutUserDto.Request("이름 업데이트!", "0903", true, false);
 
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
     }
 
     @Test

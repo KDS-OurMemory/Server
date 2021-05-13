@@ -3,6 +3,8 @@ package com.kds.ourmemory.advice.v1.friend;
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendInternalServerException;
 import com.kds.ourmemory.advice.v1.room.RoomResultCode;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.controller.v1.friend.FriendController;
 import org.springframework.core.Ordered;
@@ -14,8 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import static com.kds.ourmemory.advice.v1.friend.FriendResultCode.BAD_REQUEST;
-import static com.kds.ourmemory.advice.v1.friend.FriendResultCode.INTERNAL_SERVER_ERROR;
+import static com.kds.ourmemory.advice.v1.friend.FriendResultCode.*;
 
 /**
  * Because the communication was successful, the status code value is set to 200.
@@ -24,6 +25,17 @@ import static com.kds.ourmemory.advice.v1.friend.FriendResultCode.INTERNAL_SERVE
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = FriendController.class)
 public class FriendControllerAdvice extends RestControllerAdviceResponse {
+
+    /* Custom Error */
+    @ExceptionHandler(RoomNotFoundOwnerException.class)
+    public ResponseEntity<?> handleRoomNotFoundOwnerException(RoomNotFoundOwnerException e) {
+        return response(NOT_FOUND_USER, e);
+    }
+
+    @ExceptionHandler(RoomNotFoundMemberException.class)
+    public ResponseEntity<?> handleRoomNotFoundMemberException (RoomNotFoundMemberException e) {
+        return response(NOT_FOUND_FRIEND, e);
+    }
 
     /* Http Status Error */
     @ExceptionHandler({ MissingServletRequestParameterException.class, HttpMessageNotReadableException.class,

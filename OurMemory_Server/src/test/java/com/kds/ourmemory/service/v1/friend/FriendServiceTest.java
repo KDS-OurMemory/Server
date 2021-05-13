@@ -42,13 +42,13 @@ public class FriendServiceTest {
 
     @BeforeAll
     void setUp() {
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
     }
     
     @Test
     @Order(1)
     @Transactional
-    void Friend_Create_Read_Delete() {
+    void Friend_Create_Read() {
         /* 0-1. Create user, friends */
         User user = userRepo.save(User.builder()
                 .snsId("user_snsId")
@@ -92,7 +92,7 @@ public class FriendServiceTest {
         friendsId.add(friend2.getId());
         InsertFriendDto.Request insertFriendRequest = new InsertFriendDto.Request(friendsId);
 
-        /* 1. Add Friends */
+        /* 1. Add friends */
         InsertFriendDto.Response insertFriendResponse = friendService.addFriend(user.getId(), insertFriendRequest);
         assertThat(insertFriendResponse).isNotNull();
         assertThat(isNow(insertFriendResponse.getAddDate())).isTrue();
