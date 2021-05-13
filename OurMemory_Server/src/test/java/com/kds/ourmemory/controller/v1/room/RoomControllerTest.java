@@ -1,4 +1,4 @@
-package com.kds.ourmemory.room;
+package com.kds.ourmemory.controller.v1.room;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -64,7 +64,7 @@ class MemoryServiceTest {
 
     @BeforeAll
     void setUp() {
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
         alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
     

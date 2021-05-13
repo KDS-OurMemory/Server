@@ -1,36 +1,27 @@
 package com.kds.ourmemory.controller.v1.room;
 
-import static com.kds.ourmemory.controller.v1.ApiResult.ok;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.service.v1.room.RoomService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
-@Api(tags = { "2. Room" })
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.kds.ourmemory.controller.v1.ApiResult.ok;
+
+@Api(tags = { "3. Room" })
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/v1")
 public class RoomController {
-
     private final RoomService roomService;
 
     @ApiOperation(value = "방 생성", notes = "앱에서 전달받은 데이터로 방 생성 및 사용자 추가")
