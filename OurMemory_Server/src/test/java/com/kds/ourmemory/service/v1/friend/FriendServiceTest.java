@@ -103,7 +103,13 @@ public class FriendServiceTest {
         List<User> responseList = friendService.findFriends(user.getId());
         assertThat(responseList).isNotNull();
         assertThat(!responseList.isEmpty()).isTrue();
-
+        boolean isOne = false;
+        boolean isTwo = false;
+        for (User friend: responseList) {
+            if (friend.getId().equals(friend1.getId())) isOne = true;
+            if (friend.getId().equals(friend2.getId())) isTwo = true;
+        }
+        assertThat(isOne && isTwo).isTrue();
     }
 
     boolean isNow(String time) {
