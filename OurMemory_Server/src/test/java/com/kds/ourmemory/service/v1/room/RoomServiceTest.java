@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -95,17 +94,17 @@ class RoomServiceTest {
         member.add(member2.getId());
 
         /* 0-2. Create request */
-        InsertRoomDto.Request insertRoomRequestDto = new InsertRoomDto.Request("TestRoom", Creator.getId(), false, member);
+        InsertRoomDto.Request insertRoomRequest = new InsertRoomDto.Request("TestRoom", Creator.getId(), false, member);
 
         /* 1. Make room */
-        InsertRoomDto.Response insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
-        assertThat(insertRoomResponseDto).isNotNull();
-        assertThat(isNow(insertRoomResponseDto.getCreateDate())).isTrue();
+        InsertRoomDto.Response insertRoomResponse = roomService.insert(insertRoomRequest);
+        assertThat(insertRoomResponse).isNotNull();
+        assertThat(isNow(insertRoomResponse.getCreateDate())).isTrue();
 
-        log.info("CreateDate: {} roomId: {}", insertRoomResponseDto.getCreateDate(), insertRoomResponseDto.getRoomId());
+        log.info("CreateDate: {} roomId: {}", insertRoomResponse.getCreateDate(), insertRoomResponse.getRoomId());
 
         /* 2. Find room list */
-        List<Room> responseList = userRepo.findById(insertRoomRequestDto.getOwner())
+        List<Room> responseList = userRepo.findById(insertRoomRequest.getOwner())
                 .map(user -> roomService.findRooms(user.getId()))
                 .orElseThrow(() -> new RoomInternalServerException("Not Found Room."));
 
@@ -116,12 +115,12 @@ class RoomServiceTest {
         log.info("====================================================================================");
 
         /* 3. Delete room */
-        DeleteRoomDto.Response deleteRoomResponseDto = roomService.delete(insertRoomResponseDto.getRoomId());
+        DeleteRoomDto.Response deleteRoomResponse = roomService.delete(insertRoomResponse.getRoomId());
 
-        assertThat(deleteRoomResponseDto).isNotNull();
-        assertThat(isNow(deleteRoomResponseDto.getDeleteDate())).isTrue();
+        assertThat(deleteRoomResponse).isNotNull();
+        assertThat(isNow(deleteRoomResponse.getDeleteDate())).isTrue();
 
-        log.info("deleteDate: {}", deleteRoomResponseDto.getDeleteDate());
+        log.info("deleteDate: {}", deleteRoomResponse.getDeleteDate());
     }
     
     boolean isNow(String time) {

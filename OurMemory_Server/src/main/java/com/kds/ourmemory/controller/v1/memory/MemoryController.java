@@ -1,31 +1,23 @@
 package com.kds.ourmemory.controller.v1.memory;
 
-import static com.kds.ourmemory.controller.v1.ApiResult.ok;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
 import com.kds.ourmemory.controller.v1.memory.dto.FindMemoriesDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
-@Api(tags = {"3. Memory"})
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.kds.ourmemory.controller.v1.ApiResult.ok;
+
+@Api(tags = {"4. Memory"})
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/v1")
