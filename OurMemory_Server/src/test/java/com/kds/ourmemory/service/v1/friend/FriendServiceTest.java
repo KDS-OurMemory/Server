@@ -110,6 +110,16 @@ public class FriendServiceTest {
             if (friend.getId().equals(friend2.getId())) isTwo = true;
         }
         assertThat(isOne && isTwo).isTrue();
+
+        responseList = friendService.findFriends(friend1.getId());
+        assertThat(responseList).isNotNull();
+        assertThat(!responseList.isEmpty()).isTrue();
+        assertThat(responseList.get(0).getId().equals(user.getId())).isTrue();
+
+        responseList = friendService.findFriends(friend2.getId());
+        assertThat(responseList).isNotNull();
+        assertThat(!responseList.isEmpty()).isTrue();
+        assertThat(responseList.get(0).getId().equals(user.getId())).isTrue();
     }
 
     boolean isNow(String time) {
