@@ -35,9 +35,15 @@ public class FriendService {
                 .map(user -> {
                     List<Friend> friends = request.getFriendsId().stream()
                             .map(friendId -> findUser(friendId)
-                                    .map(friend -> insertFriend(new Friend(user, friend))
-                                            .orElseThrow(() -> new FriendInternalServerException(String.format(
-                                                    "Insert Friend failed. [userId: %d, friendId: %d]", userId, friendId))))
+                                    .map(friend -> {
+                                        insertFriend(new Friend(user, friend))
+                                                .orElseThrow(() -> new FriendInternalServerException(String.format(
+                                                        "Insert Friend failed. [userId: %d, friendId: %d]", userId, friendId)));
+
+                                        return insertFriend(new Friend(friend, user))
+                                                .orElseThrow(() -> new FriendInternalServerException(String.format(
+                                                        "Insert Friend failed. [userId: %d, friendId: %d]", friendId, userId)));
+                                    })
                                     .orElseThrow(() -> new FriendNotFoundFriendException("Not found user matched friendId: " + friendId)))
                             .collect(Collectors.toList());
 
