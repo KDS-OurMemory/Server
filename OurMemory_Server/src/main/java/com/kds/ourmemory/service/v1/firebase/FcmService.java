@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.codec.binary.StringUtils;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +55,7 @@ public class FcmService {
 	}
 
 	private String makeMessage(FcmDto.Request requestDto) throws JsonProcessingException {
-		Object pushData = StringUtils.equals(requestDto.getDeviceOs(), "iOS")?
+		Object pushData = StringUtils.equals(requestDto.getDeviceOs(), FcmDto.DeviceOs.iOS.getType())?
 				new FcmDto.RequestiOS(requestDto.getToken(), requestDto.getTitle(), requestDto.getBody(), false)
 				: new FcmDto.RequestAndroid(requestDto.getToken(), requestDto.getTitle(), requestDto.getBody(), false);
 
@@ -64,7 +64,7 @@ public class FcmService {
 	
 	private String getAccessToken() throws IOException {
 		GoogleCredentials googleCredentials = GoogleCredentials
-				.fromStream(new ClassPathResource(customConfig.getFcmKey()).getInputStream())
+				.fromStream(new FileInputStream(customConfig.getFcmKey()))
 				.createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 		
 		googleCredentials.refreshIfExpired();

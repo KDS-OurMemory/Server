@@ -13,9 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 class FcmServiceTest {
 
     private final FcmService fcmService;
-    
-    private final String[] OS = {"Android", "iOS"};
-    
     private FcmDto.Request fcmRequestDto;
 
     @Autowired
@@ -25,9 +22,9 @@ class FcmServiceTest {
     
     @BeforeAll
     void setUp() {
-        String token = "d1h25BbiRayuirLMzEUCaI:APA91bHd272ownws5ZvkFnnohTq3QDN0weRlUUqx_XJHBlYZz6F0yxBotIb_7zAr1nMqUKtEOWxJT-Jho5IH0vpiYgHE5GKQQs-1kIK5xhDaWapOoiTTfIN0y0_ayRonBQRxeOKQ7RpS";
+        String token = "deqEWzWZ7Ul9oqQaWfYO6d:APA91bHGA9JLT4aOyn6iHOcY-glkBusIYAIWnv9VDT2nZrtdMlrtXzgQUkLvd_faX0XUk9WCLJ8pgMgVY8nhjWQhviJAm_L4-zqJdZwp4CNmWv0w7BjOrs2nfKSXzQzUHoh88tI1uFfN";
         
-        fcmRequestDto = new FcmDto.Request(token, OS[0], "테스트 타이틀", "테스트 바디");
+        fcmRequestDto = new FcmDto.Request(token, FcmDto.DeviceOs.iOS.getType(), "테스트 타이틀", "테스트 바디");
     }
     
     @Test
