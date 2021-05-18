@@ -1,15 +1,5 @@
 package com.kds.ourmemory.service.v1.user;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
@@ -18,8 +8,18 @@ import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
 import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
 @Service
@@ -48,6 +48,12 @@ public class UserService {
         return findUser(snsType, snsId).map(FindUserDto.Response::new)
                 .orElseThrow(() -> new UserNotFoundException(
                         String.format("Not found user matched snsType '%d' and snsId '%s'.", snsType, snsId)));
+    }
+
+    public List<FindUserDto.Response> findUsers(Long userId, String name) {
+        return findUsersByUserIdOrName(userId, name)
+                .map(list -> list.stream().map(FindUserDto.Response::new).collect(Collectors.toList()))
+                .orElseGet(ArrayList::new);
     }
 
     public PatchTokenDto.Response patchToken(long userId, PatchTokenDto.Request request) {
@@ -87,6 +93,11 @@ public class UserService {
     private Optional<User> findUser(int snsType, String snsId) {
         return Optional.ofNullable(snsId)
                 .map(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType))
+                .orElseGet(Optional::empty);
+    }
+
+    private Optional<List<User>> findUsersByUserIdOrName(Long userId, String name) {
+        return Optional.ofNullable(userRepo.findAllByUserIdOrName(userId, name))
                 .orElseGet(Optional::empty);
     }
     

@@ -1,14 +1,14 @@
 package com.kds.ourmemory.repository.user;
 
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
+import com.kds.ourmemory.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.kds.ourmemory.entity.user.User;
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
 
 @Transactional
 public interface UserRepository extends JpaRepository<User, Long> {
-    public Optional<User> findBySnsIdAndSnsType(String snsId, int snsType);
+    Optional<User> findBySnsIdAndSnsType(String snsId, int snsType);
+    Optional<List<User>> findAllByUserIdOrName(Long userId, String name);
 }
