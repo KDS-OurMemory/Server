@@ -17,7 +17,7 @@ public class InsertFriendDto {
     @AllArgsConstructor
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Request {
-        private List<Long> friendsId;
+        private Long friendId;
     }
 
     @ApiModel(value = "InsertFriend.Response", description = "nested class in InsertFriendDto")

@@ -1,9 +1,6 @@
 package com.kds.ourmemory.service.v1.user;
 
-import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
-import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -100,25 +96,29 @@ class UserServiceTest {
 
         log.info("joinDate: {}", insRes.getJoinDate());
 
-        List<FindUserDto.Response> userRes = userService.findUsers(insRes.getUserId(), null);
+        FindUsersDto.Response userRes = userService.findUsers(insRes.getUserId(), null);
         assertThat(userRes).isNotNull();
-        assertThat(userRes.size()).isEqualTo(1);
-        FindUserDto.Response findUser = userRes.get(0);
-        assertThat(findUser.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(findUser.getBirthday())
-                .isEqualTo(findUser.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        assertThat(userRes.getUsers()).isNotNull();
+        assertThat(userRes.getUsers().size()).isEqualTo(1);
 
-        log.info("find users by userId | userId: {}, userName: {}", findUser.getUserId(), findUser.getName());
+        FindUsersDto.Response.PublicUser  publicUser = userRes.getUsers().get(0);
+        assertThat(publicUser.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(publicUser.getBirthday())
+                .isEqualTo(publicUser.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+
+        log.info("find users by userId | userId: {}, userName: {}", publicUser.getUserId(), publicUser.getName());
 
         userRes = userService.findUsers(null, insertUserRequestDto.getName());
         assertThat(userRes).isNotNull();
-        assertThat(userRes.size()).isEqualTo(1);
-        findUser = userRes.get(0);
-        assertThat(findUser.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(findUser.getBirthday())
-                .isEqualTo(findUser.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        assertThat(userRes.getUsers()).isNotNull();
+        assertThat(userRes.getUsers().size()).isEqualTo(1);
 
-        log.info("find users by name | userId: {}, userName: {}", findUser.getUserId(), findUser.getName());
+        publicUser = userRes.getUsers().get(0);
+        assertThat(publicUser.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(publicUser.getBirthday())
+                .isEqualTo(publicUser.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+
+        log.info("find users by userId | userId: {}, userName: {}", publicUser.getUserId(), publicUser.getName());
     }
 
     @Test

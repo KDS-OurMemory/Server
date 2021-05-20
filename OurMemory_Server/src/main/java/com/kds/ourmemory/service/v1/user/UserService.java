@@ -2,10 +2,7 @@ package com.kds.ourmemory.service.v1.user;
 
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
-import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
-import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -49,9 +45,9 @@ public class UserService {
                         String.format("Not found user matched snsType '%d' and snsId '%s'.", snsType, snsId)));
     }
 
-    public List<FindUserDto.Response> findUsers(Long userId, String name) {
+    public FindUsersDto.Response findUsers(Long userId, String name) {
         return findUsersByIdOrName(userId, name)
-                .map(list -> list.stream().map(FindUserDto.Response::new).collect(Collectors.toList()))
+                .map(FindUsersDto.Response::new)
                 .orElseThrow(() -> new UserNotFoundException(
                         String.format("Not found user matched id '%d' or name '%s'", userId, name)));
     }

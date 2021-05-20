@@ -26,7 +26,7 @@ public class FriendController {
     @PostMapping(value = "/friend/{userId}")
     public ApiResult<InsertFriendDto.Response> addFriend(
             @ApiParam(value = "userId", required = true) @PathVariable long userId,
-            InsertFriendDto.Request request) {
+            @RequestBody InsertFriendDto.Request request) {
         return ok(friendService.addFriend(userId, request));
     }
 

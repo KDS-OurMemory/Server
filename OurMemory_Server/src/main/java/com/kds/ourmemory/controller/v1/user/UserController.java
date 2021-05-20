@@ -1,10 +1,7 @@
 package com.kds.ourmemory.controller.v1.user;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
-import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
-import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.service.v1.user.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,8 +35,8 @@ public class UserController {
 
     @ApiOperation(value = "사용자 조회", notes = "검색 조건에 해당하는 사용자를 조회한다.")
     @GetMapping("/users")
-    public ApiResult<List<FindUserDto.Response>> findUsers(@ApiParam(value = "userId") @RequestParam(required = false) Long userId,
-                                                           @ApiParam(value = "name") @RequestParam(required = false) String name) {
+    public ApiResult<FindUsersDto.Response> findUsers(@ApiParam(value = "userId") @RequestParam(required = false) Long userId,
+                                             @ApiParam(value = "name") @RequestParam(required = false) String name) {
         return ok(userService.findUsers(userId, name));
     }
 
