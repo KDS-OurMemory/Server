@@ -58,7 +58,7 @@ public class InsertUserDto {
         }
     }
 
-    @ApiModel(value = "InsertUser.Response", description = "nested class in InsertUserDto.class")
+    @ApiModel(value = "InsertUser.Response", description = "nested class in InsertUserDto")
     @Getter
     @AllArgsConstructor
     public static class Response {
