@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -39,7 +40,7 @@ public class FcmService {
 					.build();
 			
 			response = client.newCall(request).execute();
-			log.debug(response.body().string());
+			log.debug(Objects.requireNonNull(response.body()).string());
 		} catch (JsonProcessingException e) {
 			log.error(e.toString());
 			log.error("makeMessage Failed.");
@@ -48,8 +49,8 @@ public class FcmService {
 		} finally {
 			Optional.ofNullable(response)
 			    .ifPresent(rsp -> {
-			        rsp.body().close();
-                    rsp.close(); 
+			        Optional.ofNullable(rsp.body()).ifPresent(ResponseBody::close);
+                    rsp.close();
 			    });
 		}
 	}

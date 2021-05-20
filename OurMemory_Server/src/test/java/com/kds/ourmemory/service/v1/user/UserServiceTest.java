@@ -1,29 +1,22 @@
 package com.kds.ourmemory.service.v1.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
-import javax.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
 import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
@@ -99,6 +92,38 @@ class UserServiceTest {
     @Test
     @Order(3)
     @Transactional
+    void User_Find() {
+        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
+        assertThat(insRes).isNotNull();
+        assertThat(insRes.getJoinDate()).isNotNull();
+        assertThat(isNow(insRes.getJoinDate())).isTrue();
+
+        log.info("joinDate: {}", insRes.getJoinDate());
+
+        List<FindUserDto.Response> userRes = userService.findUsers(insRes.getUserId(), null);
+        assertThat(userRes).isNotNull();
+        assertThat(userRes.size()).isEqualTo(1);
+        FindUserDto.Response findUser = userRes.get(0);
+        assertThat(findUser.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(findUser.getBirthday())
+                .isEqualTo(findUser.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+
+        log.info("find users by userId | userId: {}, userName: {}", findUser.getUserId(), findUser.getName());
+
+        userRes = userService.findUsers(null, insertUserRequestDto.getName());
+        assertThat(userRes).isNotNull();
+        assertThat(userRes.size()).isEqualTo(1);
+        findUser = userRes.get(0);
+        assertThat(findUser.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(findUser.getBirthday())
+                .isEqualTo(findUser.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+
+        log.info("find users by name | userId: {}, userName: {}", findUser.getUserId(), findUser.getName());
+    }
+
+    @Test
+    @Order(4)
+    @Transactional
     void User_Patch_Token() {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
         assertThat(insRes).isNotNull();
@@ -128,7 +153,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @Transactional
     void User_Update() {
         InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);

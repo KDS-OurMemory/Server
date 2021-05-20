@@ -1,15 +1,5 @@
 package com.kds.ourmemory.service.v1.user;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
@@ -18,8 +8,18 @@ import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
 import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
 @Service
@@ -50,6 +50,12 @@ public class UserService {
                         String.format("Not found user matched snsType '%d' and snsId '%s'.", snsType, snsId)));
     }
 
+    public List<FindUserDto.Response> findUsers(Long userId, String name) {
+        return findUsersByIdOrName(userId, name)
+                .map(list -> list.stream().map(FindUserDto.Response::new).collect(Collectors.toList()))
+                .orElseGet(ArrayList::new);
+    }
+
     public PatchTokenDto.Response patchToken(long userId, PatchTokenDto.Request request) {
         checkNotNull(request.getPushToken(), "토큰 값이 입력되지 않았습니다. 토큰 값을 입력해주세요.");
         checkArgument(StringUtils.isNoneBlank(request.getPushToken()), "토큰 값은 빈 값이 될 수 없습니다.");
@@ -75,22 +81,23 @@ public class UserService {
      * User Repository
      */
     private Optional<User> insertUser(User user) {
-        return Optional.ofNullable(userRepo.save(user));
+        return Optional.of(userRepo.save(user));
     }
 
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id)
-                .map(userRepo::findById)
-                .orElseGet(Optional::empty);
+        return Optional.ofNullable(id).flatMap(userRepo::findById);
     }
 
     private Optional<User> findUser(int snsType, String snsId) {
-        return Optional.ofNullable(snsId)
-                .map(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType))
+        return Optional.ofNullable(snsId).flatMap(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType));
+    }
+
+    private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {
+        return Optional.ofNullable(userRepo.findAllByIdOrName(userId, name))
                 .orElseGet(Optional::empty);
     }
     
     private Optional<User> updateUser(User user) {
-        return Optional.ofNullable(userRepo.save(user));
+        return Optional.of(userRepo.save(user));
     }
 }
