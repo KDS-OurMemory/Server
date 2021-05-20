@@ -51,7 +51,7 @@ public class UserService {
     }
 
     public List<FindUserDto.Response> findUsers(Long userId, String name) {
-        return findUsersByUserIdOrName(userId, name)
+        return findUsersByIdOrName(userId, name)
                 .map(list -> list.stream().map(FindUserDto.Response::new).collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }
@@ -81,27 +81,23 @@ public class UserService {
      * User Repository
      */
     private Optional<User> insertUser(User user) {
-        return Optional.ofNullable(userRepo.save(user));
+        return Optional.of(userRepo.save(user));
     }
 
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id)
-                .map(userRepo::findById)
-                .orElseGet(Optional::empty);
+        return Optional.ofNullable(id).flatMap(userRepo::findById);
     }
 
     private Optional<User> findUser(int snsType, String snsId) {
-        return Optional.ofNullable(snsId)
-                .map(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType))
-                .orElseGet(Optional::empty);
+        return Optional.ofNullable(snsId).flatMap(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType));
     }
 
-    private Optional<List<User>> findUsersByUserIdOrName(Long userId, String name) {
-        return Optional.ofNullable(userRepo.findAllByUserIdOrName(userId, name))
+    private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {
+        return Optional.ofNullable(userRepo.findAllByIdOrName(userId, name))
                 .orElseGet(Optional::empty);
     }
     
     private Optional<User> updateUser(User user) {
-        return Optional.ofNullable(userRepo.save(user));
+        return Optional.of(userRepo.save(user));
     }
 }

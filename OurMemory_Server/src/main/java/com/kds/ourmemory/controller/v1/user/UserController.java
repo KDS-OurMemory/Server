@@ -38,8 +38,8 @@ public class UserController {
 
     @ApiOperation(value = "사용자 조회", notes = "검색 조건에 해당하는 사용자를 조회한다.")
     @GetMapping("/users")
-    public ApiResult<List<FindUserDto.Response>> findUsers(@ApiParam(value = "userId") @RequestParam Long userId,
-                                                           @ApiParam(value = "name") @RequestParam String name) {
+    public ApiResult<List<FindUserDto.Response>> findUsers(@ApiParam(value = "userId") @RequestParam(required = false) Long userId,
+                                                           @ApiParam(value = "name") @RequestParam(required = false) String name) {
         return ok(userService.findUsers(userId, name));
     }
 
