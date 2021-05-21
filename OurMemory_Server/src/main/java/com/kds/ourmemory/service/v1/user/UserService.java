@@ -45,9 +45,8 @@ public class UserService {
                         String.format("Not found user matched snsType '%d' and snsId '%s'.", snsType, snsId)));
     }
 
-    public FindUsersDto.Response findUsers(Long userId, String name) {
+    public List<User> findUsers(Long userId, String name) {
         return findUsersByIdOrName(userId, name)
-                .map(FindUsersDto.Response::new)
                 .orElseThrow(() -> new UserNotFoundException(
                         String.format("Not found user matched id '%d' or name '%s'", userId, name)));
     }
