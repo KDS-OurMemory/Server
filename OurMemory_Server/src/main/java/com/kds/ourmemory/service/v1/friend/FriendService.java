@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
@@ -28,26 +27,23 @@ public class FriendService {
     private final UserRepository userRepo;
 
     public InsertFriendDto.Response addFriend(long userId, InsertFriendDto.Request request) {
-        checkNotNull(request.getFriendsId(), "추가할 친구 목록이 없습니다. 친구 목록를 입력해주세요.");
-        checkArgument(!request.getFriendsId().isEmpty(), "친구 목록이 비어 있습니다. 친구 목록을 입력해주세요.");
+        checkNotNull(request.getFriendId(), "추가할 친구가 없습니다. 친구 번호를 입력해주세요.");
 
         return findUser(userId)
                 .map(user -> {
-                    List<Friend> friends = request.getFriendsId().stream()
-                            .map(friendId -> findUser(friendId)
-                                    .map(friend -> {
-                                        insertFriend(new Friend(user, friend))
-                                                .orElseThrow(() -> new FriendInternalServerException(String.format(
-                                                        "Insert Friend failed. [userId: %d, friendId: %d]", userId, friendId)));
+                    Friend insertedFriend = findUser(request.getFriendId())
+                            .map(friend -> {
+                                insertFriend(new Friend(user, friend))
+                                        .orElseThrow(() -> new FriendInternalServerException(String.format(
+                                                "Insert Friend failed. [userId: %d, friendId: %d]", userId, request.getFriendId())));
 
-                                        return insertFriend(new Friend(friend, user))
-                                                .orElseThrow(() -> new FriendInternalServerException(String.format(
-                                                        "Insert Friend failed. [userId: %d, friendId: %d]", friendId, userId)));
-                                    })
-                                    .orElseThrow(() -> new FriendNotFoundFriendException("Not found user matched friendId: " + friendId)))
-                            .collect(Collectors.toList());
+                                return insertFriend(new Friend(friend, user))
+                                        .orElseThrow(() -> new FriendInternalServerException(String.format(
+                                                "Insert Friend failed. [userId: %d, friendId: %d]", request.getFriendId(), userId)));
+                            })
+                            .orElseThrow(() -> new FriendNotFoundFriendException("Not found user matched friendId: " + request.getFriendId()));
 
-                    return new InsertFriendDto.Response(friends.get(0).formatRegDate());
+                    return new InsertFriendDto.Response(insertedFriend.formatRegDate());
                 })
                 .orElseThrow(() -> new FriendNotFoundUserException("Not found user matched userId:" + userId));
     }

@@ -13,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,28 +75,33 @@ public class FriendServiceTest {
 
         User friend2 = userRepo.save(User.builder()
                 .snsId("Friend2_snsId")
-                .snsType(2)
+                .snsType(1)
                 .pushToken("Friend2 Token")
                 .name("Friend2")
-                .birthday("0807")
+                .birthday("0907")
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs("Android")
                 .build());
 
         /* 0-2. Create request */
-        List<Long> friendsId = new ArrayList<>();
-        friendsId.add(friend1.getId());
-        friendsId.add(friend2.getId());
-        InsertFriendDto.Request insertFriendRequest = new InsertFriendDto.Request(friendsId);
+        InsertFriendDto.Request insertFriendRequest1 = new InsertFriendDto.Request(friend1.getId());
+        InsertFriendDto.Request insertFriendRequest2 = new InsertFriendDto.Request(friend2.getId());
+
 
         /* 1. Add friends */
-        InsertFriendDto.Response insertFriendResponse = friendService.addFriend(user.getId(), insertFriendRequest);
-        assertThat(insertFriendResponse).isNotNull();
-        assertThat(isNow(insertFriendResponse.getAddDate())).isTrue();
+        InsertFriendDto.Response insertFriendResponse1 = friendService.addFriend(user.getId(), insertFriendRequest1);
+        assertThat(insertFriendResponse1).isNotNull();
+        assertThat(isNow(insertFriendResponse1.getAddDate())).isTrue();
 
-        log.debug("addDate: {}", insertFriendResponse.getAddDate());
+        log.debug("addDate: {}", insertFriendResponse1.getAddDate());
+
+        InsertFriendDto.Response insertFriendResponse2 = friendService.addFriend(user.getId(), insertFriendRequest2);
+        assertThat(insertFriendResponse2).isNotNull();
+        assertThat(isNow(insertFriendResponse2.getAddDate())).isTrue();
+
+        log.debug("addDate: {}", insertFriendResponse2.getAddDate());
 
         /* 2. Find friends */
         List<User> responseList = friendService.findFriends(user.getId());

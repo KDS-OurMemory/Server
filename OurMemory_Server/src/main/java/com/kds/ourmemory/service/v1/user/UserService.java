@@ -2,10 +2,7 @@ package com.kds.ourmemory.service.v1.user;
 
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
-import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
-import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,11 +25,11 @@ public class UserService {
     public InsertUserDto.Response signUp(InsertUserDto.Request request) {
         checkNotNull(request.getName(), "이름이 입력되지 않았습니다. 이름을 입력해주세요.");
         checkArgument(StringUtils.isNoneBlank(request.getName()), "이름은 빈 값이 될 수 없습니다.");
-        
+
         checkNotNull(request.getSnsType(), "SNS 인증방식(snsType)이 입력되지 않았습니다. 인증방식 값을 입력해주세요.");
-        
+
         checkArgument(StringUtils.isNoneBlank(request.getSnsId()), "SNS ID 는 빈 값이 될 수 없습니다.");
-        
+
         User user = request.toEntity();
         return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), u.formatRegDate()))
                 .orElseThrow(() -> new UserInternalServerException(
@@ -50,10 +45,10 @@ public class UserService {
                         String.format("Not found user matched snsType '%d' and snsId '%s'.", snsType, snsId)));
     }
 
-    public List<FindUserDto.Response> findUsers(Long userId, String name) {
+    public List<User> findUsers(Long userId, String name) {
         return findUsersByIdOrName(userId, name)
-                .map(list -> list.stream().map(FindUserDto.Response::new).collect(Collectors.toList()))
-                .orElseGet(ArrayList::new);
+                .orElseThrow(() -> new UserNotFoundException(
+                        String.format("Not found user matched id '%d' or name '%s'", userId, name)));
     }
 
     public PatchTokenDto.Response patchToken(long userId, PatchTokenDto.Request request) {
@@ -62,7 +57,7 @@ public class UserService {
 
         return findUser(userId).map(user -> {
             user.changePushToken(request.getPushToken());
-            
+
             return updateUser(user).map(u -> new PatchTokenDto.Response(u.formatModDate()))
                     .orElseThrow(() -> new UserInternalServerException("Failed to patch for user token."));
         }).orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
@@ -71,7 +66,7 @@ public class UserService {
     public PutUserDto.Response update(long userId, PutUserDto.Request request) {
         return findUser(userId).map(user -> {
             user.updateUser(request);
-            
+
             return updateUser(user).map(u -> new PutUserDto.Response(u.formatModDate()))
                     .orElseThrow(() -> new UserInternalServerException("Failed to update for user data."));
         }).orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
@@ -94,9 +89,10 @@ public class UserService {
 
     private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {
         return Optional.ofNullable(userRepo.findAllByIdOrName(userId, name))
+                .filter(users -> users.isPresent() && !users.get().isEmpty())
                 .orElseGet(Optional::empty);
     }
-    
+
     private Optional<User> updateUser(User user) {
         return Optional.of(userRepo.save(user));
     }

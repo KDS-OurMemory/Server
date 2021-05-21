@@ -1,10 +1,7 @@
 package com.kds.ourmemory.controller.v1.user;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
-import com.kds.ourmemory.controller.v1.user.dto.FindUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
-import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.service.v1.user.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -13,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 
@@ -38,9 +36,11 @@ public class UserController {
 
     @ApiOperation(value = "사용자 조회", notes = "검색 조건에 해당하는 사용자를 조회한다.")
     @GetMapping("/users")
-    public ApiResult<List<FindUserDto.Response>> findUsers(@ApiParam(value = "userId") @RequestParam(required = false) Long userId,
-                                                           @ApiParam(value = "name") @RequestParam(required = false) String name) {
-        return ok(userService.findUsers(userId, name));
+    public ApiResult<List<FindUsersDto.Response>> findUsers(@ApiParam(value = "userId") @RequestParam(required = false) Long userId,
+                                             @ApiParam(value = "name") @RequestParam(required = false) String name) {
+        return ok(userService.findUsers(userId, name).stream()
+                .map(FindUsersDto.Response::new)
+                .collect(Collectors.toList()));
     }
 
     @ApiOperation(value = "푸시 토큰 업데이트", notes = "사용자 번호로 사용자를 찾아 푸시토큰 값을 업데이트한다.")
