@@ -31,7 +31,7 @@ public class FindUsersDto {
         public Response(User user) {
             this.userId = user.getId();
             this.name = user.getName();
-            this.birthday = user.getBirthday();
+            this.birthday = user.isBirthdayOpen()? user.getBirthday() : null;
             this.solar = user.isSolar();
             this.birthdayOpen = user.isBirthdayOpen();
         }

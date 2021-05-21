@@ -89,6 +89,7 @@ public class UserService {
 
     private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {
         return Optional.ofNullable(userRepo.findAllByIdOrName(userId, name))
+                .filter(users -> users.isPresent() && !users.get().isEmpty())
                 .orElseGet(Optional::empty);
     }
 
