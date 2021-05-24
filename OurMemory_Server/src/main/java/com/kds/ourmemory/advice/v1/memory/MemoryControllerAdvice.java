@@ -1,7 +1,11 @@
 package com.kds.ourmemory.advice.v1.memory;
 
-import static com.kds.ourmemory.advice.v1.memory.MemoryResultCode.*;
-
+import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
+import com.kds.ourmemory.controller.v1.memory.MemoryController;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +14,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
-import com.kds.ourmemory.controller.v1.memory.MemoryController;
+import static com.kds.ourmemory.advice.v1.memory.MemoryResultCode.*;
 
 /**
  * Because the communication was successful, the status code value is set to 200.
@@ -27,7 +26,7 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse{
     
     /* Custom Error */
     @ExceptionHandler(MemoryNotFoundWriterException.class)
-    public ResponseEntity<?> handleRoomNotFoundOwnerException(MemoryNotFoundWriterException e) {
+    public ResponseEntity<?> handleMemoryNotFoundWriterException(MemoryNotFoundWriterException e) {
         return response(NOT_FOUND_WRITER, e);
     }
     

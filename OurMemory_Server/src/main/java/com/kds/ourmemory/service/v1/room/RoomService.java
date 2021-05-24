@@ -1,19 +1,10 @@
 package com.kds.ourmemory.service.v1.room;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.List;
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
-import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
-import org.springframework.stereotype.Service;
-
 import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
@@ -22,8 +13,14 @@ import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.room.RoomRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FcmService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
 @Service
@@ -32,7 +29,8 @@ public class RoomService {
     
     // Add to work in rooms and user relationship tables
     private final UserRepository userRepo;
-    
+
+    // Add to FCM
     private final FcmService fcmService;
 
     @Transactional

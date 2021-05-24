@@ -2,9 +2,8 @@ package com.kds.ourmemory.advice.v1.friend;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendInternalServerException;
-import com.kds.ourmemory.advice.v1.room.RoomResultCode;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
+import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundFriendException;
+import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundUserException;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.controller.v1.friend.FriendController;
 import org.springframework.core.Ordered;
@@ -27,15 +26,16 @@ import static com.kds.ourmemory.advice.v1.friend.FriendResultCode.*;
 public class FriendControllerAdvice extends RestControllerAdviceResponse {
 
     /* Custom Error */
-    @ExceptionHandler(RoomNotFoundOwnerException.class)
-    public ResponseEntity<?> handleRoomNotFoundOwnerException(RoomNotFoundOwnerException e) {
+    @ExceptionHandler(FriendNotFoundUserException.class)
+    public ResponseEntity<?> handleFriendNotFoundUserException(FriendNotFoundUserException e) {
         return response(NOT_FOUND_USER, e);
     }
 
-    @ExceptionHandler(RoomNotFoundMemberException.class)
-    public ResponseEntity<?> handleRoomNotFoundMemberException (RoomNotFoundMemberException e) {
+    @ExceptionHandler(FriendNotFoundFriendException.class)
+    public ResponseEntity<?> handleFriendNotFoundFriendException (FriendNotFoundFriendException e) {
         return response(NOT_FOUND_FRIEND, e);
     }
+
 
     /* Http Status Error */
     @ExceptionHandler({ MissingServletRequestParameterException.class, HttpMessageNotReadableException.class,
@@ -46,7 +46,7 @@ public class FriendControllerAdvice extends RestControllerAdviceResponse {
 
     @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
     public ResponseEntity<?> handleCustomBadRequestException(Exception e) {
-        return response(RoomResultCode.BAD_REQUEST.getCode(), e.getMessage(), e);
+        return response(BAD_REQUEST.getCode(), e.getMessage(), e);
     }
 
     @ExceptionHandler(FriendInternalServerException.class)
