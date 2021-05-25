@@ -42,10 +42,12 @@ public class FriendService {
                 .map(user -> {
                     User foundUser = findUser(request.getFriendId())
                             .map(friend -> {
-                                String title = "친구 요청";
-                                String body = String.format("%s 가 친구 요청하였습니다.", user.getName());
+                                String title = "OurMemory - 친구 요청";
+                                String body = String.format("%s 이(가) 친구 요청하였습니다.", user.getName());
                                 String friendToken = friend.getPushToken();
-                                fcmService.sendMessageTo(new FcmDto.Request(friendToken, friend.getDeviceOs(), title, body));
+                                fcmService.sendMessageTo(
+                                        new FcmDto.Request(friendToken, friend.getDeviceOs(), title, body,
+                                                false, "friend_request", Long.toString(userId)));
 
                                 return friend;
                             })
