@@ -1,20 +1,10 @@
 package com.kds.ourmemory.service.v1.memory;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
-
-import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
+import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
@@ -27,24 +17,33 @@ import com.kds.ourmemory.repository.room.RoomRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FcmService;
 import com.kds.ourmemory.service.v1.room.RoomService;
-
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
 @Service
 public class MemoryService {
-    
+    private final MemoryRepository memoryRepo;
+
     // When creating a memory, added because sometimes a room is created
     private final RoomService roomService;
-    
-    private final MemoryRepository memoryRepo;
 
     // Add to work in memory and user relationship tables
     private final UserRepository userRepo;
     
     // Add to work in memory and rooms relationship tables    
     private final RoomRepository roomRepo;
-    
+
+    // Add to FCM
     private final FcmService fcmService;
     
     @Transactional
