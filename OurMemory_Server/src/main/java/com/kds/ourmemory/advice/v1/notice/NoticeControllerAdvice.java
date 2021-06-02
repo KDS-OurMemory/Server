@@ -2,6 +2,7 @@ package com.kds.ourmemory.advice.v1.notice;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeInternalServerException;
+import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundException;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundUserException;
 import com.kds.ourmemory.controller.v1.notice.NoticeController;
 import org.springframework.core.Ordered;
@@ -37,6 +38,11 @@ public class NoticeControllerAdvice extends RestControllerAdviceResponse {
     @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
     public ResponseEntity<?> handleCustomBadRequestException(Exception e) {
         return response(BAD_REQUEST.getCode(), e.getMessage(), e);
+    }
+
+    @ExceptionHandler(NoticeNotFoundException.class)
+    public ResponseEntity<?> handleNoticeNotFoundException(NoticeNotFoundException e) {
+        return response(NOT_FOUND, e);
     }
 
     @ExceptionHandler(NoticeInternalServerException.class)

@@ -1,8 +1,10 @@
 package com.kds.ourmemory.controller.v1.notice;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
+import com.kds.ourmemory.controller.v1.notice.dto.DeleteNoticeDto;
 import com.kds.ourmemory.controller.v1.notice.dto.FindNoticesDto;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
+import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.service.v1.notice.NoticeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,7 +35,15 @@ public class NoticeController {
     public ApiResult<List<FindNoticesDto.Response>> findNotices(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(noticeService.findNotices(userId).stream()
+                .filter(Notice::getUsed)
                 .map(FindNoticesDto.Response::new)
                 .collect(Collectors.toList()));
+    }
+
+    @ApiOperation(value = "알림 삭제")
+    @DeleteMapping("/notice/{noticeId}")
+    public ApiResult<DeleteNoticeDto.Response> deleteNotice(
+            @ApiParam(value = "noticeId", required = true) @PathVariable long noticeId) {
+        return ok(noticeService.deleteNotice(noticeId));
     }
 }

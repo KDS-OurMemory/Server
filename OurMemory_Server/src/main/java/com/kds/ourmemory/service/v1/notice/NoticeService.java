@@ -1,7 +1,9 @@
 package com.kds.ourmemory.service.v1.notice;
 
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeInternalServerException;
+import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundException;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundUserException;
+import com.kds.ourmemory.controller.v1.notice.dto.DeleteNoticeDto;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
 import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.entity.user.User;
@@ -55,6 +57,18 @@ public class NoticeService {
                 .orElseGet(ArrayList::new);
     }
 
+    @Transactional
+    public DeleteNoticeDto.Response deleteNotice(long id) {
+        return findNotice(id)
+                .map(notice -> {
+                    notice.deleteNotice();
+                    return updateNotice(notice).map(n -> new DeleteNoticeDto.Response(n.formatModDate()))
+                            .orElseThrow(() ->
+                                    new NoticeInternalServerException("Failed to update for notice used set false."));
+                })
+                .orElseThrow(() -> new NoticeNotFoundException("Not found notice matched to noticeId: " + id));
+    }
+
     /**
      * Notice Repository
      */
@@ -62,10 +76,18 @@ public class NoticeService {
         return Optional.of(noticeRepo.save(notice));
     }
 
+    private Optional<Notice> findNotice(Long id) {
+        return Optional.ofNullable(id).flatMap(noticeRepo::findById);
+    }
+
     private Optional<List<Notice>> findNoticesByUserId(Long userId) {
         return Optional.ofNullable(noticeRepo.findAllByUserId(userId))
                 .filter(notices -> notices.isPresent() && !notices.get().isEmpty())
                 .orElseGet(Optional::empty);
+    }
+
+    private Optional<Notice> updateNotice(Notice notice) {
+        return Optional.of(noticeRepo.save(notice));
     }
 
     /**

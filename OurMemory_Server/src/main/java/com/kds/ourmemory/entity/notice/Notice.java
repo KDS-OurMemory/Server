@@ -37,6 +37,9 @@ public class Notice extends BaseTimeEntity implements Serializable {
     @Column(nullable = false, name = "notice_value")
     private String value;
 
+    @Column(nullable = false, name = "notice_used")
+    private Boolean used;
+
     @Builder
     public Notice(User user, NoticeType type, String value) {
         checkNotNull(user, "알림 대상 사용자 정보가 없습니다. 대상 사용자 번호를 확인해주세요.");
@@ -46,6 +49,11 @@ public class Notice extends BaseTimeEntity implements Serializable {
         this.user = user;
         this.type = type;
         this.value = value;
+        this.used = true;
+    }
+
+    public void deleteNotice() {
+        this.used = false;
     }
 
 }
