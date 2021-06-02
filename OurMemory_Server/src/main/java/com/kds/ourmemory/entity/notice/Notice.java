@@ -2,6 +2,7 @@ package com.kds.ourmemory.entity.notice;
 
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.User;
+import com.kds.ourmemory.service.v1.notice.NoticeType;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.DynamicUpdate;
@@ -30,19 +31,21 @@ public class Notice extends BaseTimeEntity implements Serializable {
     private User user;
 
     @Column(nullable = false, name = "notice_type")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private NoticeType type;
 
     @Column(nullable = false, name = "notice_value")
     private String value;
 
     @Builder
-    public Notice(User user, String type, String value) {
+    public Notice(User user, NoticeType type, String value) {
         checkNotNull(user, "알림 대상 사용자 정보가 없습니다. 대상 사용자 번호를 확인해주세요.");
-        checkArgument(StringUtils.isNotBlank(type), "알림 종류가 입력되지 않았습니다. 알림 종류를 입력해주세요.");
+        checkNotNull(type, "알림 종류가 입력되지 않았습니다. 알림 종류를 입력해주세요.");
         checkArgument(StringUtils.isNotBlank(value), "알림 값이 입력되지 않았습니다. 알림 값을 입력해주세요.");
 
         this.user = user;
         this.type = type;
         this.value = value;
     }
+
 }

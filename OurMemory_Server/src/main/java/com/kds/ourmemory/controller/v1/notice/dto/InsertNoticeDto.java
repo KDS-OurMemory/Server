@@ -1,5 +1,6 @@
 package com.kds.ourmemory.controller.v1.notice.dto;
 
+import com.kds.ourmemory.service.v1.notice.NoticeType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -19,7 +20,7 @@ public class InsertNoticeDto {
         private Long userId;
 
         @ApiModelProperty(value = "알림 종류", required = true)
-        private String type;
+        private NoticeType type;
 
         @ApiModelProperty(value = "알림 문자열 값", required = true)
         private String value;

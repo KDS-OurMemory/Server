@@ -1,6 +1,7 @@
 package com.kds.ourmemory.controller.v1.notice.dto;
 
 import com.kds.ourmemory.entity.notice.Notice;
+import com.kds.ourmemory.service.v1.notice.NoticeType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -17,7 +18,7 @@ public class FindNoticesDto {
         private long noticeId;
 
         @ApiModelProperty(value = "알림 종류", example = "friend_request")
-        private String type;
+        private NoticeType type;
 
         @ApiModelProperty(value = "알림 문자열 값", example = "99")
         private String value;
