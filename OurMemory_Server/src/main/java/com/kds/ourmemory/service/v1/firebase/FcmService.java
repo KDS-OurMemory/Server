@@ -57,8 +57,8 @@ public class FcmService {
 
 	private String makeMessage(FcmDto.Request requestDto) throws JsonProcessingException {
 		Object pushData = StringUtils.equals(requestDto.getDeviceOs(), FcmDto.DeviceOs.iOS.getType())?
-				new FcmDto.RequestiOS(requestDto.getToken(), requestDto.getTitle(), requestDto.getBody(), false)
-				: new FcmDto.RequestAndroid(requestDto.getToken(), requestDto.getTitle(), requestDto.getBody(), false);
+				new FcmDto.RequestiOS(requestDto)
+				: new FcmDto.RequestAndroid(requestDto);
 
 		return objectMapper.writeValueAsString(pushData);
 	}

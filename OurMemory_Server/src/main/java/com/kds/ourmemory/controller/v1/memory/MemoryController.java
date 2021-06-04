@@ -26,7 +26,7 @@ public class MemoryController {
 
     @ApiOperation(value = "일정 추가", notes = "일정을 추가하고 일정-방-사용자 의 관계를 설정한다.")
     @PostMapping("/memory")
-    public ApiResult<InsertMemoryDto.Response> addMemory(@RequestBody InsertMemoryDto.Request request) {
+    public ApiResult<InsertMemoryDto.Response> insert(@RequestBody InsertMemoryDto.Request request) {
         return ok(memoryService.insert(request));
     }
 
