@@ -2,7 +2,6 @@ package com.kds.ourmemory.entity.notice;
 
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.User;
-import com.kds.ourmemory.service.v1.notice.NoticeType;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.DynamicUpdate;
@@ -23,7 +22,7 @@ public class Notice extends BaseTimeEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notice_id")
+    @Column(name = "notice_id", nullable = false)
     private Long id;
 
     @ManyToOne(targetEntity = User.class)
