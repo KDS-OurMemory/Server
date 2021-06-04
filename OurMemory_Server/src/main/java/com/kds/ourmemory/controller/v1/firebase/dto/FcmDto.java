@@ -129,14 +129,4 @@ public class FcmDto {
             private final Object dataObj;
         }
     }
-
-    @ApiModel(value = "Fcm.DeviceOs", description = "enum class in FcmDto")
-    @Getter
-    @AllArgsConstructor
-    public enum DeviceOs {
-        Android("Android"),
-        iOS("iOS");
-
-        private final String type;
-    }
 }

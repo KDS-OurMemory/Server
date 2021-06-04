@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
 import com.kds.ourmemory.config.CustomConfig;
+import com.kds.ourmemory.controller.v1.firebase.dto.DeviceOs;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,7 @@ public class FcmService {
 	}
 
 	private String makeMessage(FcmDto.Request requestDto) throws JsonProcessingException {
-		Object pushData = StringUtils.equals(requestDto.getDeviceOs(), FcmDto.DeviceOs.iOS.getType())?
+		Object pushData = StringUtils.equals(requestDto.getDeviceOs(), DeviceOs.iOS.getType())?
 				new FcmDto.RequestiOS(requestDto)
 				: new FcmDto.RequestAndroid(requestDto);
 
