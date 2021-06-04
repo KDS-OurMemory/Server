@@ -6,11 +6,14 @@ import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundUserException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.friend.dto.InsertFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
+import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
 import com.kds.ourmemory.entity.friend.Friend;
+import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.friend.FriendRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FcmService;
+import com.kds.ourmemory.service.v1.notice.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +36,9 @@ public class FriendService {
     // Add to FCM
     private final FcmService fcmService;
 
+    // Add to Notice
+    private final NoticeService noticeService;
+
     public RequestFriendDto.Response requestFriend(long userId, RequestFriendDto.Request request) {
         checkNotNull(request.getFriendId(), "친구 요청할 사용자가 없습니다. 사용자 번호 입력해주세요.");
         checkArgument(findFriend(request.getFriendId(), userId).isEmpty(),
@@ -45,13 +51,21 @@ public class FriendService {
                                 String title = "OurMemory - 친구 요청";
                                 String body = String.format("%s 이(가) 친구 요청하였습니다.", user.getName());
                                 String friendToken = friend.getPushToken();
+
+                                // Insert to Notices
+                                InsertNoticeDto.Request insertNoticeRequest = new InsertNoticeDto.Request(
+                                        friend.getId(), NoticeType.FRIEND_REQUEST, Long.toString(userId));
+                                noticeService.insert(insertNoticeRequest);
+
+                                // SendMessage to fcm
                                 fcmService.sendMessageTo(
                                         new FcmDto.Request(friendToken, friend.getDeviceOs(), title, body,
-                                                false, "friend_request", Long.toString(userId)));
+                                                false, NoticeType.FRIEND_REQUEST.name(), Long.toString(userId)));
 
                                 return friend;
                             })
-                            .orElseThrow(() -> new FriendNotFoundFriendException("Not found user matched friendId: " + request.getFriendId()));
+                            .orElseThrow(() -> new FriendNotFoundFriendException(
+                                    "Not found user matched friendId: " + request.getFriendId()));
 
                     return new RequestFriendDto.Response(foundUser.formatRegDate());
                 })
@@ -69,13 +83,16 @@ public class FriendService {
                             .map(friend -> {
                                 insertFriend(new Friend(user, friend))
                                         .orElseThrow(() -> new FriendInternalServerException(String.format(
-                                                "Insert Friend failed. [userId: %d, friendId: %d]", userId, request.getFriendId())));
+                                                "Insert Friend failed. [userId: %d, friendId: %d]",
+                                                userId, request.getFriendId())));
 
                                 return insertFriend(new Friend(friend, user))
                                         .orElseThrow(() -> new FriendInternalServerException(String.format(
-                                                "Insert Friend failed. [userId: %d, friendId: %d]", request.getFriendId(), userId)));
+                                                "Insert Friend failed. [userId: %d, friendId: %d]",
+                                                request.getFriendId(), userId)));
                             })
-                            .orElseThrow(() -> new FriendNotFoundFriendException("Not found user matched friendId: " + request.getFriendId()));
+                            .orElseThrow(() -> new FriendNotFoundFriendException(
+                                    "Not found user matched friendId: " + request.getFriendId()));
 
                     return new InsertFriendDto.Response(insertedFriend.formatRegDate());
                 })

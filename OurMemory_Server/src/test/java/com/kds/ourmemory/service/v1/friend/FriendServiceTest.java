@@ -1,6 +1,7 @@
 package com.kds.ourmemory.service.v1.friend;
 
 import com.kds.ourmemory.controller.v1.friend.dto.InsertFriendDto;
+import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -23,8 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FriendServiceTest {
     private final FriendService friendService;
-    
-    private final UserRepository userRepo;  // Add to work with user data
+
+    // Add to work with user data
+    private final UserRepository userRepo;
 
     /**
      * Assert time format -> delete sec
@@ -47,7 +49,7 @@ public class FriendServiceTest {
     @Test
     @Order(1)
     @Transactional
-    void Friend_Create_Read() {
+    void Friend_Request_Create_Read() {
         /* 0-1. Create user, friends */
         User user = userRepo.save(User.builder()
                 .snsId("user_snsId")
@@ -86,21 +88,33 @@ public class FriendServiceTest {
                 .build());
 
         /* 0-2. Create request */
+        RequestFriendDto.Request requestFriendRequest1 = new RequestFriendDto.Request(friend1.getId());
+        RequestFriendDto.Request requestFriendRequest2 = new RequestFriendDto.Request(friend2.getId());
+
         InsertFriendDto.Request insertFriendRequest1 = new InsertFriendDto.Request(friend1.getId());
         InsertFriendDto.Request insertFriendRequest2 = new InsertFriendDto.Request(friend2.getId());
 
 
-        /* 1. Add friends */
+        /* 1. Request friends */
+        RequestFriendDto.Response requestFriendResponse1 = friendService.requestFriend(user.getId(), requestFriendRequest1);
+        assertThat(requestFriendResponse1).isNotNull();
+        assertThat(isNow(requestFriendResponse1.getRequestDate())).isTrue();
+        log.debug("requestDate: {}", requestFriendResponse1.getRequestDate());
+
+        RequestFriendDto.Response requestFriendResponse2 = friendService.requestFriend(user.getId(), requestFriendRequest2);
+        assertThat(requestFriendResponse2).isNotNull();
+        assertThat(isNow(requestFriendResponse2.getRequestDate())).isTrue();
+        log.debug("requestDate: {}", requestFriendResponse2.getRequestDate());
+
+        /* 2. Add friends */
         InsertFriendDto.Response insertFriendResponse1 = friendService.addFriend(user.getId(), insertFriendRequest1);
         assertThat(insertFriendResponse1).isNotNull();
         assertThat(isNow(insertFriendResponse1.getAddDate())).isTrue();
-
         log.debug("addDate: {}", insertFriendResponse1.getAddDate());
 
         InsertFriendDto.Response insertFriendResponse2 = friendService.addFriend(user.getId(), insertFriendRequest2);
         assertThat(insertFriendResponse2).isNotNull();
         assertThat(isNow(insertFriendResponse2.getAddDate())).isTrue();
-
         log.debug("addDate: {}", insertFriendResponse2.getAddDate());
 
         /* 2. Find friends */
