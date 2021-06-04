@@ -1,4 +1,4 @@
-package com.kds.ourmemory.service.v1.notice;
+package com.kds.ourmemory.entity.notice;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

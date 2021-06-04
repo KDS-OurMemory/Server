@@ -1,6 +1,6 @@
 package com.kds.ourmemory.controller.v1.notice.dto;
 
-import com.kds.ourmemory.service.v1.notice.NoticeType;
+import com.kds.ourmemory.entity.notice.NoticeType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;

@@ -3,6 +3,7 @@ package com.kds.ourmemory.service.v1.notice;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.notice.Notice;
+import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
