@@ -33,7 +33,7 @@ public class NoticeController {
                 .collect(Collectors.toList()));
     }
 
-    @ApiOperation(value = "알림 삭제")
+    @ApiOperation(value = "알림 삭제", notes = "전달받은 알림을 삭제 처리한다.")
     @DeleteMapping("/notice/{noticeId}")
     public ApiResult<DeleteNoticeDto.Response> deleteNotice(
             @ApiParam(value = "noticeId", required = true) @PathVariable long noticeId) {
