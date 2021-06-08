@@ -160,7 +160,7 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertRsp_RoomO_MemberO_IncludeO.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.delete(insertRsp_RoomO_MemberO_IncludeO.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
@@ -257,7 +257,7 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_RoomO_MemberO_IncludeX.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.delete(insertResponse_RoomO_MemberO_IncludeX.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
@@ -352,7 +352,7 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_RoomO_MemberX.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.delete(insertResponse_RoomO_MemberX.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
@@ -448,7 +448,7 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_RoomX_MemberO.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.delete(insertResponse_RoomX_MemberO.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
@@ -542,7 +542,7 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_RoomX_MemberX.getMemoryId());
+        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.delete(insertResponse_RoomX_MemberX.getMemoryId());
         
         assertThat(deleteMemoryResponseDto).isNotNull();
         assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();

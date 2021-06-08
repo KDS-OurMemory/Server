@@ -1,5 +1,6 @@
 package com.kds.ourmemory.service.v1.friend;
 
+import com.kds.ourmemory.controller.v1.friend.dto.DeleteFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.InsertFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
@@ -49,7 +50,7 @@ public class FriendServiceTest {
     @Test
     @Order(1)
     @Transactional
-    void Friend_Request_Create_Read() {
+    void Friend_Request_Create_Read_Delete() {
         /* 0-1. Create user, friends */
         User user = userRepo.save(User.builder()
                 .snsId("user_snsId")
@@ -138,6 +139,25 @@ public class FriendServiceTest {
         assertThat(responseList).isNotNull();
         assertThat(!responseList.isEmpty()).isTrue();
         assertThat(responseList.get(0).getId().equals(user.getId())).isTrue();
+
+        /* 3. Delete friends */
+        DeleteFriendDto.Response deleteFriendResponseDto1 = friendService.delete(user.getId(),
+                new DeleteFriendDto.Request(friend1.getId()));
+        assertThat(deleteFriendResponseDto1).isNotNull();
+        assertThat(isNow(deleteFriendResponseDto1.getDeleteDate())).isTrue();
+
+        List<User> firstDeleteFriends = friendService.findFriends(user.getId());
+        assertThat(firstDeleteFriends.size()).isEqualTo(1);
+        User secondFriend = firstDeleteFriends.get(0);
+        assertThat(secondFriend).isEqualTo(friend2);
+
+        DeleteFriendDto.Response deleteFriendResponseDto2 = friendService.delete(user.getId(),
+                new DeleteFriendDto.Request(friend2.getId()));
+        assertThat(deleteFriendResponseDto2).isNotNull();
+        assertThat(isNow(deleteFriendResponseDto2.getDeleteDate())).isTrue();
+
+        List<User> secondDeleteFriends = friendService.findFriends(user.getId());
+        assertThat(secondDeleteFriends.size()).isEqualTo(0);
     }
 
     boolean isNow(String time) {

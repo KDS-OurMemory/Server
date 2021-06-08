@@ -189,7 +189,7 @@ public class MemoryService {
     }
     
     @Transactional
-    public DeleteMemoryDto.Response deleteMemory(long id) {
+    public DeleteMemoryDto.Response delete(long id) {
         return findMemory(id)
                 .map(memory -> {
                     memory.getRooms().forEach(room -> room.getMemories().remove(memory));

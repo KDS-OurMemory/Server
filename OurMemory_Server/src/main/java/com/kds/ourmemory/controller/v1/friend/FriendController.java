@@ -1,6 +1,7 @@
 package com.kds.ourmemory.controller.v1.friend;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
+import com.kds.ourmemory.controller.v1.friend.dto.DeleteFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.FindFriendsDto;
 import com.kds.ourmemory.controller.v1.friend.dto.InsertFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
@@ -25,7 +26,7 @@ public class FriendController {
 
     @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다.")
     @PostMapping(value = "/friend/request/{userId}")
-    public ApiResult<RequestFriendDto.Response> requestFriend(
+    public ApiResult<RequestFriendDto.Response> request(
             @ApiParam(value = "userId", required = true) @PathVariable long userId,
             @RequestBody RequestFriendDto.Request request) {
         return ok(friendService.requestFriend(userId, request));
@@ -33,7 +34,7 @@ public class FriendController {
 
     @ApiOperation(value = "친구 추가", notes = "전달받은 사용자를 친구 목록에 추가한다.")
     @PostMapping(value = "/friend/{userId}")
-    public ApiResult<InsertFriendDto.Response> addFriend(
+    public ApiResult<InsertFriendDto.Response> insert(
             @ApiParam(value = "userId", required = true) @PathVariable long userId,
             @RequestBody InsertFriendDto.Request request) {
         return ok(friendService.addFriend(userId, request));
@@ -46,5 +47,13 @@ public class FriendController {
         return ok(friendService.findFriends(userId).stream()
                 .map(FindFriendsDto.Response::new)
                 .collect(Collectors.toList()));
+    }
+
+    @ApiOperation(value = "친구 삭제")
+    @DeleteMapping(value = "/friend/{userId}")
+    public ApiResult<DeleteFriendDto.Response> delete(
+            @ApiParam(value = "userId", required = true) @PathVariable long userId,
+            @RequestBody DeleteFriendDto.Request request) {
+        return ok(friendService.delete(userId, request));
     }
 }

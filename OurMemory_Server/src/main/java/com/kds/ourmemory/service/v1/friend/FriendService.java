@@ -4,9 +4,11 @@ import com.kds.ourmemory.advice.v1.friend.exception.FriendInternalServerExceptio
 import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundFriendException;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundUserException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
+import com.kds.ourmemory.controller.v1.friend.dto.DeleteFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.InsertFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.User;
@@ -106,6 +108,18 @@ public class FriendService {
                 .orElseGet(ArrayList::new);
     }
 
+    public DeleteFriendDto.Response delete(long userId, DeleteFriendDto.Request request) {
+        return friendRepo.findByUserId(userId)
+                .map(friends -> {
+                    friends.stream()
+                            .filter(friend -> request.getFriendId().equals(friend.getFriend().getId()))
+                            .forEach(this::deleteFriend);
+
+                    return new DeleteFriendDto.Response(BaseTimeEntity.formatNow());
+                })
+                .orElseThrow(() -> new FriendNotFoundUserException("Not found friend matched userId: " + userId));
+    }
+
     /**
      * Friend Repository
      */
@@ -120,6 +134,10 @@ public class FriendService {
 
     private Optional<List<Friend>> findFriendsByUserId(Long userId) {
         return Optional.ofNullable(userId).flatMap(friendRepo::findByUserId);
+    }
+
+    private void deleteFriend(Friend friend) {
+        friendRepo.delete(friend);
     }
 
     /**

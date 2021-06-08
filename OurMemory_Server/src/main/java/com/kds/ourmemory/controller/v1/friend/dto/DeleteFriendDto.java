@@ -8,21 +8,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class InsertFriendDto {
+public class DeleteFriendDto {
 
-    @ApiModel(value = "InsertFriend.Request", description = "nested class in InsertFriendDto")
+    @ApiModel(value = "DeleteFriend.Request", description = "nested class in DeleteFriendDto")
     @Getter
     @AllArgsConstructor
     public static class Request {
-        @ApiModelProperty(value = "친구 추가할 사용자 번호")
+        @ApiModelProperty(value = "삭제할 친구 번호")
         private final Long friendId;
     }
 
-    @ApiModel(value = "InsertFriend.Response", description = "nested class in InsertFriendDto")
+    @ApiModel(value = "DeleteFriend.Response", description = "nested class in DeleteFriendDto")
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value="친구 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-05-13 14:33:05")
-        private final String addDate;
+        @ApiModelProperty(value="친구 삭제한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-06-08 21:27:35")
+        private final String deleteDate;
     }
 }
