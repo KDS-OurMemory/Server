@@ -23,4 +23,8 @@ public class Friend extends BaseTimeEntity {
 	@ManyToOne(targetEntity = User.class)
 	@JoinColumn(name = "friend_id", foreignKey = @ForeignKey(name = "friends_friend_id"))
 	private User friend;
+
+	@Column(name = "friend_status")
+	@Enumerated(EnumType.STRING)
+	private FriendStatus status;
 }
