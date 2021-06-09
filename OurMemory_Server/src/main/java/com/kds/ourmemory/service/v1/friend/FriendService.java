@@ -41,12 +41,12 @@ public class FriendService {
     // Add to Notice
     private final NoticeService noticeService;
 
-    public RequestFriendDto.Response requestFriend(long userId, RequestFriendDto.Request request) {
+    public RequestFriendDto.Response requestFriend(RequestFriendDto.Request request) {
         checkNotNull(request.getFriendId(), "친구 요청할 사용자가 없습니다. 사용자 번호 입력해주세요.");
-        checkArgument(findFriend(request.getFriendId(), userId).isEmpty(),
+        checkArgument(findFriend(request.getFriendId(), request.getUserId()).isEmpty(),
                 "이미 추가된 친구입니다. 다른 친구의 회원 번호를 입력해주시기 바랍니다.");
 
-        return findUser(userId)
+        return findUser(request.getUserId())
                 .map(user -> {
                     User foundUser = findUser(request.getFriendId())
                             .map(friend -> {
@@ -56,13 +56,14 @@ public class FriendService {
 
                                 // Insert to Notices
                                 InsertNoticeDto.Request insertNoticeRequest = new InsertNoticeDto.Request(
-                                        friend.getId(), NoticeType.FRIEND_REQUEST, Long.toString(userId));
+                                        friend.getId(), NoticeType.FRIEND_REQUEST, Long.toString(request.getUserId()));
                                 noticeService.insert(insertNoticeRequest);
 
                                 // SendMessage to fcm
                                 fcmService.sendMessageTo(
                                         new FcmDto.Request(friendToken, friend.getDeviceOs(), title, body,
-                                                false, NoticeType.FRIEND_REQUEST.name(), Long.toString(userId)));
+                                                false, NoticeType.FRIEND_REQUEST.name(),
+                                                Long.toString(request.getUserId())));
 
                                 return friend;
                             })
@@ -71,34 +72,35 @@ public class FriendService {
 
                     return new RequestFriendDto.Response(foundUser.formatRegDate());
                 })
-                .orElseThrow(() -> new FriendNotFoundUserException("Not found user matched userId:" + userId));
+                .orElseThrow(() ->
+                        new FriendNotFoundUserException("Not found user matched userId:" + request.getUserId()));
     }
 
-    public InsertFriendDto.Response addFriend(long userId, InsertFriendDto.Request request) {
+    public InsertFriendDto.Response addFriend(InsertFriendDto.Request request) {
         checkNotNull(request.getFriendId(), "추가할 친구가 없습니다. 친구 번호를 입력해주세요.");
-        checkArgument(findFriend(request.getFriendId(), userId).isEmpty(),
+        checkArgument(findFriend(request.getFriendId(), request.getUserId()).isEmpty(),
                 "이미 추가된 친구입니다. 다른 친구의 회원 번호를 입력해주시기 바랍니다.");
 
-        return findUser(userId)
+        return findUser(request.getUserId())
                 .map(user -> {
                     Friend insertedFriend = findUser(request.getFriendId())
                             .map(friend -> {
                                 insertFriend(new Friend(user, friend))
                                         .orElseThrow(() -> new FriendInternalServerException(String.format(
                                                 "Insert Friend failed. [userId: %d, friendId: %d]",
-                                                userId, request.getFriendId())));
+                                                request.getUserId(), request.getFriendId())));
 
                                 return insertFriend(new Friend(friend, user))
                                         .orElseThrow(() -> new FriendInternalServerException(String.format(
                                                 "Insert Friend failed. [userId: %d, friendId: %d]",
-                                                request.getFriendId(), userId)));
+                                                request.getFriendId(), request.getUserId())));
                             })
                             .orElseThrow(() -> new FriendNotFoundFriendException(
                                     "Not found user matched friendId: " + request.getFriendId()));
 
                     return new InsertFriendDto.Response(insertedFriend.formatRegDate());
                 })
-                .orElseThrow(() -> new FriendNotFoundUserException("Not found user matched userId:" + userId));
+                .orElseThrow(() -> new FriendNotFoundUserException("Not found user matched userId:" + request.getUserId()));
     }
 
     // Not found friend -> None Error, just empty -> return emptyList
@@ -109,15 +111,22 @@ public class FriendService {
     }
 
     public DeleteFriendDto.Response delete(long userId, DeleteFriendDto.Request request) {
-        return friendRepo.findByUserId(userId)
-                .map(friends -> {
-                    friends.stream()
-                            .filter(friend -> request.getFriendId().equals(friend.getFriend().getId()))
-                            .forEach(this::deleteFriend);
+        checkNotNull(request.getFriendId(), "삭제할 친구가 없습니다. 친구 번호를 입력해주세요.");
 
+        return findFriend(request.getFriendId(), userId)
+                .map(friend -> {
+                    deleteFriend(friend);
+                    findFriend(userId, request.getFriendId())
+                            .map(f -> {
+                                deleteFriend(f);
+                                return Optional.empty();
+                            })
+                            .orElseThrow(() -> new FriendNotFoundFriendException(String.format(
+                                    "Not found Friend matched friendId '%d', userId '%d'", userId, request.getFriendId())));
                     return new DeleteFriendDto.Response(BaseTimeEntity.formatNow());
                 })
-                .orElseThrow(() -> new FriendNotFoundUserException("Not found friend matched userId: " + userId));
+                .orElseThrow(() -> new FriendNotFoundFriendException(String.format(
+                                "Not found Friend matched friendId '%d', userId '%d'", request.getFriendId(), userId)));
     }
 
     /**

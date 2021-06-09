@@ -17,25 +17,25 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 @Api(tags = {"1. User"})
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/v1")
+@RequestMapping(value = "/v1/users")
 public class UserController {
     private final UserService userService;
 
     @ApiOperation(value = "회원가입", notes = "앱에서 전달받은 데이터로 회원가입 진행")
-    @PostMapping("/user")
-    public ApiResult<InsertUserDto.Response> signUp(@RequestBody InsertUserDto.Request request) {
+    @PostMapping
+    public ApiResult<InsertUserDto.Response> insert(@RequestBody InsertUserDto.Request request) {
         return ok(userService.signUp(request));
     }
 
     @ApiOperation(value = "로그인", notes = "SNS Id, 인증방식(snsType) 으로 사용자 정보 조회 및 리턴")
-    @GetMapping("/user")
-    public ApiResult<FindUserDto.Response> signIn(@ApiParam(value = "snsType", required = true) @RequestParam int snsType,
-                                                  @ApiParam(value = "snsId", required = true) @RequestParam String snsId) {
+    @GetMapping(value = "/{snsId}/{snsType}")
+    public ApiResult<FindUserDto.Response> find(@ApiParam(value = "snsType", required = true) @PathVariable int snsType,
+                                                  @ApiParam(value = "snsId", required = true) @PathVariable String snsId) {
         return ok(userService.signIn(snsType, snsId));
     }
 
     @ApiOperation(value = "사용자 조회", notes = "검색 조건에 해당하는 사용자를 조회한다.")
-    @GetMapping("/users")
+    @GetMapping
     public ApiResult<List<FindUsersDto.Response>> findUsers(@ApiParam(value = "userId") @RequestParam(required = false) Long userId,
                                              @ApiParam(value = "name") @RequestParam(required = false) String name) {
         return ok(userService.findUsers(userId, name).stream()
@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "푸시 토큰 업데이트", notes = "사용자 번호로 사용자를 찾아 푸시토큰 값을 업데이트한다.")
-    @PatchMapping("/user/{userId}")
+    @PatchMapping("/{userId}/token")
     public ApiResult<PatchTokenDto.Response> patchToken(
             @ApiParam(value = "userId", required = true) @PathVariable long userId,
             @RequestBody PatchTokenDto.Request request) {
@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "사용자 정보 업데이트", notes = "전달받은 값이 있는 경우 업데이트한다.")
-    @PutMapping("/user/{userId}")
+    @PutMapping("/{userId}")
     public ApiResult<PutUserDto.Response> update(@ApiParam(value = "userId", required = true) @PathVariable long userId,
                                                  @RequestBody PutUserDto.Request request) {
         return ok(userService.update(userId, request));

@@ -13,10 +13,12 @@ public class RequestFriendDto {
     @ApiModel(value = "RequestFriend.Request", description = "Nested class in RequestFriendDto")
     @Getter
     @AllArgsConstructor
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Request {
+        @ApiModelProperty(value = "사용자 번호")
+        private final Long userId;
+
         @ApiModelProperty(value = "친구 요청할 사용자 번호")
-        private Long friendId;
+        private final Long friendId;
     }
 
     @ApiModel(value = "RequestFriend.Response", description = "Nested class in RequestFriendDto")
