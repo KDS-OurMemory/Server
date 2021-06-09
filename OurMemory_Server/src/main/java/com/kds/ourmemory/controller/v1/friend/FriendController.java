@@ -20,28 +20,25 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 @Api(tags = {"2. Friend"})
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/v1")
+@RequestMapping(value = "/v1/friends")
 public class FriendController {
     private final FriendService friendService;
 
     @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다.")
-    @PostMapping(value = "/friend/request/{userId}")
+    @PostMapping(value = "/request")
     public ApiResult<RequestFriendDto.Response> request(
-            @ApiParam(value = "userId", required = true) @PathVariable long userId,
             @RequestBody RequestFriendDto.Request request) {
-        return ok(friendService.requestFriend(userId, request));
+        return ok(friendService.requestFriend(request));
     }
 
     @ApiOperation(value = "친구 추가", notes = "전달받은 사용자를 친구 목록에 추가한다.")
-    @PostMapping(value = "/friend/{userId}")
-    public ApiResult<InsertFriendDto.Response> insert(
-            @ApiParam(value = "userId", required = true) @PathVariable long userId,
-            @RequestBody InsertFriendDto.Request request) {
-        return ok(friendService.addFriend(userId, request));
+    @PostMapping
+    public ApiResult<InsertFriendDto.Response> insert(@RequestBody InsertFriendDto.Request request) {
+        return ok(friendService.addFriend(request));
     }
 
     @ApiOperation(value = "친구 목록 조회", notes = "사용자의 친구 목록을 조회한다.")
-    @GetMapping(value = "/friends/{userId}")
+    @GetMapping(value = "/{userId}")
     public ApiResult<List<FindFriendsDto.Response>> findFriends(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(friendService.findFriends(userId).stream()
@@ -49,8 +46,8 @@ public class FriendController {
                 .collect(Collectors.toList()));
     }
 
-    @ApiOperation(value = "친구 삭제")
-    @DeleteMapping(value = "/friend/{userId}")
+    @ApiOperation(value = "친구 삭제", notes = "친구를 삭제한다. 사용자 -> 친구 / 친구 -> 사용자 양쪽 다 삭제.")
+    @DeleteMapping(value = "/{userId}")
     public ApiResult<DeleteFriendDto.Response> delete(
             @ApiParam(value = "userId", required = true) @PathVariable long userId,
             @RequestBody DeleteFriendDto.Request request) {

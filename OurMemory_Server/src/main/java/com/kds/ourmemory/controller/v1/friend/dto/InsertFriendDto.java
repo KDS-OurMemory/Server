@@ -14,7 +14,10 @@ public class InsertFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Request {
-        @ApiModelProperty(value = "친구 추가할 사용자 번호")
+        @ApiModelProperty(value = "사용자 번호")
+        private final Long userId;
+
+        @ApiModelProperty(value = "추가할 친구 번호")
         private final Long friendId;
     }
 

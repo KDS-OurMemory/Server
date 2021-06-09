@@ -20,18 +20,18 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 @Api(tags = {"4. Memory"})
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/v1")
+@RequestMapping(value = "/v1/memories")
 public class MemoryController {
     private final MemoryService memoryService;
 
     @ApiOperation(value = "일정 추가", notes = "일정을 추가하고 일정-방-사용자 의 관계를 설정한다.")
-    @PostMapping("/memory")
+    @PostMapping
     public ApiResult<InsertMemoryDto.Response> insert(@RequestBody InsertMemoryDto.Request request) {
         return ok(memoryService.insert(request));
     }
 
     @ApiOperation(value = "일정 조회", notes = "사용자가 생성했거나 참여중인 일정을 조회한다.")
-    @GetMapping("/memories/{userId}")
+    @GetMapping("/{userId}")
     public ApiResult<List<FindMemoriesDto.Response>> findMemories(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(memoryService.findMemories(userId).stream()
@@ -41,7 +41,7 @@ public class MemoryController {
     }
 
     @ApiOperation(value = "일정 삭제", notes = "일정 삭제, 사용자-일정-방 연결된 관계 삭제")
-    @DeleteMapping("/memory/{memoryId}")
+    @DeleteMapping("/{memoryId}")
     public ApiResult<DeleteMemoryDto.Response> delete(
             @ApiParam(value = "memoryId", required = true) @PathVariable long memoryId) {
         return ok(memoryService.delete(memoryId));

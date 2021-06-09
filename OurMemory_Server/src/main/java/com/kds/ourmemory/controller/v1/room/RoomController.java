@@ -20,18 +20,18 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 @Api(tags = { "3. Room" })
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/v1")
+@RequestMapping(value = "/v1/rooms")
 public class RoomController {
     private final RoomService roomService;
 
     @ApiOperation(value = "방 생성", notes = "앱에서 전달받은 데이터로 방 생성 및 사용자 추가")
-    @PostMapping(value = "/room")
+    @PostMapping
     public ApiResult<InsertRoomDto.Response> insert(@RequestBody InsertRoomDto.Request request) {
         return ok(roomService.insert(request));
     }
 
     @ApiOperation(value = "방 목록 조회", notes = "사용자가 참여중인 방 목록을 조회한다.")
-    @GetMapping(value = "/rooms/{userId}")
+    @GetMapping(value = "/{userId}")
     public ApiResult<List<FindRoomsDto.Response>> findRooms(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(roomService.findRooms(userId).stream()
@@ -41,7 +41,7 @@ public class RoomController {
     }
 
     @ApiOperation(value = "방 삭제", notes = "방 삭제, 사용자-방-일정 연결된 관계 삭제")
-    @DeleteMapping(value = "/room/{roomId}")
+    @DeleteMapping(value = "/{roomId}")
     public ApiResult<DeleteRoomDto.Response> delete(
             @ApiParam(value = "roomId", required = true) @PathVariable long roomId) {
         return ok(roomService.delete(roomId));
