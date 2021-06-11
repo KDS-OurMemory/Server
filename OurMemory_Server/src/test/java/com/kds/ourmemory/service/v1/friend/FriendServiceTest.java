@@ -36,6 +36,18 @@ public class FriendServiceTest {
      */
     private DateTimeFormatter format;
 
+    /**
+     * Test case
+     * __________________________________
+     * |My side friend|Other side friend|
+     * |================================|
+     * |       X      |         X       |   OK
+     * |       X      |         O       |   Not yet.
+     * |       O      |         X       |   Not yet.
+     * |       O      |         O       |   Not yet.
+     * ----------------------------------
+     */
+
     @Autowired
     private FriendServiceTest(FriendService friendService, UserRepository userRepo) {
         this.friendService = friendService;
@@ -146,18 +158,33 @@ public class FriendServiceTest {
         assertThat(deleteFriendResponseDto1).isNotNull();
         assertThat(isNow(deleteFriendResponseDto1.getDeleteDate())).isTrue();
 
+        // Check my side
         List<User> firstDeleteFriends = friendService.findFriends(user.getId());
         assertThat(firstDeleteFriends.size()).isEqualTo(1);
         User secondFriend = firstDeleteFriends.get(0);
         assertThat(secondFriend).isEqualTo(friend2);
+
+        // Check other side
+        List<User> friend1FriendList = friendService.findFriends(friend1.getId());
+        assertThat(friend1FriendList.size()).isEqualTo(1);
+        User friend1User = friend1FriendList.get(0);
+        assertThat(friend1User.getId()).isEqualTo(user.getId());
+
 
         DeleteFriendDto.Response deleteFriendResponseDto2 = friendService.delete(user.getId(),
                 new DeleteFriendDto.Request(friend2.getId()));
         assertThat(deleteFriendResponseDto2).isNotNull();
         assertThat(isNow(deleteFriendResponseDto2.getDeleteDate())).isTrue();
 
+        // Check my side
         List<User> secondDeleteFriends = friendService.findFriends(user.getId());
         assertThat(secondDeleteFriends.size()).isEqualTo(0);
+
+        // Check other side
+        List<User> friend2FriendList = friendService.findFriends(friend2.getId());
+        assertThat(friend2FriendList.size()).isEqualTo(1);
+        User friend2User = friend2FriendList.get(0);
+        assertThat(friend2User.getId()).isEqualTo(user.getId());
     }
 
     boolean isNow(String time) {
