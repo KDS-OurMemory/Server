@@ -145,7 +145,10 @@ public class FriendService {
     // Not found friend -> None Error, just empty -> return emptyList
     public List<User> findFriends(long userId) {
         return findFriendsByUserId(userId)
-                .map(friends -> friends.stream().map(Friend::getFriend).collect(Collectors.toList()))
+                .map(friends -> friends.stream()
+                        .filter(friend -> friend.getStatus().equals(FriendStatus.FRIEND)
+                                || friend.getStatus().equals(FriendStatus.BLOCK))
+                        .map(Friend::getFriend).collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }
 
@@ -175,7 +178,8 @@ public class FriendService {
     }
 
     private Optional<List<Friend>> findFriendsByUserId(Long userId) {
-        return Optional.ofNullable(userId).flatMap(friendRepo::findByUserId);
+        return Optional.ofNullable(userId)
+                .flatMap(friendRepo::findByUserId);
     }
 
     private Optional<Friend> updateFriend(Friend friend) {
