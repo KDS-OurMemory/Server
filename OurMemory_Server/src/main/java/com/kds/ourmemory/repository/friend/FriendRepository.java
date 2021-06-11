@@ -2,6 +2,7 @@ package com.kds.ourmemory.repository.friend;
 
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendId;
+import com.kds.ourmemory.entity.friend.FriendStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.transaction.Transactional;

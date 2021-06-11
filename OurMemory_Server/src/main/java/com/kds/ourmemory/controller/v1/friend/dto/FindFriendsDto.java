@@ -15,6 +15,7 @@ public class FindFriendsDto {
     public static class Response {
         @ApiModelProperty(value = "조회된 사용자 번호")
         private final Long userId;
+
         @ApiModelProperty(value = "조회된 사용자 이름")
         private final String name;
 
