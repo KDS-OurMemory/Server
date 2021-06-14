@@ -24,7 +24,7 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 public class FriendController {
     private final FriendService friendService;
 
-    @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다.")
+    @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다. 차단한 상대에게는 요청이 전달되지 않는다.")
     @PostMapping(value = "/request")
     public ApiResult<RequestFriendDto.Response> request(
             @RequestBody RequestFriendDto.Request request) {
@@ -46,7 +46,7 @@ public class FriendController {
                 .collect(Collectors.toList()));
     }
 
-    @ApiOperation(value = "친구 삭제", notes = "친구를 삭제한다. 사용자 -> 친구 / 친구 -> 사용자 양쪽 다 삭제.")
+    @ApiOperation(value = "친구 삭제", notes = "친구를 삭제한다. 내 쪽에서만 친구 삭제 처리한다.")
     @DeleteMapping(value = "/{userId}")
     public ApiResult<DeleteFriendDto.Response> delete(
             @ApiParam(value = "userId", required = true) @PathVariable long userId,
