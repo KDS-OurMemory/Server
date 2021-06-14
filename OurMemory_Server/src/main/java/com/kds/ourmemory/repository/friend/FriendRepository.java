@@ -12,5 +12,5 @@ import java.util.Optional;
 @Transactional
 public interface FriendRepository extends JpaRepository<Friend, FriendId> {
     Optional<List<Friend>> findByUserId(Long userId);
-    Optional<Friend> findByFriendIdAndUserId(Long friendId, Long userId);
+    Optional<Friend> findByUserIdAndFriendId(Long userId, Long friendId);
 }
