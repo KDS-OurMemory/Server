@@ -9,7 +9,8 @@ import lombok.Getter;
 public enum FriendResultCode implements ResultCode {
     /* Custom Error */
     NOT_FOUND_USER("F001", "사용자의 정보를 찾을 수 없습니다. 사용자의 회원 번호를 확인해주시기 바랍니다."),
-    NOT_FOUND_FRIEND("F002", "추가할 친구 정보를 찾을 수 없습니다. 추가할 친구의 회원 번호를 확인해주시기 바랍니다."),
+    NOT_FOUND_FRIEND("F002", "친구 정보를 찾을 수 없습니다. 사용자의 회원 번호와 친구의 회원 번호를 확인해주시기 바랍니다."),
+    ALREADY_ACCEPT("F003", "이미 친구 요청을 수락한 사람입니다. 친구 추가를 진행해주시기 바랍니다."),
 
     /* Http Status Error */
     BAD_REQUEST("F400", "친구 목록 기능과 관련된 요청 변수 값이 잘못되었습니다. API 요청 프로토콜을 확인하시기 바랍니다."),

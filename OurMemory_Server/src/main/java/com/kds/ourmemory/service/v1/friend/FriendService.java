@@ -1,5 +1,6 @@
 package com.kds.ourmemory.service.v1.friend;
 
+import com.kds.ourmemory.advice.v1.friend.exception.FriendAlreadyAcceptException;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendInternalServerException;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundFriendException;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundUserException;
@@ -52,99 +53,75 @@ public class FriendService {
                             "이미 친구 요청을 받은 사람입니다. 친구 요청에 먼저 응답하시기 바랍니다.");
                     checkArgument(!friend.getStatus().equals(FriendStatus.FRIEND),
                             "이미 친구 추가된 사람입니다. 다른 사람의 회원 번호를 입력해주시기 바랍니다.");
-                    checkArgument(!friend.getStatus().equals(FriendStatus.BLOCK),
-                            "차단한 사람입니다.");
+                    checkArgument(!friend.getStatus().equals(FriendStatus.BLOCK), "차단한 사람입니다.");
                 });
 
-        Optional<Friend> friendSideFriend = findFriend(request.getFriendId(), request.getUserId())
-                .map(friend -> {
-                    checkArgument(!friend.getStatus().equals(FriendStatus.FRIEND),
-                            "이미 친구 요청을 수락한 사람입니다. 친구 추가를 진행해주시기 바랍니다.");
+        var user = findUser(request.getUserId()).orElseThrow(
+                () -> new FriendNotFoundUserException("Not found user matched userId: " + request.getUserId()));
+        User friend = findUser(request.getFriendId()).orElseThrow(
+                () -> new FriendNotFoundUserException("Not found user matched userId: " + request.getUserId()));
 
-                    return Optional.of(friend);
-                })
-                .orElseGet(Optional::empty);
+        // Add my side WAIT status
+        insertFriend(new Friend(user, friend, FriendStatus.WAIT));
 
-        return findUser(request.getUserId())
-                .map(user -> {
-                    User foundUser = findUser(request.getFriendId())
-                            .map(friend -> {
-                                // Insert to friend WAIT
-                                insertFriend(new Friend(user, friend, FriendStatus.WAIT))
-                                        .orElseThrow(() -> new FriendInternalServerException(String.format(
-                                                "Insert Friend failed. [userId: %d, friendId: %d, status: %s]",
-                                                request.getUserId(), request.getFriendId(), FriendStatus.WAIT)));
+        // Check Already friend
+        return findFriend(request.getFriendId(), request.getUserId())
+                .map(friendSideFriend ->
+                        Optional.of(friendSideFriend)
+                                .filter(f -> f.getStatus().equals(FriendStatus.BLOCK))
+                                .map(f -> new RequestFriendDto.Response(BaseTimeEntity.formatNow()))
+                                .orElseThrow(() -> new FriendAlreadyAcceptException("Already accepted a friend request.")))
+                // Add friend side REQUESTED_BY status
+                .orElseGet(() -> {
+                    insertFriend(new Friend(friend, user, FriendStatus.REQUESTED_BY));
 
-                                // If you are not blocked by a friend, Insert to friend REQUESTED_BY
-                                friendSideFriend
-                                        .filter(friend1 -> !friend1.getStatus().equals(FriendStatus.BLOCK))
-                                        .ifPresent(friend1 -> {
-                                            insertFriend(new Friend(friend, user, FriendStatus.REQUESTED_BY))
-                                                    .orElseThrow(() -> new FriendInternalServerException(String.format(
-                                                            "Insert Friend failed. [userId: %d, friendId: %d, status: %s]",
-                                                            request.getUserId(), request.getFriendId(), FriendStatus.REQUESTED_BY)));
+                    // Insert to Notices
+                    var title = "OurMemory - 친구 요청";
+                    var body = String.format("%s 이(가) 친구 요청하였습니다.", user.getName());
+                    var friendToken = friend.getPushToken();
 
-                                            // Insert to Notices
-                                            String title = "OurMemory - 친구 요청";
-                                            String body = String.format("%s 이(가) 친구 요청하였습니다.", user.getName());
-                                            String friendToken = friend.getPushToken();
+                    var insertNoticeRequest = new InsertNoticeDto.Request(
+                            friend.getId(), NoticeType.FRIEND_REQUEST, Long.toString(request.getUserId()));
+                    noticeService.insert(insertNoticeRequest);
 
-                                            InsertNoticeDto.Request insertNoticeRequest = new InsertNoticeDto.Request(
-                                                    friend.getId(), NoticeType.FRIEND_REQUEST, Long.toString(request.getUserId()));
-                                            noticeService.insert(insertNoticeRequest);
+                    // SendMessage to fcm
+                    fcmService.sendMessageTo(
+                            new FcmDto.Request(friendToken, friend.getDeviceOs(), title, body,
+                                    false, NoticeType.FRIEND_REQUEST.name(),
+                                    Long.toString(request.getUserId())));
 
-                                            // SendMessage to fcm
-                                            fcmService.sendMessageTo(
-                                                    new FcmDto.Request(friendToken, friend.getDeviceOs(), title, body,
-                                                            false, NoticeType.FRIEND_REQUEST.name(),
-                                                            Long.toString(request.getUserId())));
-                                        });
-
-                                return friend;
-                            })
-                            .orElseThrow(() -> new FriendNotFoundFriendException(
-                                    "Not found user matched friendId: " + request.getFriendId()));
-
-                    return new RequestFriendDto.Response(foundUser.formatRegDate());
-                })
-                .orElseThrow(() ->
-                        new FriendNotFoundUserException("Not found user matched userId:" + request.getUserId()));
+                    return new RequestFriendDto.Response(BaseTimeEntity.formatNow());
+                });
     }
 
     public InsertFriendDto.Response addFriend(InsertFriendDto.Request request) {
         checkNotNull(request.getFriendId(), "추가할 친구가 없습니다. 친구 번호를 입력해주세요.");
         findFriend(request.getFriendId(), request.getUserId())
-                .ifPresent(friend -> {
-                    checkArgument(!friend.getStatus().equals(FriendStatus.FRIEND),
-                            "이미 추가된 친구입니다. 다른 사람의 회원 번호를 입력해주시기 바랍니다.");
-                    checkArgument(!friend.getStatus().equals(FriendStatus.BLOCK), "차단한 사람입니다.");
-                });
+                .ifPresent(friend
+                        -> checkArgument(!friend.getStatus().equals(FriendStatus.BLOCK), "차단한 사람입니다."));
 
         return findFriend(request.getFriendId(), request.getUserId())
                 .map(fu -> {
-                    Friend friend = findFriend(request.getUserId(), request.getFriendId())
+                    var friend = findFriend(request.getUserId(), request.getFriendId())
                             .map(ff -> {
                                 fu.changeStatus(FriendStatus.FRIEND)
-                                        .map(this::updateFriend)
-                                        .orElseThrow(() -> new FriendInternalServerException(String.format(
-                                                "Update Friend failed to status set %s. [userId: %d, friendId: %d]",
-                                                FriendStatus.FRIEND, request.getUserId(), request.getFriendId())));
+                                        .ifPresent(this::updateFriend);
 
                                 return ff.changeStatus(FriendStatus.FRIEND)
                                         .map(f -> updateFriend(f).isPresent() ? f : null)
                                         .orElseThrow(() -> new FriendInternalServerException(String.format(
                                                 "Update Friend failed to status set %s. [userId: %d, friendId: %d]",
-                                                FriendStatus.FRIEND, request.getFriendId(), request.getUserId())));
+                                                FriendStatus.FRIEND, request.getUserId(), request.getFriendId())));
                             })
                             .orElseThrow(() -> new FriendNotFoundFriendException(
                                     String.format("Not found friend matched userId '%d' and friendId '%d'.",
-                                            request.getFriendId(), request.getUserId())));
+                                            request.getUserId(), request.getFriendId())));
 
                     return new InsertFriendDto.Response(friend.formatRegDate());
                 })
                 .orElseThrow(() -> new FriendNotFoundFriendException(
                         String.format("Not found friend matched userId '%d' and friendId '%d'.",
-                                request.getUserId(), request.getFriendId())));
+                                request.getFriendId(), request.getUserId())));
     }
 
     // Not found friend -> None Error, just empty -> return emptyList
@@ -157,24 +134,25 @@ public class FriendService {
                 .orElseGet(ArrayList::new);
     }
 
-    public DeleteFriendDto.Response delete(long userId, DeleteFriendDto.Request request) {
+    public DeleteFriendDto.Response delete(DeleteFriendDto.Request request) {
+        checkNotNull(request.getUserId(), "삭제할 사용자가 없습니다. 사용자 번호를 입력해주세요.");
         checkNotNull(request.getFriendId(), "삭제할 친구가 없습니다. 친구 번호를 입력해주세요.");
 
-        return findFriend(request.getFriendId(), userId)
+        return findFriend(request.getUserId(), request.getFriendId())
                 .map(friend -> {
                     // Delete friend only my side. The other side does not delete.
                     deleteFriend(friend);
                     return new DeleteFriendDto.Response(BaseTimeEntity.formatNow());
                 })
                 .orElseThrow(() -> new FriendNotFoundFriendException(String.format(
-                        "Not found Friend matched friendId '%d', userId '%d'", request.getFriendId(), userId)));
+                        "Not found Friend matched userId '%d', friendId '%d'", request.getUserId(), request.getFriendId())));
     }
 
     /**
      * Friend Repository
      */
-    private Optional<Friend> insertFriend(Friend friend) {
-        return Optional.of(friendRepo.save(friend));
+    private void insertFriend(Friend friend) {
+        friendRepo.save(friend);
     }
 
     private Optional<Friend> findFriend(Long userId, Long friendId) {
