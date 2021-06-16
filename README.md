@@ -23,6 +23,7 @@
   * ### 방
     사용자들을 그룹화하여 모아놓은 곳입니다.
 
+
   * ### 일정
     언제, 어디서, 어떤 일을 할 지 작성합니다. 
 
@@ -37,7 +38,8 @@
     `참여자가 전부 포함된 방이 있다면, 해당 방에 입장하여 일정을 생성해보세요. 입장한 방에 일정이 추가됩니다.`
 
 ## 4. ERD
-![ERD](https://user-images.githubusercontent.com/43669379/118202135-39094380-b494-11eb-9d8f-3b6d9ad1dcfe.png)
+https://www.erdcloud.com/d/JHJubRmhG7e2aD5cA
+![ERD](https://user-images.githubusercontent.com/43669379/122242668-7bdc9200-cefe-11eb-973a-5f7fc4e4091d.png)
 
 ## 5. CI&CD
  * Jenkins http://34.64.158.97/
