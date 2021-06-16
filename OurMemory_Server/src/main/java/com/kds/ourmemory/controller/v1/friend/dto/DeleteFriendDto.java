@@ -14,6 +14,9 @@ public class DeleteFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Request {
+        @ApiModelProperty(value = "사용자 번호")
+        private final Long userId;
+
         @ApiModelProperty(value = "삭제할 친구 번호")
         private final Long friendId;
     }

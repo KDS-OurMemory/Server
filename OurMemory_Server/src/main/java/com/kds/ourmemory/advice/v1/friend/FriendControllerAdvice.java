@@ -1,6 +1,7 @@
 package com.kds.ourmemory.advice.v1.friend;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
+import com.kds.ourmemory.advice.v1.friend.exception.FriendAlreadyAcceptException;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendInternalServerException;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundFriendException;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundUserException;
@@ -32,8 +33,13 @@ public class FriendControllerAdvice extends RestControllerAdviceResponse {
     }
 
     @ExceptionHandler(FriendNotFoundFriendException.class)
-    public ResponseEntity<?> handleFriendNotFoundFriendException (FriendNotFoundFriendException e) {
+    public ResponseEntity<?> handleFriendNotFoundFriendException(FriendNotFoundFriendException e) {
         return response(NOT_FOUND_FRIEND, e);
+    }
+
+    @ExceptionHandler(FriendAlreadyAcceptException.class)
+    public ResponseEntity<?> handleFriendAlreadyAcceptException(FriendAlreadyAcceptException e) {
+        return response(ALREADY_ACCEPT, e);
     }
 
 
