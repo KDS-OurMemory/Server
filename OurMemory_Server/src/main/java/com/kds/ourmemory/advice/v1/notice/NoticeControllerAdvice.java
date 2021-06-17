@@ -4,6 +4,7 @@ import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeInternalServerException;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundException;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundUserException;
+import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.notice.NoticeController;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -25,28 +26,28 @@ public class NoticeControllerAdvice extends RestControllerAdviceResponse {
 
     /* Custom Error */
     @ExceptionHandler(NoticeNotFoundUserException.class)
-    public ResponseEntity<?> handleNoticeNotFoundUserException(NoticeNotFoundUserException e) {
+    public ResponseEntity<ApiResult<String>> handleNoticeNotFoundUserException(NoticeNotFoundUserException e) {
         return response(NOT_FOUND_USER, e);
     }
 
     /* HTTP Status Error */
     @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
-    public ResponseEntity<?> handleBadRequestException(Exception e) {
+    public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
         return response(BAD_REQUEST, e);
     }
 
     @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
-    public ResponseEntity<?> handleCustomBadRequestException(Exception e) {
+    public ResponseEntity<ApiResult<String>> handleCustomBadRequestException(Exception e) {
         return response(BAD_REQUEST.getCode(), e.getMessage(), e);
     }
 
     @ExceptionHandler(NoticeNotFoundException.class)
-    public ResponseEntity<?> handleNoticeNotFoundException(NoticeNotFoundException e) {
+    public ResponseEntity<ApiResult<String>> handleNoticeNotFoundException(NoticeNotFoundException e) {
         return response(NOT_FOUND, e);
     }
 
     @ExceptionHandler(NoticeInternalServerException.class)
-    public ResponseEntity<?> handleNoticeInternalServerException(NoticeInternalServerException e) {
+    public ResponseEntity<ApiResult<String>> handleNoticeInternalServerException(NoticeInternalServerException e) {
         return response(INTERNAL_SERVER_ERROR, e);
     }
 }

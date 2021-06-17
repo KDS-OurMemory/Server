@@ -3,7 +3,7 @@ package com.kds.ourmemory.service.v1.friend;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendAlreadyAcceptException;
 import com.kds.ourmemory.advice.v1.friend.exception.FriendNotFoundFriendException;
 import com.kds.ourmemory.controller.v1.friend.dto.DeleteFriendDto;
-import com.kds.ourmemory.controller.v1.friend.dto.InsertFriendDto;
+import com.kds.ourmemory.controller.v1.friend.dto.AcceptFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.friend.Friend;
@@ -43,12 +43,12 @@ class FriendServiceTest {
      * ___________________________________________________________
      * |My side friend|Friend side friend|   Block   | Add Friend|
      * |=========================================================|
-     * |       X      |         X        |     X     |    Both   |
-     * |       X      |         O        |     X     |  My side  |
+     * |       X      |         X        |     X     |    Both   |  not yet
+     * |       X      |         O        |     X     |  My side  |  not yet
      * |       X      |         O        |Friend side|  My side  |  not yet
-     * |       O      |         X        |     X     |Friend side|
+     * |       O      |         X        |     X     |Friend side|  not yet
      * |       O      |         X        |  My side  |Friend side|  not yet
-     * |       O      |         O        |     X     | Exception |
+     * |       O      |         O        |     X     | Exception |  not yet
      * |       O      |         O        |    Both   | Exception |  not yet
      * -----------------------------------------------------------
      */
@@ -109,8 +109,8 @@ class FriendServiceTest {
         RequestFriendDto.Request requestReq1_MySideX_FriendSideX = new RequestFriendDto.Request(user.getId(), friend1.getId());
         RequestFriendDto.Request requestReq2_MySideX_FriendSideX = new RequestFriendDto.Request(user.getId(), friend2.getId());
 
-        InsertFriendDto.Request insertReq1_MySideX_FriendSideX = new InsertFriendDto.Request(user.getId(), friend1.getId());
-        InsertFriendDto.Request insertReq2_MySideX_FriendSideX = new InsertFriendDto.Request(user.getId(), friend2.getId());
+        AcceptFriendDto.Request insertReq1_MySideX_FriendSideX = new AcceptFriendDto.Request(friend1.getId(), user.getId());
+        AcceptFriendDto.Request insertReq2_MySideX_FriendSideX = new AcceptFriendDto.Request(friend2.getId(), user.getId());
 
         DeleteFriendDto.Request deleteReqFriend1FromUser = new DeleteFriendDto.Request(user.getId(), friend1.getId());
         DeleteFriendDto.Request deleteReqFriend2FromUser = new DeleteFriendDto.Request(user.getId(), friend2.getId());
@@ -128,13 +128,13 @@ class FriendServiceTest {
         assertThat(isNow(requestRsp2_MySideX_FriendSideX.getRequestDate())).isTrue();
 
         /* 2. Add friends */
-        InsertFriendDto.Response insertRsp1_MySideX_FriendSideX = friendService.addFriend(insertReq1_MySideX_FriendSideX);
+        AcceptFriendDto.Response insertRsp1_MySideX_FriendSideX = friendService.acceptFriend(insertReq1_MySideX_FriendSideX);
         assertThat(insertRsp1_MySideX_FriendSideX).isNotNull();
-        assertThat(isNow(insertRsp1_MySideX_FriendSideX.getAddDate())).isTrue();
+        assertThat(isNow(insertRsp1_MySideX_FriendSideX.getAcceptDate())).isTrue();
 
-        InsertFriendDto.Response insertRsp2_MySideX_FriendSideX = friendService.addFriend(insertReq2_MySideX_FriendSideX);
+        AcceptFriendDto.Response insertRsp2_MySideX_FriendSideX = friendService.acceptFriend(insertReq2_MySideX_FriendSideX);
         assertThat(insertRsp2_MySideX_FriendSideX).isNotNull();
-        assertThat(isNow(insertRsp2_MySideX_FriendSideX.getAddDate())).isTrue();
+        assertThat(isNow(insertRsp2_MySideX_FriendSideX.getAcceptDate())).isTrue();
 
         /* 2. Find friends */
         List<Friend> responseList = friendService.findFriends(user.getId());
@@ -267,8 +267,8 @@ class FriendServiceTest {
         RequestFriendDto.Request requestReq1_MySideX_FriendSideO = new RequestFriendDto.Request(user.getId(), friend1.getId());
         RequestFriendDto.Request requestReq2_MySideX_FriendSideO = new RequestFriendDto.Request(user.getId(), friend2.getId());
 
-        InsertFriendDto.Request insertReq1_MySideX_FriendSideO = new InsertFriendDto.Request(user.getId(), friend1.getId());
-        InsertFriendDto.Request insertReq2_MySideX_FriendSideO = new InsertFriendDto.Request(user.getId(), friend2.getId());
+        AcceptFriendDto.Request insertReq1_MySideX_FriendSideO = new AcceptFriendDto.Request(user.getId(), friend1.getId());
+        AcceptFriendDto.Request insertReq2_MySideX_FriendSideO = new AcceptFriendDto.Request(user.getId(), friend2.getId());
 
         DeleteFriendDto.Request deleteReqFriend1FromUser = new DeleteFriendDto.Request(user.getId(), friend1.getId());
         DeleteFriendDto.Request deleteReqFriend2FromUser = new DeleteFriendDto.Request(user.getId(), friend2.getId());
@@ -285,13 +285,13 @@ class FriendServiceTest {
         assertThat(isNow(beforeRequestRsp2_MySideX_FriendSideO.getRequestDate())).isTrue();
 
         /* 0-4. Add friends for other side friends */
-        InsertFriendDto.Response beforeInsertRsp1_MySideX_FriendSideO = friendService.addFriend(insertReq1_MySideX_FriendSideO);
+        AcceptFriendDto.Response beforeInsertRsp1_MySideX_FriendSideO = friendService.acceptFriend(insertReq1_MySideX_FriendSideO);
         assertThat(beforeInsertRsp1_MySideX_FriendSideO).isNotNull();
-        assertThat(isNow(beforeInsertRsp1_MySideX_FriendSideO.getAddDate())).isTrue();
+        assertThat(isNow(beforeInsertRsp1_MySideX_FriendSideO.getAcceptDate())).isTrue();
 
-        InsertFriendDto.Response beforeInsertRsp2_MySideX_FriendSideO = friendService.addFriend(insertReq2_MySideX_FriendSideO);
+        AcceptFriendDto.Response beforeInsertRsp2_MySideX_FriendSideO = friendService.acceptFriend(insertReq2_MySideX_FriendSideO);
         assertThat(beforeInsertRsp2_MySideX_FriendSideO).isNotNull();
-        assertThat(isNow(beforeInsertRsp2_MySideX_FriendSideO.getAddDate())).isTrue();
+        assertThat(isNow(beforeInsertRsp2_MySideX_FriendSideO.getAcceptDate())).isTrue();
 
         /* 0-5. Delete friend1 from my side */
         // Delete friend1 from user
@@ -336,13 +336,13 @@ class FriendServiceTest {
                 friendService.requestFriend(requestReq2_MySideX_FriendSideO));
 
         /* 2. Add friends */
-        InsertFriendDto.Response insertRsp1_MySideX_FriendSideO = friendService.addFriend(insertReq1_MySideX_FriendSideO);
+        AcceptFriendDto.Response insertRsp1_MySideX_FriendSideO = friendService.acceptFriend(insertReq1_MySideX_FriendSideO);
         assertThat(insertRsp1_MySideX_FriendSideO).isNotNull();
-        assertThat(isNow(insertRsp1_MySideX_FriendSideO.getAddDate())).isTrue();
+        assertThat(isNow(insertRsp1_MySideX_FriendSideO.getAcceptDate())).isTrue();
 
-        InsertFriendDto.Response insertRsp2_MySideX_FriendSideO = friendService.addFriend(insertReq2_MySideX_FriendSideO);
+        AcceptFriendDto.Response insertRsp2_MySideX_FriendSideO = friendService.acceptFriend(insertReq2_MySideX_FriendSideO);
         assertThat(insertRsp2_MySideX_FriendSideO).isNotNull();
-        assertThat(isNow(insertRsp2_MySideX_FriendSideO.getAddDate())).isTrue();
+        assertThat(isNow(insertRsp2_MySideX_FriendSideO.getAcceptDate())).isTrue();
 
         /* 3. Find friends */
         List<Friend> responseList = friendService.findFriends(user.getId());
@@ -475,8 +475,8 @@ class FriendServiceTest {
         RequestFriendDto.Request requestReq1_MySideO_FriendSideX = new RequestFriendDto.Request(user.getId(), friend1.getId());
         RequestFriendDto.Request requestReq2_MySideO_FriendSideX = new RequestFriendDto.Request(user.getId(), friend2.getId());
 
-        InsertFriendDto.Request insertReq1_MySideO_FriendSideX = new InsertFriendDto.Request(user.getId(), friend1.getId());
-        InsertFriendDto.Request insertReq2_MySideO_FriendSideX = new InsertFriendDto.Request(user.getId(), friend2.getId());
+        AcceptFriendDto.Request insertReq1_MySideO_FriendSideX = new AcceptFriendDto.Request(friend1.getId(), user.getId());
+        AcceptFriendDto.Request insertReq2_MySideO_FriendSideX = new AcceptFriendDto.Request(friend2.getId(), user.getId());
 
         DeleteFriendDto.Request deleteReqFriend1FromUser = new DeleteFriendDto.Request(user.getId(), friend1.getId());
         DeleteFriendDto.Request deleteReqFriend2FromUser = new DeleteFriendDto.Request(user.getId(), friend2.getId());
@@ -493,13 +493,13 @@ class FriendServiceTest {
         assertThat(isNow(beforeRequestRsp2_MySideO_FriendSideX.getRequestDate())).isTrue();
 
         /* 0-4. Add friends for my side friends */
-        InsertFriendDto.Response beforeInsertRsp1_MySideO_FriendSideX = friendService.addFriend(insertReq1_MySideO_FriendSideX);
+        AcceptFriendDto.Response beforeInsertRsp1_MySideO_FriendSideX = friendService.acceptFriend(insertReq1_MySideO_FriendSideX);
         assertThat(beforeInsertRsp1_MySideO_FriendSideX).isNotNull();
-        assertThat(isNow(beforeInsertRsp1_MySideO_FriendSideX.getAddDate())).isTrue();
+        assertThat(isNow(beforeInsertRsp1_MySideO_FriendSideX.getAcceptDate())).isTrue();
 
-        InsertFriendDto.Response beforeInsertRsp2_MySideO_FriendSideX = friendService.addFriend(insertReq2_MySideO_FriendSideX);
+        AcceptFriendDto.Response beforeInsertRsp2_MySideO_FriendSideX = friendService.acceptFriend(insertReq2_MySideO_FriendSideX);
         assertThat(beforeInsertRsp2_MySideO_FriendSideX).isNotNull();
-        assertThat(isNow(beforeInsertRsp2_MySideO_FriendSideX.getAddDate())).isTrue();
+        assertThat(isNow(beforeInsertRsp2_MySideO_FriendSideX.getAcceptDate())).isTrue();
 
         /* 0-5. Delete user from friend1 side */
         // Delete user from friend1
@@ -658,8 +658,8 @@ class FriendServiceTest {
         RequestFriendDto.Request requestReq1_MySideO_FriendSideO = new RequestFriendDto.Request(user.getId(), friend1.getId());
         RequestFriendDto.Request requestReq2_MySideO_FriendSideO = new RequestFriendDto.Request(user.getId(), friend2.getId());
 
-        InsertFriendDto.Request insertReq1_MySideO_FriendSideO = new InsertFriendDto.Request(user.getId(), friend1.getId());
-        InsertFriendDto.Request insertReq2_MySideO_FriendSideO = new InsertFriendDto.Request(user.getId(), friend2.getId());
+        AcceptFriendDto.Request insertReq1_MySideO_FriendSideO = new AcceptFriendDto.Request(friend1.getId(), user.getId());
+        AcceptFriendDto.Request insertReq2_MySideO_FriendSideO = new AcceptFriendDto.Request(friend2.getId(), user.getId());
 
         DeleteFriendDto.Request deleteReqFriend1FromUser = new DeleteFriendDto.Request(user.getId(), friend1.getId());
         DeleteFriendDto.Request deleteReqFriend2FromUser = new DeleteFriendDto.Request(user.getId(), friend2.getId());
@@ -676,13 +676,13 @@ class FriendServiceTest {
         assertThat(isNow(beforeRequestRsp2_MySideO_FriendSideO.getRequestDate())).isTrue();
 
         /* 0-4. Add friends for both side friends */
-        InsertFriendDto.Response beforeInsertRsp1_MySideO_FriendSideO = friendService.addFriend(insertReq1_MySideO_FriendSideO);
+        AcceptFriendDto.Response beforeInsertRsp1_MySideO_FriendSideO = friendService.acceptFriend(insertReq1_MySideO_FriendSideO);
         assertThat(beforeInsertRsp1_MySideO_FriendSideO).isNotNull();
-        assertThat(isNow(beforeInsertRsp1_MySideO_FriendSideO.getAddDate())).isTrue();
+        assertThat(isNow(beforeInsertRsp1_MySideO_FriendSideO.getAcceptDate())).isTrue();
 
-        InsertFriendDto.Response beforeInsertRsp2_MySideO_FriendSideO = friendService.addFriend(insertReq2_MySideO_FriendSideO);
+        AcceptFriendDto.Response beforeInsertRsp2_MySideO_FriendSideO = friendService.acceptFriend(insertReq2_MySideO_FriendSideO);
         assertThat(beforeInsertRsp2_MySideO_FriendSideO).isNotNull();
-        assertThat(isNow(beforeInsertRsp2_MySideO_FriendSideO.getAddDate())).isTrue();
+        assertThat(isNow(beforeInsertRsp2_MySideO_FriendSideO.getAcceptDate())).isTrue();
 
 
         /* 1. Request friends */

@@ -1,10 +1,7 @@
 package com.kds.ourmemory.controller.v1.friend;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
-import com.kds.ourmemory.controller.v1.friend.dto.DeleteFriendDto;
-import com.kds.ourmemory.controller.v1.friend.dto.FindFriendsDto;
-import com.kds.ourmemory.controller.v1.friend.dto.InsertFriendDto;
-import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
+import com.kds.ourmemory.controller.v1.friend.dto.*;
 import com.kds.ourmemory.service.v1.friend.FriendService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,9 +28,15 @@ public class FriendController {
         return ok(friendService.requestFriend(request));
     }
 
-    @ApiOperation(value = "친구 추가", notes = "전달받은 사용자를 친구 목록에 추가한다.")
+    @ApiOperation(value = "친구 수락", notes = "친구 요청을 수락하고 친구를 추가한다. 요청한 사람/요청받은 사람 모두 친구 추가 진행.")
+    @PostMapping(value = "/accept")
+    public ApiResult<AcceptFriendDto.Response> acceptFriend(@RequestBody AcceptFriendDto.Request request) {
+        return ok(friendService.acceptFriend(request));
+    }
+
+    @ApiOperation(value = "친구 추가", notes = "요청한 사람쪽에서 친구 추가를 진행한다. ")
     @PostMapping
-    public ApiResult<InsertFriendDto.Response> insert(@RequestBody InsertFriendDto.Request request) {
+    public ApiResult<AddFriendDto.Response> addFriend(@RequestBody AddFriendDto.Request request) {
         return ok(friendService.addFriend(request));
     }
 
