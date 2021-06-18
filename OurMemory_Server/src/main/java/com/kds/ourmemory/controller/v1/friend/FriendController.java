@@ -23,9 +23,14 @@ public class FriendController {
 
     @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다. 차단한 상대에게는 요청이 전달되지 않는다.")
     @PostMapping(value = "/request")
-    public ApiResult<RequestFriendDto.Response> request(
-            @RequestBody RequestFriendDto.Request request) {
+    public ApiResult<RequestFriendDto.Response> requestFriend(@RequestBody RequestFriendDto.Request request) {
         return ok(friendService.requestFriend(request));
+    }
+
+    @ApiOperation(value = "친구 요청 취소", notes = "친구 요청을 취소한다.")
+    @DeleteMapping(value = "/cancel")
+    public ApiResult<CancelFriendDto.Response> cancelFriend(@RequestBody CancelFriendDto.Request request) {
+        return ok(friendService.cancelFriend(request));
     }
 
     @ApiOperation(value = "친구 수락", notes = "친구 요청을 수락하고 친구를 추가한다. 요청한 사람/요청받은 사람 모두 친구 추가 진행.")
@@ -49,9 +54,15 @@ public class FriendController {
                 .collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "친구 차단", notes = "친구 상태를 차단으로 변경한다.")
+    @PatchMapping
+    public ApiResult<BlockFriendDto.Response> blockFriend(@RequestBody BlockFriendDto.Request request) {
+        return ok(friendService.blockFriend(request));
+    }
+
     @ApiOperation(value = "친구 삭제", notes = "친구를 삭제한다. 내 쪽에서만 친구 삭제 처리한다.")
     @DeleteMapping
-    public ApiResult<DeleteFriendDto.Response> delete(@RequestBody DeleteFriendDto.Request request) {
-        return ok(friendService.delete(request));
+    public ApiResult<DeleteFriendDto.Response> deleteFriend(@RequestBody DeleteFriendDto.Request request) {
+        return ok(friendService.deleteFriend(request));
     }
 }

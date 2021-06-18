@@ -2,10 +2,7 @@ package com.kds.ourmemory.service.v1.friend;
 
 import com.kds.ourmemory.advice.v1.friend.exception.*;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
-import com.kds.ourmemory.controller.v1.friend.dto.AcceptFriendDto;
-import com.kds.ourmemory.controller.v1.friend.dto.AddFriendDto;
-import com.kds.ourmemory.controller.v1.friend.dto.DeleteFriendDto;
-import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
+import com.kds.ourmemory.controller.v1.friend.dto.*;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.friend.Friend;
@@ -25,7 +22,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
 @Service
@@ -92,16 +88,55 @@ public class FriendService {
                 });
     }
 
+    public CancelFriendDto.Response cancelFriend(CancelFriendDto.Request request) {
+        // Check my side
+        var mySideFriend = findFriend(request.getUserId(), request.getFriendId())
+                .map(friend -> {
+                    FriendStatus status = friend.getStatus();
+                    if (status.equals(FriendStatus.FRIEND) || status.equals(FriendStatus.BLOCK))
+                        throw new FriendInternalServerException(
+                                String.format("User '%d' already friend. delete request plz.", request.getFriendId())
+                        );
+
+                    return friend;
+                })
+                .orElseThrow(
+                        () -> new FriendNotFoundException(String.format("Not found Friend matched userId '%d', friendId '%d'",
+                                request.getUserId(), request.getFriendId()))
+                );
+
+        // Check friend side And delete
+        return findFriend(request.getFriendId(), request.getUserId())
+                .map(friend -> {
+                    FriendStatus status = friend.getStatus();
+                    if (status.equals(FriendStatus.FRIEND)) {
+                        throw new FriendInternalServerException(
+                                String.format("User '%d' already friend. delete request plz.", request.getUserId())
+                        );
+                    } else if (status.equals(FriendStatus.WAIT) || status.equals(FriendStatus.REQUESTED_BY)) {
+                        deleteFriend(friend);
+                    }
+
+                    deleteFriend(mySideFriend);
+
+                    return new CancelFriendDto.Response(BaseTimeEntity.formatNow());
+                })
+                .orElseThrow(
+                        () -> new FriendNotFoundException(String.format("Not found Friend matched userId '%d', friendId '%d'",
+                                request.getFriendId(), request.getUserId()))
+                );
+    }
+
     public AcceptFriendDto.Response acceptFriend(AcceptFriendDto.Request request) {
         // Check friend status on accept side
-        Friend acceptFriend = findFriend(request.getAcceptUserId(), request.getRequestUserId())
+        var acceptFriend = findFriend(request.getAcceptUserId(), request.getRequestUserId())
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.REQUESTED_BY))
                         .orElseThrow(() -> new FriendStatusException(String.format("Friend status must be '%s'. friendStatus: %s",
                                 FriendStatus.REQUESTED_BY.name(), fa.getStatus().name()))))
                 .orElseThrow(() -> new FriendNotRequestedException("Addition cannot be proceeded without a friend request."));
 
         // Check friend status on request side
-        Friend requestFriend = findFriend(request.getRequestUserId(), request.getAcceptUserId())
+        var requestFriend = findFriend(request.getRequestUserId(), request.getAcceptUserId())
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.WAIT))
                         .orElseThrow(() -> new FriendStatusException(String.format("Friend status must be '%s'. friendStatus: %s",
                                 FriendStatus.WAIT.name(), fa.getStatus().name()))))
@@ -127,9 +162,9 @@ public class FriendService {
 
                     return ff;
                 })
-                .orElseThrow(() -> new FriendNotFoundException(
-                        String.format("Not found friend matched userId: %d, friendId: %d",
-                                request.getUserId(), request.getFriendId())
+                .orElseThrow(() -> new FriendInternalServerException(
+                        String.format("Cannot add friend '%d' because friend side is not a friend to user '%d'",
+                                request.getFriendId(), request.getUserId())
                 ));
 
         // Check friend status on request side, And add friend
@@ -154,18 +189,34 @@ public class FriendService {
                 .orElseGet(ArrayList::new);
     }
 
-    public DeleteFriendDto.Response delete(DeleteFriendDto.Request request) {
-        checkNotNull(request.getUserId(), "삭제할 사용자가 없습니다. 사용자 번호를 입력해주세요.");
-        checkNotNull(request.getFriendId(), "삭제할 친구가 없습니다. 친구 번호를 입력해주세요.");
-
+    public BlockFriendDto.Response blockFriend(BlockFriendDto.Request request) {
         return findFriend(request.getUserId(), request.getFriendId())
                 .map(friend -> {
+                    friend.changeStatus(FriendStatus.BLOCK);
+                    updateFriend(friend);
+
+                    return new BlockFriendDto.Response(BaseTimeEntity.formatNow());
+                })
+                .orElseThrow(() -> new FriendNotFoundFriendException(
+                        String.format("Not found Friend matched userId '%d', friendId '%d'", request.getUserId(), request.getFriendId()))
+                );
+    }
+
+    public DeleteFriendDto.Response deleteFriend(DeleteFriendDto.Request request) {
+        return findFriend(request.getUserId(), request.getFriendId())
+                .map(friend -> {
+                    if (friend.getStatus().equals(FriendStatus.WAIT) || friend.getStatus().equals(FriendStatus.REQUESTED_BY))
+                        throw new FriendInternalServerException(
+                                String.format("User '%d' is not friend. cancel request plz.", request.getFriendId())
+                        );
+
                     // Delete friend only my side. The other side does not delete.
                     deleteFriend(friend);
                     return new DeleteFriendDto.Response(BaseTimeEntity.formatNow());
                 })
-                .orElseThrow(() -> new FriendNotFoundFriendException(String.format(
-                        "Not found Friend matched userId '%d', friendId '%d'", request.getUserId(), request.getFriendId())));
+                .orElseThrow(() -> new FriendNotFoundFriendException(
+                        String.format("Not found Friend matched userId '%d', friendId '%d'", request.getUserId(), request.getFriendId()))
+                );
     }
 
     /**
