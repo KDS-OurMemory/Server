@@ -160,10 +160,10 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertRsp_RoomO_MemberO_IncludeO.getMemoryId());
+        DeleteMemoryDto.Response deleteRsp_RoomO_MemberO_IncludeO = memoryService.delete(insertRsp_RoomO_MemberO_IncludeO.getMemoryId());
         
-        assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
+        assertThat(deleteRsp_RoomO_MemberO_IncludeO).isNotNull();
+        assertThat(isNow(deleteRsp_RoomO_MemberO_IncludeO.getDeleteDate())).isTrue();
     }
     
     @Test
@@ -224,7 +224,7 @@ class MemoryServiceTest {
         /* 0-3. Create request */
         List<Long> member_RoomO_MemberO_IncludeX = new ArrayList<>();
         member_RoomO_MemberO_IncludeX.add(Member_IncludeX.getId());
-        InsertMemoryDto.Request insertRequest_RoomO_MemberO_IncludeX = new InsertMemoryDto.Request(
+        InsertMemoryDto.Request insertReq_RoomO_MemberO_IncludeX = new InsertMemoryDto.Request(
                 Creator.getId(),
                 mainRoom.getRoomId(),
                 "Test Memory",
@@ -240,16 +240,16 @@ class MemoryServiceTest {
                 );
         
         /* 1. Make memory */
-        InsertMemoryDto.Response insertResponse_RoomO_MemberO_IncludeX = memoryService.insert(insertRequest_RoomO_MemberO_IncludeX);
-        assertThat(insertResponse_RoomO_MemberO_IncludeX).isNotNull();
-        assertThat(isNow(insertResponse_RoomO_MemberO_IncludeX.getAddDate())).isTrue();
-        assertThat(insertResponse_RoomO_MemberO_IncludeX.getRoomId()).isNotEqualTo(insertRequest_RoomO_MemberO_IncludeX.getRoomId());
+        InsertMemoryDto.Response insertRsp_RoomO_MemberO_IncludeX = memoryService.insert(insertReq_RoomO_MemberO_IncludeX);
+        assertThat(insertRsp_RoomO_MemberO_IncludeX).isNotNull();
+        assertThat(isNow(insertRsp_RoomO_MemberO_IncludeX.getAddDate())).isTrue();
+        assertThat(insertRsp_RoomO_MemberO_IncludeX.getRoomId()).isNotEqualTo(insertReq_RoomO_MemberO_IncludeX.getRoomId());
         
-        log.info("[RoomO_MemberO_IncludeX] CreateDate: {}, memoryId: {}, roomId: {}", insertResponse_RoomO_MemberO_IncludeX.getAddDate(),
-                insertResponse_RoomO_MemberO_IncludeX.getMemoryId(), insertResponse_RoomO_MemberO_IncludeX.getRoomId());
+        log.info("[RoomO_MemberO_IncludeX] CreateDate: {}, memoryId: {}, roomId: {}", insertRsp_RoomO_MemberO_IncludeX.getAddDate(),
+                insertRsp_RoomO_MemberO_IncludeX.getMemoryId(), insertRsp_RoomO_MemberO_IncludeX.getRoomId());
         
         /* 2. Find memory */
-        List<Memory> responseList = memoryService.findMemories(insertRequest_RoomO_MemberO_IncludeX.getUserId());
+        List<Memory> responseList = memoryService.findMemories(insertReq_RoomO_MemberO_IncludeX.getUserId());
         assertThat(responseList).isNotNull();
         
         log.info("[RoomO_MemberO_IncludeX_Memory_Read]");
@@ -257,10 +257,10 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_RoomO_MemberO_IncludeX.getMemoryId());
+        DeleteMemoryDto.Response deleteRsp_RoomO_MemberO_IncludeX = memoryService.delete(insertRsp_RoomO_MemberO_IncludeX.getMemoryId());
         
-        assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
+        assertThat(deleteRsp_RoomO_MemberO_IncludeX).isNotNull();
+        assertThat(isNow(deleteRsp_RoomO_MemberO_IncludeX.getDeleteDate())).isTrue();
     }
     
     @Test
@@ -319,7 +319,7 @@ class MemoryServiceTest {
         shareRooms.add(shareRoom2.getRoomId());
         
         /* 0-3. Create request */
-        InsertMemoryDto.Request insertRequest_RoomO_MemberX = new InsertMemoryDto.Request(
+        InsertMemoryDto.Request insertReq_RoomO_MemberX = new InsertMemoryDto.Request(
                 Creator.getId(),
                 mainRoom.getRoomId(),
                 "Test Memory",
@@ -335,16 +335,16 @@ class MemoryServiceTest {
                 );
         
         /* 1. Make memory */
-        InsertMemoryDto.Response insertResponse_RoomO_MemberX = memoryService.insert(insertRequest_RoomO_MemberX);
-        assertThat(insertResponse_RoomO_MemberX).isNotNull();
-        assertThat(isNow(insertResponse_RoomO_MemberX.getAddDate())).isTrue();
-        assertThat(insertResponse_RoomO_MemberX.getRoomId()).isEqualTo(insertResponse_RoomO_MemberX.getRoomId());
+        InsertMemoryDto.Response insertRsp_RoomO_MemberX = memoryService.insert(insertReq_RoomO_MemberX);
+        assertThat(insertRsp_RoomO_MemberX).isNotNull();
+        assertThat(isNow(insertRsp_RoomO_MemberX.getAddDate())).isTrue();
+        assertThat(insertRsp_RoomO_MemberX.getRoomId()).isEqualTo(insertRsp_RoomO_MemberX.getRoomId());
         
-        log.info("[RoomO_MemberX] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_RoomO_MemberX.getAddDate(),
-                insertResponse_RoomO_MemberX.getMemoryId(), insertResponse_RoomO_MemberX.getRoomId());
+        log.info("[RoomO_MemberX] CreateDate: {} memoryId: {}, roomId: {}", insertRsp_RoomO_MemberX.getAddDate(),
+                insertRsp_RoomO_MemberX.getMemoryId(), insertRsp_RoomO_MemberX.getRoomId());
         
         /* 2. Find memory */
-        List<Memory> responseList = memoryService.findMemories(insertRequest_RoomO_MemberX.getUserId());
+        List<Memory> responseList = memoryService.findMemories(insertReq_RoomO_MemberX.getUserId());
         assertThat(responseList).isNotNull();
         
         log.info("[RoomO_MemberX_Memory_Read]");
@@ -352,10 +352,10 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_RoomO_MemberX.getMemoryId());
+        DeleteMemoryDto.Response deleteRsp_RoomO_MemberX = memoryService.delete(insertRsp_RoomO_MemberX.getMemoryId());
         
-        assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
+        assertThat(deleteRsp_RoomO_MemberX).isNotNull();
+        assertThat(isNow(deleteRsp_RoomO_MemberX.getDeleteDate())).isTrue();
     }
     
     @Test
@@ -415,7 +415,7 @@ class MemoryServiceTest {
         /* 0-3. Create request */
         List<Long> member_RoomX_MemberO = new ArrayList<>();
         member_RoomX_MemberO.add(Member_IncludeO.getId());
-        InsertMemoryDto.Request insertRequest_RoomX_MemberO = new InsertMemoryDto.Request(
+        InsertMemoryDto.Request insertReq_RoomX_MemberO = new InsertMemoryDto.Request(
                 Creator.getId(),
                 null,
                 "Test Memory",
@@ -431,16 +431,16 @@ class MemoryServiceTest {
                 );
         
         /* 1. Make memory */
-        InsertMemoryDto.Response insertResponse_RoomX_MemberO = memoryService.insert(insertRequest_RoomX_MemberO);
-        assertThat(insertResponse_RoomX_MemberO).isNotNull();
-        assertThat(isNow(insertResponse_RoomX_MemberO.getAddDate())).isTrue();
-        assertThat(insertResponse_RoomX_MemberO.getRoomId()).isNotEqualTo(insertRequest_RoomX_MemberO.getRoomId());
+        InsertMemoryDto.Response insertRsp_RoomX_MemberO = memoryService.insert(insertReq_RoomX_MemberO);
+        assertThat(insertRsp_RoomX_MemberO).isNotNull();
+        assertThat(isNow(insertRsp_RoomX_MemberO.getAddDate())).isTrue();
+        assertThat(insertRsp_RoomX_MemberO.getRoomId()).isNotEqualTo(insertReq_RoomX_MemberO.getRoomId());
         
-        log.info("[RoomX_MemberO] CreateDate: {}, memoryId: {}, roomId: {}", insertResponse_RoomX_MemberO.getAddDate(),
-                insertResponse_RoomX_MemberO.getMemoryId(), insertResponse_RoomX_MemberO.getRoomId());
+        log.info("[RoomX_MemberO] CreateDate: {}, memoryId: {}, roomId: {}", insertRsp_RoomX_MemberO.getAddDate(),
+                insertRsp_RoomX_MemberO.getMemoryId(), insertRsp_RoomX_MemberO.getRoomId());
         
         /* 2. Find memory */
-        List<Memory> responseList = memoryService.findMemories(insertRequest_RoomX_MemberO.getUserId());
+        List<Memory> responseList = memoryService.findMemories(insertReq_RoomX_MemberO.getUserId());
         assertThat(responseList).isNotNull();
         
         log.info("[RoomX_MemberO_Memory_Read]");
@@ -448,10 +448,10 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_RoomX_MemberO.getMemoryId());
+        DeleteMemoryDto.Response deleteRsp_RoomX_MemberO = memoryService.delete(insertRsp_RoomX_MemberO.getMemoryId());
         
-        assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
+        assertThat(deleteRsp_RoomX_MemberO).isNotNull();
+        assertThat(isNow(deleteRsp_RoomX_MemberO.getDeleteDate())).isTrue();
     }
     
     @Test
@@ -509,7 +509,7 @@ class MemoryServiceTest {
         shareRooms.add(shareRoom2.getRoomId());
         
         /* 0-3. Create request */
-        InsertMemoryDto.Request insertRequest_RoomX_MemberX = new InsertMemoryDto.Request(
+        InsertMemoryDto.Request insertReq_RoomX_MemberX = new InsertMemoryDto.Request(
                 Creator.getId(),
                 null,
                 "Test Memory",
@@ -525,16 +525,16 @@ class MemoryServiceTest {
                 );
         
         /* 1. Make memory */
-        InsertMemoryDto.Response insertResponse_RoomX_MemberX = memoryService.insert(insertRequest_RoomX_MemberX);
-        assertThat(insertResponse_RoomX_MemberX).isNotNull();
-        assertThat(isNow(insertResponse_RoomX_MemberX.getAddDate())).isTrue();
-        assertThat(insertResponse_RoomX_MemberX.getRoomId()).isNull();
+        InsertMemoryDto.Response insertRsp_RoomX_MemberX = memoryService.insert(insertReq_RoomX_MemberX);
+        assertThat(insertRsp_RoomX_MemberX).isNotNull();
+        assertThat(isNow(insertRsp_RoomX_MemberX.getAddDate())).isTrue();
+        assertThat(insertRsp_RoomX_MemberX.getRoomId()).isNull();
         
-        log.info("[RoomX_MemberX] CreateDate: {} memoryId: {}, roomId: {}", insertResponse_RoomX_MemberX.getAddDate(),
-                insertResponse_RoomX_MemberX.getMemoryId(), insertResponse_RoomX_MemberX.getRoomId());
+        log.info("[RoomX_MemberX] CreateDate: {} memoryId: {}, roomId: {}", insertRsp_RoomX_MemberX.getAddDate(),
+                insertRsp_RoomX_MemberX.getMemoryId(), insertRsp_RoomX_MemberX.getRoomId());
         
         /* 2. Find memory */
-        List<Memory> responseList = memoryService.findMemories(insertRequest_RoomX_MemberX.getUserId());
+        List<Memory> responseList = memoryService.findMemories(insertReq_RoomX_MemberX.getUserId());
         assertThat(responseList).isNotNull();
         
         log.info("[RoomX_MemberX_Memory_Read]");
@@ -542,10 +542,10 @@ class MemoryServiceTest {
         log.info("====================================================================================");
         
         /* 3. Delete memory */
-        DeleteMemoryDto.Response deleteMemoryResponseDto = memoryService.deleteMemory(insertResponse_RoomX_MemberX.getMemoryId());
+        DeleteMemoryDto.Response deleteRsp_RoomX_MemberX = memoryService.delete(insertRsp_RoomX_MemberX.getMemoryId());
         
-        assertThat(deleteMemoryResponseDto).isNotNull();
-        assertThat(isNow(deleteMemoryResponseDto.getDeleteDate())).isTrue();
+        assertThat(deleteRsp_RoomX_MemberX).isNotNull();
+        assertThat(isNow(deleteRsp_RoomX_MemberX.getDeleteDate())).isTrue();
     }
     
     boolean isNow(String time) {

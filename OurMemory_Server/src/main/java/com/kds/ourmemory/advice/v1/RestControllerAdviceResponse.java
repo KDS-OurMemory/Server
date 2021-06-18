@@ -1,18 +1,16 @@
 package com.kds.ourmemory.advice.v1;
 
-import static com.kds.ourmemory.controller.v1.ApiResult.error;
-
+import com.kds.ourmemory.controller.v1.ApiResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.kds.ourmemory.controller.v1.ApiResult;
-
-import lombok.extern.slf4j.Slf4j;
+import static com.kds.ourmemory.controller.v1.ApiResult.error;
 
 @Slf4j
 public class RestControllerAdviceResponse {
-    protected ResponseEntity<ApiResult<?>> response(String code, String msg, Exception e) {
+    protected ResponseEntity<ApiResult<String>> response(String code, String msg, Exception e) {
         log.warn("================================================================");
         log.warn("resultCode: {}, msg: {}", code, msg);
         log.warn("Exception: {}", e.toString());
@@ -23,7 +21,7 @@ public class RestControllerAdviceResponse {
         return new ResponseEntity<>(error(code, msg), headers, HttpStatus.OK);
     }
     
-    protected ResponseEntity<ApiResult<?>> response(ResultCode resultCode, Exception e) {
+    protected ResponseEntity<ApiResult<String>> response(ResultCode resultCode, Exception e) {
         log.warn("================================================================");
         log.warn("resultCode: {}, msg: {}", resultCode.getCode(), resultCode.getMsg());
         log.warn("Exception: {}", e.toString());

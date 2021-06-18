@@ -1,7 +1,7 @@
 package com.kds.ourmemory.advice.v1.common;
 
-import static com.kds.ourmemory.advice.v1.common.CommonResultCode.*;
-
+import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
+import com.kds.ourmemory.controller.v1.ApiResult;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
+import static com.kds.ourmemory.advice.v1.common.CommonResultCode.*;
 
 /**
  * Because the communication was successful, the status code value is set to 200.
@@ -27,29 +27,29 @@ public class CommonControllerAdvice extends RestControllerAdviceResponse{
 	
     /* Custom Error */
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-    public ResponseEntity<?> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
+    public ResponseEntity<ApiResult<String>> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
         return response(INCORRECT_RESULT_SIZE, e);
     }
     
     
     /* Http Status Error */
     @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
-	public ResponseEntity<?> handleBadRequestException(Exception e) {
+	public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
 	    return response(BAD_REQUEST, e);
 	}
 	
 	@ExceptionHandler(NoHandlerFoundException.class)
-	public ResponseEntity<?> handleNoHandlerFoundException(NoHandlerFoundException e) {
+	public ResponseEntity<ApiResult<String>> handleNoHandlerFoundException(NoHandlerFoundException e) {
 	    return response(NOT_FOUND, e);
 	}
 	
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-	public ResponseEntity<?> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+	public ResponseEntity<ApiResult<String>> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
 	    return response(UNSUPPORTED_MEDIA_TYPE, e);
 	}
 	
 	@ExceptionHandler({Exception.class, RuntimeException.class})
-	public ResponseEntity<?> handleException(Exception e) {
+	public ResponseEntity<ApiResult<String>> handleException(Exception e) {
 	    return response(INTERNAL_SERVER_ERROR, new Exception("Unexpected exception occurred: " + e.getMessage(), e)); 
 	}
 }

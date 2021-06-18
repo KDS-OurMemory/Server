@@ -5,6 +5,7 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerExceptio
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
+import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.memory.MemoryController;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -26,34 +27,34 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse{
     
     /* Custom Error */
     @ExceptionHandler(MemoryNotFoundWriterException.class)
-    public ResponseEntity<?> handleMemoryNotFoundWriterException(MemoryNotFoundWriterException e) {
+    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundWriterException(MemoryNotFoundWriterException e) {
         return response(NOT_FOUND_WRITER, e);
     }
     
     @ExceptionHandler(MemoryNotFoundRoomException.class)
-    public ResponseEntity<?> handleMemoryNotFoundRoomException(MemoryNotFoundRoomException e) {
+    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundRoomException(MemoryNotFoundRoomException e) {
         return response(NOT_FOUND_ROOM, e);
     }
     
     
     /* HTTP Status Error */
     @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
-    public ResponseEntity<?> handleBadRequestException(Exception e) {
+    public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
         return response(BAD_REQUEST, e);
     }
     
     @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
-    public ResponseEntity<?> handleCustomBadRequestException(Exception e) {
+    public ResponseEntity<ApiResult<String>> handleCustomBadRequestException(Exception e) {
         return response(BAD_REQUEST.getCode(), e.getMessage(), e);
     }
     
     @ExceptionHandler(MemoryNotFoundException.class)
-    public ResponseEntity<?> handleMemoryNotFoundException(MemoryNotFoundException e) {
+    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundException(MemoryNotFoundException e) {
         return response(NOT_FOUND, e);
     }
     
     @ExceptionHandler(MemoryInternalServerException.class)
-    public ResponseEntity<?> handleMemoryInternalServerException(MemoryInternalServerException e) {
+    public ResponseEntity<ApiResult<String>> handleMemoryInternalServerException(MemoryInternalServerException e) {
         return response(INTERNAL_SERVER_ERROR, e);
     }
 }
