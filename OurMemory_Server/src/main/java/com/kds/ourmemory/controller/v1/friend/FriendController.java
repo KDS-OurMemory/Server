@@ -39,10 +39,10 @@ public class FriendController {
         return ok(friendService.acceptFriend(request));
     }
 
-    @ApiOperation(value = "친구 추가", notes = "요청한 사람쪽에서 친구 추가를 진행한다. ")
-    @PostMapping
-    public ApiResult<AddFriendDto.Response> addFriend(@RequestBody AddFriendDto.Request request) {
-        return ok(friendService.addFriend(request));
+    @ApiOperation(value = "친구 재 추가", notes = "친구 요청 후 상대방이 이미 친구인 경우, 내 쪽에서만 친구 추가를 진행한다.")
+    @PostMapping(value = "/reAdd")
+    public ApiResult<ReAddFriendDto.Response> reAddFriend(@RequestBody ReAddFriendDto.Request request) {
+        return ok(friendService.reAddFriend(request));
     }
 
     @ApiOperation(value = "친구 목록 조회", notes = "사용자의 친구 목록을 조회한다.")
@@ -54,10 +54,10 @@ public class FriendController {
                 .collect(Collectors.toList()));
     }
 
-    @ApiOperation(value = "친구 차단", notes = "친구 상태를 차단으로 변경한다.")
-    @PatchMapping
-    public ApiResult<BlockFriendDto.Response> blockFriend(@RequestBody BlockFriendDto.Request request) {
-        return ok(friendService.blockFriend(request));
+    @ApiOperation(value = "친구 상태 변경", notes = "친구 상태를 변경한다. 요청(WAIT)/수락 대기(REQUESTED_BY) 상태로는 변경할 수 없다.")
+    @PatchMapping(value = "/status")
+    public ApiResult<PatchFriendStatusDto.Response> patchFriendStatus(@RequestBody PatchFriendStatusDto.Request request) {
+        return ok(friendService.patchFriendStatus(request));
     }
 
     @ApiOperation(value = "친구 삭제", notes = "친구를 삭제한다. 내 쪽에서만 친구 삭제 처리한다.")

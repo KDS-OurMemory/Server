@@ -149,7 +149,7 @@ public class FriendService {
         return new AcceptFriendDto.Response(BaseTimeEntity.formatNow());
     }
 
-    public AddFriendDto.Response addFriend(AddFriendDto.Request request) {
+    public ReAddFriendDto.Response reAddFriend(ReAddFriendDto.Request request) {
         // Check friend status on friend side
         findFriend(request.getFriendId(), request.getUserId())
                 .map(ff -> {
@@ -172,7 +172,7 @@ public class FriendService {
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.WAIT))
                         .map(f -> {
                             f.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
-                            return new AddFriendDto.Response(BaseTimeEntity.formatNow());
+                            return new ReAddFriendDto.Response(BaseTimeEntity.formatNow());
                         })
                         .orElseThrow(() -> new FriendStatusException(String.format("Friend status must be '%s'. friendStatus: %s",
                                 FriendStatus.WAIT.name(), fa.getStatus().name()))))
@@ -189,14 +189,20 @@ public class FriendService {
                 .orElseGet(ArrayList::new);
     }
 
-    public BlockFriendDto.Response blockFriend(BlockFriendDto.Request request) {
+    public PatchFriendStatusDto.Response patchFriendStatus(PatchFriendStatusDto.Request request) {
         return findFriend(request.getUserId(), request.getFriendId())
-                .map(friend -> {
-                    friend.changeStatus(FriendStatus.BLOCK);
-                    updateFriend(friend);
-
-                    return new BlockFriendDto.Response(BaseTimeEntity.formatNow());
-                })
+                .map(friend ->
+                    Optional.ofNullable(request.getStatus())
+                            .filter(status -> !(status.equals(FriendStatus.WAIT)|| status.equals(FriendStatus.REQUESTED_BY)))
+                            .map(status -> {
+                                friend.changeStatus(status);
+                                updateFriend(friend);
+                                return new PatchFriendStatusDto.Response(BaseTimeEntity.formatNow());
+                            })
+                            .orElseThrow(() -> new FriendStatusException(
+                                    String.format("Friend status cannot be '%s' and '%s'", FriendStatus.WAIT, FriendStatus.REQUESTED_BY))
+                            )
+                )
                 .orElseThrow(() -> new FriendNotFoundFriendException(
                         String.format("Not found Friend matched userId '%d', friendId '%d'", request.getUserId(), request.getFriendId()))
                 );
