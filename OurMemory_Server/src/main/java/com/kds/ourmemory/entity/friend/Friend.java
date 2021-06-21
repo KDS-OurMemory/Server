@@ -42,7 +42,9 @@ public class Friend extends BaseTimeEntity {
 	}
 
 	public Optional<Friend> changeStatus(FriendStatus status) {
-		return Optional.ofNullable(status)
+		checkNotNull(status, "친구 상태값이 없습니다. 상태값을 입력해주시기 바랍니다.");
+
+		return Optional.of(status)
 				.flatMap(s -> {
 					this.status = s;
 					return Optional.of(this);

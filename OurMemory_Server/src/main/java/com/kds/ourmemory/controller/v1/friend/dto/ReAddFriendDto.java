@@ -8,24 +8,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class BlockFriendDto {
+public class ReAddFriendDto {
 
-    @ApiModel(value = "BlockFriend.Request", description = "nested class in BlockFriendDto")
+    @ApiModel(value = "ReAddFriend.Request", description = "nested class in ReAddFriendDto")
     @Getter
     @AllArgsConstructor
     public static class Request {
         @ApiModelProperty(value = "사용자 번호")
         private final Long userId;
 
-        @ApiModelProperty(value = "차단할 친구 번호")
+        @ApiModelProperty(value = "재 추가할 친구 번호")
         private final Long friendId;
     }
 
-    @ApiModel(value = "BlockFriend.Response", description = "nested class in BlockFriendDto")
+    @ApiModel(value = "ReAddFriendDto.Response", description = "nested class in ReAddFriendDto")
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value = "친구 차단 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-06-18 23:18:05")
-        private final String blockDate;
+        @ApiModelProperty(value="친구 재 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-06-21 10:40:05")
+        private final String reAddDate;
     }
 }

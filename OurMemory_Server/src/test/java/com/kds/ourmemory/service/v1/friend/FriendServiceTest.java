@@ -182,7 +182,7 @@ class FriendServiceTest {
         /* 0-2. Create request */
         RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friend.getId());
         AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friend.getId(), user.getId());
-        AddFriendDto.Request addReq = new AddFriendDto.Request(user.getId(), friend.getId());
+        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(user.getId(), friend.getId());
 
         DeleteFriendDto.Request deleteReqFriendFromUser = new DeleteFriendDto.Request(user.getId(), friend.getId());
         DeleteFriendDto.Request deleteReqUserFromFriend = new DeleteFriendDto.Request(friend.getId(), user.getId());
@@ -225,9 +225,9 @@ class FriendServiceTest {
         );
 
         /* 3. Add friend */
-        AddFriendDto.Response addRsp_MySideX_FriendSideO_Block = friendService.addFriend(addReq);
-        assertThat(addRsp_MySideX_FriendSideO_Block).isNotNull();
-        assertThat(isNow(addRsp_MySideX_FriendSideO_Block.getAddDate())).isTrue();
+        ReAddFriendDto.Response reAddRsp_MySideX_FriendSideO_Block = friendService.reAddFriend(addReq);
+        assertThat(reAddRsp_MySideX_FriendSideO_Block).isNotNull();
+        assertThat(isNow(reAddRsp_MySideX_FriendSideO_Block.getReAddDate())).isTrue();
 
         /* 4. Find friends */
         List<Friend> responseList = friendService.findFriends(user.getId());
@@ -303,8 +303,8 @@ class FriendServiceTest {
         /* 0-2. Create request */
         RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friend.getId());
         AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friend.getId(), user.getId());
-        AddFriendDto.Request addReq = new AddFriendDto.Request(user.getId(), friend.getId());
-        BlockFriendDto.Request blockReq = new BlockFriendDto.Request(friend.getId(), user.getId());
+        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(user.getId(), friend.getId());
+        PatchFriendStatusDto.Request blockReq = new PatchFriendStatusDto.Request(friend.getId(), user.getId(), FriendStatus.BLOCK);
         CancelFriendDto.Request cancelReq = new CancelFriendDto.Request(user.getId(), friend.getId());
 
         DeleteFriendDto.Request deleteReqFriendFromUser = new DeleteFriendDto.Request(user.getId(), friend.getId());
@@ -337,9 +337,9 @@ class FriendServiceTest {
         assertThat(beforeFriendSideFriend.getFriend().getId()).isEqualTo(user.getId());
 
         /* 0-6. Block friend from friend side */
-        BlockFriendDto.Response beforeFriendSideBlockRsp = friendService.blockFriend(blockReq);
+        PatchFriendStatusDto.Response beforeFriendSideBlockRsp = friendService.patchFriendStatus(blockReq);
         assertThat(beforeFriendSideBlockRsp).isNotNull();
-        assertThat(isNow(beforeFriendSideBlockRsp.getBlockDate())).isTrue();
+        assertThat(isNow(beforeFriendSideBlockRsp.getPatchDate())).isTrue();
 
 
         /* 1. Request friend */
@@ -354,7 +354,7 @@ class FriendServiceTest {
 
         /* 3. Add friend */
         assertThrows(
-                FriendBlockedException.class, () -> friendService.addFriend(addReq)
+                FriendBlockedException.class, () -> friendService.reAddFriend(addReq)
         );
 
         /* 4. Find friends */
@@ -437,7 +437,7 @@ class FriendServiceTest {
         /* 0-2. Create request */
         RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friend.getId());
         AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friend.getId(), user.getId());
-        AddFriendDto.Request addReq = new AddFriendDto.Request(user.getId(), friend.getId());
+        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(user.getId(), friend.getId());
 
         DeleteFriendDto.Request deleteReqFriendFromUser = new DeleteFriendDto.Request(user.getId(), friend.getId());
         DeleteFriendDto.Request deleteReqUserFromFriend = new DeleteFriendDto.Request(friend.getId(), user.getId());
@@ -479,7 +479,7 @@ class FriendServiceTest {
 
         /* 3. Add friend */
         assertThrows(
-                FriendInternalServerException.class, () -> friendService.addFriend(addReq)
+                FriendInternalServerException.class, () -> friendService.reAddFriend(addReq)
         );
 
         /* 4. Find friend */
@@ -553,8 +553,8 @@ class FriendServiceTest {
         /* 0-2. Create request */
         RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friend.getId());
         AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friend.getId(), user.getId());
-        AddFriendDto.Request addReq = new AddFriendDto.Request(user.getId(), friend.getId());
-        BlockFriendDto.Request blockReq = new BlockFriendDto.Request(user.getId(), friend.getId());
+        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(user.getId(), friend.getId());
+        PatchFriendStatusDto.Request blockReq = new PatchFriendStatusDto.Request(user.getId(), friend.getId(), FriendStatus.BLOCK);
 
         DeleteFriendDto.Request deleteReqFriendFromUser = new DeleteFriendDto.Request(user.getId(), friend.getId());
         DeleteFriendDto.Request deleteReqUserFromFriend = new DeleteFriendDto.Request(friend.getId(), user.getId());
@@ -584,9 +584,9 @@ class FriendServiceTest {
         assertThat(beforeFriendSideFriends.size()).isZero();
 
         /* 0-6. Block friend from my side */
-        BlockFriendDto.Response beforeMySideBlockRsp = friendService.blockFriend(blockReq);
+        PatchFriendStatusDto.Response beforeMySideBlockRsp = friendService.patchFriendStatus(blockReq);
         assertThat(beforeMySideBlockRsp).isNotNull();
-        assertThat(isNow(beforeMySideBlockRsp.getBlockDate())).isTrue();
+        assertThat(isNow(beforeMySideBlockRsp.getPatchDate())).isTrue();
 
 
         /* 1. Request friend */
@@ -601,7 +601,7 @@ class FriendServiceTest {
 
         /* 3. Add friend */
         assertThrows(
-                FriendInternalServerException.class, () -> friendService.addFriend(addReq)
+                FriendInternalServerException.class, () -> friendService.reAddFriend(addReq)
         );
 
         /* 4. Find friend */
