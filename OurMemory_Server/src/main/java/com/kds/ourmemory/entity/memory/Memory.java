@@ -1,7 +1,9 @@
 package com.kds.ourmemory.entity.memory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,9 +39,7 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Memory extends BaseTimeEntity implements Serializable {
-	/**
-     * Default Serial Id
-     */
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -91,7 +91,10 @@ public class Memory extends BaseTimeEntity implements Serializable {
         checkNotNull(name, "일정 제목이 입력되지 않았습니다. 일정 제목을 입력해주세요.");
         
         checkNotNull(startDate, "일정 시작시간이 입력되지 않았습니다. 일정 시작시간을 입력해주세요.");
+        checkArgument(startDate.isAfter(LocalDateTime.now()), "일정 시작시간은 현재시간보다 이전일 수 없습니다.");
+
         checkNotNull(endDate, "일정 종료시간이 입력되지 않았습니다. 일정 종료시간을 입력해주세요.");
+        checkArgument(endDate.isAfter(startDate), "일정 종료시간은 일정 시작시간보다 이전일 수 없습니다.");
         
         checkNotNull(bgColor, "일정 배경색이 지정되지 않았습니다. 배경색을 지정해주세요.");
         
@@ -108,10 +111,9 @@ public class Memory extends BaseTimeEntity implements Serializable {
         this.used = used;
     }
     
-    public Memory addRoom(Room room) {
+    public void addRoom(Room room) {
         this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;
         this.rooms.add(room);
-        return this;
     }
     
     public Optional<Memory> addRooms(List<Room> rooms) {
@@ -120,10 +122,9 @@ public class Memory extends BaseTimeEntity implements Serializable {
         return Optional.of(this);
     }
     
-    public Memory addUser(User user) {
+    public void addUser(User user) {
         this.users = this.users==null? new ArrayList<>() : this.users;
         this.users.add(user);
-        return this;
     }
     
     public Optional<Memory> addUsers(List<User> users) {

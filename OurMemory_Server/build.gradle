@@ -5,15 +5,11 @@ plugins {
 }
 
 bootJar {
-    archiveVersion = '0.0.0'
-    archiveBaseName = 'OurMemory'
     archiveFileName = 'OurMemory.jar'
 }
 
 group = 'com.kds.ourmemory'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '15'
-targetCompatibility = '15'
 
 configurations {
 	compileOnly {
@@ -29,8 +25,7 @@ dependencies {
 	implementation 'com.google.firebase:firebase-admin:7.1.0'
 	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 
-	implementation 'io.springfox:springfox-swagger2:2.9.2'
-	implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 	
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'

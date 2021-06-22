@@ -6,6 +6,7 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.FindMemoryDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
@@ -27,8 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @RequiredArgsConstructor
 @Service
 public class MemoryService {
@@ -48,17 +47,9 @@ public class MemoryService {
     
     @Transactional
     public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
-        checkNotNull(request.getUserId(), "일정 작성자 번호가 입력되지 않았습니다. 일정을 생성하는 사용자의 번호를 입력해주세요.");
-        checkNotNull(request.getName(), "일정 제목이 입력되지 않았습니다. 일정 제목을 입력해주세요.");
-        
-        checkNotNull(request.getStartDate(), "일정 시작시간이 입력되지 않았습니다. 일정 시작시간을 입력해주세요.");
-        checkNotNull(request.getEndDate(), "일정 종료시간이 입력되지 않았습니다. 일정 종료시간을 입력해주세요.");
-        
-        checkNotNull(request.getBgColor(), "일정 배경색이 지정되지 않았습니다. 배경색을 지정해주세요.");
-        
         return findUser(request.getUserId())
                 .map(writer -> {
-                    Memory memory = Memory.builder()
+                    var memory = Memory.builder()
                         .writer(writer)
                         .name(request.getName())
                         .contents(request.getContents())
@@ -137,7 +128,7 @@ public class MemoryService {
      * @param request Request Data
      */
     private Long relationMainRoom(Memory memory, InsertMemoryDto.Request request) {
-        Room mainRoom = findRoom(request.getRoomId())
+        var mainRoom = findRoom(request.getRoomId())
                 // 1. If there is a main room -> Ensure that all participants are included
                 .filter(room -> {
                     List<Long> memoryMembers = memory.getUsers().stream().map(User::getId).collect(Collectors.toList());
@@ -151,14 +142,14 @@ public class MemoryService {
                         .map(members -> {
                             // Create make room protocol
                             List<User> users = memory.getUsers();
-                            String name = StringUtils
+                            var name = StringUtils
                                     .join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
                             Long owner = memory.getWriter().getId();
-                            InsertRoomDto.Request insertRoomRequestDto = new InsertRoomDto.Request(name, owner, false,
+                            var insertRoomRequestDto = new InsertRoomDto.Request(name, owner, false,
                                     request.getMembers());
                             
                             // make room
-                            InsertRoomDto.Response insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
+                            var insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
 
                             // push message
                             return findRoom(insertRoomResponseDto.getRoomId()).map(room -> {
@@ -181,8 +172,14 @@ public class MemoryService {
                     return room.getId();
                 }).orElse(null);
     }
+
+    public FindMemoryDto.Response find(long id) {
+        return findMemory(id)
+                .map(FindMemoryDto.Response::new)
+                .orElseThrow(() -> new MemoryNotFoundException("Not found memory matched to memoryId: " + id));
+    }
     
-    public List<Memory> findMemories(long userId) {
+    public List<Memory> findMemories(Long userId) {
         return findUser(userId)
                 .map(User::getMemories)
                 .orElseThrow(() -> new MemoryNotFoundWriterException("Not found writer from userId: " + userId));
@@ -197,7 +194,7 @@ public class MemoryService {
                     deleteMemory(memory);
                     return new DeleteMemoryDto.Response(BaseTimeEntity.formatNow());
                 })
-                .orElseThrow(() -> new MemoryNotFoundException("Not found memory matched to memoryid: " + id));
+                .orElseThrow(() -> new MemoryNotFoundException("Not found memory matched to memoryId: " + id));
     }
     
     /**
