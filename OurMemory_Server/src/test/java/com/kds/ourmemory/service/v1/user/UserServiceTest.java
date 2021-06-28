@@ -2,6 +2,7 @@ package com.kds.ourmemory.service.v1.user;
 
 import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +48,7 @@ class UserServiceTest {
     @BeforeAll
     void setUp() {
         insertUserRequestDto = new InsertUserDto.Request(1, "TESTS_SNS_ID", "before pushToken", "테스트 유저", "0720", true,
-                false, "Android");
+                false, DeviceOs.ANDROID);
         patchUserTokenRequestDto = new PatchTokenDto.Request("after pushToken");
         putUserRequestDto = new PutUserDto.Request("이름 업데이트!", "0903", true, false);
 
@@ -57,66 +58,64 @@ class UserServiceTest {
     @Test
     @Order(1)
     @Transactional
-    void SignIn() {
-        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
-        assertThat(insRes).isNotNull();
-        assertThat(insRes.getJoinDate()).isNotNull();
-        assertThat(isNow(insRes.getJoinDate())).isTrue();
+    void SignUp() {
+        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
+        assertThat(insRsp).isNotNull();
+        assertThat(insRsp.getJoinDate()).isNotNull();
+        assertThat(isNow(insRsp.getJoinDate())).isTrue();
         
-        log.info("joinDate: {}", insRes.getJoinDate());
+        log.info("joinDate: {}", insRsp.getJoinDate());
     }
 
     @Test
     @Order(2)
     @Transactional
-    void User_Read() {
-        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
-        assertThat(insRes).isNotNull();
-        assertThat(insRes.getJoinDate()).isNotNull();
-        assertThat(isNow(insRes.getJoinDate())).isTrue();
+    void User_SignIn() {
+        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
+        assertThat(insRsp).isNotNull();
+        assertThat(insRsp.getJoinDate()).isNotNull();
+        assertThat(isNow(insRsp.getJoinDate())).isTrue();
         
-        log.info("joinDate: {}", insRes.getJoinDate());
+        log.info("joinDate: {}", insRsp.getJoinDate());
 
-        FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(),
+        SignInUserDto.Response userRsp = userService.signIn(insertUserRequestDto.getSnsType(),
                 insertUserRequestDto.getSnsId());
-        assertThat(userRes).isNotNull();
-        assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(userRes.getBirthday())
-                .isEqualTo(userRes.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        assertThat(userRsp).isNotNull();
+        assertThat(userRsp.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(userRsp.getBirthday())
+                .isEqualTo(userRsp.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
 
-        log.info("userId: {}, userName: {}", userRes.getUserId(), userRes.getName());
+        log.info("userId: {}, userName: {}", userRsp.getUserId(), userRsp.getName());
     }
 
     @Test
     @Order(3)
     @Transactional
     void User_Find() {
-        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
-        assertThat(insRes).isNotNull();
-        assertThat(insRes.getJoinDate()).isNotNull();
-        assertThat(isNow(insRes.getJoinDate())).isTrue();
+        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
+        assertThat(insRsp).isNotNull();
+        assertThat(insRsp.getJoinDate()).isNotNull();
+        assertThat(isNow(insRsp.getJoinDate())).isTrue();
 
-        log.info("joinDate: {}", insRes.getJoinDate());
+        log.info("joinDate: {}", insRsp.getJoinDate());
 
-        List<User> userRes = userService.findUsers(insRes.getUserId(), null);
-        assertThat(userRes).isNotNull();
-        assertThat(userRes.size()).isEqualTo(1);
+        List<User> userRsp = userService.findUsers(insRsp.getUserId(), null);
+        assertThat(userRsp).isNotNull();
+        assertThat(userRsp.size()).isEqualTo(1);
 
-        User foundUser = userRes.get(0);
+        User foundUser = userRsp.get(0);
         assertThat(foundUser.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(foundUser.getBirthday())
-                .isEqualTo(foundUser.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        assertThat(foundUser.getBirthday()).isEqualTo(insertUserRequestDto.getBirthday());
 
         log.info("find users by userId | userId: {}, userName: {}", foundUser.getId(), foundUser.getName());
 
-        userRes = userService.findUsers(null, insertUserRequestDto.getName());
-        assertThat(userRes).isNotNull();
-        assertThat(userRes.size()).isEqualTo(1);
+        userRsp = userService.findUsers(null, insertUserRequestDto.getName());
+        assertThat(userRsp).isNotNull();
+        assertThat(userRsp.size()).isEqualTo(1);
 
-        foundUser = userRes.get(0);
+        foundUser = userRsp.get(0);
         assertThat(foundUser.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(foundUser.getBirthday())
-                .isEqualTo(foundUser.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        assertThat(foundUser.getBirthday()).isEqualTo(insertUserRequestDto.getBirthday());
 
         log.info("find users by userId | userId: {}, userName: {}", foundUser.getId(), foundUser.getName());
     }
@@ -125,66 +124,69 @@ class UserServiceTest {
     @Order(4)
     @Transactional
     void User_Patch_Token() {
-        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
-        assertThat(insRes).isNotNull();
-        assertThat(insRes.getJoinDate()).isNotNull();
-        assertThat(isNow(insRes.getJoinDate())).isTrue();
-        log.info("joinDate: {}", insRes.getJoinDate());
+        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
+        assertThat(insRsp).isNotNull();
+        assertThat(insRsp.getJoinDate()).isNotNull();
+        assertThat(isNow(insRsp.getJoinDate())).isTrue();
+        log.info("joinDate: {}", insRsp.getJoinDate());
 
-        FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(),
+        SignInUserDto.Response userRsp = userService.signIn(insertUserRequestDto.getSnsType(),
                 insertUserRequestDto.getSnsId());
-        assertThat(userRes).isNotNull();
-        assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(userRes.getBirthday())
-                .isEqualTo(userRes.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        assertThat(userRsp).isNotNull();
+        assertThat(userRsp.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(userRsp.getBirthday())
+                .isEqualTo(userRsp.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
 
-        log.info("before Token: {}", userRes.getPushToken());
+        log.info("before Token: {}", userRsp.getPushToken());
 
-        PatchTokenDto.Response patchUserTokenResponseDto = userService.patchToken(userRes.getUserId(),
+        PatchTokenDto.Response patchUserTokenResponseDto = userService.patchToken(userRsp.getUserId(),
                 patchUserTokenRequestDto);
         assertThat(patchUserTokenResponseDto).isNotNull();
         assertThat(isNow(patchUserTokenResponseDto.getPatchDate())).isTrue();
 
-        userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
-        assertThat(userRes).isNotNull();
-        assertThat(userRes.getPushToken()).isEqualTo(patchUserTokenRequestDto.getPushToken());
+        userRsp = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
+        assertThat(userRsp).isNotNull();
+        assertThat(userRsp.getPushToken()).isEqualTo(patchUserTokenRequestDto.getPushToken());
 
-        log.info("after Token: {}", userRes.getPushToken());
+        log.info("after Token: {}", userRsp.getPushToken());
     }
 
     @Test
     @Order(5)
     @Transactional
     void User_Update() {
-        InsertUserDto.Response insRes = userService.signUp(insertUserRequestDto);
-        assertThat(insRes).isNotNull();
-        assertThat(insRes.getJoinDate()).isNotNull();
-        assertThat(isNow(insRes.getJoinDate())).isTrue();
-        log.info("joinDate: {}", insRes.getJoinDate());
+        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
+        assertThat(insRsp).isNotNull();
+        assertThat(insRsp.getJoinDate()).isNotNull();
+        assertThat(isNow(insRsp.getJoinDate())).isTrue();
+        log.info("joinDate: {}", insRsp.getJoinDate());
 
-        FindUserDto.Response userRes = userService.signIn(insertUserRequestDto.getSnsType(),
+        SignInUserDto.Response userRsp = userService.signIn(insertUserRequestDto.getSnsType(),
                 insertUserRequestDto.getSnsId());
-        assertThat(userRes).isNotNull();
-        assertThat(userRes.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(userRes.getBirthday())
-                .isEqualTo(userRes.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        assertThat(userRsp).isNotNull();
+        assertThat(userRsp.getName()).isEqualTo(insertUserRequestDto.getName());
+        assertThat(userRsp.getBirthday())
+                .isEqualTo(userRsp.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        
+        FindUserDto.Response beforeFindUserRsp = userService.find(userRsp.getUserId());
 
-        log.info("before name: {}, birthday: {}, birthdayOpen: {}, push: {}", userRes.getName(), userRes.getBirthday(),
-                userRes.isBirthdayOpen(), userRes.isPush());
+        log.info("before name: {}, birthday: {}, birthdayOpen: {}, push: {}", beforeFindUserRsp.getName(), beforeFindUserRsp.getBirthday(),
+                beforeFindUserRsp.isBirthdayOpen(), beforeFindUserRsp.isPush());
 
-        PutUserDto.Response putUserResponseDto = userService.update(userRes.getUserId(), putUserRequestDto);
+        PutUserDto.Response putUserResponseDto = userService.update(userRsp.getUserId(), putUserRequestDto);
         assertThat(putUserResponseDto).isNotNull();
         assertThat(isNow(putUserResponseDto.getUpdateDate())).isTrue();
 
-        userRes = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
-        assertThat(userRes).isNotNull();
-        assertThat(userRes.getBirthday()).isEqualTo(userRes.isBirthdayOpen() ? putUserRequestDto.getBirthday() : null); // If private, it will be null.
-        assertThat(userRes.getName()).isEqualTo(putUserRequestDto.getName());
-        assertThat(userRes.isBirthdayOpen()).isEqualTo(putUserRequestDto.getBirthdayOpen());
-        assertThat(userRes.isPush()).isEqualTo(putUserRequestDto.getPush());
+        userRsp = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
+        assertThat(userRsp).isNotNull();
+        assertThat(userRsp.getBirthday()).isEqualTo(userRsp.isBirthdayOpen() ? putUserRequestDto.getBirthday() : null); // If private, it will be null.
+        assertThat(userRsp.getName()).isEqualTo(putUserRequestDto.getName());
+        assertThat(userRsp.isBirthdayOpen()).isEqualTo(putUserRequestDto.getBirthdayOpen());
 
-        log.info("after name: {}, birthday: {}, birthdayOpen: {}, push: {}", userRes.getName(), userRes.getBirthday(),
-                userRes.isBirthdayOpen(), userRes.isPush());
+        FindUserDto.Response afterFindUserRsp = userService.find(userRsp.getUserId());
+
+        log.info("after name: {}, birthday: {}, birthdayOpen: {}, push: {}", afterFindUserRsp.getName(), afterFindUserRsp.getBirthday(),
+                afterFindUserRsp.isBirthdayOpen(), afterFindUserRsp.isPush());
     }
     
     boolean isNow(String time) {

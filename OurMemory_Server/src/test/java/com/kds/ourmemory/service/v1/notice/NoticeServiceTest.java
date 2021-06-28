@@ -4,6 +4,7 @@ import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.entity.notice.NoticeType;
+import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class NoticeServiceTest {
+class NoticeServiceTest {
     private final NoticeService noticeService;
 
     private final UserRepository userRepo;  // Add to work with user data
@@ -60,7 +61,7 @@ public class NoticeServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("Android")
+                .deviceOs(DeviceOs.ANDROID)
                 .build());
 
         /* 0-2. Create request */
@@ -87,7 +88,7 @@ public class NoticeServiceTest {
         List<Notice> responseList = noticeService.findNotices(user.getId());
         assertThat(responseList).isNotNull();
         assertThat(responseList.isEmpty()).isFalse();
-        assertThat(responseList.size()==2).isTrue();
+        assertThat(responseList.size()).isEqualTo(2);
 
         for (Notice notice : responseList) {
             assertThat(StringUtils.equals(notice.getValue(), "testValue1")

@@ -5,6 +5,7 @@ import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
+import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,7 @@ class RoomServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("Android")
+                .deviceOs(DeviceOs.ANDROID)
                 .build());
 
         User member1 = userRepo.save(User.builder()
@@ -74,7 +75,7 @@ class RoomServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs(DeviceOs.IOS)
                 .build());
 
         User member2 = userRepo.save(User.builder()
@@ -86,7 +87,7 @@ class RoomServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs(DeviceOs.IOS)
                 .build());
 
         List<Long> member = new ArrayList<>();

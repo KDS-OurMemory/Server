@@ -29,12 +29,18 @@ public class UserController {
 
     @ApiOperation(value = "로그인", notes = "SNS Id, 인증방식(snsType) 으로 사용자 정보 조회 및 리턴")
     @GetMapping(value = "/{snsId}/{snsType}")
-    public ApiResult<FindUserDto.Response> find(@ApiParam(value = "snsType", required = true) @PathVariable int snsType,
-                                                  @ApiParam(value = "snsId", required = true) @PathVariable String snsId) {
+    public ApiResult<SignInUserDto.Response> signIn(@ApiParam(value = "snsType", required = true) @PathVariable int snsType,
+                                                    @ApiParam(value = "snsId", required = true) @PathVariable String snsId) {
         return ok(userService.signIn(snsType, snsId));
     }
 
-    @ApiOperation(value = "사용자 조회", notes = "검색 조건에 해당하는 사용자를 조회한다.")
+    @ApiOperation(value = "내 정보 조회", notes = "내 정보를 모두 보여준다.")
+    @GetMapping(value = "/{userId}")
+    public ApiResult<FindUserDto.Response> find(@ApiParam(value = "userId", required = true) @PathVariable long userId) {
+        return ok(userService.find(userId));
+    }
+
+    @ApiOperation(value = "사용자 검색", notes = "조건에 해당하는 사용자를 검색한다.")
     @GetMapping
     public ApiResult<List<FindUsersDto.Response>> findUsers(@ApiParam(value = "userId") @RequestParam(required = false) Long userId,
                                              @ApiParam(value = "name") @RequestParam(required = false) String name) {

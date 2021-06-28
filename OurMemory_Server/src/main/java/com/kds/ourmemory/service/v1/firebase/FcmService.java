@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
 import com.kds.ourmemory.config.CustomConfig;
-import com.kds.ourmemory.controller.v1.firebase.dto.DeviceOs;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
+import com.kds.ourmemory.entity.user.DeviceOs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
@@ -31,9 +31,9 @@ public class FcmService {
 		try {
 			String message = makeMessage(requestDto);
 			
-			OkHttpClient client = new OkHttpClient();
-			RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
-			Request request = new Request.Builder()
+			var client = new OkHttpClient();
+			var requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
+			var request = new Request.Builder()
 					.url("https://fcm.googleapis.com/v1/projects/our-memory-ed357/messages:send")
 					.post(requestBody)
 					.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
@@ -57,7 +57,7 @@ public class FcmService {
 	}
 
 	private String makeMessage(FcmDto.Request requestDto) throws JsonProcessingException {
-		Object pushData = StringUtils.equals(requestDto.getDeviceOs(), DeviceOs.iOS.getType())?
+		Object pushData = StringUtils.equals(requestDto.getDeviceOs().getType(), DeviceOs.IOS.getType())?
 				new FcmDto.RequestiOS(requestDto)
 				: new FcmDto.RequestAndroid(requestDto);
 
@@ -65,7 +65,7 @@ public class FcmService {
 	}
 	
 	private String getAccessToken() throws IOException {
-		GoogleCredentials googleCredentials = GoogleCredentials
+		var googleCredentials = GoogleCredentials
 				.fromStream(new FileInputStream(customConfig.getFcmKey()))
 				.createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 		

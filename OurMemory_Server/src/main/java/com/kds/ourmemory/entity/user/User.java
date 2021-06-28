@@ -1,36 +1,26 @@
 package com.kds.ourmemory.entity.user;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.room.Room;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.DynamicUpdate;
 
+import javax.persistence.*;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.DynamicUpdate;
-
-import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
-import com.kds.ourmemory.entity.BaseTimeEntity;
-import com.kds.ourmemory.entity.memory.Memory;
-import com.kds.ourmemory.entity.room.Room;
-
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 
 @DynamicUpdate
@@ -39,9 +29,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity implements Serializable {
     
-	/**
-     * Default Serial Id
-     */
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -74,13 +62,15 @@ public class User extends BaseTimeEntity implements Serializable {
 	private boolean birthdayOpen;
 	
 	@Column(name="user_role")
-	private String role;
+    @Enumerated(EnumType.STRING)
+	private UserRole role;
 	
 	@Column(nullable = false, name="user_used_flag")
 	private boolean used;
 	
 	@Column(nullable = false, name="user_device_os")
-	private String deviceOs;
+    @Enumerated(EnumType.STRING)
+	private DeviceOs deviceOs;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="users_rooms",
@@ -96,13 +86,12 @@ public class User extends BaseTimeEntity implements Serializable {
 	
 	@Builder
     public User(Long id, int snsType, String snsId, String pushToken, boolean push, String name, String birthday,
-            boolean solar, boolean birthdayOpen, String role, boolean used, String deviceOs) {
+            boolean solar, boolean birthdayOpen, UserRole role, boolean used, DeviceOs deviceOs) {
 	    checkArgument(1 <= snsType && snsType <= 3, "지원하지 않는 SNS 인증방식입니다. 카카오(1), 구글(2), 네이버(3) 중에 입력해주시기 바랍니다.");
         checkArgument(StringUtils.isNoneBlank(snsId), "SNS ID 는 빈 값이 될 수 없습니다.");
         
-	    checkNotNull(name, "이름이 입력되지 않았습니다. 이름을 입력해주세요.");
-        checkArgument(StringUtils.isNoneBlank(name), "이름은 빈 값이 될 수 없습니다.");
-        
+        checkArgument(StringUtils.isNoneBlank(name), "이름이 입력되지 않았습니다. 이름을 입력해주세요.");
+
         this.id = id;
         this.snsType = snsType;
         this.snsId = snsId;
@@ -111,37 +100,26 @@ public class User extends BaseTimeEntity implements Serializable {
         this.name = name;
         this.birthday = birthday;
         this.solar = solar;
-        this.birthdayOpen = solar;
+        this.birthdayOpen = birthdayOpen;
         this.role = role;
         this.used = used;
         this.deviceOs = deviceOs;
     }
 	
-	public User addRoom(Room room) {
+	public void addRoom(Room room) {
 	    this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;
 	    this.rooms.add(room);
-	    return this;
 	}
 	
-	public Optional<User> addRooms(List<Room> rooms) {
-	    this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;
-	    this.rooms.addAll(rooms);
-	    return Optional.of(this);
-	}
-	
-    public User addMemory(Memory memory) {
+    public void addMemory(Memory memory) {
         this.memories = this.memories == null? new ArrayList<>() : this.memories;
         this.memories.add(memory);
-        return this;
-    }
-    
-    public Optional<User> addMemories(List<Memory> memories) {
-        this.memories = this.memories == null? new ArrayList<>() : this.memories;
-        this.memories.addAll(memories);
-        return Optional.of(this);
     }
     
     public void changePushToken(String pushToken) {
+        checkNotNull(pushToken, "토큰 값이 입력되지 않았습니다. 토큰 값을 입력해주세요.");
+        checkArgument(StringUtils.isNoneBlank(pushToken), "토큰 값은 빈 값이 될 수 없습니다.");
+
         this.pushToken = StringUtils.isNotBlank(pushToken)? pushToken: this.pushToken;
     }
     

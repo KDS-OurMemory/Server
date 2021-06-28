@@ -5,6 +5,7 @@ import com.kds.ourmemory.controller.v1.friend.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
+import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -75,7 +76,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("Android")
+                .deviceOs(DeviceOs.ANDROID)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -87,7 +88,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs(DeviceOs.IOS)
                 .build());
 
         /* 0-2. Create request */
@@ -164,7 +165,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("Android")
+                .deviceOs(DeviceOs.ANDROID)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -176,7 +177,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs(DeviceOs.IOS)
                 .build());
 
         /* 0-2. Create request */
@@ -285,7 +286,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("Android")
+                .deviceOs(DeviceOs.ANDROID)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -297,7 +298,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs(DeviceOs.IOS)
                 .build());
 
         /* 0-2. Create request */
@@ -419,7 +420,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("Android")
+                .deviceOs(DeviceOs.ANDROID)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -431,7 +432,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs(DeviceOs.IOS)
                 .build());
 
         /* 0-2. Create request */
@@ -535,7 +536,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("Android")
+                .deviceOs(DeviceOs.ANDROID)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -547,7 +548,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs(DeviceOs.IOS)
                 .build());
 
         /* 0-2. Create request */
@@ -658,7 +659,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("Android")
+                .deviceOs(DeviceOs.ANDROID)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -670,7 +671,7 @@ class FriendServiceTest {
                 .solar(true)
                 .birthdayOpen(true)
                 .used(true)
-                .deviceOs("iOS")
+                .deviceOs(DeviceOs.IOS)
                 .build());
 
         /* 0-2. Create request */

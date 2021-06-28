@@ -5,6 +5,7 @@ import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.room.RoomService;
@@ -83,7 +84,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("iOS")
+                    .deviceOs(DeviceOs.IOS)
                     .build());
         
         User Member = userRepo.save(
@@ -96,7 +97,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("Android")
+                    .deviceOs(DeviceOs.ANDROID)
                     .build());
         
         User Member_IncludeX = userRepo.save(
@@ -109,7 +110,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("iOS")
+                    .deviceOs(DeviceOs.IOS)
                     .build());
         
         /* 0-2. Make main room, share room */
@@ -181,7 +182,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("iOS")
+                    .deviceOs(DeviceOs.IOS)
                     .build());
         
         User Member = userRepo.save(
@@ -194,7 +195,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("iOS")
+                    .deviceOs(DeviceOs.IOS)
                     .build());
         
         User Member_IncludeX = userRepo.save(
@@ -207,7 +208,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("Android")
+                    .deviceOs(DeviceOs.ANDROID)
                     .build());
         
         /* 0-2. Make main room, share room */
@@ -278,7 +279,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("Android")
+                    .deviceOs(DeviceOs.ANDROID)
                     .build());
         
         User Member = userRepo.save(
@@ -291,7 +292,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("Android")
+                    .deviceOs(DeviceOs.ANDROID)
                     .build());
         
         User Member_IncludeX = userRepo.save(
@@ -304,7 +305,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("iOS")
+                    .deviceOs(DeviceOs.IOS)
                     .build());
         
         /* 0-2. Make main room, share room */
@@ -373,7 +374,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("iOS")
+                    .deviceOs(DeviceOs.IOS)
                     .build());
         
         User Member = userRepo.save(
@@ -386,7 +387,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("iOS")
+                    .deviceOs(DeviceOs.IOS)
                     .build());
         
         User Member_IncludeX = userRepo.save(
@@ -399,7 +400,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("Android")
+                    .deviceOs(DeviceOs.ANDROID)
                     .build());
         
         /* 0-2. Make main room, share room */
@@ -469,7 +470,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("Android")
+                    .deviceOs(DeviceOs.ANDROID)
                     .build());
         
         User Member = userRepo.save(
@@ -482,7 +483,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("Android")
+                    .deviceOs(DeviceOs.ANDROID)
                     .build());
         
         User Member_IncludeX = userRepo.save(
@@ -495,7 +496,7 @@ class MemoryServiceTest {
                     .solar(true)
                     .birthdayOpen(true)
                     .used(true)
-                    .deviceOs("iOS")
+                    .deviceOs(DeviceOs.IOS)
                     .build());
         
         /* 0-2. Make main room, share room */
