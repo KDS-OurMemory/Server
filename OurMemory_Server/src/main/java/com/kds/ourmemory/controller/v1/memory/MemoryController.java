@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +46,6 @@ public class MemoryController {
         return ok(memoryService.findMemories(userId).stream()
                 .filter(Memory::isUsed)
                 .sorted(Comparator.comparing(Memory::getStartDate)) // first order
-                .filter(memory -> memory.getStartDate().isAfter(LocalDateTime.now()))
                 .sorted(Comparator.comparing(Memory::getEndDate))   // second order
                 .map(FindMemoriesDto.Response::new)
                 .collect(Collectors.toList()));
