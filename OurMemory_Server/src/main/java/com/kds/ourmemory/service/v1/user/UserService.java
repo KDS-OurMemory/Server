@@ -11,11 +11,14 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.LongFunction;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepo;
+
+    private static final LongFunction<String> getUserNotFoundMessage = id -> "Not found user matched to userId: " + id;
 
     @Transactional
     public InsertUserDto.Response signUp(InsertUserDto.Request request) {
@@ -34,31 +37,31 @@ public class UserService {
     public FindUserDto.Response find(long userId) {
         return findUser(userId)
                 .map(FindUserDto.Response::new)
-                .orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(getUserNotFoundMessage.apply(userId)));
     }
 
     public List<User> findUsers(Long userId, String name) {
         return findUsersByIdOrName(userId, name)
                 .orElseThrow(() -> new UserNotFoundException(
-                        String.format("Not found user matched id '%d' or name '%s'", userId, name)));
+                        String.format("Not found users matched id '%d' or name '%s'", userId, name)));
     }
 
     public PatchTokenDto.Response patchToken(long userId, PatchTokenDto.Request request) {
-        return findUser(userId).map(user -> {
-            user.changePushToken(request.getPushToken());
-
-            return updateUser(user).map(u -> new PatchTokenDto.Response(u.formatModDate()))
-                    .orElseThrow(() -> new UserInternalServerException("Failed to patch for user token."));
-        }).orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
+        return findUser(userId).map(user ->
+                user.changePushToken(request.getPushToken())
+                        .map(u -> new PatchTokenDto.Response(u.formatModDate()))
+                        .orElseThrow(() -> new UserInternalServerException("Failed to patch for user token."))
+        )
+       .orElseThrow(() -> new UserNotFoundException(getUserNotFoundMessage.apply(userId)));
     }
 
     public PutUserDto.Response update(long userId, PutUserDto.Request request) {
-        return findUser(userId).map(user -> {
-            user.updateUser(request);
-
-            return updateUser(user).map(u -> new PutUserDto.Response(u.formatModDate()))
-                    .orElseThrow(() -> new UserInternalServerException("Failed to update for user data."));
-        }).orElseThrow(() -> new UserNotFoundException("Not found user matched to userId: " + userId));
+        return findUser(userId).map(user ->
+                user.updateUser(request)
+                        .map(u -> new PutUserDto.Response(u.formatModDate()))
+                        .orElseThrow(() -> new UserInternalServerException("Failed to update for user data."))
+        )
+        .orElseThrow(() -> new UserNotFoundException(getUserNotFoundMessage.apply(userId)));
     }
 
     /**
@@ -80,9 +83,5 @@ public class UserService {
         return Optional.ofNullable(userRepo.findAllByIdOrName(userId, name))
                 .filter(users -> users.isPresent() && !users.get().isEmpty())
                 .orElseGet(Optional::empty);
-    }
-
-    private Optional<User> updateUser(User user) {
-        return Optional.of(userRepo.save(user));
     }
 }

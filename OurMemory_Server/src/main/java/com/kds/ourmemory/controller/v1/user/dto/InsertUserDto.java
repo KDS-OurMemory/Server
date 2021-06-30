@@ -2,7 +2,6 @@ package com.kds.ourmemory.controller.v1.user.dto;
 
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
-
 import com.kds.ourmemory.entity.user.UserRole;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -44,7 +43,7 @@ public class InsertUserDto {
         private boolean birthdayOpen;
         
         @ApiModelProperty(value="디바이스 OS", required = true)
-        @Enumerated(value = EnumType.STRING)
+        @Enumerated(EnumType.STRING)
         private DeviceOs deviceOs;
         
         public User toEntity() {

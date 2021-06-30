@@ -7,6 +7,7 @@ import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
+import com.kds.ourmemory.entity.user.UserRole;
 import com.kds.ourmemory.repository.user.UserRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -77,6 +78,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.ANDROID)
+                .role(UserRole.USER)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -89,6 +91,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.IOS)
+                .role(UserRole.USER)
                 .build());
 
         /* 0-2. Create request */
@@ -166,6 +169,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.ANDROID)
+                .role(UserRole.USER)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -178,6 +182,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.IOS)
+                .role(UserRole.USER)
                 .build());
 
         /* 0-2. Create request */
@@ -287,6 +292,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.ANDROID)
+                .role(UserRole.USER)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -299,6 +305,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.IOS)
+                .role(UserRole.USER)
                 .build());
 
         /* 0-2. Create request */
@@ -421,6 +428,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.ANDROID)
+                .role(UserRole.USER)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -433,6 +441,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.IOS)
+                .role(UserRole.USER)
                 .build());
 
         /* 0-2. Create request */
@@ -537,6 +546,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.ANDROID)
+                .role(UserRole.USER)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -549,6 +559,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.IOS)
+                .role(UserRole.USER)
                 .build());
 
         /* 0-2. Create request */
@@ -660,6 +671,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.ANDROID)
+                .role(UserRole.USER)
                 .build());
 
         User friend = userRepo.save(User.builder()
@@ -672,6 +684,7 @@ class FriendServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.IOS)
+                .role(UserRole.USER)
                 .build());
 
         /* 0-2. Create request */

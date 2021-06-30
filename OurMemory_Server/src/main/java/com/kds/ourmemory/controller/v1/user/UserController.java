@@ -49,7 +49,7 @@ public class UserController {
                 .collect(Collectors.toList()));
     }
 
-    @ApiOperation(value = "푸시 토큰 업데이트", notes = "사용자 번호로 사용자를 찾아 푸시토큰 값을 업데이트한다.")
+    @ApiOperation(value = "푸시 토큰 수정", notes = "사용자 번호로 사용자를 찾아 푸시토큰 값을 수정한다.")
     @PatchMapping("/{userId}/token")
     public ApiResult<PatchTokenDto.Response> patchToken(
             @ApiParam(value = "userId", required = true) @PathVariable long userId,
@@ -57,7 +57,7 @@ public class UserController {
         return ok(userService.patchToken(userId, request));
     }
 
-    @ApiOperation(value = "사용자 정보 업데이트", notes = "전달받은 값이 있는 경우 업데이트한다.")
+    @ApiOperation(value = "사용자 정보 수정", notes = "전달받은 값이 있는 경우 수정한다.")
     @PutMapping("/{userId}")
     public ApiResult<PutUserDto.Response> update(@ApiParam(value = "userId", required = true) @PathVariable long userId,
                                                  @RequestBody PutUserDto.Request request) {

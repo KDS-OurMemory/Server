@@ -61,17 +61,17 @@ public class User extends BaseTimeEntity implements Serializable {
 	@Column(nullable = false, name="user_birthday_open_flag")
 	private boolean birthdayOpen;
 	
-	@Column(name="user_role")
+	@Column(nullable = false, name="user_role")
     @Enumerated(EnumType.STRING)
-	private UserRole role;
-	
+    private UserRole role;
+
+    @Column(nullable = false, name="user_device_os")
+    @Enumerated(EnumType.STRING)
+    private DeviceOs deviceOs;
+
 	@Column(nullable = false, name="user_used_flag")
 	private boolean used;
-	
-	@Column(nullable = false, name="user_device_os")
-    @Enumerated(EnumType.STRING)
-	private DeviceOs deviceOs;
-	
+
 	@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="users_rooms",
                 joinColumns = @JoinColumn(name = "user_id"),
@@ -86,11 +86,11 @@ public class User extends BaseTimeEntity implements Serializable {
 	
 	@Builder
     public User(Long id, int snsType, String snsId, String pushToken, boolean push, String name, String birthday,
-            boolean solar, boolean birthdayOpen, UserRole role, boolean used, DeviceOs deviceOs) {
+            boolean solar, boolean birthdayOpen, UserRole role, DeviceOs deviceOs, boolean used) {
 	    checkArgument(1 <= snsType && snsType <= 3, "지원하지 않는 SNS 인증방식입니다. 카카오(1), 구글(2), 네이버(3) 중에 입력해주시기 바랍니다.");
         checkArgument(StringUtils.isNoneBlank(snsId), "SNS ID 는 빈 값이 될 수 없습니다.");
-        
         checkArgument(StringUtils.isNoneBlank(name), "이름이 입력되지 않았습니다. 이름을 입력해주세요.");
+        checkNotNull(deviceOs, "기기 종류는 빈 값이 될 수 없습니다.");
 
         this.id = id;
         this.snsType = snsType;
@@ -102,8 +102,8 @@ public class User extends BaseTimeEntity implements Serializable {
         this.solar = solar;
         this.birthdayOpen = birthdayOpen;
         this.role = role;
-        this.used = used;
         this.deviceOs = deviceOs;
+        this.used = used;
     }
 	
 	public void addRoom(Room room) {
@@ -116,20 +116,26 @@ public class User extends BaseTimeEntity implements Serializable {
         this.memories.add(memory);
     }
     
-    public void changePushToken(String pushToken) {
+    public Optional<User> changePushToken(String pushToken) {
         checkNotNull(pushToken, "토큰 값이 입력되지 않았습니다. 토큰 값을 입력해주세요.");
         checkArgument(StringUtils.isNoneBlank(pushToken), "토큰 값은 빈 값이 될 수 없습니다.");
 
-        this.pushToken = StringUtils.isNotBlank(pushToken)? pushToken: this.pushToken;
+        return Optional.of(pushToken)
+                .map(t -> {
+                    this.pushToken = t;
+                    return this;
+                });
     }
     
-    public void updateUser(PutUserDto.Request request) {
-        Optional.ofNullable(request)
-            .ifPresent(req -> {
+    public Optional<User> updateUser(PutUserDto.Request request) {
+        return Optional.ofNullable(request)
+            .map(req -> {
                 name = Objects.nonNull(request.getName())? request.getName() :  name;
                 birthday = Objects.nonNull(request.getBirthday())? request.getBirthday() : birthday;
                 birthdayOpen = Objects.nonNull(request.getBirthdayOpen())? request.getBirthdayOpen() : birthdayOpen;
                 push = Objects.nonNull(request.getPush())? request.getPush() : push;
+
+                return this;
             });
     }
 }

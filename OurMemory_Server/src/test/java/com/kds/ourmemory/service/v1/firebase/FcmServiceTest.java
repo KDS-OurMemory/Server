@@ -1,7 +1,7 @@
 package com.kds.ourmemory.service.v1.firebase;
 
-import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
+import com.kds.ourmemory.entity.user.DeviceOs;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

@@ -6,6 +6,7 @@ import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
+import com.kds.ourmemory.entity.user.UserRole;
 import com.kds.ourmemory.repository.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -62,7 +63,9 @@ class NoticeServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.ANDROID)
-                .build());
+                .role(UserRole.USER)
+                .build()
+        );
 
         /* 0-2. Create request */
         InsertNoticeDto.Request request1 = new InsertNoticeDto.Request(user.getId(),

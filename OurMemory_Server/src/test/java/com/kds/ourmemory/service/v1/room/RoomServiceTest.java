@@ -7,6 +7,7 @@ import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
+import com.kds.ourmemory.entity.user.UserRole;
 import com.kds.ourmemory.repository.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +55,8 @@ class RoomServiceTest {
     @Transactional
     void Room_Create_Read_Delete() {
         /* 0-1. Create owner, member */
-        User Creator = userRepo.save(User.builder()
+        User Creator = userRepo.save(
+                User.builder()
                 .snsId("Creator_snsId")
                 .snsType(1)
                 .pushToken("Creator Token")
@@ -64,9 +66,12 @@ class RoomServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.ANDROID)
-                .build());
+                .role(UserRole.USER)
+                .build()
+        );
 
-        User member1 = userRepo.save(User.builder()
+        User member1 = userRepo.save(
+                User.builder()
                 .snsId("Member1_snsId")
                 .snsType(2)
                 .pushToken("member1 Token")
@@ -76,9 +81,12 @@ class RoomServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.IOS)
-                .build());
+                .role(UserRole.USER)
+                .build()
+        );
 
-        User member2 = userRepo.save(User.builder()
+        User member2 = userRepo.save(
+                User.builder()
                 .snsId("Member2_snsId")
                 .snsType(2)
                 .pushToken("Member2 Token")
@@ -88,7 +96,9 @@ class RoomServiceTest {
                 .birthdayOpen(true)
                 .used(true)
                 .deviceOs(DeviceOs.IOS)
-                .build());
+                .role(UserRole.USER)
+                .build()
+        );
 
         List<Long> member = new ArrayList<>();
         member.add(member1.getId());

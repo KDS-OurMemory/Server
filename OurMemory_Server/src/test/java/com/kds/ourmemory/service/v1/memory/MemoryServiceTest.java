@@ -7,6 +7,7 @@ import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
+import com.kds.ourmemory.entity.user.UserRole;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import lombok.extern.slf4j.Slf4j;
@@ -76,42 +77,48 @@ class MemoryServiceTest {
         /* 0-1. Create writer, member */
         User Creator = userRepo.save(
                 User.builder()
-                    .snsId("Creator_snsId")
-                    .snsType(1)
-                    .pushToken("Creator Token")
-                    .name("Creator")
-                    .birthday("0724")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.IOS)
-                    .build());
-        
+                        .snsId("Creator_snsId")
+                        .snsType(1)
+                        .pushToken("Creator Token")
+                        .name("Creator")
+                        .birthday("0724")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member = userRepo.save(
                 User.builder()
-                    .snsId("Member_snsId")
-                    .snsType(2)
-                    .pushToken("Member Token")
-                    .name("Member")
-                    .birthday("0519")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.ANDROID)
-                    .build());
-        
+                        .snsId("Member_snsId")
+                        .snsType(2)
+                        .pushToken("Member Token")
+                        .name("Member")
+                        .birthday("0519")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.ANDROID)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member_IncludeX = userRepo.save(
                 User.builder()
-                    .snsId("Member_IncludeX_snsId")
-                    .snsType(2)
-                    .pushToken("Member_IncludeX Token")
-                    .name("Member_IncludeX")
-                    .birthday("0807")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.IOS)
-                    .build());
+                        .snsId("Member_IncludeX_snsId")
+                        .snsType(2)
+                        .pushToken("Member_IncludeX Token")
+                        .name("Member_IncludeX")
+                        .birthday("0807")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
         
         /* 0-2. Make main room, share room */
         List<Long> mainRoom_Member = new ArrayList<>();
@@ -174,42 +181,48 @@ class MemoryServiceTest {
         /* 0-1. Create writer, member */
         User Creator = userRepo.save(
                 User.builder()
-                    .snsId("Creator_snsId")
-                    .snsType(1)
-                    .pushToken("Creator Token")
-                    .name("Creator")
-                    .birthday("0724")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.IOS)
-                    .build());
-        
+                        .snsId("Creator_snsId")
+                        .snsType(1)
+                        .pushToken("Creator Token")
+                        .name("Creator")
+                        .birthday("0724")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member = userRepo.save(
                 User.builder()
-                    .snsId("Member_snsId")
-                    .snsType(2)
-                    .pushToken("Member Token")
-                    .name("Member")
-                    .birthday("0519")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.IOS)
-                    .build());
-        
+                        .snsId("Member_snsId")
+                        .snsType(2)
+                        .pushToken("Member Token")
+                        .name("Member")
+                        .birthday("0519")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member_IncludeX = userRepo.save(
                 User.builder()
-                    .snsId("Member_IncludeX_snsId")
-                    .snsType(2)
-                    .pushToken("Member_IncludeX Token")
-                    .name("Member_IncludeX")
-                    .birthday("0807")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.ANDROID)
-                    .build());
+                        .snsId("Member_IncludeX_snsId")
+                        .snsType(2)
+                        .pushToken("Member_IncludeX Token")
+                        .name("Member_IncludeX")
+                        .birthday("0807")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.ANDROID)
+                        .role(UserRole.USER)
+                        .build()
+        );
         
         /* 0-2. Make main room, share room */
         List<Long> mainRoom_Member = new ArrayList<>();
@@ -271,42 +284,48 @@ class MemoryServiceTest {
         /* 0-1. Create writer, member */
         User Creator = userRepo.save(
                 User.builder()
-                    .snsId("Creator_snsId")
-                    .snsType(1)
-                    .pushToken("Creator Token")
-                    .name("Creator")
-                    .birthday("0724")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.ANDROID)
-                    .build());
-        
+                        .snsId("Creator_snsId")
+                        .snsType(1)
+                        .pushToken("Creator Token")
+                        .name("Creator")
+                        .birthday("0724")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.ANDROID)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member = userRepo.save(
                 User.builder()
-                    .snsId("Member_snsId")
-                    .snsType(2)
-                    .pushToken("Member Token")
-                    .name("Member")
-                    .birthday("0519")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.ANDROID)
-                    .build());
-        
+                        .snsId("Member_snsId")
+                        .snsType(2)
+                        .pushToken("Member Token")
+                        .name("Member")
+                        .birthday("0519")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.ANDROID)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member_IncludeX = userRepo.save(
                 User.builder()
-                    .snsId("Member_IncludeX_snsId")
-                    .snsType(2)
-                    .pushToken("Member_IncludeX Token")
-                    .name("Member_IncludeX")
-                    .birthday("0807")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.IOS)
-                    .build());
+                        .snsId("Member_IncludeX_snsId")
+                        .snsType(2)
+                        .pushToken("Member_IncludeX Token")
+                        .name("Member_IncludeX")
+                        .birthday("0807")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
         
         /* 0-2. Make main room, share room */
         List<Long> mainRoom_Member = new ArrayList<>();
@@ -366,42 +385,48 @@ class MemoryServiceTest {
         /* 0-1. Create writer, member */
         User Creator = userRepo.save(
                 User.builder()
-                    .snsId("Creator_snsId")
-                    .snsType(1)
-                    .pushToken("Creator Token")
-                    .name("Creator")
-                    .birthday("0724")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.IOS)
-                    .build());
-        
+                        .snsId("Creator_snsId")
+                        .snsType(1)
+                        .pushToken("Creator Token")
+                        .name("Creator")
+                        .birthday("0724")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member = userRepo.save(
                 User.builder()
-                    .snsId("Member_snsId")
-                    .snsType(2)
-                    .pushToken("Member Token")
-                    .name("Member")
-                    .birthday("0519")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.IOS)
-                    .build());
-        
+                        .snsId("Member_snsId")
+                        .snsType(2)
+                        .pushToken("Member Token")
+                        .name("Member")
+                        .birthday("0519")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member_IncludeX = userRepo.save(
                 User.builder()
-                    .snsId("Member_IncludeX_snsId")
-                    .snsType(2)
-                    .pushToken("Member_IncludeX Token")
-                    .name("Member_IncludeX")
-                    .birthday("0807")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.ANDROID)
-                    .build());
+                        .snsId("Member_IncludeX_snsId")
+                        .snsType(2)
+                        .pushToken("Member_IncludeX Token")
+                        .name("Member_IncludeX")
+                        .birthday("0807")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.ANDROID)
+                        .role(UserRole.USER)
+                        .build()
+        );
         
         /* 0-2. Make main room, share room */
         List<Long> mainRoom_Member = new ArrayList<>();
@@ -462,42 +487,48 @@ class MemoryServiceTest {
         /* 0-1. Create writer, member */
         User Creator = userRepo.save(
                 User.builder()
-                    .snsId("Creator_snsId")
-                    .snsType(1)
-                    .pushToken("Creator Token")
-                    .name("Creator")
-                    .birthday("0724")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.ANDROID)
-                    .build());
-        
+                        .snsId("Creator_snsId")
+                        .snsType(1)
+                        .pushToken("Creator Token")
+                        .name("Creator")
+                        .birthday("0724")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.ANDROID)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member = userRepo.save(
                 User.builder()
-                    .snsId("Member_snsId")
-                    .snsType(2)
-                    .pushToken("Member Token")
-                    .name("Member")
-                    .birthday("0519")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.ANDROID)
-                    .build());
-        
+                        .snsId("Member_snsId")
+                        .snsType(2)
+                        .pushToken("Member Token")
+                        .name("Member")
+                        .birthday("0519")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.ANDROID)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
         User Member_IncludeX = userRepo.save(
                 User.builder()
-                    .snsId("Member_IncludeX_snsId")
-                    .snsType(2)
-                    .pushToken("Member_IncludeX Token")
-                    .name("Member_IncludeX")
-                    .birthday("0807")
-                    .solar(true)
-                    .birthdayOpen(true)
-                    .used(true)
-                    .deviceOs(DeviceOs.IOS)
-                    .build());
+                        .snsId("Member_IncludeX_snsId")
+                        .snsType(2)
+                        .pushToken("Member_IncludeX Token")
+                        .name("Member_IncludeX")
+                        .birthday("0807")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
         
         /* 0-2. Make main room, share room */
         List<Long> mainRoom_Member = new ArrayList<>();
