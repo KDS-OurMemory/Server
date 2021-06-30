@@ -1,6 +1,7 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
 import com.kds.ourmemory.entity.user.User;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -8,9 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FindUsersDto {
+public class SignInUserDto {
 
-    @ApiModel(value = "FindUsers.Response", description = "nested class in FindUsersDto")
+    @ApiModel(value = "LoginUser.Response", description = "nested class in LoginUserDto")
     @Getter
     public static class Response {
         @ApiModelProperty(value = "사용자 번호", example = "49")
@@ -28,12 +29,16 @@ public class FindUsersDto {
         @ApiModelProperty(value = "생일 공개여부", example = "false")
         private final boolean birthdayOpen;
 
+        @ApiModelProperty(value = "FCM 푸시 토큰")
+        private final String pushToken;
+
         public Response(User user) {
-            this.userId = user.getId();
-            this.name = user.getName();
-            this.birthday = user.isBirthdayOpen()? user.getBirthday() : null;
-            this.solar = user.isSolar();
-            this.birthdayOpen = user.isBirthdayOpen();
+            userId = user.getId();
+            name = user.getName();
+            birthday = user.isBirthdayOpen() ? user.getBirthday() : null;
+            solar = user.isSolar();
+            birthdayOpen = user.isBirthdayOpen();
+            pushToken = user.getPushToken();
         }
     }
 }

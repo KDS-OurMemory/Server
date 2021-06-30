@@ -1,13 +1,17 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
+import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
-
+import com.kds.ourmemory.entity.user.UserRole;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class InsertUserDto {
@@ -39,7 +43,8 @@ public class InsertUserDto {
         private boolean birthdayOpen;
         
         @ApiModelProperty(value="디바이스 OS", required = true)
-        private String deviceOs;
+        @Enumerated(EnumType.STRING)
+        private DeviceOs deviceOs;
         
         public User toEntity() {
             return User.builder()
@@ -52,7 +57,7 @@ public class InsertUserDto {
                     .solar(solar)
                     .birthdayOpen(birthdayOpen)
                     .deviceOs(deviceOs)
-                    .role("user")
+                    .role(UserRole.USER)
                     .used(true)
                     .build();
         }

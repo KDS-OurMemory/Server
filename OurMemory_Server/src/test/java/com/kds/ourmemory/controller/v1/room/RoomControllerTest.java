@@ -3,7 +3,6 @@ package com.kds.ourmemory.controller.v1.room;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kds.ourmemory.controller.v1.ApiResult;
-import com.kds.ourmemory.controller.v1.room.RoomController;
 import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-public class RoomControllerTest {
+class RoomControllerTest {
 
     private final RoomController roomController;
     private final ObjectMapper mapper;

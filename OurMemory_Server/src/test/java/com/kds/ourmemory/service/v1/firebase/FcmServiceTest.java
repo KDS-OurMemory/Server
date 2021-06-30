@@ -1,7 +1,7 @@
 package com.kds.ourmemory.service.v1.firebase;
 
-import com.kds.ourmemory.controller.v1.firebase.dto.DeviceOs;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
+import com.kds.ourmemory.entity.user.DeviceOs;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -25,7 +25,7 @@ class FcmServiceTest {
     void setUp() {
         String token = "deqEWzWZ7Ul9oqQaWfYO6d:APA91bHGA9JLT4aOyn6iHOcY-glkBusIYAIWnv9VDT2nZrtdMlrtXzgQUkLvd_faX0XUk9WCLJ8pgMgVY8nhjWQhviJAm_L4-zqJdZwp4CNmWv0w7BjOrs2nfKSXzQzUHoh88tI1uFfN";
         
-        fcmRequestDto = new FcmDto.Request(token, DeviceOs.iOS.getType(), "테스트 타이틀", "테스트 바디");
+        fcmRequestDto = new FcmDto.Request(token, DeviceOs.IOS, "테스트 타이틀", "테스트 바디");
     }
     
     @Test

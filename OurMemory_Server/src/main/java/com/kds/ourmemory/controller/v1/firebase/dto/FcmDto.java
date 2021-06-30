@@ -1,5 +1,6 @@
 package com.kds.ourmemory.controller.v1.firebase.dto;
 
+import com.kds.ourmemory.entity.user.DeviceOs;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -19,7 +20,7 @@ public class FcmDto {
         private final String token;
 
         @ApiModelProperty(value = "푸시대상 기기 종류", required = true, notes = "iOS | Android")
-        private final String deviceOs;
+        private final DeviceOs deviceOs;
 
         @ApiModelProperty(value = "푸시 메시지 제목", required = true)
         private final String title;
@@ -38,7 +39,7 @@ public class FcmDto {
         private String dataString;
 
         // constructor for required field only
-        public Request(String token, String deviceOs, String title, String body) {
+        public Request(String token, DeviceOs deviceOs, String title, String body) {
             this.token = token;
             this.deviceOs = deviceOs;
             this.title = title;
