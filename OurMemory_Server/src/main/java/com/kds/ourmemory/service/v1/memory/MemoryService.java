@@ -81,36 +81,43 @@ public class MemoryService {
                 .orElseThrow(() -> new MemoryNotFoundWriterException(
                         "Not found writer matched to userId: " + request.getUserId()));
     }
-    
+
     @Transactional
     private void relationMemoryToRoom(Memory memory, List<Long> roomIds) {
         Optional.ofNullable(roomIds)
-        .map(List::stream).ifPresent(stream -> stream.forEach(id -> 
-            findRoom(id)
-            .map(room -> {
-                room.addMemory(memory);
-                memory.addRoom(room);
+                .filter(ids -> !ids.isEmpty())
+                .ifPresent(ids -> ids.forEach(id -> findRoom(id)
+                                .map(room -> {
+                                    room.addMemory(memory);
+                                    memory.addRoom(room);
 
-                room.getUsers()
-                        .forEach(user -> fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
-                                "OurMemory - 일정 공유", String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName()))));
-                return room;
-            })
-            .orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))
-        ));
+                                    room.getUsers().forEach(user -> fcmService.sendMessageTo(
+                                            new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
+                                                    "OurMemory - 일정 공유", String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName())))
+                                    );
+
+                                    return room;
+                                })
+                                .orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))
+                        )
+                );
     }
-    
+
     @Transactional
     private void relationMemoryToMembers(Memory memory, List<Long> members) {
         Optional.ofNullable(members)
-                .ifPresent(mem -> mem.forEach(id -> findUser(id).map(user -> {
-                    user.addMemory(memory);
-                    memory.addUser(user);
+                .filter(m -> !m.isEmpty())
+                .ifPresent(mem -> mem.forEach(id -> findUser(id)
+                        .map(user -> {
+                            user.addMemory(memory);
+                            memory.addUser(user);
 
-                    fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
-                            "OurMemory - 일정 공유", String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
-                    return user;
-                }).orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))));
+                            fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
+                                    "OurMemory - 일정 공유", String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
+                            return user;
+                        })
+                        .orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id)))
+                );
     }
 
     /**
@@ -138,6 +145,7 @@ public class MemoryService {
                 })
                 // 1-2) Participants are not included in the main room OR 2. If there is no main room
                 .orElseGet(() -> Optional.ofNullable(request.getMembers())
+                        .filter(members -> !members.isEmpty())
                         // 1) If there are participants -> Create room and push notification
                         .map(members -> {
                             // Create make room protocol
@@ -163,7 +171,8 @@ public class MemoryService {
                                             memory.getName(), insertRoomResponseDto.getRoomId())));
                         })
                         // If no participants are present
-                        .orElse(null));
+                        .orElse(null)
+                );
 
         return Optional.ofNullable(mainRoom)
                 // If a room exists to associate with the memory
