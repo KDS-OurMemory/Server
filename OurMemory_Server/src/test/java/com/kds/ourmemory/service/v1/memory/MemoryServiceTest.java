@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,12 +77,12 @@ class MemoryServiceTest {
     @Transactional
     void RoomO_MemberO() {
         /* 0-1. Create writer, member */
-        User Creator = userRepo.save(
+        User creator = userRepo.save(
                 User.builder()
-                        .snsId("Creator_snsId")
+                        .snsId("creator_snsId")
                         .snsType(1)
-                        .pushToken("Creator Token")
-                        .name("Creator")
+                        .pushToken("creator Token")
+                        .name("creator")
                         .birthday("0724")
                         .solar(true)
                         .birthdayOpen(true)
@@ -90,12 +92,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member = userRepo.save(
+        User member = userRepo.save(
                 User.builder()
                         .snsId("Member_snsId")
                         .snsType(2)
-                        .pushToken("Member Token")
-                        .name("Member")
+                        .pushToken("member Token")
+                        .name("member")
                         .birthday("0519")
                         .solar(true)
                         .birthdayOpen(true)
@@ -105,12 +107,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("Member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("Member_IncludeX Token")
-                        .name("Member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -121,24 +123,22 @@ class MemoryServiceTest {
         );
         
         /* 0-2. Make main room, share room */
-        List<Long> mainRoom_Member = new ArrayList<>();
-        mainRoom_Member.add(Member.getId());
-        InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", Creator.getId(), false, mainRoom_Member));
-        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", Member.getId(), false, mainRoom_Member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", Member_IncludeX.getId(), false, mainRoom_Member));
+        List<Long> mainRoomMembers = new ArrayList<>();
+        mainRoomMembers.add(member.getId());
+        InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", creator.getId(), false, mainRoomMembers));
+        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoomMembers));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoomMembers));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
         shareRooms.add(shareRoom2.getRoomId());
         
         /* 0-3. Create request */
-        List<Long> member = new ArrayList<>();
-        member.add(Member.getId());
         InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
-                Creator.getId(),
+                creator.getId(),
                 mainRoom.getRoomId(),
                 "Test Memory",
-                member,
+                mainRoomMembers,
                 "Test Contents", 
                 "Test Place", 
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간 
@@ -163,7 +163,7 @@ class MemoryServiceTest {
         List<Memory> responseList = memoryService.findMemories(insertReq.getUserId());
         assertThat(responseList).isNotNull();
         
-        log.info("[RoomO_MemberO_Memory_Read]");
+        log.info("[RoomO_MemberO_Read]");
         responseList.forEach(memory -> log.info(memory.toString()));
         log.info("====================================================================================");
         
@@ -177,14 +177,14 @@ class MemoryServiceTest {
     @Test
     @Order(2)
     @Transactional
-    void RoomO_MemberO_IncludeX_Memory() {
+    void RoomO_MemberO_IncludeX() {
         /* 0-1. Create writer, member */
-        User Creator = userRepo.save(
+        User creator = userRepo.save(
                 User.builder()
-                        .snsId("Creator_snsId")
+                        .snsId("creator_snsId")
                         .snsType(1)
-                        .pushToken("Creator Token")
-                        .name("Creator")
+                        .pushToken("creator Token")
+                        .name("creator")
                         .birthday("0724")
                         .solar(true)
                         .birthdayOpen(true)
@@ -194,12 +194,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member = userRepo.save(
+        User member = userRepo.save(
                 User.builder()
                         .snsId("Member_snsId")
                         .snsType(2)
-                        .pushToken("Member Token")
-                        .name("Member")
+                        .pushToken("member Token")
+                        .name("member")
                         .birthday("0519")
                         .solar(true)
                         .birthdayOpen(true)
@@ -209,12 +209,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("Member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("Member_IncludeX Token")
-                        .name("Member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -225,24 +225,22 @@ class MemoryServiceTest {
         );
         
         /* 0-2. Make main room, share room */
-        List<Long> mainRoom_Member = new ArrayList<>();
-        mainRoom_Member.add(Member.getId());
-        InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", Creator.getId(), false, mainRoom_Member));
-        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", Member.getId(), false, mainRoom_Member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", Member_IncludeX.getId(), false, mainRoom_Member));
+        List<Long> mainRoomMembers = new ArrayList<>();
+        mainRoomMembers.add(member.getId());
+        InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", creator.getId(), false, mainRoomMembers));
+        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoomMembers));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoomMembers));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
         shareRooms.add(shareRoom2.getRoomId());
         
         /* 0-3. Create request */
-        List<Long> member = new ArrayList<>();
-        member.add(Member_IncludeX.getId());
         InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
-                Creator.getId(),
+                creator.getId(),
                 mainRoom.getRoomId(),
                 "Test Memory",
-                member,
+                Stream.of(excludeMember.getId()).collect(Collectors.toList()),
                 "Test Contents", 
                 "Test Place", 
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간 
@@ -266,7 +264,7 @@ class MemoryServiceTest {
         List<Memory> responseList = memoryService.findMemories(insertReq.getUserId());
         assertThat(responseList).isNotNull();
         
-        log.info("[RoomO_MemberO_IncludeX_Memory_Read]");
+        log.info("[RoomO_MemberO_IncludeX_Read]");
         responseList.forEach(memory -> log.info(memory.toString()));
         log.info("====================================================================================");
         
@@ -280,14 +278,14 @@ class MemoryServiceTest {
     @Test
     @Order(3)
     @Transactional
-    void RoomO_MemberX_Memory() {
+    void RoomO_MemberX() {
         /* 0-1. Create writer, member */
-        User Creator = userRepo.save(
+        User creator = userRepo.save(
                 User.builder()
-                        .snsId("Creator_snsId")
+                        .snsId("creator_snsId")
                         .snsType(1)
-                        .pushToken("Creator Token")
-                        .name("Creator")
+                        .pushToken("creator Token")
+                        .name("creator")
                         .birthday("0724")
                         .solar(true)
                         .birthdayOpen(true)
@@ -297,12 +295,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member = userRepo.save(
+        User member = userRepo.save(
                 User.builder()
                         .snsId("Member_snsId")
                         .snsType(2)
-                        .pushToken("Member Token")
-                        .name("Member")
+                        .pushToken("member Token")
+                        .name("member")
                         .birthday("0519")
                         .solar(true)
                         .birthdayOpen(true)
@@ -312,12 +310,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("Member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("Member_IncludeX Token")
-                        .name("Member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -328,11 +326,11 @@ class MemoryServiceTest {
         );
         
         /* 0-2. Make main room, share room */
-        List<Long> mainRoom_Member = new ArrayList<>();
-        mainRoom_Member.add(Member.getId());
-        InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", Creator.getId(), false, mainRoom_Member));
-        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", Member.getId(), false, mainRoom_Member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", Member_IncludeX.getId(), false, mainRoom_Member));
+        List<Long> mainRoomMembers = new ArrayList<>();
+        mainRoomMembers.add(member.getId());
+        InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", creator.getId(), false, mainRoomMembers));
+        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoomMembers));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoomMembers));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
@@ -340,7 +338,7 @@ class MemoryServiceTest {
         
         /* 0-3. Create request */
         InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
-                Creator.getId(),
+                creator.getId(),
                 mainRoom.getRoomId(),
                 "Test Memory",
                 null,
@@ -367,7 +365,7 @@ class MemoryServiceTest {
         List<Memory> responseList = memoryService.findMemories(insertReq.getUserId());
         assertThat(responseList).isNotNull();
         
-        log.info("[RoomO_MemberX_Memory_Read]");
+        log.info("[RoomO_MemberX_Read]");
         responseList.forEach(memory -> log.info(memory.toString()));
         log.info("====================================================================================");
         
@@ -381,14 +379,14 @@ class MemoryServiceTest {
     @Test
     @Order(4)
     @Transactional
-    void RoomX_MemberO_Memory() {
+    void RoomX_MemberO() {
         /* 0-1. Create writer, member */
-        User Creator = userRepo.save(
+        User creator = userRepo.save(
                 User.builder()
-                        .snsId("Creator_snsId")
+                        .snsId("creator_snsId")
                         .snsType(1)
-                        .pushToken("Creator Token")
-                        .name("Creator")
+                        .pushToken("creator Token")
+                        .name("creator")
                         .birthday("0724")
                         .solar(true)
                         .birthdayOpen(true)
@@ -398,12 +396,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member = userRepo.save(
+        User member = userRepo.save(
                 User.builder()
                         .snsId("Member_snsId")
                         .snsType(2)
-                        .pushToken("Member Token")
-                        .name("Member")
+                        .pushToken("member Token")
+                        .name("member")
                         .birthday("0519")
                         .solar(true)
                         .birthdayOpen(true)
@@ -413,12 +411,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("Member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("Member_IncludeX Token")
-                        .name("Member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -429,23 +427,21 @@ class MemoryServiceTest {
         );
         
         /* 0-2. Make main room, share room */
-        List<Long> mainRoom_Member = new ArrayList<>();
-        mainRoom_Member.add(Member.getId());
-        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", Member.getId(), false, mainRoom_Member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", Member_IncludeX.getId(), false, mainRoom_Member));
+        List<Long> mainRoomMembers = new ArrayList<>();
+        mainRoomMembers.add(member.getId());
+        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoomMembers));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoomMembers));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
         shareRooms.add(shareRoom2.getRoomId());
         
         /* 0-3. Create request */
-        List<Long> member = new ArrayList<>();
-        member.add(Member.getId());
         InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
-                Creator.getId(),
+                creator.getId(),
                 null,
                 "Test Memory",
-                member,
+                mainRoomMembers,
                 "Test Contents", 
                 "Test Place", 
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간 
@@ -469,7 +465,7 @@ class MemoryServiceTest {
         List<Memory> responseList = memoryService.findMemories(insertReq.getUserId());
         assertThat(responseList).isNotNull();
         
-        log.info("[RoomX_MemberO_Memory_Read]");
+        log.info("[RoomX_MemberO_Read]");
         responseList.forEach(memory -> log.info(memory.toString()));
         log.info("====================================================================================");
         
@@ -483,14 +479,14 @@ class MemoryServiceTest {
     @Test
     @Order(5)
     @Transactional
-    void RoomX_MemberX_Memory() {
+    void RoomX_MemberX() {
         /* 0-1. Create writer, member */
-        User Creator = userRepo.save(
+        User creator = userRepo.save(
                 User.builder()
-                        .snsId("Creator_snsId")
+                        .snsId("creator_snsId")
                         .snsType(1)
-                        .pushToken("Creator Token")
-                        .name("Creator")
+                        .pushToken("creator Token")
+                        .name("creator")
                         .birthday("0724")
                         .solar(true)
                         .birthdayOpen(true)
@@ -500,12 +496,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member = userRepo.save(
+        User shareRoomOwner = userRepo.save(
                 User.builder()
                         .snsId("Member_snsId")
                         .snsType(2)
-                        .pushToken("Member Token")
-                        .name("Member")
+                        .pushToken("member Token")
+                        .name("member")
                         .birthday("0519")
                         .solar(true)
                         .birthdayOpen(true)
@@ -515,12 +511,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User Member_IncludeX = userRepo.save(
+        User shareRoomMember = userRepo.save(
                 User.builder()
-                        .snsId("Member_IncludeX_snsId")
+                        .snsId("shareRoomMember_snsId")
                         .snsType(2)
-                        .pushToken("Member_IncludeX Token")
-                        .name("Member_IncludeX")
+                        .pushToken("shareRoomMember Token")
+                        .name("shareRoomMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -530,11 +526,12 @@ class MemoryServiceTest {
                         .build()
         );
         
-        /* 0-2. Make main room, share room */
-        List<Long> mainRoom_Member = new ArrayList<>();
-        mainRoom_Member.add(Member.getId());
-        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", Member.getId(), false, mainRoom_Member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", Member_IncludeX.getId(), false, mainRoom_Member));
+        /* 0-2. Make share room */
+        List<Long> shareRoomMembers = new ArrayList<>();
+        shareRoomMembers.add(shareRoomOwner.getId());
+        shareRoomMembers.add(shareRoomMember.getId());
+        InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", shareRoomOwner.getId(), false, shareRoomMembers));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", shareRoomMember.getId(), false, shareRoomMembers));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
@@ -542,10 +539,10 @@ class MemoryServiceTest {
         
         /* 0-3. Create request */
         InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
-                Creator.getId(),
+                creator.getId(),
                 null,
                 "Test Memory",
-                null,
+                new ArrayList<>(),
                 "Test Contents", 
                 "Test Place", 
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간 
@@ -568,8 +565,9 @@ class MemoryServiceTest {
         /* 2. Find memory */
         List<Memory> responseList = memoryService.findMemories(insertReq.getUserId());
         assertThat(responseList).isNotNull();
-        
-        log.info("[RoomX_MemberX_Memory_Read]");
+        assertThat(responseList.size()).isEqualTo(1);
+
+        log.info("[RoomX_MemberX_Read]");
         responseList.forEach(memory -> log.info(memory.toString()));
         log.info("====================================================================================");
         
