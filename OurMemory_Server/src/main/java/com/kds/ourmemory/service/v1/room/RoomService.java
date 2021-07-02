@@ -6,6 +6,7 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.FindRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +43,7 @@ public class RoomService {
         
         return findUser(request.getOwner())
                 .map(owner -> {
-                    Room room = Room.builder()
+                    var room = Room.builder()
                         .owner(owner)
                         .name(request.getName())
                         .opened(request.isOpened())
@@ -81,10 +83,18 @@ public class RoomService {
         
         return room;
     }
-    
-    public List<Room> findRooms(long userId) {
-        return findUser(userId).map(User::getRooms)
-                .orElseThrow(() -> new RoomNotFoundOwnerException("Not Found user matched to userId: " + userId));
+
+    public FindRoomDto.Response find(Long roomId) {
+        return findRoom(roomId)
+                .map(FindRoomDto.Response::new)
+                .orElseThrow(() -> new RoomNotFoundException("Not found room matched to roomid: " + roomId));
+    }
+
+    public List<Room> findRooms(Long userId, String name) {
+        return findUser(userId)
+                .map(user -> findRoomsByOwnerOrName(user, name)
+                        .orElseGet(ArrayList::new))
+                .orElseThrow(() -> new RoomNotFoundOwnerException("Not found owner matched to userId: " + userId));
     }
     
     /**
@@ -120,6 +130,10 @@ public class RoomService {
     
     private Optional<Room> findRoom(Long id) {
         return Optional.ofNullable(id).flatMap(roomRepo::findById);
+    }
+
+    private Optional<List<Room>> findRoomsByOwnerOrName(User user, String name) {
+        return roomRepo.findAllByOwnerOrName(user, name);
     }
     
     private void deleteRoom(Room room) {

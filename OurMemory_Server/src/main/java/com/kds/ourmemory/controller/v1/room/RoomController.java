@@ -2,6 +2,7 @@ package com.kds.ourmemory.controller.v1.room;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.FindRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.room.Room;
@@ -30,11 +31,20 @@ public class RoomController {
         return ok(roomService.insert(request));
     }
 
-    @ApiOperation(value = "방 목록 조회", notes = "사용자가 참여중인 방 목록을 조회한다.")
-    @GetMapping(value = "/{userId}")
+    @ApiOperation(value = "방 개별 조회")
+    @GetMapping(value = "/{roomId}")
+    public ApiResult<FindRoomDto.Response> find(@PathVariable long roomId) {
+        return ok(roomService.find(roomId));
+    }
+
+
+    @ApiOperation(value = "방 목록 조회", notes = "조건에 맞는 방 목록을 조회한다.")
+    @GetMapping
     public ApiResult<List<FindRoomsDto.Response>> findRooms(
-            @ApiParam(value = "userId", required = true) @PathVariable long userId) {
-        return ok(roomService.findRooms(userId).stream()
+            @RequestParam Long userId,
+            @RequestParam String name
+    ) {
+        return ok(roomService.findRooms(userId, name).stream()
                 .filter(Room::isUsed)
                 .map(FindRoomsDto.Response::new)
                 .collect(Collectors.toList()));

@@ -116,9 +116,8 @@ class RoomServiceTest {
 
         /* 2. Find room list */
         List<Room> responseList = userRepo.findById(insertRoomRequest.getOwner())
-                .map(user -> roomService.findRooms(user.getId()))
+                .map(user -> roomService.findRooms(user.getId(), null))
                 .orElseThrow(() -> new RoomInternalServerException("Not Found Room."));
-
         assertThat(responseList).isNotNull();
 
         log.info("[Room_목록_Read]");
