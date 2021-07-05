@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PutUserDto {
 
-    @ApiModel(value = "PutUser.Request", description = "nested class in PutUserDto")
+    @ApiModel(value = "PutUserDto.Request", description = "nested class in PutUserDto")
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
     @Getter
@@ -29,11 +29,11 @@ public class PutUserDto {
         private Boolean push;
     }
 
-    @ApiModel(value = "PutUser.Response", description = "nested class in PutUserDto")
+    @ApiModel(value = "PutUserDto.Response", description = "nested class in PutUserDto")
     @AllArgsConstructor
     @Getter
     public static class Response {
-        @ApiModelProperty(value = "업데이트 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:21:33")
+        @ApiModelProperty(value = "수정 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:21:33")
         private final String updateDate;
     }
 }

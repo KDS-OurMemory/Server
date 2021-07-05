@@ -1,15 +1,11 @@
 package com.kds.ourmemory.controller.v1.room;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
-import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
-import com.kds.ourmemory.controller.v1.room.dto.FindRoomDto;
-import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +33,6 @@ public class RoomController {
         return ok(roomService.find(roomId));
     }
 
-
     @ApiOperation(value = "방 목록 조회", notes = "조건에 맞는 방 목록을 조회한다.")
     @GetMapping
     public ApiResult<List<FindRoomsDto.Response>> findRooms(
@@ -50,10 +45,18 @@ public class RoomController {
                 .collect(Collectors.toList()));
     }
 
-    @ApiOperation(value = "방 삭제", notes = "방 삭제, 사용자-방-일정 연결된 관계 삭제")
+    @ApiOperation(value = "방 정보 수정", notes = "전달받은 값이 있는 경우 수정")
+    @PutMapping("/{roomId}")
+    public ApiResult<UpdateRoomDto.Response> update(
+        @PathVariable long roomId,
+        @RequestParam UpdateRoomDto.Request request
+    ) {
+        return ok(roomService.update(roomId, request));
+    }
+
+    @ApiOperation(value = "방 삭제", notes = "방 삭제 처리")
     @DeleteMapping(value = "/{roomId}")
-    public ApiResult<DeleteRoomDto.Response> delete(
-            @ApiParam(value = "roomId", required = true) @PathVariable long roomId) {
+    public ApiResult<DeleteRoomDto.Response> delete(@PathVariable long roomId) {
         return ok(roomService.delete(roomId));
     }
 }

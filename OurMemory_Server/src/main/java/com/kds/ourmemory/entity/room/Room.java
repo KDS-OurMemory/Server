@@ -1,5 +1,6 @@
 package com.kds.ourmemory.entity.room;
 
+import com.kds.ourmemory.controller.v1.room.dto.UpdateRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
@@ -7,9 +8,11 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -21,9 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Room extends BaseTimeEntity implements Serializable{
 
-	/**
-     * Default Serial Id
-     */
+	@Serial
 	private static final long serialVersionUID = 1L;
 
     @Id
@@ -65,37 +66,27 @@ public class Room extends BaseTimeEntity implements Serializable{
         this.opened = opened;
 	}
 	
-	public Optional<Room> setUsers(List<User> users) {
-	    this.users = users;
-	    return Optional.of(this);
-	}
-	
-	public Room addUser(User user) {
+	public void addUser(User user) {
 	    this.users = this.users==null? new ArrayList<>() : this.users;
 	    this.users.add(user);
-	    return this;
 	}
 	
-	public Optional<Room> addUsers(List<User> users) {
-	    this.users = this.users==null? new ArrayList<>() : this.users;
-	    this.users.addAll(users);
-	    return Optional.of(this);
-    }
-	
-    public Optional<Room> setMemories(List<Memory> memories) {
-        this.memories = memories;
-        return Optional.of(this);
-    }
-
-    public Room addMemory(Memory memory) {
+    public void addMemory(Memory memory) {
         this.memories = this.memories==null? new ArrayList<>() : this.memories;
         this.memories.add(memory);
-        return this;
     }
 
-    public Optional<Room> addMemories(List<Memory> memories) {
-        this.memories = this.memories==null? new ArrayList<>() : this.memories;
-        this.memories.addAll(memories);
-        return Optional.of(this);
-    }
+	public Optional<Room> updateRoom(UpdateRoomDto.Request request) {
+		return Optional.ofNullable(request)
+				.map(req -> {
+					name = Objects.nonNull(req.getName()) ? req.getName() : name;
+					opened = Objects.nonNull(req.getOpened()) ? req.getOpened() : opened;
+					return this;
+				});
+	}
+
+	public Room deleteRoom() {
+		used = false;
+		return this;
+	}
 }

@@ -1,7 +1,7 @@
 package com.kds.ourmemory.controller.v1.room.dto;
 
-import java.util.List;
-
+import com.kds.ourmemory.entity.room.Room;
+import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -9,10 +9,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class InsertRoomDto {
 
-    @ApiModel(value = "InsertRoom.Request", description = "nested class in InsertRoomDto")
+    @ApiModel(value = "InsertRoomDto.Request", description = "nested class in InsertRoomDto")
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,14 +33,65 @@ public class InsertRoomDto {
         private List<Long> member;
     }
 
-    @ApiModel(value = "InsertRoom.Response", description = "nested class in InsertRoomDto")
+    @ApiModel(value = "InsertRoomDto.Response", description = "nested class in InsertRoomDto")
     @Getter
-    @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value = "방 번호", example = "3")
+        @ApiModelProperty(value = "방 번호", example = "5")
         private final long roomId;
-        
-        @ApiModelProperty(value="방 생성한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:33:05")
-        private final String createDate;
+
+        @ApiModelProperty(value = "방 소유자 번호", example = "17")
+        private final long ownerId;
+
+        @ApiModelProperty(value = "방 이름", example = "가족방")
+        private final String name;
+
+        @ApiModelProperty(value = "방 생성일", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:33:05")
+        private final String regDate;
+
+        @ApiModelProperty(value = "방 공개여부", example = "false")
+        private final boolean opened;
+
+        @ApiModelProperty(value = "방 참여자", example = "[{사용자}, {사용자2}]")
+        private final List<Member> members;
+
+        public Response(Room room) {
+            roomId = room.getId();
+            ownerId = room.getOwner().getId();
+            name = room.getName();
+            regDate = room.formatRegDate();
+            opened = room.isOpened();
+            members = room.getUsers().stream().filter(User::isUsed).map(InsertRoomDto.Response.Member::new)
+                    .collect(Collectors.toList());
+        }
+
+        /**
+         * Room Member non static inner class
+         */
+        @ApiModel(value = "InsertRoomDto.Response.Member", description = "inner class in InsertRoomDto.Response")
+        @Getter
+        private class Member {
+            @ApiModelProperty(value = "사용자 번호", example = "49")
+            private final long userId;
+
+            @ApiModelProperty(value = "사용자 이름", example = "김동영")
+            private final String name;
+
+            @ApiModelProperty(value = "사용자 생일", example = "null")
+            private final String birthday;
+
+            @ApiModelProperty(value = "양력 여부", example = "true")
+            private final boolean solar;
+
+            @ApiModelProperty(value = "생일 공개여부", example = "false")
+            private final boolean birthdayOpen;
+
+            protected Member(User user) {
+                userId = user.getId();
+                name = user.getName();
+                birthday = user.isBirthdayOpen() ? user.getBirthday() : null;
+                solar = user.isSolar();
+                birthdayOpen = user.isBirthdayOpen();
+            }
+        }
     }
 }

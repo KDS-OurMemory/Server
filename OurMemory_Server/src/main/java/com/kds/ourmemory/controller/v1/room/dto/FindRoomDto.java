@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FindRoomDto {
     
-    @ApiModel(value = "FindRoom.Response", description = "nested class in FindRoomDto")
+    @ApiModel(value = "FindRoomDto.Response", description = "nested class in FindRoomDto")
     @Getter
     public static class Response {
         @ApiModelProperty(value = "방 번호", example = "5")
