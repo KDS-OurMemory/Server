@@ -36,8 +36,8 @@ public class RoomController {
     @ApiOperation(value = "방 목록 조회", notes = "조건에 맞는 방 목록을 조회한다.")
     @GetMapping
     public ApiResult<List<FindRoomsDto.Response>> findRooms(
-            @RequestParam Long userId,
-            @RequestParam String name
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String name
     ) {
         return ok(roomService.findRooms(userId, name).stream()
                 .filter(Room::isUsed)
