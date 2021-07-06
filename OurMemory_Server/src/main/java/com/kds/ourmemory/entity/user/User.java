@@ -126,16 +126,16 @@ public class User extends BaseTimeEntity implements Serializable {
                     return this;
                 });
     }
-    
+
     public Optional<User> updateUser(PutUserDto.Request request) {
         return Optional.ofNullable(request)
-            .map(req -> {
-                name = Objects.nonNull(request.getName())? request.getName() :  name;
-                birthday = Objects.nonNull(request.getBirthday())? request.getBirthday() : birthday;
-                birthdayOpen = Objects.nonNull(request.getBirthdayOpen())? request.getBirthdayOpen() : birthdayOpen;
-                push = Objects.nonNull(request.getPush())? request.getPush() : push;
+                .map(req -> {
+                    name = Objects.nonNull(req.getName()) ? req.getName() : name;
+                    birthday = Objects.nonNull(req.getBirthday()) ? req.getBirthday() : birthday;
+                    birthdayOpen = Objects.nonNull(req.getBirthdayOpen()) ? req.getBirthdayOpen() : birthdayOpen;
+                    push = Objects.nonNull(req.getPush()) ? req.getPush() : push;
 
-                return this;
-            });
+                    return this;
+                });
     }
 }

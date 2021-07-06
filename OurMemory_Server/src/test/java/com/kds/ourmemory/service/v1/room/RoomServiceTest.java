@@ -1,8 +1,10 @@
 package com.kds.ourmemory.service.v1.room;
 
-import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.FindRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.UpdateRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 @SpringBootTest
@@ -53,14 +56,14 @@ class RoomServiceTest {
     @Test
     @Order(1)
     @Transactional
-    void Room_Create_Read_Delete() {
+    void Create_Read_Update_Delete() {
         /* 0-1. Create owner, member */
-        User Creator = userRepo.save(
+        User owner = userRepo.save(
                 User.builder()
-                .snsId("Creator_snsId")
+                .snsId("owner_snsId")
                 .snsType(1)
-                .pushToken("Creator Token")
-                .name("Creator")
+                .pushToken("owner Token")
+                .name("owner")
                 .birthday("0724")
                 .solar(true)
                 .birthdayOpen(true)
@@ -72,10 +75,10 @@ class RoomServiceTest {
 
         User member1 = userRepo.save(
                 User.builder()
-                .snsId("Member1_snsId")
+                .snsId("member1_snsId")
                 .snsType(2)
                 .pushToken("member1 Token")
-                .name("Member1")
+                .name("member1")
                 .birthday("0519")
                 .solar(true)
                 .birthdayOpen(true)
@@ -87,10 +90,10 @@ class RoomServiceTest {
 
         User member2 = userRepo.save(
                 User.builder()
-                .snsId("Member2_snsId")
+                .snsId("member2_snsId")
                 .snsType(2)
-                .pushToken("Member2 Token")
-                .name("Member2")
+                .pushToken("member2 Token")
+                .name("member2")
                 .birthday("0807")
                 .solar(true)
                 .birthdayOpen(true)
@@ -105,33 +108,53 @@ class RoomServiceTest {
         member.add(member2.getId());
 
         /* 0-2. Create request */
-        InsertRoomDto.Request insertRoomRequest = new InsertRoomDto.Request("TestRoom", Creator.getId(), false, member);
+        InsertRoomDto.Request insertRoomReq = new InsertRoomDto.Request("TestRoom", owner.getId(), false, member);
+        UpdateRoomDto.Request updateRoomReq = new UpdateRoomDto.Request("update room name", true);
 
-        /* 1. Make room */
-        InsertRoomDto.Response insertRoomResponse = roomService.insert(insertRoomRequest);
-        assertThat(insertRoomResponse).isNotNull();
-        assertThat(isNow(insertRoomResponse.getCreateDate())).isTrue();
+        /* 1. Insert */
+        InsertRoomDto.Response insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp).isNotNull();
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(owner.getId());
+        assertThat(insertRoomRsp.getMembers()).isNotNull();
+        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
 
-        log.info("CreateDate: {} roomId: {}", insertRoomResponse.getCreateDate(), insertRoomResponse.getRoomId());
-
-        /* 2. Find room list */
-        List<Room> responseList = userRepo.findById(insertRoomRequest.getOwner())
-                .map(user -> roomService.findRooms(user.getId()))
-                .orElseThrow(() -> new RoomInternalServerException("Not Found Room."));
-
-        assertThat(responseList).isNotNull();
+        /* 2. Find list */
+        List<Room> findRooms = roomService.findRooms(owner.getId(), null);
+        assertThat(findRooms).isNotNull();
 
         log.info("[Room_목록_Read]");
-        responseList.forEach(room -> log.info(room.toString()));
-        log.info("====================================================================================");
+        findRooms.forEach(room -> log.info(room.toString()));
 
-        /* 3. Delete room */
-        DeleteRoomDto.Response deleteRoomResponse = roomService.delete(insertRoomResponse.getRoomId());
+        /* 3. Find before update */
+        FindRoomDto.Response beforeFindRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(beforeFindRoomRsp).isNotNull();
+        assertThat(beforeFindRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
+        assertThat(beforeFindRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
 
-        assertThat(deleteRoomResponse).isNotNull();
-        assertThat(isNow(deleteRoomResponse.getDeleteDate())).isTrue();
+        /* 4. Update */
+        UpdateRoomDto.Response updateRoomRsp = roomService.update(insertRoomRsp.getRoomId(), updateRoomReq);
+        assertThat(updateRoomRsp).isNotNull();
+        assertThat(isNow(updateRoomRsp.getUpdateDate())).isTrue();
 
-        log.info("deleteDate: {}", deleteRoomResponse.getDeleteDate());
+        /* 5. Find after update */
+        FindRoomDto.Response afterFindRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(afterFindRoomRsp).isNotNull();
+        assertThat(afterFindRoomRsp.getName()).isEqualTo(updateRoomReq.getName());
+        assertThat(afterFindRoomRsp.isOpened()).isEqualTo(updateRoomReq.getOpened());
+        
+        /* 6. Delete */
+        DeleteRoomDto.Response deleteRoomRsp = roomService.delete(insertRoomRsp.getRoomId());
+        assertThat(deleteRoomRsp).isNotNull();
+        assertThat(isNow(deleteRoomRsp.getDeleteDate())).isTrue();
+
+        /* 7. Find after delete */
+        Long roomId = insertRoomRsp.getRoomId();
+        assertThat(roomId).isNotNull();
+        assertThrows(
+                RoomNotFoundException.class, () -> roomService.find(roomId)
+        );
+
+        log.info("deleteDate: {}", deleteRoomRsp.getDeleteDate());
     }
     
     boolean isNow(String time) {

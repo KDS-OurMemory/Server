@@ -30,7 +30,7 @@ class RoomControllerTest {
     @Transactional
     @Test
     void findRooms() throws JsonProcessingException {
-        ApiResult<List<FindRoomsDto.Response>> responseDto = roomController.findRooms(99);
+        ApiResult<List<FindRoomsDto.Response>> responseDto = roomController.findRooms(99L, null);
 
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.getResultcode()).isEqualTo("00");

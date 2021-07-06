@@ -41,7 +41,7 @@ public class FindRoomsDto {
         private final List<Memory> memories;
 
         public Response(Room room) {
-            LocalDateTime now = LocalDateTime.now();
+            var now = LocalDateTime.now();
 
             roomId = room.getId();
             ownerId = room.getOwner().getId();
