@@ -108,53 +108,56 @@ class RoomServiceTest {
         member.add(member2.getId());
 
         /* 0-2. Create request */
-        InsertRoomDto.Request insertRoomReq = new InsertRoomDto.Request("TestRoom", owner.getId(), false, member);
-        UpdateRoomDto.Request updateRoomReq = new UpdateRoomDto.Request("update room name", true);
+        InsertRoomDto.Request insertReq = new InsertRoomDto.Request("TestRoom", owner.getId(), false, member);
+        UpdateRoomDto.Request updateReq = new UpdateRoomDto.Request("update room name", true);
 
         /* 1. Insert */
-        InsertRoomDto.Response insertRoomRsp = roomService.insert(insertRoomReq);
-        assertThat(insertRoomRsp).isNotNull();
-        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(owner.getId());
-        assertThat(insertRoomRsp.getMembers()).isNotNull();
-        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
+        InsertRoomDto.Response insertRsp = roomService.insert(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getOwnerId()).isEqualTo(owner.getId());
+        assertThat(insertRsp.getMembers()).isNotNull();
+        assertThat(insertRsp.getMembers().size()).isEqualTo(3);
 
-        /* 2. Find list */
+        /* 2. Find rooms */
         List<Room> findRooms = roomService.findRooms(owner.getId(), null);
         assertThat(findRooms).isNotNull();
 
-        log.info("[Room_목록_Read]");
+        findRooms = roomService.findRooms(null, "TestRoom");
+        assertThat(findRooms).isNotNull();
+
+        log.info("[Create_Read_Update_Delete] Find rooms");
         findRooms.forEach(room -> log.info(room.toString()));
 
         /* 3. Find before update */
-        FindRoomDto.Response beforeFindRoomRsp = roomService.find(insertRoomRsp.getRoomId());
-        assertThat(beforeFindRoomRsp).isNotNull();
-        assertThat(beforeFindRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
-        assertThat(beforeFindRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
+        FindRoomDto.Response beforeFindRsp = roomService.find(insertRsp.getRoomId());
+        assertThat(beforeFindRsp).isNotNull();
+        assertThat(beforeFindRsp.getName()).isEqualTo(insertReq.getName());
+        assertThat(beforeFindRsp.isOpened()).isEqualTo(insertReq.isOpened());
 
         /* 4. Update */
-        UpdateRoomDto.Response updateRoomRsp = roomService.update(insertRoomRsp.getRoomId(), updateRoomReq);
-        assertThat(updateRoomRsp).isNotNull();
-        assertThat(isNow(updateRoomRsp.getUpdateDate())).isTrue();
+        UpdateRoomDto.Response updateRsp = roomService.update(insertRsp.getRoomId(), updateReq);
+        assertThat(updateRsp).isNotNull();
+        assertThat(isNow(updateRsp.getUpdateDate())).isTrue();
 
         /* 5. Find after update */
-        FindRoomDto.Response afterFindRoomRsp = roomService.find(insertRoomRsp.getRoomId());
-        assertThat(afterFindRoomRsp).isNotNull();
-        assertThat(afterFindRoomRsp.getName()).isEqualTo(updateRoomReq.getName());
-        assertThat(afterFindRoomRsp.isOpened()).isEqualTo(updateRoomReq.getOpened());
+        FindRoomDto.Response afterFindRsp = roomService.find(insertRsp.getRoomId());
+        assertThat(afterFindRsp).isNotNull();
+        assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
+        assertThat(afterFindRsp.isOpened()).isEqualTo(updateReq.getOpened());
         
         /* 6. Delete */
-        DeleteRoomDto.Response deleteRoomRsp = roomService.delete(insertRoomRsp.getRoomId());
-        assertThat(deleteRoomRsp).isNotNull();
-        assertThat(isNow(deleteRoomRsp.getDeleteDate())).isTrue();
+        DeleteRoomDto.Response deleteRsp = roomService.delete(insertRsp.getRoomId());
+        assertThat(deleteRsp).isNotNull();
+        assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
         /* 7. Find after delete */
-        Long roomId = insertRoomRsp.getRoomId();
+        Long roomId = insertRsp.getRoomId();
         assertThat(roomId).isNotNull();
         assertThrows(
                 RoomNotFoundException.class, () -> roomService.find(roomId)
         );
 
-        log.info("deleteDate: {}", deleteRoomRsp.getDeleteDate());
+        log.info("deleteDate: {}", deleteRsp.getDeleteDate());
     }
     
     boolean isNow(String time) {

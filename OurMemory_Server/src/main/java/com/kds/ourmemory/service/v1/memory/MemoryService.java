@@ -5,9 +5,7 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
-import com.kds.ourmemory.controller.v1.memory.dto.DeleteMemoryDto;
-import com.kds.ourmemory.controller.v1.memory.dto.FindMemoryDto;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
@@ -23,9 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -44,24 +40,26 @@ public class MemoryService {
 
     // Add to FCM
     private final FcmService fcmService;
+
+    private static final String NOT_FOUND_MESSAGE = "Not found %s matched id: %d";
     
     @Transactional
     public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
         return findUser(request.getUserId())
                 .map(writer -> {
                     var memory = Memory.builder()
-                        .writer(writer)
-                        .name(request.getName())
-                        .contents(request.getContents())
-                        .place(request.getPlace())
-                        .startDate(request.getStartDate())
-                        .endDate(request.getEndDate())
-                        .firstAlarm(request.getFirstAlarm())
-                        .secondAlarm(request.getSecondAlarm())
-                        .bgColor(request.getBgColor())
-                        .used(true)
-                        .build();
-                    
+                            .writer(writer)
+                            .name(request.getName())
+                            .contents(request.getContents())
+                            .place(request.getPlace())
+                            .startDate(request.getStartDate())
+                            .endDate(request.getEndDate())
+                            .firstAlarm(request.getFirstAlarm())
+                            .secondAlarm(request.getSecondAlarm())
+                            .bgColor(request.getBgColor())
+                            .used(true)
+                            .build();
+
                     return insertMemory(memory)
                             .orElseThrow(() -> new MemoryInternalServerException(
                                     String.format("Memory '%s' insert failed.", memory.getName())));
@@ -70,33 +68,45 @@ public class MemoryService {
                     // Relation memory and writer
                     memory.getWriter().addMemory(memory);
                     memory.addUser(memory.getWriter());
-                    
+
                     // Relation memory and members
                     relationMemoryToMembers(memory, request.getMembers());
                     relationMemoryToRoom(memory, request.getShareRooms());
-                    Long roomId = relationMainRoom(memory, request);
-                    
-                    return new InsertMemoryDto.Response(memory.getId(), roomId, memory.formatRegDate());
+                    var roomId = relationMainRoom(memory, request);
+
+                    return new InsertMemoryDto.Response(memory, roomId);
                 })
                 .orElseThrow(() -> new MemoryNotFoundWriterException(
-                        "Not found writer matched to userId: " + request.getUserId()));
+                                String.format(NOT_FOUND_MESSAGE, "writer", request.getUserId())
+                        )
+                );
     }
-    
+
     @Transactional
     private void relationMemoryToRoom(Memory memory, List<Long> roomIds) {
         Optional.ofNullable(roomIds)
-        .map(List::stream).ifPresent(stream -> stream.forEach(id -> 
-            findRoom(id)
-            .map(room -> {
-                room.addMemory(memory);
-                memory.addRoom(room);
+                .map(List::stream).ifPresent(stream -> stream.forEach(id ->
+                findRoom(id)
+                        .map(room -> {
+                            room.addMemory(memory);
+                            memory.addRoom(room);
 
-                room.getUsers()
-                        .forEach(user -> fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
-                                "OurMemory - 일정 공유", String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName()))));
-                return room;
-            })
-            .orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))
+                            room.getUsers().forEach(user -> fcmService.sendMessageTo(
+                                    FcmDto.Request.builder()
+                                            .token(user.getPushToken())
+                                            .deviceOs(user.getDeviceOs())
+                                            .title("OurMemory - 일정 공유")
+                                            .body(String.format("'%s' 일정이 방에 공유되었습니다.", memory.getName()))
+                                            .build()
+
+                                    )
+                            );
+                            return room;
+                        })
+                        .orElseThrow(() -> new MemoryNotFoundRoomException(
+                                        String.format(NOT_FOUND_MESSAGE, "room", id)
+                                )
+                        )
         ));
     }
     
@@ -104,13 +114,18 @@ public class MemoryService {
     private void relationMemoryToMembers(Memory memory, List<Long> members) {
         Optional.ofNullable(members)
                 .ifPresent(mem -> mem.forEach(id -> findUser(id).map(user -> {
-                    user.addMemory(memory);
-                    memory.addUser(user);
+                            user.addMemory(memory);
+                            memory.addUser(user);
 
-                    fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
-                            "OurMemory - 일정 공유", String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
-                    return user;
-                }).orElseThrow(() -> new MemoryNotFoundRoomException("Not found room matched roomId: " + id))));
+                            fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
+                                    "OurMemory - 일정 공유", String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
+                            return user;
+                        })
+                        .orElseThrow(() -> new MemoryNotFoundRoomException(
+                                String.format(NOT_FOUND_MESSAGE, "room", id))
+                        )
+                )
+        );
     }
 
     /**
@@ -147,20 +162,28 @@ public class MemoryService {
                             Long owner = memory.getWriter().getId();
                             var insertRoomRequestDto = new InsertRoomDto.Request(name, owner, false,
                                     request.getMembers());
-                            
+
                             // make room
                             var insertRoomResponseDto = roomService.insert(insertRoomRequestDto);
 
                             // push message
                             return findRoom(insertRoomResponseDto.getRoomId()).map(room -> {
                                 room.getUsers().forEach(
-                                        user -> fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
-                                                "OurMemory - 방 생성", String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.",
-                                                        memory.getName(), room.getName()))));
+                                        user -> fcmService.sendMessageTo(
+                                                FcmDto.Request.builder()
+                                                        .token(user.getPushToken())
+                                                        .deviceOs(user.getDeviceOs())
+                                                        .title("OurMemory - 방 생성")
+                                                        .body(String.format("일정 '%s' 을 공유하기 위한 방 '%s' 가 생성되었습니다.",
+                                                                memory.getName(), room.getName()))
+                                                        .build())
+                                );
+
                                 return room;
                             }).orElseThrow(() -> new MemoryNotFoundRoomException(
-                                    String.format("Unable to find a room to include the memory '%s'. roomId: %d",
-                                            memory.getName(), insertRoomResponseDto.getRoomId())));
+                                            String.format(NOT_FOUND_MESSAGE, "room", insertRoomResponseDto.getRoomId())
+                                    )
+                            );
                         })
                         // If no participants are present
                         .orElse(null));
@@ -175,26 +198,47 @@ public class MemoryService {
 
     public FindMemoryDto.Response find(long id) {
         return findMemory(id)
+                .filter(Memory::isUsed)
                 .map(FindMemoryDto.Response::new)
-                .orElseThrow(() -> new MemoryNotFoundException("Not found memory matched to memoryId: " + id));
+                .orElseThrow(() -> new MemoryNotFoundException(
+                                String.format(NOT_FOUND_MESSAGE, "memory", id)
+                        )
+                );
+    }
+
+    public List<FindMemoriesDto.Response> findMemories(Long userId, String name) {
+        List<Memory> findMemories = new ArrayList<>();
+
+        findUser(userId).ifPresent(user -> findMemories.addAll(user.getMemories()));
+        findMemoriesByName(name).ifPresent(findMemories::addAll);
+
+        return findMemories.stream()
+                .filter(Memory::isUsed)
+                .sorted(Comparator.comparing(Memory::getStartDate)) // first order
+                .sorted(Comparator.comparing(Memory::getEndDate))   // second order
+                .map(FindMemoriesDto.Response::new)
+                .collect(Collectors.toList());
+    }
+
+    public UpdateMemoryDto.Response update(long memoryId, UpdateMemoryDto.Request request) {
+        return findMemory(memoryId).map(memory ->
+                memory.updateMemory(request)
+                .map(r -> new UpdateMemoryDto.Response(r.formatModDate()))
+                .orElseThrow(() -> new MemoryInternalServerException("Failed to update for memory data"))
+        )
+        .orElseThrow(
+                () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, "memory", memoryId))
+        );
     }
     
-    public List<Memory> findMemories(Long userId) {
-        return findUser(userId)
-                .map(User::getMemories)
-                .orElseThrow(() -> new MemoryNotFoundWriterException("Not found writer from userId: " + userId));
-    }
-    
-    @Transactional
     public DeleteMemoryDto.Response delete(long id) {
         return findMemory(id)
-                .map(memory -> {
-                    memory.getRooms().forEach(room -> room.getMemories().remove(memory));
-                    memory.getUsers().forEach(user -> user.getMemories().remove(memory));
-                    deleteMemory(memory);
-                    return new DeleteMemoryDto.Response(BaseTimeEntity.formatNow());
-                })
-                .orElseThrow(() -> new MemoryNotFoundException("Not found memory matched to memoryId: " + id));
+                .map(Memory::deleteMemory)
+                .map(memory -> new DeleteMemoryDto.Response(BaseTimeEntity.formatNow()))
+                .orElseThrow(() -> new MemoryNotFoundException(
+                                String.format(NOT_FOUND_MESSAGE, "memory", id)
+                        )
+                );
     }
     
     /**
@@ -207,11 +251,11 @@ public class MemoryService {
     private Optional<Memory> findMemory(Long id) {
         return Optional.ofNullable(id).flatMap(memoryRepo::findById);
     }
-    
-    private void deleteMemory(Memory memory) {
-        Optional.ofNullable(memory).ifPresent(memoryRepo::delete);
+
+    private Optional<List<Memory>> findMemoriesByName(String name) {
+        return memoryRepo.findAllByName(name);
     }
-    
+
     /**
      * User Repository
      * 

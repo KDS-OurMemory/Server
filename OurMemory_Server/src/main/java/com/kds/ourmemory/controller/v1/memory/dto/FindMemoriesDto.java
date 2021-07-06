@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,8 +17,9 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FindMemoriesDto {
 
-    @ApiModel(value = "FindMemories.Response", description = "nested class in FindMemoriesDto")
+    @ApiModel(value = "FindMemoriesResponse", description = "nested class in FindMemoriesDto")
     @Getter
+    @ToString
     public static class Response {
         @ApiModelProperty(value = "일정 번호", example = "5")
         private final Long memoryId;
@@ -75,7 +77,6 @@ public class FindMemoriesDto {
             secondAlarm = memory.getSecondAlarm();
             regDate = memory.formatRegDate();
             modDate = memory.formatModDate();
-            
             members = memory.getUsers().stream().filter(User::isUsed).map(Member::new)
                     .collect(Collectors.toList());
         }
@@ -83,7 +84,7 @@ public class FindMemoriesDto {
         /**
          * Memory member non static inner class
          */
-        @ApiModel(value = "FindMemories.Response.Member", description = "inner class in FindMemoriesDto.Response")
+        @ApiModel(value = "FindMemoriesResponse.Member", description = "inner class in FindMemoriesDto.Response")
         @Getter
         private class Member {
             @ApiModelProperty(value = "사용자 번호", example = "49")
