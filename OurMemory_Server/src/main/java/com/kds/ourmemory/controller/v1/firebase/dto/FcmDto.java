@@ -3,10 +3,7 @@ package com.kds.ourmemory.controller.v1.firebase.dto;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FcmDto {
@@ -39,6 +36,7 @@ public class FcmDto {
         private String dataString;
 
         // constructor for required field only
+        @Builder
         public Request(String token, DeviceOs deviceOs, String title, String body) {
             this.token = token;
             this.deviceOs = deviceOs;

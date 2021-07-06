@@ -40,7 +40,6 @@ public class RoomController {
             @RequestParam(required = false) String name
     ) {
         return ok(roomService.findRooms(userId, name).stream()
-                .filter(Room::isUsed)
                 .map(FindRoomsDto.Response::new)
                 .collect(Collectors.toList()));
     }

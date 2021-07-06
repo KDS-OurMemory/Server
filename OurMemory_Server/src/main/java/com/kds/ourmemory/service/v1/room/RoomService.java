@@ -123,7 +123,7 @@ public class RoomService {
     public DeleteRoomDto.Response delete(long id) {
         return findRoom(id)
                 .map(Room::deleteRoom)
-                .map(r -> new DeleteRoomDto.Response(BaseTimeEntity.formatNow()))
+                .map(room -> new DeleteRoomDto.Response(BaseTimeEntity.formatNow()))
                 .orElseThrow(() -> new RoomNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, "room", id)
                         )

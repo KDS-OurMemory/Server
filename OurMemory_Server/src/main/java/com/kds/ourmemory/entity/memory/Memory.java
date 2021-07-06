@@ -1,37 +1,24 @@
 package com.kds.ourmemory.entity.memory;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
+import com.kds.ourmemory.controller.v1.memory.dto.UpdateMemoryDto;
+import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.room.Room;
+import com.kds.ourmemory.entity.user.User;
+import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
+import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-
-import org.hibernate.annotations.DynamicUpdate;
-
-import com.kds.ourmemory.entity.BaseTimeEntity;
-import com.kds.ourmemory.entity.room.Room;
-import com.kds.ourmemory.entity.user.User;
-
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @ToString(exclude = {"rooms", "users"})
 @DynamicUpdate
@@ -39,8 +26,9 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Memory extends BaseTimeEntity implements Serializable {
+
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -115,21 +103,33 @@ public class Memory extends BaseTimeEntity implements Serializable {
         this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;
         this.rooms.add(room);
     }
-    
-    public Optional<Memory> addRooms(List<Room> rooms) {
-        this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;
-        this.rooms.addAll(rooms);
-        return Optional.of(this);
-    }
-    
+
     public void addUser(User user) {
         this.users = this.users==null? new ArrayList<>() : this.users;
         this.users.add(user);
     }
-    
-    public Optional<Memory> addUsers(List<User> users) {
-        this.users = this.users==null? new ArrayList<>() : this.users;
-        this.users.addAll(users);
-        return Optional.of(this);
+
+    public Optional<Memory> updateMemory(UpdateMemoryDto.Request request) {
+        return Optional.ofNullable(request)
+                .map(req -> {
+                    updateColumn.accept(name, req.getName());
+                    updateColumn.accept(users, req.getMembers());
+                    updateColumn.accept(contents, req.getContents());
+                    updateColumn.accept(place, req.getPlace());
+                    updateColumn.accept(startDate, req.getStartDate());
+                    updateColumn.accept(endDate, req.getEndDate());
+                    updateColumn.accept(firstAlarm, req.getFirstAlarm());
+                    updateColumn.accept(secondAlarm, req.getSecondAlarm());
+                    updateColumn.accept(bgColor, req.getBgColor());
+
+                    return this;
+                });
     }
+
+    public Memory deleteMemory() {
+	    this.used = false;
+	    return this;
+    }
+
+    private static final BiConsumer<Object, Object> updateColumn = (col, value) -> col = Objects.nonNull(value) ? value : col;
 }

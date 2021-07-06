@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FindMemoryDto {
 
-    @ApiModel(value = "FindMemory.Response", description = "nested class in FindMemoryDto")
+    @ApiModel(value = "FindMemoryDto.Response", description = "nested class in FindMemoryDto")
     @Getter
     public static class Response {
         @ApiModelProperty(value = "일정 번호", example = "5")
@@ -75,7 +75,6 @@ public class FindMemoryDto {
             secondAlarm = memory.getSecondAlarm();
             regDate = memory.formatRegDate();
             modDate = memory.formatModDate();
-
             members = memory.getUsers().stream().filter(User::isUsed).map(FindMemoryDto.Response.Member::new)
                     .collect(Collectors.toList());
         }
@@ -83,7 +82,7 @@ public class FindMemoryDto {
         /**
          * Memory member non static inner class
          */
-        @ApiModel(value = "FindMemory.Response.Member", description = "inner class in FindMemory.Response")
+        @ApiModel(value = "FindMemoryDto.Response.Member", description = "inner class in FindMemory.Response")
         @Getter
         private class Member {
             @ApiModelProperty(value = "사용자 번호", example = "49")
