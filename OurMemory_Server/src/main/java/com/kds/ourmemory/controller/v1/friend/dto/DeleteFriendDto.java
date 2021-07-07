@@ -10,17 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeleteFriendDto {
 
-    @ApiModel(value = "DeleteFriend.Request", description = "nested class in DeleteFriendDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Request {
-        @ApiModelProperty(value = "사용자 번호")
-        private final Long userId;
-
-        @ApiModelProperty(value = "삭제할 친구 번호")
-        private final Long friendId;
-    }
-
     @ApiModel(value = "DeleteFriend.Response", description = "nested class in DeleteFriendDto")
     @Getter
     @AllArgsConstructor

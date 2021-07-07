@@ -2,7 +2,6 @@ package com.kds.ourmemory.repository.friend;
 
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendId;
-import com.kds.ourmemory.entity.friend.FriendStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.transaction.Transactional;
@@ -12,5 +11,5 @@ import java.util.Optional;
 @Transactional
 public interface FriendRepository extends JpaRepository<Friend, FriendId> {
     Optional<List<Friend>> findByUserId(Long userId);
-    Optional<Friend> findByUserIdAndFriendId(Long userId, Long friendId);
+    Optional<Friend> findByUserIdAndFriendUserId(Long userId, Long friendId);
 }

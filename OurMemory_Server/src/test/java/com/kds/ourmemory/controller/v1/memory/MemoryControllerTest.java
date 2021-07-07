@@ -29,7 +29,7 @@ class MemoryControllerTest {
     @Transactional
     @Test
     void findMemories() throws JsonProcessingException{
-        ApiResult<List<FindMemoriesDto.Response>> responseDto = memoryController.findMemories(99L);
+        ApiResult<List<FindMemoriesDto.Response>> responseDto = memoryController.findMemories(99L, null);
         
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.getResultcode()).isEqualTo("00");

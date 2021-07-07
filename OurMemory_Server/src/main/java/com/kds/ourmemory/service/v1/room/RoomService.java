@@ -22,7 +22,8 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Service
@@ -98,15 +99,16 @@ public class RoomService {
     }
 
     public List<Room> findRooms(Long userId, String name) {
-        return findUser(userId).map(
-                user -> findRoomsByOwnerOrName(user, name)
-                        .map(List::stream)
-                        .map(stream -> stream.filter(Room::isUsed).collect(Collectors.toList()))
-                        .orElseGet(ArrayList::new)
-        )
-        .orElseThrow(
-                () -> new RoomNotFoundOwnerException(String.format(NOT_FOUND_MESSAGE, "owner", userId))
+        List<Room> findRooms = new ArrayList<>();
+
+        findUser(userId).ifPresent(
+                user -> findRooms.addAll(user.getRooms().stream().filter(Room::isUsed).collect(toList()))
         );
+        findRoomsByName(name).ifPresent(
+                rooms -> findRooms.addAll(rooms.stream().filter(Room::isUsed).collect(toList()))
+        );
+
+        return findRooms;
     }
 
     public UpdateRoomDto.Response update(long roomId, UpdateRoomDto.Request request) {
@@ -123,7 +125,11 @@ public class RoomService {
     public DeleteRoomDto.Response delete(long id) {
         return findRoom(id)
                 .map(Room::deleteRoom)
-                .map(r -> new DeleteRoomDto.Response(BaseTimeEntity.formatNow()))
+                .map(room -> {
+                    room.getMemories().forEach(room::deleteMemory);
+                    return room;
+                })
+                .map(room -> new DeleteRoomDto.Response(BaseTimeEntity.formatNow()))
                 .orElseThrow(() -> new RoomNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, "room", id)
                         )
@@ -141,8 +147,8 @@ public class RoomService {
         return Optional.ofNullable(id).flatMap(roomRepo::findById);
     }
 
-    private Optional<List<Room>> findRoomsByOwnerOrName(User user, String name) {
-        return roomRepo.findAllByOwnerOrName(user, name);
+    private Optional<List<Room>> findRoomsByName(String name) {
+        return roomRepo.findAllByName(name);
     }
 
     /**

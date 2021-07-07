@@ -61,8 +61,11 @@ public class FriendController {
     }
 
     @ApiOperation(value = "친구 삭제", notes = "친구를 삭제한다. 내 쪽에서만 친구 삭제 처리한다.")
-    @DeleteMapping
-    public ApiResult<DeleteFriendDto.Response> deleteFriend(@RequestBody DeleteFriendDto.Request request) {
-        return ok(friendService.deleteFriend(request));
+    @DeleteMapping(value = "/{userId}/{friendId}")
+    public ApiResult<DeleteFriendDto.Response> deleteFriend(
+            @PathVariable long userId,
+            @PathVariable long friendId
+    ) {
+        return ok(friendService.deleteFriend(userId, friendId));
     }
 }

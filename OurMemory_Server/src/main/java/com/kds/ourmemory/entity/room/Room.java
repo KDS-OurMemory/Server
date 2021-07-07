@@ -25,7 +25,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class Room extends BaseTimeEntity implements Serializable{
 
 	@Serial
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -81,12 +81,18 @@ public class Room extends BaseTimeEntity implements Serializable{
 				.map(req -> {
 					name = Objects.nonNull(req.getName()) ? req.getName() : name;
 					opened = Objects.nonNull(req.getOpened()) ? req.getOpened() : opened;
+
 					return this;
 				});
 	}
 
 	public Room deleteRoom() {
 		used = false;
+		return this;
+	}
+
+	public Room deleteMemory(Memory memory) {
+		memories.stream().filter(m -> m.equals(memory)).forEach(Memory::deleteMemory);
 		return this;
 	}
 }

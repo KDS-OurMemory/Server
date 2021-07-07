@@ -2,7 +2,6 @@ package com.kds.ourmemory.controller.v1.friend.dto;
 
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
-import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -25,8 +24,8 @@ public class FindFriendsDto {
         private final FriendStatus status;
 
         public Response(Friend friend) {
-            friendId = friend.getFriend().getId();
-            name = friend.getFriend().getName();
+            friendId = friend.getFriendUser().getId();
+            name = friend.getFriendUser().getName();
             this.status = friend.getStatus();
         }
     }
