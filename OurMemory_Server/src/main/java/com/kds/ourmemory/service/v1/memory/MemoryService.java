@@ -22,7 +22,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Service
@@ -146,9 +147,9 @@ public class MemoryService {
         var mainRoom = findRoom(request.getRoomId())
                 // 1. If there is a main room -> Ensure that all participants are included
                 .filter(room -> {
-                    List<Long> memoryMembers = memory.getUsers().stream().map(User::getId).collect(Collectors.toList());
+                    List<Long> memoryMembers = memory.getUsers().stream().map(User::getId).collect(toList());
 
-                    return room.getUsers().stream().map(User::getId).collect(Collectors.toList())
+                    return room.getUsers().stream().map(User::getId).collect(toList())
                             .containsAll(memoryMembers);
                 })
                 // 1-2) Participants are not included in the main room OR 2. If there is no main room
@@ -158,7 +159,7 @@ public class MemoryService {
                             // Create make room protocol
                             List<User> users = memory.getUsers();
                             var name = StringUtils
-                                    .join(users.stream().map(User::getName).collect(Collectors.toList()), ", ");
+                                    .join(users.stream().map(User::getName).collect(toList()), ", ");
                             Long owner = memory.getWriter().getId();
                             var insertRoomRequestDto = new InsertRoomDto.Request(name, owner, false,
                                     request.getMembers());
@@ -209,7 +210,9 @@ public class MemoryService {
     public List<FindMemoriesDto.Response> findMemories(Long userId, String name) {
         List<Memory> findMemories = new ArrayList<>();
 
-        findUser(userId).ifPresent(user -> findMemories.addAll(user.getMemories()));
+        findUser(userId).ifPresent(user -> findMemories.addAll(
+                user.getMemories().stream().filter(Memory::isUsed).collect(toList()))
+        );
         findMemoriesByName(name).ifPresent(findMemories::addAll);
 
         return findMemories.stream()
@@ -217,7 +220,7 @@ public class MemoryService {
                 .sorted(Comparator.comparing(Memory::getStartDate)) // first order
                 .sorted(Comparator.comparing(Memory::getEndDate))   // second order
                 .map(FindMemoriesDto.Response::new)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public UpdateMemoryDto.Response update(long memoryId, UpdateMemoryDto.Request request) {
@@ -230,14 +233,13 @@ public class MemoryService {
                 () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, "memory", memoryId))
         );
     }
-    
+
     public DeleteMemoryDto.Response delete(long id) {
         return findMemory(id)
                 .map(Memory::deleteMemory)
                 .map(memory -> new DeleteMemoryDto.Response(BaseTimeEntity.formatNow()))
-                .orElseThrow(() -> new MemoryNotFoundException(
-                                String.format(NOT_FOUND_MESSAGE, "memory", id)
-                        )
+                .orElseThrow(
+                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, "memory", id))
                 );
     }
     

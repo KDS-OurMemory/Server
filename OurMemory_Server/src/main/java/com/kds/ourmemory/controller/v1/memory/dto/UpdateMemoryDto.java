@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UpdateMemoryDto {
@@ -21,9 +20,6 @@ public class UpdateMemoryDto {
     public static class Request {
         @ApiModelProperty(value = "일정 이름", example = "회의 일정")
         private String name;
-
-        @ApiModelProperty(value = "일정 참여자 번호", notes = "참여자가 방에 포함된 사람과 다르거나 많을 경우, 방을 새로 생성한다.", example = "[2,4,5]")
-        private List<Long> members;
 
         @ApiModelProperty(value = "일정 내용")
         private String contents;

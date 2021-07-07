@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -80,8 +79,8 @@ public class Room extends BaseTimeEntity implements Serializable{
 	public Optional<Room> updateRoom(UpdateRoomDto.Request request) {
 		return Optional.ofNullable(request)
 				.map(req -> {
-					updateColumn.accept(name, req.getName());
-					updateColumn.accept(opened, req.getOpened());
+					name = Objects.nonNull(req.getName()) ? req.getName() : name;
+					opened = Objects.nonNull(req.getOpened()) ? req.getOpened() : opened;
 
 					return this;
 				});
@@ -92,5 +91,8 @@ public class Room extends BaseTimeEntity implements Serializable{
 		return this;
 	}
 
-	private final BiConsumer<Object, Object> updateColumn = (col, value) -> col = Objects.nonNull(value) ? value : col;
+	public Room deleteMemory(Memory memory) {
+		memories.stream().filter(m -> m.equals(memory)).forEach(Memory::deleteMemory);
+		return this;
+	}
 }

@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -112,15 +111,14 @@ public class Memory extends BaseTimeEntity implements Serializable {
     public Optional<Memory> updateMemory(UpdateMemoryDto.Request request) {
         return Optional.ofNullable(request)
                 .map(req -> {
-                    updateColumn.accept(name, req.getName());
-                    updateColumn.accept(users, req.getMembers());
-                    updateColumn.accept(contents, req.getContents());
-                    updateColumn.accept(place, req.getPlace());
-                    updateColumn.accept(startDate, req.getStartDate());
-                    updateColumn.accept(endDate, req.getEndDate());
-                    updateColumn.accept(firstAlarm, req.getFirstAlarm());
-                    updateColumn.accept(secondAlarm, req.getSecondAlarm());
-                    updateColumn.accept(bgColor, req.getBgColor());
+                    name = Objects.nonNull(req.getName()) ? req.getName() : name;
+                    contents = Objects.nonNull(req.getContents()) ? req.getContents() : contents;
+                    place = Objects.nonNull(req.getPlace()) ? req.getPlace() : place;
+                    startDate = Objects.nonNull(req.getStartDate()) ? req.getStartDate() : startDate;
+                    endDate = Objects.nonNull(req.getEndDate()) ? req.getEndDate() : endDate;
+                    firstAlarm = Objects.nonNull(req.getFirstAlarm()) ? req.getFirstAlarm() : firstAlarm;
+                    secondAlarm = Objects.nonNull(req.getSecondAlarm()) ? req.getSecondAlarm() : secondAlarm;
+                    bgColor = Objects.nonNull(req.getBgColor()) ? req.getBgColor() : bgColor;
 
                     return this;
                 });
@@ -130,6 +128,4 @@ public class Memory extends BaseTimeEntity implements Serializable {
 	    this.used = false;
 	    return this;
     }
-
-    private static final BiConsumer<Object, Object> updateColumn = (col, value) -> col = Objects.nonNull(value) ? value : col;
 }

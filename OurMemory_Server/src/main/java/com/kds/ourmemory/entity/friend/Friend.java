@@ -26,18 +26,18 @@ public class Friend extends BaseTimeEntity {
 	@Id
 	@ManyToOne(targetEntity = User.class)
 	@JoinColumn(name = "friend_id", foreignKey = @ForeignKey(name = "friends_friend_id"))
-	private User friend;
+	private User friendUser;
 
-	@Column(nullable = false, name = "friend_status")
+	@Column(nullable = false, name = "friend_status", columnDefinition = "comment 'WAIT, REQUESTED_BY, FRIEND, BLOCK'")
 	@Enumerated(EnumType.STRING)
 	private FriendStatus status;
 
-	public Friend(User user, User friend, FriendStatus status) {
+	public Friend(User user, User friendUser, FriendStatus status) {
 		checkNotNull(user, "사용자 정보가 없습니다. 사용자 번호를 확인해주세요.");
-		checkNotNull(friend, "친구 정보가 없습니다. 친구 번호를 확인해주세요.");
+		checkNotNull(friendUser, "친구 정보가 없습니다. 친구 번호를 확인해주세요.");
 
 		this.user = user;
-		this.friend = friend;
+		this.friendUser = friendUser;
 		this.status = status;
 	}
 

@@ -32,12 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MemoryServiceTest {
-
     private final MemoryService memoryService;
-    
-    private final UserRepository userRepo; // Add to work with user data
     private final RoomService roomService; // The creation process from adding to the deletion of the room.
-    
+
+    private final UserRepository userRepo; // Add to work with user data
+
     /**
      * Assert time format -> delete sec
      * 
@@ -51,11 +50,11 @@ class MemoryServiceTest {
      * ______________________________________________________
      * |main room|          Memory member         |Make room|
      * |====================================================|
-     * |    O    |0 < Memory member <= room member|    X    |   not yet. Memory.java -> updateColumn() error
-     * |    O    |0 < Memory member != room member|    O    |   not yet.
-     * |    O    |      0 == Memory member        |    X    |   not yet.
-     * |    X    |      0 < Memory member         |    O    |   not yet.
-     * |    X    |               X                |    X    |   not yet.
+     * |    O    |0 < Memory member <= room member|    X    |
+     * |    O    |0 < Memory member != room member|    O    |
+     * |    O    |      0 == Memory member        |    X    |
+     * |    X    |      0 < Memory member         |    O    |
+     * |    X    |               X                |    X    |
      * ------------------------------------------------------
      */
 
@@ -147,11 +146,10 @@ class MemoryServiceTest {
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 shareRooms     // 공유할 Room
-                );
+        );
 
         UpdateMemoryDto.Request updateReq = new UpdateMemoryDto.Request(
                 "Update memory name",
-                null,
                 "Update contents",
                 "Update place",
                 LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat),
@@ -214,7 +212,7 @@ class MemoryServiceTest {
     @Test
     @Order(2)
     @Transactional
-    void RoomO_memberO_IncludeX_Memory() {
+    void RoomO_memberO_IncludeX() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -286,7 +284,18 @@ class MemoryServiceTest {
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 shareRooms     // 공유할 Room
-                );
+        );
+
+        UpdateMemoryDto.Request updateReq = new UpdateMemoryDto.Request(
+                "Update memory name",
+                "Update contents",
+                "Update place",
+                LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat),
+                LocalDateTime.parse("2021-07-09 17:00", alertTimeFormat),
+                null,
+                null,
+                null
+        );
         
         /* 1. Make memory */
         InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
@@ -307,14 +316,30 @@ class MemoryServiceTest {
         
         log.info("[RoomO_memberO_IncludeX_Memory_Read]");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
-        log.info("====================================================================================");
 
-        /* 3. Delete memory */
+        /* 3. Find before update */
+        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertRsp.getMemoryId());
+        assertThat(beforeFindRsp).isNotNull();
+        assertThat(beforeFindRsp.getName()).isEqualTo(insertRsp.getName());
+        assertThat(beforeFindRsp.getContents()).isEqualTo(insertRsp.getContents());
+
+        /* 4. Update */
+        UpdateMemoryDto.Response updateRsp = memoryService.update(insertRsp.getMemoryId(), updateReq);
+        assertThat(updateRsp).isNotNull();
+        assertThat(isNow(updateRsp.getUpdateDate())).isTrue();
+
+        /* 5. Find after update */
+        FindMemoryDto.Response afterFindRsp = memoryService.find(insertRsp.getMemoryId());
+        assertThat(afterFindRsp).isNotNull();
+        assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
+        assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
+
+        /* 6. Delete memory */
         DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertRsp.getMemoryId());
         assertThat(deleteRsp).isNotNull();
         assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
-        /* 4. Find after delete */
+        /* 7. Find after delete */
         Long memoryId = insertRsp.getMemoryId();
         assertThat(memoryId).isNotNull();
         assertThrows(
@@ -325,7 +350,7 @@ class MemoryServiceTest {
     @Test
     @Order(3)
     @Transactional
-    void RoomO_memberX_Memory() {
+    void RoomO_memberX() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -397,7 +422,18 @@ class MemoryServiceTest {
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 shareRooms     // 공유할 Room
-                );
+        );
+
+        UpdateMemoryDto.Request updateReq = new UpdateMemoryDto.Request(
+                "Update memory name",
+                "Update contents",
+                "Update place",
+                LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat),
+                LocalDateTime.parse("2021-07-09 17:00", alertTimeFormat),
+                null,
+                null,
+                null
+        );
         
         /* 1. Make memory */
         InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
@@ -418,14 +454,30 @@ class MemoryServiceTest {
         
         log.info("[RoomO_memberX_Memory_Read]");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
-        log.info("====================================================================================");
-        
-        /* 3. Delete memory */
+
+        /* 3. Find before update */
+        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertRsp.getMemoryId());
+        assertThat(beforeFindRsp).isNotNull();
+        assertThat(beforeFindRsp.getName()).isEqualTo(insertRsp.getName());
+        assertThat(beforeFindRsp.getContents()).isEqualTo(insertRsp.getContents());
+
+        /* 4. Update */
+        UpdateMemoryDto.Response updateRsp = memoryService.update(insertRsp.getMemoryId(), updateReq);
+        assertThat(updateRsp).isNotNull();
+        assertThat(isNow(updateRsp.getUpdateDate())).isTrue();
+
+        /* 5. Find after update */
+        FindMemoryDto.Response afterFindRsp = memoryService.find(insertRsp.getMemoryId());
+        assertThat(afterFindRsp).isNotNull();
+        assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
+        assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
+
+        /* 6. Delete memory */
         DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertRsp.getMemoryId());
         assertThat(deleteRsp).isNotNull();
         assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
-        /* 4. Find after delete */
+        /* 7. Find after delete */
         Long memoryId = insertRsp.getMemoryId();
         assertThat(memoryId).isNotNull();
         assertThrows(
@@ -436,7 +488,7 @@ class MemoryServiceTest {
     @Test
     @Order(4)
     @Transactional
-    void RoomX_memberO_Memory() {
+    void RoomX_memberO() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -507,7 +559,18 @@ class MemoryServiceTest {
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 shareRooms     // 공유할 Room
-                );
+        );
+
+        UpdateMemoryDto.Request updateReq = new UpdateMemoryDto.Request(
+                "Update memory name",
+                "Update contents",
+                "Update place",
+                LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat),
+                LocalDateTime.parse("2021-07-09 17:00", alertTimeFormat),
+                null,
+                null,
+                null
+        );
 
         /* 1. Make memory */
         InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
@@ -528,14 +591,30 @@ class MemoryServiceTest {
         
         log.info("[RoomX_memberO_Memory_Read]");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
-        log.info("====================================================================================");
-        
-        /* 3. Delete memory */
+
+        /* 3. Find before update */
+        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertRsp.getMemoryId());
+        assertThat(beforeFindRsp).isNotNull();
+        assertThat(beforeFindRsp.getName()).isEqualTo(insertRsp.getName());
+        assertThat(beforeFindRsp.getContents()).isEqualTo(insertRsp.getContents());
+
+        /* 4. Update */
+        UpdateMemoryDto.Response updateRsp = memoryService.update(insertRsp.getMemoryId(), updateReq);
+        assertThat(updateRsp).isNotNull();
+        assertThat(isNow(updateRsp.getUpdateDate())).isTrue();
+
+        /* 5. Find after update */
+        FindMemoryDto.Response afterFindRsp = memoryService.find(insertRsp.getMemoryId());
+        assertThat(afterFindRsp).isNotNull();
+        assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
+        assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
+
+        /* 6. Delete memory */
         DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertRsp.getMemoryId());
         assertThat(deleteRsp).isNotNull();
         assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
-        /* 4. Find after delete */
+        /* 7. Find after delete */
         Long memoryId = insertRsp.getMemoryId();
         assertThat(memoryId).isNotNull();
         assertThrows(
@@ -546,7 +625,7 @@ class MemoryServiceTest {
     @Test
     @Order(5)
     @Transactional
-    void RoomX_memberX_Memory() {
+    void RoomX_memberX() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -617,7 +696,18 @@ class MemoryServiceTest {
                 null,       // 두 번째 알림
                 "#FFFFFF",  // 배경색
                 shareRooms     // 공유할 Room
-                );
+        );
+
+        UpdateMemoryDto.Request updateReq = new UpdateMemoryDto.Request(
+                "Update memory name",
+                "Update contents",
+                "Update place",
+                LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat),
+                LocalDateTime.parse("2021-07-09 17:00", alertTimeFormat),
+                null,
+                null,
+                null
+        );
         
         /* 1. Make memory */
         InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
@@ -638,14 +728,30 @@ class MemoryServiceTest {
         
         log.info("[RoomX_memberX_Memory_Read]");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
-        log.info("====================================================================================");
-        
-        /* 3. Delete memory */
+
+        /* 3. Find before update */
+        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertRsp.getMemoryId());
+        assertThat(beforeFindRsp).isNotNull();
+        assertThat(beforeFindRsp.getName()).isEqualTo(insertRsp.getName());
+        assertThat(beforeFindRsp.getContents()).isEqualTo(insertRsp.getContents());
+
+        /* 4. Update */
+        UpdateMemoryDto.Response updateRsp = memoryService.update(insertRsp.getMemoryId(), updateReq);
+        assertThat(updateRsp).isNotNull();
+        assertThat(isNow(updateRsp.getUpdateDate())).isTrue();
+
+        /* 5. Find after update */
+        FindMemoryDto.Response afterFindRsp = memoryService.find(insertRsp.getMemoryId());
+        assertThat(afterFindRsp).isNotNull();
+        assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
+        assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
+
+        /* 6. Delete memory */
         DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertRsp.getMemoryId());
         assertThat(deleteRsp).isNotNull();
         assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
-        /* 4. Find after delete */
+        /* 7. Find after delete */
         Long memoryId = insertRsp.getMemoryId();
         assertThat(memoryId).isNotNull();
         assertThrows(
