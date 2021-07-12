@@ -72,7 +72,11 @@ public class MemoryService {
 
                     // Relation memory and members
                     relationMemoryToMembers(memory, request.getMembers());
-                    relationMemoryToRoom(memory, request.getShareRooms());
+
+                    // Relation memory and share rooms
+                    relationMemoryToRooms(memory, request.getShareRooms());
+
+                    // Relation memory and main room
                     var roomId = relationMainRoom(memory, request);
 
                     return new InsertMemoryDto.Response(memory, roomId);
@@ -84,7 +88,7 @@ public class MemoryService {
     }
 
     @Transactional
-    private void relationMemoryToRoom(Memory memory, List<Long> roomIds) {
+    private void relationMemoryToRooms(Memory memory, List<Long> roomIds) {
         Optional.ofNullable(roomIds)
                 .map(List::stream).ifPresent(stream -> stream.forEach(id ->
                 findRoom(id)
@@ -153,8 +157,8 @@ public class MemoryService {
                             .containsAll(memoryMembers);
                 })
                 // 1-2) Participants are not included in the main room OR 2. If there is no main room
-                .orElseGet(() -> Optional.ofNullable(request.getMembers())
-                        // 1) If there are participants -> Create room and push notification
+                .orElseGet(() -> Optional.ofNullable(request.getMembers()).filter(members -> !members.isEmpty())
+                        // 1-2) 2-1) If there are participants -> Create room and push notification
                         .map(members -> {
                             // Create make room protocol
                             List<User> users = memory.getUsers();
@@ -186,13 +190,14 @@ public class MemoryService {
                                     )
                             );
                         })
-                        // If no participants are present
-                        .orElse(null));
+                        // 2-2) If no participants are present
+                        .orElse(null)
+                );
 
         return Optional.ofNullable(mainRoom)
                 // If a room exists to associate with the memory
                 .map(room -> {
-                    relationMemoryToRoom(memory, Collections.singletonList(room.getId()));
+                    relationMemoryToRooms(memory, Collections.singletonList(room.getId()));
                     return room.getId();
                 }).orElse(null);
     }

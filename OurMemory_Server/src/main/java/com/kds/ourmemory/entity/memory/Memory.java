@@ -13,10 +13,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @ToString(exclude = {"rooms", "users"})
@@ -78,11 +76,8 @@ public class Memory extends BaseTimeEntity implements Serializable {
         checkNotNull(name, "일정 제목이 입력되지 않았습니다. 일정 제목을 입력해주세요.");
         
         checkNotNull(startDate, "일정 시작시간이 입력되지 않았습니다. 일정 시작시간을 입력해주세요.");
-        checkArgument(startDate.isAfter(LocalDateTime.now()), "일정 시작시간은 현재시간보다 이전일 수 없습니다.");
-
         checkNotNull(endDate, "일정 종료시간이 입력되지 않았습니다. 일정 종료시간을 입력해주세요.");
-        checkArgument(endDate.isAfter(startDate), "일정 종료시간은 일정 시작시간보다 이전일 수 없습니다.");
-        
+
         checkNotNull(bgColor, "일정 배경색이 지정되지 않았습니다. 배경색을 지정해주세요.");
         
         this.id = id;
@@ -111,14 +106,14 @@ public class Memory extends BaseTimeEntity implements Serializable {
     public Optional<Memory> updateMemory(UpdateMemoryDto.Request request) {
         return Optional.ofNullable(request)
                 .map(req -> {
-                    name = Objects.nonNull(req.getName()) ? req.getName() : name;
-                    contents = Objects.nonNull(req.getContents()) ? req.getContents() : contents;
-                    place = Objects.nonNull(req.getPlace()) ? req.getPlace() : place;
-                    startDate = Objects.nonNull(req.getStartDate()) ? req.getStartDate() : startDate;
-                    endDate = Objects.nonNull(req.getEndDate()) ? req.getEndDate() : endDate;
-                    firstAlarm = Objects.nonNull(req.getFirstAlarm()) ? req.getFirstAlarm() : firstAlarm;
-                    secondAlarm = Objects.nonNull(req.getSecondAlarm()) ? req.getSecondAlarm() : secondAlarm;
-                    bgColor = Objects.nonNull(req.getBgColor()) ? req.getBgColor() : bgColor;
+                    Optional.ofNullable(req.getName()).ifPresent(reqName -> this.name = reqName);
+                    Optional.ofNullable(req.getContents()).ifPresent(reqContents -> this.contents = reqContents);
+                    Optional.ofNullable(req.getPlace()).ifPresent(reqPlace -> this.place = reqPlace);
+                    Optional.ofNullable(req.getStartDate()).ifPresent(reqStartDate -> this.startDate = reqStartDate);
+                    Optional.ofNullable(req.getEndDate()).ifPresent(reqEndDate -> this.endDate = reqEndDate);
+                    Optional.ofNullable(req.getFirstAlarm()).ifPresent(reqFirstAlarm -> this.firstAlarm = reqFirstAlarm);
+                    Optional.ofNullable(req.getSecondAlarm()).ifPresent(reqSecondAlarm -> this.secondAlarm = reqSecondAlarm);
+                    Optional.ofNullable(req.getBgColor()).ifPresent(reqBgColor -> this.bgColor = reqBgColor);
 
                     return this;
                 });
