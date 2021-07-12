@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 
@@ -49,9 +48,7 @@ public class FriendController {
     @GetMapping(value = "/{userId}")
     public ApiResult<List<FindFriendsDto.Response>> findFriends(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
-        return ok(friendService.findFriends(userId).stream()
-                .map(FindFriendsDto.Response::new)
-                .collect(Collectors.toList()));
+        return ok(friendService.findFriends(userId));
     }
 
     @ApiOperation(value = "친구 상태 변경", notes = "친구 상태를 변경한다. 요청(WAIT)/수락 대기(REQUESTED_BY) 상태로는 변경할 수 없다.")

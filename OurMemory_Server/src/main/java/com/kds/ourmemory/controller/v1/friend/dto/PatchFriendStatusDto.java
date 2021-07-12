@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PatchFriendStatusDto {
 
-    @ApiModel(value = "PatchFriendStatus.Request", description = "nested class in PatchFriendStatusDto")
+    @ApiModel(value = "PatchFriendStatusDto.Request", description = "nested class in PatchFriendStatusDto")
     @Getter
     @AllArgsConstructor
     public static class Request {
@@ -25,7 +25,7 @@ public class PatchFriendStatusDto {
         private final FriendStatus status;
     }
 
-    @ApiModel(value = "PatchFriendStatus.Response", description = "nested class in PatchFriendStatusDto")
+    @ApiModel(value = "PatchFriendStatusDto.Response", description = "nested class in PatchFriendStatusDto")
     @Getter
     @AllArgsConstructor
     public static class Response {

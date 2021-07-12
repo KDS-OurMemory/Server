@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CancelFriendDto {
 
-    @ApiModel(value = "CancelFriend.Request", description = "nested class in CancelFriendDto")
+    @ApiModel(value = "CancelFriendDto.Request", description = "nested class in CancelFriendDto")
     @Getter
     @AllArgsConstructor
     public static class Request {
@@ -21,7 +21,7 @@ public class CancelFriendDto {
         private final Long friendId;
     }
 
-    @ApiModel(value = "CancelFriend.Response", description = "nested class in CancelFriendDto")
+    @ApiModel(value = "CancelFriendDto.Response", description = "nested class in CancelFriendDto")
     @Getter
     @AllArgsConstructor
     public static class Response {

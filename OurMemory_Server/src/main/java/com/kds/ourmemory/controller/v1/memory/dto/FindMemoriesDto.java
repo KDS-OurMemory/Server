@@ -138,7 +138,5 @@ public class FindMemoriesDto {
                 name = room.getName();
             }
         }
-
     }
-
 }
