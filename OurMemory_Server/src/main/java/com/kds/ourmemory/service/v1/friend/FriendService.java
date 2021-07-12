@@ -201,12 +201,16 @@ public class FriendService {
     }
 
     // Not found friend -> None Error, just empty -> return emptyList
-    public List<Friend> findFriends(long userId) {
+    public List<FindFriendsDto.Response> findFriends(long userId) {
         return findFriendsByUserId(userId)
                 .map(friends -> friends.stream()
-                        .filter(friend -> friend.getStatus().equals(FriendStatus.FRIEND)
-                                || friend.getStatus().equals(FriendStatus.BLOCK))
-                        .collect(Collectors.toList()))
+                        .filter(
+                                friend -> friend.getStatus().equals(FriendStatus.FRIEND)
+                                        || friend.getStatus().equals(FriendStatus.BLOCK)
+                        )
+                        .map(FindFriendsDto.Response::new)
+                        .collect(Collectors.toList())
+                )
                 .orElseGet(ArrayList::new);
     }
 

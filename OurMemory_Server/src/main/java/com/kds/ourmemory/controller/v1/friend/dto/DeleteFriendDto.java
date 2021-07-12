@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeleteFriendDto {
 
-    @ApiModel(value = "DeleteFriend.Response", description = "nested class in DeleteFriendDto")
+    @ApiModel(value = "DeleteFriendDto.Response", description = "nested class in DeleteFriendDto")
     @Getter
     @AllArgsConstructor
     public static class Response {
