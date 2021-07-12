@@ -2,6 +2,7 @@ package com.kds.ourmemory.controller.v1.memory.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -63,6 +64,9 @@ public class FindMemoriesDto {
         
         @ApiModelProperty(value = "일정 참여자", notes = "일정을 생성한 사람도 참여자에 포함되어 전달됨.", example = "[{참여자1}, {참여자2}]")
         private final List<Member> members;
+
+        @ApiModelProperty(value = "일정 공유방 목록", notes = "일정이 공유된 방 목록")
+        private final List<ShareRoom> shareRooms;
         
         public Response(Memory memory) {
             memoryId = memory.getId();
@@ -78,6 +82,8 @@ public class FindMemoriesDto {
             regDate = memory.formatRegDate();
             modDate = memory.formatModDate();
             members = memory.getUsers().stream().filter(User::isUsed).map(Member::new)
+                    .collect(Collectors.toList());
+            shareRooms = memory.getRooms().stream().filter(Room::isUsed).map(ShareRoom::new)
                     .collect(Collectors.toList());
         }
         
@@ -102,7 +108,7 @@ public class FindMemoriesDto {
             @ApiModelProperty(value = "생일 공개여부", example = "false")
             private final boolean birthdayOpen;
             
-            public Member(User user) {
+            private Member(User user) {
                 userId = user.getId();
                 name = user.getName();
                 birthday = user.isBirthdayOpen() ? user.getBirthday() : null;
@@ -110,6 +116,29 @@ public class FindMemoriesDto {
                 birthdayOpen = user.isBirthdayOpen();
             }
         }
+
+        /**
+         * Memory room non static inner class
+         */
+        @ApiModel(value = "FindMemoriesResponse.ShareRoom", description = "inner class in FindMemoriesDto.Response")
+        @Getter
+        private class ShareRoom {
+            @ApiModelProperty(value = "방 번호", example = "49")
+            private final Long roomId;
+
+            @ApiModelProperty(value = "방 소유자 번호", example = "99")
+            private final Long ownerId;
+
+            @ApiModelProperty(value = "방 이름", example = "프로젝트 방")
+            private final String name;
+
+            private ShareRoom(Room room) {
+                roomId = room.getId();
+                ownerId = room.getOwner().getId();
+                name = room.getName();
+            }
+        }
+
     }
 
 }

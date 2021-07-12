@@ -73,8 +73,9 @@ class MemoryServiceTest {
     
     @Test
     @Order(1)
+    @DisplayName("메인방[O] 참여자[O] 포함[O]")
     @Transactional
-    void RoomO_memberO() {
+    void mainRoomAndIncludeMembers() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -106,12 +107,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("member_IncludeX Token")
-                        .name("member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -126,7 +127,7 @@ class MemoryServiceTest {
         mainRoom_member.add(member.getId());
         InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", writer.getId(), false, mainRoom_member));
         InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoom_member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", member_IncludeX.getId(), false, mainRoom_member));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoom_member));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
@@ -175,8 +176,12 @@ class MemoryServiceTest {
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
+        assertThat(findMemoriesRsp.getMembers()).isNotNull();
+        assertThat(findMemoriesRsp.getMembers().size()).isEqualTo(2);
+        assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
+        assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(3);
         
-        log.info("[RoomO_memberO_Memory_Read] Find memories");
+        log.info("[메인방[O] 참여자[O] 포함[O]] Find memories");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
 
         /* 3. Find before update */
@@ -211,8 +216,9 @@ class MemoryServiceTest {
     
     @Test
     @Order(2)
+    @DisplayName("메인방[O] 참여자[O] 포함[X]")
     @Transactional
-    void RoomO_memberO_IncludeX() {
+    void mainRoomAndExcludeMembers() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -244,12 +250,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("member_IncludeX Token")
-                        .name("member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -264,7 +270,7 @@ class MemoryServiceTest {
         mainRoom_member.add(member.getId());
         InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", writer.getId(), false, mainRoom_member));
         InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoom_member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", member_IncludeX.getId(), false, mainRoom_member));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoom_member));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
@@ -275,7 +281,7 @@ class MemoryServiceTest {
                 writer.getId(),
                 mainRoom.getRoomId(),
                 "Test Memory",
-                Stream.of(member_IncludeX.getId()).collect(Collectors.toList()),
+                Stream.of(excludeMember.getId()).collect(Collectors.toList()),
                 "Test Contents", 
                 "Test Place", 
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간 
@@ -313,8 +319,12 @@ class MemoryServiceTest {
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
+        assertThat(findMemoriesRsp.getMembers()).isNotNull();
+        assertThat(findMemoriesRsp.getMembers().size()).isEqualTo(2);
+        assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
+        assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(3);
         
-        log.info("[RoomO_memberO_IncludeX_Memory_Read]");
+        log.info("[메인방[O] 참여자[O] 포함[X]] Find Memories");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
 
         /* 3. Find before update */
@@ -349,8 +359,9 @@ class MemoryServiceTest {
     
     @Test
     @Order(3)
+    @DisplayName("메인방[O] 참여자[X]")
     @Transactional
-    void RoomO_memberX() {
+    void mainRoomAndNoMembers() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -382,12 +393,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("member_IncludeX Token")
-                        .name("member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -402,7 +413,7 @@ class MemoryServiceTest {
         mainRoom_member.add(member.getId());
         InsertRoomDto.Response mainRoom = roomService.insert(new InsertRoomDto.Request("mainRoom", writer.getId(), false, mainRoom_member));
         InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoom_member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", member_IncludeX.getId(), false, mainRoom_member));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoom_member));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
@@ -451,8 +462,12 @@ class MemoryServiceTest {
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
-        
-        log.info("[RoomO_memberX_Memory_Read]");
+        assertThat(findMemoriesRsp.getMembers()).isNotNull();
+        assertThat(findMemoriesRsp.getMembers().size()).isOne();
+        assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
+        assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(3);
+
+        log.info("[메인방[O] 참여자[X]] Find memories");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
 
         /* 3. Find before update */
@@ -487,8 +502,9 @@ class MemoryServiceTest {
     
     @Test
     @Order(4)
+    @DisplayName("메인방[X] 참여자[O]")
     @Transactional
-    void RoomX_memberO() {
+    void noMainRoomAndMembers() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -520,12 +536,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("member_IncludeX Token")
-                        .name("member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -539,7 +555,7 @@ class MemoryServiceTest {
         List<Long> mainRoom_member = new ArrayList<>();
         mainRoom_member.add(member.getId());
         InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoom_member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", member_IncludeX.getId(), false, mainRoom_member));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoom_member));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
@@ -588,8 +604,12 @@ class MemoryServiceTest {
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
-        
-        log.info("[RoomX_memberO_Memory_Read]");
+        assertThat(findMemoriesRsp.getMembers()).isNotNull();
+        assertThat(findMemoriesRsp.getMembers().size()).isEqualTo(2);
+        assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
+        assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(3);
+
+        log.info("[메인방[X] 참여자[O]] Find memories");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
 
         /* 3. Find before update */
@@ -624,8 +644,9 @@ class MemoryServiceTest {
     
     @Test
     @Order(5)
+    @DisplayName("메인방[X] 참여자[X] - 개인 일정")
     @Transactional
-    void RoomX_memberX() {
+    void noMainRoomAndNoMembers() {
         /* 0-1. Create writer, member */
         User writer = userRepo.save(
                 User.builder()
@@ -657,12 +678,12 @@ class MemoryServiceTest {
                         .build()
         );
 
-        User member_IncludeX = userRepo.save(
+        User excludeMember = userRepo.save(
                 User.builder()
-                        .snsId("member_IncludeX_snsId")
+                        .snsId("excludeMember_snsId")
                         .snsType(2)
-                        .pushToken("member_IncludeX Token")
-                        .name("member_IncludeX")
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
                         .birthday("0807")
                         .solar(true)
                         .birthdayOpen(true)
@@ -676,7 +697,7 @@ class MemoryServiceTest {
         List<Long> mainRoom_member = new ArrayList<>();
         mainRoom_member.add(member.getId());
         InsertRoomDto.Response shareRoom1 = roomService.insert(new InsertRoomDto.Request("shareRoom1", member.getId(), false, mainRoom_member));
-        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", member_IncludeX.getId(), false, mainRoom_member));
+        InsertRoomDto.Response shareRoom2 = roomService.insert(new InsertRoomDto.Request("shareRoom2", excludeMember.getId(), false, mainRoom_member));
         
         List<Long> shareRooms = new ArrayList<>();
         shareRooms.add(shareRoom1.getRoomId());
@@ -687,7 +708,7 @@ class MemoryServiceTest {
                 writer.getId(),
                 null,
                 "Test Memory",
-                null,
+                new ArrayList<>(),
                 "Test Contents", 
                 "Test Place", 
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간 
@@ -725,8 +746,12 @@ class MemoryServiceTest {
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
+        assertThat(findMemoriesRsp.getMembers()).isNotNull();
+        assertThat(findMemoriesRsp.getMembers().size()).isOne();
+        assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
+        assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
         
-        log.info("[RoomX_memberX_Memory_Read]");
+        log.info("[메인방[X] 참여자[X] - 개인일정] Find memories");
         findMemoriesList.forEach(memory -> log.info(memory.toString()));
 
         /* 3. Find before update */
