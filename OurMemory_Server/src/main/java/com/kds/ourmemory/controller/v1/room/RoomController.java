@@ -2,7 +2,6 @@ package com.kds.ourmemory.controller.v1.room;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.room.dto.*;
-import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,6 +41,15 @@ public class RoomController {
         return ok(roomService.findRooms(userId, name).stream()
                 .map(FindRoomsDto.Response::new)
                 .collect(Collectors.toList()));
+    }
+
+    @ApiOperation(value = "방장 양도", notes = "방 참여자에게 방장을 양도한다.")
+    @PatchMapping("/{roomId}/owner/{userId}")
+    public ApiResult<PatchRoomOwnerDto.Response> patchOwner(
+            @PathVariable long roomId,
+            @PathVariable long userId
+    ) {
+        return ok(roomService.patchOwner(roomId, userId));
     }
 
     @ApiOperation(value = "방 정보 수정", notes = "전달받은 값이 있는 경우 수정")

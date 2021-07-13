@@ -1,10 +1,7 @@
 package com.kds.ourmemory.advice.v1.room;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
-import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
+import com.kds.ourmemory.advice.v1.room.exception.*;
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.room.RoomController;
 import org.springframework.core.Ordered;
@@ -35,7 +32,12 @@ public class RoomControllerAdvice extends RestControllerAdviceResponse{
     public ResponseEntity<ApiResult<String>> handleRoomNotFoundMemberException (RoomNotFoundMemberException e) {
         return response(NOT_FOUND_MEMBER, e);
     }
-    
+
+    @ExceptionHandler(RoomAlreadyOwnerException.class)
+    public ResponseEntity<ApiResult<String>> handleRoomAlreadyOwnerException (RoomAlreadyOwnerException e) {
+        return response(ALREADY_OWNER, e);
+    }
+
     
     /* Http Status Error */
     @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})

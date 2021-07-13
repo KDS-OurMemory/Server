@@ -1,14 +1,8 @@
 package com.kds.ourmemory.service.v1.room;
 
-import com.kds.ourmemory.advice.v1.room.exception.RoomInternalServerException;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
-import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundOwnerException;
+import com.kds.ourmemory.advice.v1.room.exception.*;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
-import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
-import com.kds.ourmemory.controller.v1.room.dto.FindRoomDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
-import com.kds.ourmemory.controller.v1.room.dto.UpdateRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
@@ -37,6 +31,7 @@ public class RoomService {
     private final FcmService fcmService;
 
     private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
+    private static final String ALREADY_OWNER_MESSAGE = "User '%d' is already owner room '%d'.";
 
     @Transactional
     public InsertRoomDto.Response insert(InsertRoomDto.Request request) {
@@ -109,6 +104,39 @@ public class RoomService {
         );
 
         return findRooms;
+    }
+
+    public PatchRoomOwnerDto.Response patchOwner(long roomId, long userId) {
+        return findRoom(roomId)
+                .map(room -> {
+                    long beforeOwnerId = room.getOwner().getId();
+
+                    for (var member: room.getUsers()) {
+                        Optional.of(member).filter(m -> m.getId() == userId)
+                                .ifPresent(owner -> {
+                                    if (room.getOwner().equals(owner)) {
+                                        throw new RoomAlreadyOwnerException(
+                                                String.format(ALREADY_OWNER_MESSAGE, userId, roomId)
+                                        );
+                                    }
+                                    room.patchOwner(owner);
+                                });
+                    }
+                    long afterOwnerId = room.getOwner().getId();
+
+                    if (beforeOwnerId != afterOwnerId) {
+                        throw new RoomNotFoundMemberException(
+                                String.format(NOT_FOUND_MESSAGE, "member", userId)
+                        );
+                    }
+
+                    return room;
+                })
+                .map(room -> new PatchRoomOwnerDto.Response(BaseTimeEntity.formatNow()))
+                .orElseThrow(() -> new RoomNotFoundException(
+                        String.format(NOT_FOUND_MESSAGE, "room", roomId)
+                    )
+                );
     }
 
     public UpdateRoomDto.Response update(long roomId, UpdateRoomDto.Request request) {
