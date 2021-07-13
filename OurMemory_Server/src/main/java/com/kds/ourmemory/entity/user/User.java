@@ -138,4 +138,9 @@ public class User extends BaseTimeEntity implements Serializable {
                     return this;
                 });
     }
+
+    public User deleteUser() {
+	    this.used = false;
+	    return this;
+    }
 }

@@ -91,8 +91,11 @@ public class Room extends BaseTimeEntity implements Serializable{
 		return this;
 	}
 
-	public Room deleteMemory(Memory memory) {
+	public void deleteMemory(Memory memory) {
 		memories.stream().filter(m -> m.equals(memory)).forEach(Memory::deleteMemory);
-		return this;
+	}
+
+	public void deleteUser(User user) {
+		users.stream().filter(u -> u.equals(user)).forEach(User::deleteUser);
 	}
 }

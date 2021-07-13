@@ -11,33 +11,40 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.LongFunction;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepo;
 
-    private static final LongFunction<String> getUserNotFoundMessage = id -> "Not found user matched to userId: " + id;
+    private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
+    private static final String NOT_FOUND_LOGIN_USER_MESSAGE = "Not found user matched snsType '%d' and snsId '%s'.";
 
     @Transactional
     public InsertUserDto.Response signUp(InsertUserDto.Request request) {
         var user = request.toEntity();
         return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), u.formatRegDate()))
                 .orElseThrow(() -> new UserInternalServerException(
-                        String.format("User '%s' insert failed.", user.getName())));
+                                String.format("User '%s' insert failed.", user.getName())
+                        )
+                );
     }
 
     public SignInUserDto.Response signIn(int snsType, String snsId) {
         return findUser(snsType, snsId).map(SignInUserDto.Response::new)
                 .orElseThrow(() -> new UserNotFoundException(
-                        String.format("Not found user matched snsType '%d' and snsId '%s'.", snsType, snsId)));
+                                String.format(NOT_FOUND_LOGIN_USER_MESSAGE, snsType, snsId)
+                        )
+                );
     }
 
     public FindUserDto.Response find(long userId) {
         return findUser(userId)
                 .map(FindUserDto.Response::new)
-                .orElseThrow(() -> new UserNotFoundException(getUserNotFoundMessage.apply(userId)));
+                .orElseThrow(() -> new UserNotFoundException(
+                            String.format(NOT_FOUND_MESSAGE, "user", userId)
+                        )
+                );
     }
 
     public List<User> findUsers(Long userId, String name) {
@@ -51,8 +58,11 @@ public class UserService {
                 user.changePushToken(request.getPushToken())
                         .map(u -> new PatchTokenDto.Response(u.formatModDate()))
                         .orElseThrow(() -> new UserInternalServerException("Failed to patch for user token."))
-        )
-       .orElseThrow(() -> new UserNotFoundException(getUserNotFoundMessage.apply(userId)));
+                )
+                .orElseThrow(() -> new UserNotFoundException(
+                                String.format(NOT_FOUND_MESSAGE, "user", userId)
+                        )
+                );
     }
 
     public PutUserDto.Response update(long userId, PutUserDto.Request request) {
@@ -60,8 +70,38 @@ public class UserService {
                 user.updateUser(request)
                         .map(u -> new PutUserDto.Response(u.formatModDate()))
                         .orElseThrow(() -> new UserInternalServerException("Failed to update for user data."))
-        )
-        .orElseThrow(() -> new UserNotFoundException(getUserNotFoundMessage.apply(userId)));
+                )
+                .orElseThrow(() -> new UserNotFoundException(
+                                String.format(NOT_FOUND_MESSAGE, "user", userId)
+                        )
+                );
+    }
+
+    /**
+     * Delete user
+     *
+     * user - used = false
+     * Related memories - maintain
+     * Related rooms
+     *  1) owner - Delete after transferring the owner.
+     *  2) member - Delete from member
+     *
+     * @param userId [long]
+     * @return DeleteUserDto.Response
+     */
+    public DeleteUserDto.Response delete(long userId) {
+        return findUser(userId)
+                .map(User::deleteUser)
+                .map(user -> {
+                    user.getRooms().forEach(room -> room.deleteUser(user));
+
+                    return user;
+                })
+                .map(user -> new DeleteUserDto.Response(user.formatModDate()))
+                .orElseThrow(() -> new UserNotFoundException(
+                                String.format(NOT_FOUND_MESSAGE, "user", userId)
+                        )
+                );
     }
 
     /**

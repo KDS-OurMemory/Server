@@ -9,7 +9,6 @@ import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.FindRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.UpdateRoomDto;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.room.RoomRepository;
@@ -129,7 +128,7 @@ public class RoomService {
                     room.getMemories().forEach(room::deleteMemory);
                     return room;
                 })
-                .map(room -> new DeleteRoomDto.Response(BaseTimeEntity.formatNow()))
+                .map(room -> new DeleteRoomDto.Response(room.formatModDate()))
                 .orElseThrow(() -> new RoomNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, "room", id)
                         )
