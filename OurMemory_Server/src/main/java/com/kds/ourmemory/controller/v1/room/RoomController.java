@@ -2,7 +2,6 @@ package com.kds.ourmemory.controller.v1.room;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.room.dto.*;
-import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
