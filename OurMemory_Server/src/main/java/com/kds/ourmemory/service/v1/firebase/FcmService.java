@@ -26,8 +26,9 @@ public class FcmService {
 	private final ObjectMapper objectMapper;
 	private final CustomConfig customConfig;
 
-	public void sendMessageTo(FcmDto.Request requestDto) {
+	public boolean sendMessageTo(FcmDto.Request requestDto) {
 		Response response = null;
+		var isSend = false;
 		try {
 			String message = makeMessage(requestDto);
 			
@@ -42,6 +43,7 @@ public class FcmService {
 			
 			response = client.newCall(request).execute();
 			log.debug(Objects.requireNonNull(response.body()).string());
+			isSend = true;
 		} catch (JsonProcessingException e) {
 			log.error(e.toString());
 			log.error("makeMessage Failed.");
@@ -54,6 +56,8 @@ public class FcmService {
                     rsp.close();
 			    });
 		}
+
+		return isSend;
 	}
 
 	private String makeMessage(FcmDto.Request requestDto) throws JsonProcessingException {

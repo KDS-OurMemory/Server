@@ -55,7 +55,9 @@ public class FcmDto {
 
         public RequestAndroid(FcmDto.Request request) {
             message = new Message(request.token,
-                    new FcmDto.RequestAndroid.Data(request.title, request.body, request.dataType, request.dataString));
+                    new FcmDto.RequestAndroid.Notification(request.title, request.body),
+                    new FcmDto.RequestAndroid.Data(request.dataType, request.dataString)
+            );
             this.validate_only = request.isValidate;
         }
 
@@ -65,18 +67,22 @@ public class FcmDto {
             @ApiModelProperty(value = "FCM 전용 디바이스 토큰 값", required = true)
             private final String token;
 
+            private final FcmDto.RequestAndroid.Notification notification;
             private final FcmDto.RequestAndroid.Data data;
         }
 
         @AllArgsConstructor
         @Getter
-        private class Data {
-            @ApiModelProperty(value = "제목", required = true, notes = "푸시 메시지 제목")
+        private class Notification {
+            @ApiModelProperty(value = "제목", required = true)
             private final String title;
-
-            @ApiModelProperty(value = "내용", required = true, notes = "푸시 메시지 내용")
+            @ApiModelProperty(value = "내용", required = true)
             private final String body;
+        }
 
+        @AllArgsConstructor
+        @Getter
+        private class Data {
             @ApiModelProperty(value = "종류", notes = "푸시 메시지와 별도로 전달할 데이터 종류")
             private final String dataType;
 
@@ -93,9 +99,11 @@ public class FcmDto {
         private final Message message;
 
         public RequestiOS(FcmDto.Request request) {
-            message = new Message(request.token,
+            message = new Message(
+                    request.token,
                     new Notification(request.title, request.body),
-                    new Data(request.dataType, request.dataString));
+                    new Data(request.dataType, request.dataString)
+            );
             this.validate_only = request.isValidate;
         }
 
