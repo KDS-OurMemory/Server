@@ -76,6 +76,11 @@ public class Room extends BaseTimeEntity implements Serializable{
         this.memories.add(memory);
     }
 
+    public Room patchOwner(User user) {
+		this.owner = user;
+		return this;
+	}
+
 	public Optional<Room> updateRoom(UpdateRoomDto.Request request) {
 		return Optional.ofNullable(request)
 				.map(req -> {
