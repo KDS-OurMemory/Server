@@ -124,7 +124,7 @@ public class RoomService {
                     }
                     long afterOwnerId = room.getOwner().getId();
 
-                    if (beforeOwnerId != afterOwnerId) {
+                    if (beforeOwnerId == afterOwnerId) {
                         throw new RoomNotFoundMemberException(
                                 String.format(NOT_FOUND_MESSAGE, "member", userId)
                         );

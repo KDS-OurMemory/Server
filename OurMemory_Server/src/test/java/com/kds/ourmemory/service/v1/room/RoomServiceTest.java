@@ -1,12 +1,11 @@
 package com.kds.ourmemory.service.v1.room;
 
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomAlreadyOwnerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
-import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
-import com.kds.ourmemory.controller.v1.room.dto.FindRoomDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
-import com.kds.ourmemory.controller.v1.room.dto.UpdateRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -64,8 +63,9 @@ class RoomServiceTest {
 
     @Test
     @Order(1)
+    @DisplayName("생성-조회-수정-삭제")
     @Transactional
-    void Create_Read_Update_Delete() {
+    void crud() {
         /* 0-1. Create owner, member */
         User owner = userRepo.save(
                 User.builder()
@@ -171,6 +171,7 @@ class RoomServiceTest {
 
     @Test
     @Order(2)
+    @DisplayName("방 삭제 후 일정 삭제 확인")
     @Transactional
     void deleteRoomAndCheckMemories() {
         /* 0-1. Create owner, member */
@@ -319,6 +320,123 @@ class RoomServiceTest {
         Long memoryMember2 = insertMemoryRspMember2.getMemoryId();
         assertThrows(
                 MemoryNotFoundException.class, () -> memoryService.find(memoryMember2)
+        );
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("방장 양도")
+    @Transactional
+    void patchOwner() {
+        /* 0-1. Create owner, member */
+        User owner = userRepo.save(
+                User.builder()
+                        .snsId("owner_snsId")
+                        .snsType(1)
+                        .pushToken("owner Token")
+                        .name("owner")
+                        .birthday("0724")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.ANDROID)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
+        User member1 = userRepo.save(
+                User.builder()
+                        .snsId("member1_snsId")
+                        .snsType(2)
+                        .pushToken("member1 Token")
+                        .name("member1")
+                        .birthday("0519")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
+        User member2 = userRepo.save(
+                User.builder()
+                        .snsId("member2_snsId")
+                        .snsType(2)
+                        .pushToken("member2 Token")
+                        .name("member2")
+                        .birthday("0807")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
+        User excludeMember = userRepo.save(
+                User.builder()
+                        .snsId("excludeMember_snsId")
+                        .snsType(2)
+                        .pushToken("excludeMember Token")
+                        .name("excludeMember")
+                        .birthday("0807")
+                        .solar(true)
+                        .birthdayOpen(true)
+                        .used(true)
+                        .deviceOs(DeviceOs.IOS)
+                        .role(UserRole.USER)
+                        .build()
+        );
+
+        List<Long> member = Stream.of(
+                member1.getId(),
+                member2.getId()
+        ).collect(Collectors.toList());
+
+        /* 0-2. Create request */
+        InsertRoomDto.Request insertReq = new InsertRoomDto.Request("TestRoom", owner.getId(), false, member);
+
+        /* 1. Insert */
+        InsertRoomDto.Response insertRsp = roomService.insert(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getOwnerId()).isEqualTo(owner.getId());
+        assertThat(insertRsp.getMembers()).isNotNull();
+        assertThat(insertRsp.getMembers().size()).isEqualTo(3);
+        
+        /* 2. Find before patch owner */
+        FindRoomDto.Response beforeFindRsp = roomService.find(insertRsp.getRoomId());
+        assertThat(beforeFindRsp).isNotNull();
+        assertThat(beforeFindRsp.getOwnerId()).isEqualTo(owner.getId());
+
+        /* 3. Patch owner */
+        PatchRoomOwnerDto.Response patchOwnerRsp = roomService.patchOwner(insertRsp.getRoomId(), member1.getId());
+        assertThat(patchOwnerRsp).isNotNull();
+        assertThat(isNow(patchOwnerRsp.getPatchDate())).isTrue();
+
+        /* 4. Find after patch owner */
+        FindRoomDto.Response afterFindRsp = roomService.find(insertRsp.getRoomId());
+        assertThat(afterFindRsp).isNotNull();
+        assertThat(afterFindRsp.getOwnerId()).isEqualTo(member1.getId());
+
+        /* 5. Patch owner not found room */
+        var wrongRoomId = insertRsp.getRoomId() + 1;
+        var memberId = member1.getId();
+        assertThrows(
+                RoomNotFoundException.class, () -> roomService.patchOwner(wrongRoomId, memberId)
+        );
+
+        /* 6. Patch owner not in room member */
+        var roomId = insertRsp.getRoomId();
+        var excludeMemberId = excludeMember.getId();
+        assertThrows(
+                RoomNotFoundMemberException.class, () -> roomService.patchOwner(roomId, excludeMemberId)
+        );
+
+        /* 7. Patch owner already owner */
+        var ownerId = afterFindRsp.getOwnerId();
+        assertThrows(
+                RoomAlreadyOwnerException.class, () -> roomService.patchOwner(roomId, ownerId)
         );
     }
     
