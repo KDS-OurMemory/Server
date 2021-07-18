@@ -1,10 +1,8 @@
 package com.kds.ourmemory.service.v1.user;
 
-import com.kds.ourmemory.controller.v1.user.dto.*;
+import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.DeviceOs;
-import com.kds.ourmemory.entity.user.User;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,25 +11,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Slf4j
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserServiceTest {
     private final UserService userService;
-
-    // Insert
-    private InsertUserDto.Request insertUserRequestDto;
-
-    // Patch
-    private PatchTokenDto.Request patchUserTokenRequestDto;
-
-    // Update
-    private PutUserDto.Request putUserRequestDto;
 
     /**
      * Assert time format -> delete sec
@@ -47,146 +34,124 @@ class UserServiceTest {
 
     @BeforeAll
     void setUp() {
-        insertUserRequestDto = new InsertUserDto.Request(1, "TESTS_SNS_ID", "before pushToken", "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID);
-        patchUserTokenRequestDto = new PatchTokenDto.Request("after pushToken");
-        putUserRequestDto = new PutUserDto.Request("이름 업데이트!", "0903", true, false);
-
         format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
     }
 
     @Test
     @Order(1)
+    @DisplayName("회원가입-로그인-단일 조회-토큰변경-업데이트")
     @Transactional
-    void SignUp() {
-        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
-        assertThat(insRsp).isNotNull();
-        assertThat(insRsp.getJoinDate()).isNotNull();
-        assertThat(isNow(insRsp.getJoinDate())).isTrue();
+    void signUpSignInFind() {
+        /* 0. Create Request */
+        InsertUserDto.Request insertReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
         
-        log.info("joinDate: {}", insRsp.getJoinDate());
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getJoinDate()).isNotNull();
+        assertThat(isNow(insertRsp.getJoinDate())).isTrue();
+
+        /* 2. Sign in */
+        var signInRsp = userService.signIn(insertReq.getSnsType(), insertReq.getSnsId());
+        assertThat(signInRsp).isNotNull();
+        assertThat(signInRsp.getUserId()).isEqualTo(insertRsp.getUserId());
+        assertThat(signInRsp.getName()).isEqualTo(insertReq.getName());
+        assertThat(signInRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
+        assertThat(signInRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
+
+        /* 3. Find */
+        var findRsp = userService.find(insertRsp.getUserId());
+        assertThat(findRsp).isNotNull();
+        assertThat(findRsp.getId()).isEqualTo(insertRsp.getUserId());
+        assertThat(findRsp.getSnsType()).isEqualTo(insertReq.getSnsType());
+        assertThat(findRsp.getSnsId()).isEqualTo(insertReq.getSnsId());
+        assertThat(findRsp.getName()).isEqualTo(insertReq.getName());
+        assertThat(findRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
+        assertThat(findRsp.isSolar()).isEqualTo(insertReq.isSolar());
+        assertThat(findRsp.isBirthdayOpen()).isEqualTo(insertReq.isBirthdayOpen());
+        assertThat(findRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
+
+        /* 4. Patch token */
+        // TODO
+
+        /* 5. Update */
+        // TODO
     }
 
     @Test
     @Order(2)
+    @DisplayName("사용자 목록 조회")
     @Transactional
-    void User_SignIn() {
-        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
-        assertThat(insRsp).isNotNull();
-        assertThat(insRsp.getJoinDate()).isNotNull();
-        assertThat(isNow(insRsp.getJoinDate())).isTrue();
+    void findUsers() {
+        /* 0. Create Request */
+        InsertUserDto.Request insertReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+
+        /* 1. Insert */
+        InsertUserDto.Response insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getJoinDate()).isNotNull();
+        assertThat(isNow(insertRsp.getJoinDate())).isTrue();
         
-        log.info("joinDate: {}", insRsp.getJoinDate());
+        // TODO: 사용자 여러명 추가 후 조회, 동일 이름 포함할 것
 
-        SignInUserDto.Response userRsp = userService.signIn(insertUserRequestDto.getSnsType(),
-                insertUserRequestDto.getSnsId());
-        assertThat(userRsp).isNotNull();
-        assertThat(userRsp.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(userRsp.getBirthday())
-                .isEqualTo(userRsp.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
+        /* 2. Find users */
+        // 1) find by id
+        var findUsersByIdList = userService.findUsers(insertRsp.getUserId(), null);
+        assertThat(findUsersByIdList).isNotNull();
+        assertThat(findUsersByIdList.isEmpty()).isFalse();
 
-        log.info("userId: {}, userName: {}", userRsp.getUserId(), userRsp.getName());
+        var findUsersById = findUsersByIdList.get(0);
+        assertThat(findUsersById).isNotNull();
+        assertThat(findUsersById.getUserId()).isEqualTo(insertRsp.getUserId());
+        assertThat(findUsersById.getName()).isEqualTo(insertReq.getName());
+        assertThat(findUsersById.isSolar()).isEqualTo(insertReq.isSolar());
+        assertThat(findUsersById.isBirthdayOpen()).isEqualTo(insertReq.isBirthdayOpen());
+        assertThat(findUsersById.getBirthday()).isEqualTo(
+                insertReq.isBirthdayOpen()? insertReq.getBirthday() : null
+        );
+
+        // 2) find by name
+        var findUsersByNameList = userService.findUsers(null, insertReq.getName());
+        assertThat(findUsersByNameList).isNotNull();
+        assertThat(findUsersByNameList.isEmpty()).isFalse();
+
+        var findUsersByName = findUsersByNameList.get(0);
+        assertThat(findUsersByName).isNotNull();
+        assertThat(findUsersByName.getUserId()).isEqualTo(insertRsp.getUserId());
+        assertThat(findUsersByName.getName()).isEqualTo(insertReq.getName());
+        assertThat(findUsersByName.isSolar()).isEqualTo(insertReq.isSolar());
+        assertThat(findUsersByName.isBirthdayOpen()).isEqualTo(insertReq.isBirthdayOpen());
+        assertThat(findUsersByName.getBirthday()).isEqualTo(
+                insertReq.isBirthdayOpen()? insertReq.getBirthday() : null
+        );
     }
 
     @Test
     @Order(3)
+    @DisplayName("사용자 삭제")
     @Transactional
-    void User_Find() {
-        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
+    void delete() {
+        /* 0. Create Request */
+        InsertUserDto.Request insertReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+
+        InsertUserDto.Response insRsp = userService.signUp(insertReq);
         assertThat(insRsp).isNotNull();
         assertThat(insRsp.getJoinDate()).isNotNull();
         assertThat(isNow(insRsp.getJoinDate())).isTrue();
-
-        log.info("joinDate: {}", insRsp.getJoinDate());
-
-        List<User> userRsp = userService.findUsers(insRsp.getUserId(), null);
-        assertThat(userRsp).isNotNull();
-        assertThat(userRsp.size()).isEqualTo(1);
-
-        User foundUser = userRsp.get(0);
-        assertThat(foundUser.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(foundUser.getBirthday()).isEqualTo(insertUserRequestDto.getBirthday());
-
-        log.info("find users by userId | userId: {}, userName: {}", foundUser.getId(), foundUser.getName());
-
-        userRsp = userService.findUsers(null, insertUserRequestDto.getName());
-        assertThat(userRsp).isNotNull();
-        assertThat(userRsp.size()).isEqualTo(1);
-
-        foundUser = userRsp.get(0);
-        assertThat(foundUser.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(foundUser.getBirthday()).isEqualTo(insertUserRequestDto.getBirthday());
-
-        log.info("find users by userId | userId: {}, userName: {}", foundUser.getId(), foundUser.getName());
-    }
-
-    @Test
-    @Order(4)
-    @Transactional
-    void User_Patch_Token() {
-        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
-        assertThat(insRsp).isNotNull();
-        assertThat(insRsp.getJoinDate()).isNotNull();
-        assertThat(isNow(insRsp.getJoinDate())).isTrue();
-        log.info("joinDate: {}", insRsp.getJoinDate());
-
-        SignInUserDto.Response userRsp = userService.signIn(insertUserRequestDto.getSnsType(),
-                insertUserRequestDto.getSnsId());
-        assertThat(userRsp).isNotNull();
-        assertThat(userRsp.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(userRsp.getBirthday())
-                .isEqualTo(userRsp.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
-
-        log.info("before Token: {}", userRsp.getPushToken());
-
-        PatchTokenDto.Response patchUserTokenResponseDto = userService.patchToken(userRsp.getUserId(),
-                patchUserTokenRequestDto);
-        assertThat(patchUserTokenResponseDto).isNotNull();
-        assertThat(isNow(patchUserTokenResponseDto.getPatchDate())).isTrue();
-
-        userRsp = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
-        assertThat(userRsp).isNotNull();
-        assertThat(userRsp.getPushToken()).isEqualTo(patchUserTokenRequestDto.getPushToken());
-
-        log.info("after Token: {}", userRsp.getPushToken());
-    }
-
-    @Test
-    @Order(5)
-    @Transactional
-    void User_Update() {
-        InsertUserDto.Response insRsp = userService.signUp(insertUserRequestDto);
-        assertThat(insRsp).isNotNull();
-        assertThat(insRsp.getJoinDate()).isNotNull();
-        assertThat(isNow(insRsp.getJoinDate())).isTrue();
-        log.info("joinDate: {}", insRsp.getJoinDate());
-
-        SignInUserDto.Response userRsp = userService.signIn(insertUserRequestDto.getSnsType(),
-                insertUserRequestDto.getSnsId());
-        assertThat(userRsp).isNotNull();
-        assertThat(userRsp.getName()).isEqualTo(insertUserRequestDto.getName());
-        assertThat(userRsp.getBirthday())
-                .isEqualTo(userRsp.isBirthdayOpen() ? insertUserRequestDto.getBirthday() : null);
         
-        FindUserDto.Response beforeFindUserRsp = userService.find(userRsp.getUserId());
-
-        log.info("before name: {}, birthday: {}, birthdayOpen: {}, push: {}", beforeFindUserRsp.getName(), beforeFindUserRsp.getBirthday(),
-                beforeFindUserRsp.isBirthdayOpen(), beforeFindUserRsp.isPush());
-
-        PutUserDto.Response putUserResponseDto = userService.update(userRsp.getUserId(), putUserRequestDto);
-        assertThat(putUserResponseDto).isNotNull();
-        assertThat(isNow(putUserResponseDto.getUpdateDate())).isTrue();
-
-        userRsp = userService.signIn(insertUserRequestDto.getSnsType(), insertUserRequestDto.getSnsId());
-        assertThat(userRsp).isNotNull();
-        assertThat(userRsp.getBirthday()).isEqualTo(userRsp.isBirthdayOpen() ? putUserRequestDto.getBirthday() : null); // If private, it will be null.
-        assertThat(userRsp.getName()).isEqualTo(putUserRequestDto.getName());
-        assertThat(userRsp.isBirthdayOpen()).isEqualTo(putUserRequestDto.getBirthdayOpen());
-
-        FindUserDto.Response afterFindUserRsp = userService.find(userRsp.getUserId());
-
-        log.info("after name: {}, birthday: {}, birthdayOpen: {}, push: {}", afterFindUserRsp.getName(), afterFindUserRsp.getBirthday(),
-                afterFindUserRsp.isBirthdayOpen(), afterFindUserRsp.isPush());
+        // TODO: 사용자에 방(참여방, 개인방, 방장), 일정(개인 일정, 참여방 일정, 개인방 일정) 생성 후 테스트
     }
     
     boolean isNow(String time) {

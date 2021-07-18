@@ -5,17 +5,21 @@ import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
+import com.kds.ourmemory.service.v1.room.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepo;
+
+    private final RoomService roomService;
 
     private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
     private static final String NOT_FOUND_LOGIN_USER_MESSAGE = "Not found user matched snsType '%d' and snsId '%s'.";
@@ -47,8 +51,11 @@ public class UserService {
                 );
     }
 
-    public List<User> findUsers(Long userId, String name) {
+    public List<FindUsersDto.Response> findUsers(Long userId, String name) {
         return findUsersByIdOrName(userId, name)
+                .map(users -> users.stream().map(FindUsersDto.Response::new)
+                        .collect(Collectors.toList())
+                )
                 .orElseThrow(() -> new UserNotFoundException(
                         String.format("Not found users matched id '%d' or name '%s'", userId, name)));
     }
@@ -93,7 +100,14 @@ public class UserService {
         return findUser(userId)
                 .map(User::deleteUser)
                 .map(user -> {
-                    user.getRooms().forEach(room -> room.deleteUser(user));
+                    user.getRooms().forEach(room -> {
+                        var members = room.getUsers();
+                        var owner = room.getOwner();
+                        if (owner.equals(user) && members.size() > 1) {
+                            transferOwner(room.getId(), owner.getId(), members);
+                        }
+                        room.deleteUser(user);
+                    });
 
                     return user;
                 })
@@ -102,6 +116,15 @@ public class UserService {
                                 String.format(NOT_FOUND_MESSAGE, "user", userId)
                         )
                 );
+    }
+
+    private void transferOwner(long roomId, long ownerId, List<User> users) {
+        var transferIds = users.stream().map(User::getId).filter(id -> id != ownerId)
+                .collect(Collectors.toList());
+        Optional.of(transferIds)
+                .filter(ids -> !ids.isEmpty())
+                .map(ids -> ids.get(0))
+                .ifPresent(id -> roomService.patchOwner(roomId, id));
     }
 
     /**

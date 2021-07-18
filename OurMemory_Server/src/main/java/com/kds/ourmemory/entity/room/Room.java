@@ -76,9 +76,8 @@ public class Room extends BaseTimeEntity implements Serializable{
         this.memories.add(memory);
     }
 
-    public Room patchOwner(User user) {
+    public void patchOwner(User user) {
 		this.owner = user;
-		return this;
 	}
 
 	public Optional<Room> updateRoom(UpdateRoomDto.Request request) {
@@ -101,6 +100,6 @@ public class Room extends BaseTimeEntity implements Serializable{
 	}
 
 	public void deleteUser(User user) {
-		users.stream().filter(u -> u.equals(user)).forEach(User::deleteUser);
+		users.stream().filter(user::equals).forEach(users::remove);
 	}
 }

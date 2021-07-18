@@ -300,7 +300,7 @@ class RoomServiceTest {
         assertThat(deleteRsp).isNotNull();
         assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
-        /* 7. Find room and memories after delete */
+        /* 4. Find room and memories after delete */
         Long roomId = insertRoomRsp.getRoomId();
         assertThat(roomId).isNotNull();
         assertThrows(
