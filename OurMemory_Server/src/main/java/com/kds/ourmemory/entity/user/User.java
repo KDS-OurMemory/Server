@@ -1,6 +1,6 @@
 package com.kds.ourmemory.entity.user;
 
-import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
@@ -125,7 +125,7 @@ public class User extends BaseTimeEntity implements Serializable {
                 });
     }
 
-    public Optional<User> updateUser(PutUserDto.Request request) {
+    public Optional<User> updateUser(UpdateUserDto.Request request) {
         return Optional.ofNullable(request)
                 .map(req -> {
                     name = Objects.nonNull(req.getName()) ? req.getName() : name;

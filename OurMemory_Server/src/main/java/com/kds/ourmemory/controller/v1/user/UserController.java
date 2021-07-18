@@ -56,9 +56,9 @@ public class UserController {
 
     @ApiOperation(value = "사용자 정보 수정", notes = "전달받은 값이 있는 경우 수정한다.")
     @PutMapping("/{userId}")
-    public ApiResult<PutUserDto.Response> update(
+    public ApiResult<UpdateUserDto.Response> update(
             @PathVariable long userId,
-            @RequestBody PutUserDto.Request request
+            @RequestBody UpdateUserDto.Request request
     ) {
         return ok(userService.update(userId, request));
     }
