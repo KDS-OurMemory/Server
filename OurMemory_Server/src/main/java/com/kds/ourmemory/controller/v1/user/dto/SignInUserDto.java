@@ -35,7 +35,7 @@ public class SignInUserDto {
         public Response(User user) {
             userId = user.getId();
             name = user.getName();
-            birthday = user.isBirthdayOpen() ? user.getBirthday() : null;
+            birthday = user.getBirthday();
             solar = user.isSolar();
             birthdayOpen = user.isBirthdayOpen();
             pushToken = user.getPushToken();

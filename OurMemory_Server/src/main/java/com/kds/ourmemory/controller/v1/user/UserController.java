@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 
@@ -44,9 +43,7 @@ public class UserController {
     @GetMapping
     public ApiResult<List<FindUsersDto.Response>> findUsers(@ApiParam(value = "userId") @RequestParam(required = false) Long userId,
                                              @ApiParam(value = "name") @RequestParam(required = false) String name) {
-        return ok(userService.findUsers(userId, name).stream()
-                .map(FindUsersDto.Response::new)
-                .collect(Collectors.toList()));
+        return ok(userService.findUsers(userId, name));
     }
 
     @ApiOperation(value = "푸시 토큰 수정", notes = "사용자 번호로 사용자를 찾아 푸시토큰 값을 수정한다.")
