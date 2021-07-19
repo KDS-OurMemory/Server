@@ -38,9 +38,7 @@ public class RoomController {
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String name
     ) {
-        return ok(roomService.findRooms(userId, name).stream()
-                .map(FindRoomsDto.Response::new)
-                .collect(Collectors.toList()));
+        return ok(roomService.findRooms(userId, name));
     }
 
     @ApiOperation(value = "방장 양도", notes = "방 참여자에게 방장을 양도한다.")

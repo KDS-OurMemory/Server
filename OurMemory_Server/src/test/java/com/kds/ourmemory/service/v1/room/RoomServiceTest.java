@@ -7,7 +7,6 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
-import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.entity.user.UserRole;
@@ -128,7 +127,7 @@ class RoomServiceTest {
         assertThat(insertRsp.getMembers().size()).isEqualTo(3);
 
         /* 2. Find rooms */
-        List<Room> findRooms = roomService.findRooms(owner.getId(), null);
+        List<FindRoomsDto.Response> findRooms = roomService.findRooms(owner.getId(), null);
         assertThat(findRooms).isNotNull();
 
         findRooms = roomService.findRooms(null, "TestRoom");
