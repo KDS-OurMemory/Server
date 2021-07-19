@@ -1,10 +1,16 @@
 package com.kds.ourmemory.service.v1.user;
 
+import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
+import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
 import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.DeviceOs;
+import com.kds.ourmemory.service.v1.memory.MemoryService;
+import com.kds.ourmemory.service.v1.room.RoomService;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +19,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -22,21 +32,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UserServiceTest {
     private final UserService userService;
 
+    private final RoomService roomService;  // The creation process from adding to room.
+
+    private final MemoryService memoryService;  // The creation process from adding to memory.
+
     /**
      * Assert time format -> delete sec
      *
      * This is because time difference occurs after room creation due to relation table work.
      */
     private DateTimeFormatter format;
+    private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     @Autowired
-    private UserServiceTest(UserService userService) {
+    private UserServiceTest(UserService userService, RoomService roomService, MemoryService memoryService) {
         this.userService = userService;
+        this.roomService = roomService;
+        this.memoryService = memoryService;
     }
 
     @BeforeAll
     void setUp() {
         format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
+        alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
 
     @Test
@@ -231,22 +249,210 @@ class UserServiceTest {
 
     @Test
     @Order(3)
-    @DisplayName("사용자 삭제")
+    @DisplayName("사용자 삭제-개인방/일정")
     @Transactional
-    void delete() {
-        /* 0. Create Request */
-        InsertUserDto.Request insertReq = new InsertUserDto.Request(
+    void deletePrivateUser() {
+        /* 0-1. Create user */
+        // 1) user
+        var insertUserReq = new InsertUserDto.Request(
                 1, "TESTS_SNS_ID", "before pushToken",
                 "테스트 유저", "0720", true,
                 false, DeviceOs.ANDROID
         );
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
 
-        InsertUserDto.Response insRsp = userService.signUp(insertReq);
-        assertThat(insRsp).isNotNull();
-        assertThat(insRsp.getJoinDate()).isNotNull();
-        assertThat(isNow(insRsp.getJoinDate())).isTrue();
-        
-        // TODO: 사용자에 방(참여방, 개인방, 방장), 일정(개인 일정, 참여방 일정, 개인방 일정) 생성 후 테스트
+        /* 0-2. Create room */
+        var insertPrivateRoomReq = new InsertRoomDto.Request(
+                "개인방", insertUserRsp.getUserId(), false, new ArrayList<>()
+        );
+        var insertPrivateRoomRsp = roomService.insert(insertPrivateRoomReq);
+        assertThat(insertPrivateRoomRsp).isNotNull();
+        assertThat(insertPrivateRoomRsp.getMembers()).isNotNull();
+        assertThat(insertPrivateRoomRsp.getOwnerId()).isEqualTo(insertUserRsp.getUserId());
+        assertThat(insertPrivateRoomRsp.getMembers().size()).isOne();
+
+        /* 0-3. Create private memories */
+        // 1) not in room memory
+        var insertPrivateMemoryReq = new InsertMemoryDto.Request(
+                insertUserRsp.getUserId(),
+                null,
+                "개인 일정(방x)",
+                new ArrayList<>(),
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF",  // 배경색
+                null
+        );
+        var insertPrivateMemoryRsp = memoryService.insert(insertPrivateMemoryReq);
+        assertThat(insertPrivateMemoryRsp).isNotNull();
+        assertThat(insertPrivateMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
+        assertThat(insertPrivateMemoryRsp.getMainRoomId()).isNull();
+        assertThat(insertPrivateMemoryRsp.getMembers()).isNotNull();
+        assertThat(insertPrivateMemoryRsp.getMembers().size()).isOne();
+
+        // 2) private room memory
+        var insertPrivateRoomMemoryReq = new InsertMemoryDto.Request(
+                insertUserRsp.getUserId(),
+                insertPrivateRoomRsp.getRoomId(),
+                "개인 일정(방o)",
+                new ArrayList<>(),
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF",  // 배경색
+                null
+        );
+        var insertPrivateRoomMemoryRsp = memoryService.insert(insertPrivateRoomMemoryReq);
+        assertThat(insertPrivateRoomMemoryRsp).isNotNull();
+        assertThat(insertPrivateRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
+        assertThat(insertPrivateRoomMemoryRsp.getMainRoomId()).isEqualTo(insertPrivateRoomRsp.getRoomId());
+        assertThat(insertPrivateRoomMemoryRsp.getMembers()).isNotNull();
+        assertThat(insertPrivateRoomMemoryRsp.getMembers().size()).isOne();
+
+        /* 1. Delete private room owner */
+        var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
+        assertThat(deleteUserRsp).isNotNull();
+        assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
+
+        // TODO: delete room if private room
+        /* 2. Find room and check delete */
+        var roomId = insertPrivateRoomRsp.getRoomId();
+        assertThrows(
+                RoomNotFoundException.class, () -> roomService.find(roomId)
+        );
+
+        var findRooms = roomService.findRooms(insertUserRsp.getUserId(), null);
+        assertThat(findRooms).isNotNull();
+        assertThat(findRooms.isEmpty()).isTrue();
+
+        /* 3. Find memories and check delete */
+        // 1) private memory(not in room)
+        var privateMemoryId = insertPrivateMemoryRsp.getMemoryId();
+        assertThrows(
+                MemoryNotFoundException.class, () -> memoryService.find(privateMemoryId)
+        );
+
+        var findPrivateMemories = memoryService.findMemories(insertUserRsp.getUserId(), null);
+        assertThat(findPrivateMemories).isNotNull();
+        assertThat(findPrivateMemories.isEmpty()).isTrue();
+
+        // 2) private room memory
+        var privateRoomMemoryId = insertPrivateRoomMemoryRsp.getMemoryId();
+        assertThrows(
+                MemoryNotFoundException.class, () -> memoryService.find(privateRoomMemoryId)
+        );
+
+        var findPrivateRoomMemories = memoryService.findMemories(insertUserRsp.getUserId(), null);
+        assertThat(findPrivateRoomMemories).isNotNull();
+        assertThat(findPrivateRoomMemories.isEmpty()).isTrue();
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("사용자 삭제-방장 방/일정")
+    @Transactional
+    void deleteOwnerUser() {
+        /* 0. Create users */
+        // 1) user
+        var insertUserReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+
+        // 2) member1
+        var insertMember1Req = new InsertUserDto.Request(
+                2, "member1 sns id", "member1 pushToken",
+                "멤버1", "0101", true,
+                true, DeviceOs.ANDROID
+        );
+        var insertMember1Rsp = userService.signUp(insertMember1Req);
+        assertThat(insertMember1Rsp).isNotNull();
+
+        // 2) member2
+        var insertMember2Req = new InsertUserDto.Request(
+                3, "member2 sns id", "member2 pushToken",
+                "멤버2", "0201", false,
+                true, DeviceOs.IOS
+        );
+        var insertMember2Rsp = userService.signUp(insertMember2Req);
+        assertThat(insertMember2Rsp).isNotNull();
+
+        /* 0-2. Create owner room */
+        var insertOwnerRoomReq = new InsertRoomDto.Request(
+                "방장 방", insertUserRsp.getUserId(), false,
+                Stream.of(insertMember1Rsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList())
+        );
+        var insertOwnerRoomRsp = roomService.insert(insertOwnerRoomReq);
+        assertThat(insertOwnerRoomRsp).isNotNull();
+        assertThat(insertOwnerRoomRsp.getOwnerId()).isEqualTo(insertUserRsp.getUserId());
+        assertThat(insertOwnerRoomRsp.getMembers()).isNotNull();
+        assertThat(insertOwnerRoomRsp.getMembers().size()).isEqualTo(3);
+
+        // TODO
+        /* 0-3. Create owner room memory */
+
+        /* 1. Delete room owner */
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("사용자 삭제-참여방/일정")
+    @Transactional
+    void deleteParticipantUser() {
+        /* 0. Create users */
+        // 1) user
+        var insertUserReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+
+        // 2) member1
+        var insertMember1Req = new InsertUserDto.Request(
+                2, "member1 sns id", "member1 pushToken",
+                "멤버1", "0101", true,
+                true, DeviceOs.ANDROID
+        );
+        var insertMember1Rsp = userService.signUp(insertMember1Req);
+        assertThat(insertMember1Rsp).isNotNull();
+
+        // 2) member2
+        var insertMember2Req = new InsertUserDto.Request(
+                3, "member2 sns id", "member2 pushToken",
+                "멤버2", "0201", false,
+                true, DeviceOs.IOS
+        );
+        var insertMember2Rsp = userService.signUp(insertMember2Req);
+        assertThat(insertMember2Rsp).isNotNull();
+
+        /* 0-2. Create participant room */
+        var insertParticipantRoomReq = new InsertRoomDto.Request(
+                "참여방", insertMember1Rsp.getUserId(), false,
+                Stream.of(insertUserRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList())
+        );
+        var insertParticipantRoomRsp = roomService.insert(insertParticipantRoomReq);
+        assertThat(insertParticipantRoomRsp).isNotNull();
+        assertThat(insertParticipantRoomRsp.getOwnerId()).isEqualTo(insertMember1Rsp.getUserId());
+        assertThat(insertParticipantRoomRsp.getMembers()).isNotNull();
+        assertThat(insertParticipantRoomRsp.getMembers().size()).isEqualTo(3);
+
+        // TODO
+        /* 0-3. Create participant room memory */
+
+        /* 1. Delete room participant */
     }
     
     boolean isNow(String time) {

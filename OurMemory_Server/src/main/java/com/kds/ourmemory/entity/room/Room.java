@@ -100,6 +100,6 @@ public class Room extends BaseTimeEntity implements Serializable{
 	}
 
 	public void deleteUser(User user) {
-		users.stream().filter(user::equals).forEach(users::remove);
+		users.remove(user);
 	}
 }
