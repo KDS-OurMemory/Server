@@ -256,7 +256,7 @@ public class MemoryService {
     }
     
     private Optional<Memory> findMemory(Long id) {
-        return Optional.ofNullable(id).flatMap(memoryRepo::findById);
+        return Optional.ofNullable(id).flatMap(memoryId -> memoryRepo.findById(memoryId).filter(Memory::isUsed));
     }
 
     private Optional<List<Memory>> findMemoriesByName(String name) {
@@ -270,7 +270,7 @@ public class MemoryService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id).flatMap(userRepo::findById);
+        return Optional.ofNullable(id).flatMap(userId -> userRepo.findById(userId).filter(User::isUsed));
     }
     
     /**
@@ -280,6 +280,6 @@ public class MemoryService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<Room> findRoom(Long id) {
-        return Optional.ofNullable(id).flatMap(roomRepo::findById);
+        return Optional.ofNullable(id).flatMap(roomId -> roomRepo.findById(roomId).filter(Room::isUsed));
     }
 }

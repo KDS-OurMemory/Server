@@ -141,4 +141,8 @@ public class User extends BaseTimeEntity implements Serializable {
 	    this.used = false;
 	    return this;
     }
+
+    public void deleteRooms(List<Room> rooms) {
+	    this.rooms.removeAll(rooms);
+    }
 }
