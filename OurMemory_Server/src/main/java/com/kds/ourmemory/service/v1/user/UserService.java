@@ -3,6 +3,7 @@ package com.kds.ourmemory.service.v1.user;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.user.dto.*;
+import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.room.RoomService;
@@ -90,10 +91,15 @@ public class UserService {
      * Delete user
      *
      * user - used = false
-     * Related memories - maintain
+     *
+     * Related memories
+     *  1) owner, member - maintain
+     *  2) private - Delete memories
+     *
      * Related rooms
-     *  1) owner - Delete after transferring the owner.
-     *  2) member - Delete from member
+     *  1) owner - transferring the owner and delete user from room member.
+     *  2) participant - Delete user from room member
+     *  3) private - Delete room
      *
      * @param userId [long]
      * @return DeleteUserDto.Response
@@ -104,13 +110,32 @@ public class UserService {
                 .map(user -> {
                     user.getRooms().forEach(room -> {
                         var members = room.getUsers();
-                        var owner = room.getOwner();
-                        if (owner.equals(user) && members.size() > 1) {
-                            transferOwner(room.getId(), owner.getId(), members);
-                        }
-                        room.deleteUser(user);
-                    });
 
+                        if (members.size() > 1) {
+                            var owner = room.getOwner();
+                            // Related rooms - 1) owner room
+                            if (owner.equals(user)) {
+                                transferOwner(room.getId(), owner.getId(), members);
+                            }
+
+                            // Related rooms - 1) 2)
+                            room.deleteUser(user);
+                        }
+                        // Related rooms - 3)
+                        else if (members.size() == 1) {
+                            roomService.delete(room.getId());
+                        }
+                    });
+                    user.deleteRooms(user.getRooms());
+
+                    return user;
+                })
+                .map(user -> {
+                    // Related memories - 2)
+                    user.getMemories().forEach(memory ->
+                        Optional.of(memory).filter(m -> m.getRooms().isEmpty())
+                                .ifPresent(Memory::deleteMemory)
+                    );
                     return user;
                 })
                 .map(user -> new DeleteUserDto.Response(user.formatModDate()))

@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -322,7 +323,6 @@ class UserServiceTest {
         assertThat(deleteUserRsp).isNotNull();
         assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
 
-        // TODO: delete room if private room
         /* 2. Find room and check delete */
         var roomId = insertPrivateRoomRsp.getRoomId();
         assertThrows(
@@ -370,39 +370,85 @@ class UserServiceTest {
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
-        // 2) member1
-        var insertMember1Req = new InsertUserDto.Request(
+        // 2) member
+        var insertMemberReq = new InsertUserDto.Request(
                 2, "member1 sns id", "member1 pushToken",
                 "멤버1", "0101", true,
                 true, DeviceOs.ANDROID
         );
-        var insertMember1Rsp = userService.signUp(insertMember1Req);
-        assertThat(insertMember1Rsp).isNotNull();
-
-        // 2) member2
-        var insertMember2Req = new InsertUserDto.Request(
-                3, "member2 sns id", "member2 pushToken",
-                "멤버2", "0201", false,
-                true, DeviceOs.IOS
-        );
-        var insertMember2Rsp = userService.signUp(insertMember2Req);
-        assertThat(insertMember2Rsp).isNotNull();
+        var insertMemberRsp = userService.signUp(insertMemberReq);
+        assertThat(insertMemberRsp).isNotNull();
 
         /* 0-2. Create owner room */
         var insertOwnerRoomReq = new InsertRoomDto.Request(
                 "방장 방", insertUserRsp.getUserId(), false,
-                Stream.of(insertMember1Rsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList())
+                Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList())
         );
         var insertOwnerRoomRsp = roomService.insert(insertOwnerRoomReq);
         assertThat(insertOwnerRoomRsp).isNotNull();
         assertThat(insertOwnerRoomRsp.getOwnerId()).isEqualTo(insertUserRsp.getUserId());
         assertThat(insertOwnerRoomRsp.getMembers()).isNotNull();
-        assertThat(insertOwnerRoomRsp.getMembers().size()).isEqualTo(3);
+        assertThat(insertOwnerRoomRsp.getMembers().size()).isEqualTo(2);
 
-        // TODO
         /* 0-3. Create owner room memory */
+        var insertOwnerRoomMemoryReq = new InsertMemoryDto.Request(
+                insertUserRsp.getUserId(),
+                insertOwnerRoomRsp.getRoomId(),
+                "개인 일정(방o)",
+                Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList()),
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF",  // 배경색
+                null
+        );
+        var insertOwnerRoomMemoryRsp = memoryService.insert(insertOwnerRoomMemoryReq);
+        assertThat(insertOwnerRoomMemoryRsp).isNotNull();
+        assertThat(insertOwnerRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
+        assertThat(insertOwnerRoomMemoryRsp.getMainRoomId()).isEqualTo(insertOwnerRoomRsp.getRoomId());
+        assertThat(insertOwnerRoomMemoryRsp.getMembers()).isNotNull();
+        assertThat(insertOwnerRoomMemoryRsp.getMembers().size()).isEqualTo(2);
 
         /* 1. Delete room owner */
+        var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
+        assertThat(deleteUserRsp).isNotNull();
+        assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
+
+        /* 2. Find room and check transfer owner */
+        var findRoomRsp = roomService.find(insertOwnerRoomRsp.getRoomId());
+        assertThat(findRoomRsp).isNotNull();
+        assertThat(findRoomRsp.getOwnerId()).isNotEqualTo(insertUserRsp.getUserId());
+        assertThat(findRoomRsp.getMembers()).isNotNull();
+        assertThat(findRoomRsp.getMembers().size()).isEqualTo(1);
+
+        var findRoomsByUser = roomService.findRooms(insertUserRsp.getUserId(), null);
+        assertTrue(findRoomsByUser.isEmpty());
+
+        var findRoomsByMember = roomService.findRooms(insertMemberRsp.getUserId(), null);
+        assertThat(findRoomsByMember).isNotNull();
+        assertThat(findRoomsByMember.size()).isOne();
+        var findRoomsByMemberRsp = findRoomsByMember.get(0);
+        assertThat(findRoomsByMemberRsp).isNotNull();
+        assertThat(findRoomsByMemberRsp.getRoomId()).isEqualTo(insertOwnerRoomRsp.getRoomId());
+        
+        /* 3. Find memory */
+        var findMemoryRsp = memoryService.find(insertOwnerRoomMemoryRsp.getMemoryId());
+        assertThat(findMemoryRsp).isNotNull();
+        assertThat(findMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
+        
+        var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
+        assertThat(findMemoriesByUser).isNotNull();
+        assertTrue(findMemoriesByUser.isEmpty());
+        
+        var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
+        assertThat(findMemoriesByMember).isNotNull();
+        assertThat(findMemoriesByMember.size()).isOne();
+        var findMemoriesByMemberRsp = findMemoriesByMember.get(0);
+        assertThat(findMemoriesByMemberRsp).isNotNull();
+        assertThat(findMemoriesByMemberRsp.getMemoryId()).isEqualTo(insertOwnerRoomMemoryRsp.getMemoryId());
     }
 
     @Test
@@ -421,13 +467,13 @@ class UserServiceTest {
         assertThat(insertUserRsp).isNotNull();
 
         // 2) member1
-        var insertMember1Req = new InsertUserDto.Request(
+        var insertMemberReq = new InsertUserDto.Request(
                 2, "member1 sns id", "member1 pushToken",
                 "멤버1", "0101", true,
                 true, DeviceOs.ANDROID
         );
-        var insertMember1Rsp = userService.signUp(insertMember1Req);
-        assertThat(insertMember1Rsp).isNotNull();
+        var insertMemberRsp = userService.signUp(insertMemberReq);
+        assertThat(insertMemberRsp).isNotNull();
 
         // 2) member2
         var insertMember2Req = new InsertUserDto.Request(
@@ -440,12 +486,12 @@ class UserServiceTest {
 
         /* 0-2. Create participant room */
         var insertParticipantRoomReq = new InsertRoomDto.Request(
-                "참여방", insertMember1Rsp.getUserId(), false,
+                "참여방", insertMemberRsp.getUserId(), false,
                 Stream.of(insertUserRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList())
         );
         var insertParticipantRoomRsp = roomService.insert(insertParticipantRoomReq);
         assertThat(insertParticipantRoomRsp).isNotNull();
-        assertThat(insertParticipantRoomRsp.getOwnerId()).isEqualTo(insertMember1Rsp.getUserId());
+        assertThat(insertParticipantRoomRsp.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
         assertThat(insertParticipantRoomRsp.getMembers()).isNotNull();
         assertThat(insertParticipantRoomRsp.getMembers().size()).isEqualTo(3);
 
