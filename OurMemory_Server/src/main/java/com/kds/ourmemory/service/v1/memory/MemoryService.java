@@ -228,6 +228,7 @@ public class MemoryService {
                 .collect(toList());
     }
 
+    @Transactional
     public UpdateMemoryDto.Response update(long memoryId, UpdateMemoryDto.Request request) {
         return findMemory(memoryId).map(memory ->
                 memory.updateMemory(request)
@@ -239,6 +240,7 @@ public class MemoryService {
         );
     }
 
+    @Transactional
     public DeleteMemoryDto.Response delete(long id) {
         return findMemory(id)
                 .map(Memory::deleteMemory)

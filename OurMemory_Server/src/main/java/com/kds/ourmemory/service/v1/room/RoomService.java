@@ -106,6 +106,7 @@ public class RoomService {
         return findRooms;
     }
 
+    @Transactional
     public PatchRoomOwnerDto.Response patchOwner(long roomId, long userId) {
         return findRoom(roomId)
                 .map(room -> {
@@ -139,6 +140,7 @@ public class RoomService {
                 );
     }
 
+    @Transactional
     public UpdateRoomDto.Response update(long roomId, UpdateRoomDto.Request request) {
         return findRoom(roomId).map(room ->
                 room.updateRoom(request)
@@ -150,6 +152,7 @@ public class RoomService {
         );
     }
 
+    @Transactional
     public DeleteRoomDto.Response delete(long id) {
         return findRoom(id)
                 .map(Room::deleteRoom)
