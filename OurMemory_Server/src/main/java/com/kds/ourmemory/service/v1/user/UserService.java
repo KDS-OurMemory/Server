@@ -46,6 +46,7 @@ public class UserService {
                         String.format("Not found users matched id '%d' or name '%s'", userId, name)));
     }
 
+    @Transactional
     public PatchTokenDto.Response patchToken(long userId, PatchTokenDto.Request request) {
         return findUser(userId).map(user ->
                 user.changePushToken(request.getPushToken())
@@ -55,6 +56,7 @@ public class UserService {
        .orElseThrow(() -> new UserNotFoundException(getUserNotFoundMessage.apply(userId)));
     }
 
+    @Transactional
     public PutUserDto.Response update(long userId, PutUserDto.Request request) {
         return findUser(userId).map(user ->
                 user.updateUser(request)
