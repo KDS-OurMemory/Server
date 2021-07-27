@@ -394,7 +394,7 @@ class UserServiceTest {
         var insertOwnerRoomMemoryReq = new InsertMemoryDto.Request(
                 insertUserRsp.getUserId(),
                 insertOwnerRoomRsp.getRoomId(),
-                "개인 일정(방o)",
+                "방장 방의 공유 일정",
                 Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList()),
                 "Test Contents",
                 "Test Place",
@@ -441,8 +441,11 @@ class UserServiceTest {
         
         var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
         assertThat(findMemoriesByUser).isNotNull();
-        assertTrue(findMemoriesByUser.isEmpty());
-        
+        assertThat(findMemoriesByUser.size()).isOne();
+        var findMemoriesByUserRsp = findMemoriesByUser.get(0);
+        assertThat(findMemoriesByUserRsp).isNotNull();
+        assertThat(findMemoriesByUserRsp.getMemoryId()).isEqualTo(insertOwnerRoomMemoryRsp.getMemoryId());
+
         var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
         assertThat(findMemoriesByMember).isNotNull();
         assertThat(findMemoriesByMember.size()).isOne();
@@ -495,10 +498,68 @@ class UserServiceTest {
         assertThat(insertParticipantRoomRsp.getMembers()).isNotNull();
         assertThat(insertParticipantRoomRsp.getMembers().size()).isEqualTo(3);
 
-        // TODO
         /* 0-3. Create participant room memory */
+        var insertParticipantRoomMemoryReq = new InsertMemoryDto.Request(
+                insertUserRsp.getUserId(),
+                insertParticipantRoomRsp.getRoomId(),
+                "참여방 일정",
+                Stream.of(insertMemberRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList()),
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF",  // 배경색
+                null
+        );
+        var insertParticipantRoomMemoryRsp = memoryService.insert(insertParticipantRoomMemoryReq);
+        assertThat(insertParticipantRoomMemoryRsp).isNotNull();
+        assertThat(insertParticipantRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
+        assertThat(insertParticipantRoomMemoryRsp.getMainRoomId()).isEqualTo(insertParticipantRoomRsp.getRoomId());
+        assertThat(insertParticipantRoomMemoryRsp.getMembers()).isNotNull();
+        assertThat(insertParticipantRoomMemoryRsp.getMembers().size()).isEqualTo(3);
 
         /* 1. Delete room participant */
+        var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
+        assertThat(deleteUserRsp).isNotNull();
+        assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
+
+        /* 2. Find room and check member */
+        var findRoomRsp = roomService.find(insertParticipantRoomRsp.getRoomId());
+        assertThat(findRoomRsp).isNotNull();
+        assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
+        assertThat(findRoomRsp.getMembers()).isNotNull();
+        assertThat(findRoomRsp.getMembers().size()).isEqualTo(2);
+
+        var findRoomsByUser = roomService.findRooms(insertUserRsp.getUserId(), null);
+        assertTrue(findRoomsByUser.isEmpty());
+
+        var findRoomsByMember = roomService.findRooms(insertMemberRsp.getUserId(), null);
+        assertThat(findRoomsByMember).isNotNull();
+        assertThat(findRoomsByMember.size()).isOne();
+        var findRoomsByMemberRsp = findRoomsByMember.get(0);
+        assertThat(findRoomsByMemberRsp).isNotNull();
+        assertThat(findRoomsByMemberRsp.getRoomId()).isEqualTo(insertParticipantRoomRsp.getRoomId());
+
+        /* 3. Find memory */
+        var findMemoryRsp = memoryService.find(insertParticipantRoomMemoryRsp.getMemoryId());
+        assertThat(findMemoryRsp).isNotNull();
+        assertThat(findMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
+
+        var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
+        assertThat(findMemoriesByUser).isNotNull();
+        assertThat(findMemoriesByUser.size()).isOne();
+        var findMemoriesByUserRsp = findMemoriesByUser.get(0);
+        assertThat(findMemoriesByUserRsp).isNotNull();
+        assertThat(findMemoriesByUserRsp.getMemoryId()).isEqualTo(insertParticipantRoomMemoryRsp.getMemoryId());
+
+        var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
+        assertThat(findMemoriesByMember).isNotNull();
+        assertThat(findMemoriesByMember.size()).isOne();
+        var findMemoriesByMemberRsp = findMemoriesByMember.get(0);
+        assertThat(findMemoriesByMemberRsp).isNotNull();
+        assertThat(findMemoriesByMemberRsp.getMemoryId()).isEqualTo(insertParticipantRoomMemoryRsp.getMemoryId());
     }
     
     boolean isNow(String time) {

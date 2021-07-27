@@ -1,9 +1,6 @@
 package com.kds.ourmemory.service.v1.memory;
 
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
+import com.kds.ourmemory.advice.v1.memory.exception.*;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
@@ -46,6 +43,11 @@ public class MemoryService {
     
     @Transactional
     public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
+        if (isDeleteUser(request.getUserId()))
+            throw new MemoryNotFoundWriterException(
+                    String.format(NOT_FOUND_MESSAGE, "writer", request.getUserId())
+            );
+
         return findUser(request.getUserId())
                 .map(writer -> {
                     var memory = Memory.builder()
@@ -118,19 +120,22 @@ public class MemoryService {
     @Transactional
     private void relationMemoryToMembers(Memory memory, List<Long> members) {
         Optional.ofNullable(members)
-                .ifPresent(mem -> mem.forEach(id -> findUser(id).map(user -> {
-                            user.addMemory(memory);
-                            memory.addUser(user);
+                .ifPresent(mem -> mem.forEach(id -> {
+                            if (isDeleteUser(id))
+                                throw new MemoryNotFoundMemberException(
+                                        String.format(NOT_FOUND_MESSAGE, "member", id)
+                                );
 
-                            fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
-                                    "OurMemory - 일정 공유", String.format("'%s' 일정에 참여되셨습니다.", memory.getName())));
-                            return user;
+                            findUser(id).ifPresent(user -> {
+                                user.addMemory(memory);
+                                memory.addUser(user);
+
+                                fcmService.sendMessageTo(new FcmDto.Request(user.getPushToken(), user.getDeviceOs(),
+                                        "OurMemory - 일정 공유", String.format("'%s' 일정에 참여되셨습니다.", memory.getName()))
+                                );
+                            });
                         })
-                        .orElseThrow(() -> new MemoryNotFoundRoomException(
-                                String.format(NOT_FOUND_MESSAGE, "room", id))
-                        )
-                )
-        );
+                );
     }
 
     /**
@@ -222,6 +227,7 @@ public class MemoryService {
 
         return findMemories.stream()
                 .filter(Memory::isUsed)
+                .distinct()
                 .sorted(Comparator.comparing(Memory::getStartDate)) // first order
                 .sorted(Comparator.comparing(Memory::getEndDate))   // second order
                 .map(FindMemoriesDto.Response::new)
@@ -272,7 +278,12 @@ public class MemoryService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id).flatMap(userId -> userRepo.findById(userId).filter(User::isUsed));
+        return Optional.ofNullable(id).flatMap(userRepo::findById);
+    }
+
+    private boolean isDeleteUser(Long id) {
+        return userRepo.findById(id)
+                .filter(user -> !user.isUsed()).isPresent();
     }
     
     /**

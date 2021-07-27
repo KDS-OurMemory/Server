@@ -1,10 +1,7 @@
 package com.kds.ourmemory.advice.v1.memory;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
+import com.kds.ourmemory.advice.v1.memory.exception.*;
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.memory.MemoryController;
 import org.springframework.core.Ordered;
@@ -29,6 +26,11 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse{
     @ExceptionHandler(MemoryNotFoundWriterException.class)
     public ResponseEntity<ApiResult<String>> handleMemoryNotFoundWriterException(MemoryNotFoundWriterException e) {
         return response(NOT_FOUND_WRITER, e);
+    }
+
+    @ExceptionHandler(MemoryNotFoundMemberException.class)
+    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundMemberException(MemoryNotFoundMemberException e) {
+        return response(NOT_FOUND_MEMBER, e);
     }
     
     @ExceptionHandler(MemoryNotFoundRoomException.class)

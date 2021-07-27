@@ -75,10 +75,10 @@ public class UserService {
     }
 
     @Transactional
-    public PutUserDto.Response update(long userId, PutUserDto.Request request) {
+    public UpdateUserDto.Response update(long userId, UpdateUserDto.Request request) {
         return findUser(userId).map(user ->
                 user.updateUser(request)
-                        .map(u -> new PutUserDto.Response(u.formatModDate()))
+                        .map(u -> new UpdateUserDto.Response(u.formatModDate()))
                         .orElseThrow(() -> new UserInternalServerException("Failed to update for user data."))
                 )
                 .orElseThrow(() -> new UserNotFoundException(

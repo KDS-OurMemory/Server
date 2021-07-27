@@ -28,12 +28,12 @@ public class FindUsersDto {
         @ApiModelProperty(value = "생일 공개여부", example = "false")
         private final boolean birthdayOpen;
 
-        public Response(User user) {
+       public Response(User user) {
             this.userId = user.getId();
             this.name = user.getName();
             this.birthday = user.isBirthdayOpen()? user.getBirthday() : null;
             this.solar = user.isSolar();
             this.birthdayOpen = user.isBirthdayOpen();
-        }
+       }
     }
 }
