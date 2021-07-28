@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@EqualsAndHashCode(of = "id", callSuper = false)
 @ToString(exclude = {"users", "memories"})
 @DynamicUpdate
 @Entity(name = "rooms")
@@ -76,9 +77,8 @@ public class Room extends BaseTimeEntity implements Serializable{
         this.memories.add(memory);
     }
 
-    public Room patchOwner(User user) {
+    public void patchOwner(User user) {
 		this.owner = user;
-		return this;
 	}
 
 	public Optional<Room> updateRoom(UpdateRoomDto.Request request) {
@@ -96,8 +96,11 @@ public class Room extends BaseTimeEntity implements Serializable{
 		return this;
 	}
 
-	public Room deleteMemory(Memory memory) {
+	public void deleteMemory(Memory memory) {
 		memories.stream().filter(m -> m.equals(memory)).forEach(Memory::deleteMemory);
-		return this;
+	}
+
+	public void deleteUser(User user) {
+		users.remove(user);
 	}
 }

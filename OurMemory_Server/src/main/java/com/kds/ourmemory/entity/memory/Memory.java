@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@EqualsAndHashCode(of = "id", callSuper = false)
 @ToString(exclude = {"rooms", "users"})
 @DynamicUpdate
 @Entity(name = "memories")

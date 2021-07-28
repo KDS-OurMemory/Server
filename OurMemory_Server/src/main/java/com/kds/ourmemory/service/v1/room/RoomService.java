@@ -16,6 +16,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -93,7 +94,7 @@ public class RoomService {
                 );
     }
 
-    public List<Room> findRooms(Long userId, String name) {
+    public List<FindRoomsDto.Response> findRooms(Long userId, String name) {
         List<Room> findRooms = new ArrayList<>();
 
         findUser(userId).ifPresent(
@@ -103,7 +104,7 @@ public class RoomService {
                 rooms -> findRooms.addAll(rooms.stream().filter(Room::isUsed).collect(toList()))
         );
 
-        return findRooms;
+        return findRooms.stream().map(FindRoomsDto.Response::new).collect(Collectors.toList());
     }
 
     @Transactional
@@ -175,7 +176,7 @@ public class RoomService {
     }
     
     private Optional<Room> findRoom(Long id) {
-        return Optional.ofNullable(id).flatMap(roomRepo::findById);
+        return Optional.ofNullable(id).flatMap(roomId -> roomRepo.findById(roomId).filter(Room::isUsed));
     }
 
     private Optional<List<Room>> findRoomsByName(String name) {
@@ -189,6 +190,6 @@ public class RoomService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id).flatMap(userRepo::findById);
+        return Optional.ofNullable(id).flatMap(userId -> userRepo.findById(userId).filter(User::isUsed));
     }
 }

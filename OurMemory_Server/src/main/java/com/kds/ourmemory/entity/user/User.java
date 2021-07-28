@@ -1,13 +1,10 @@
 package com.kds.ourmemory.entity.user;
 
-import com.kds.ourmemory.controller.v1.user.dto.PutUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -23,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
+@EqualsAndHashCode(of = "id", callSuper = false)
 @DynamicUpdate
 @Entity(name = "users")
 @Getter
@@ -127,7 +125,7 @@ public class User extends BaseTimeEntity implements Serializable {
                 });
     }
 
-    public Optional<User> updateUser(PutUserDto.Request request) {
+    public Optional<User> updateUser(UpdateUserDto.Request request) {
         return Optional.ofNullable(request)
                 .map(req -> {
                     name = Objects.nonNull(req.getName()) ? req.getName() : name;
@@ -137,5 +135,14 @@ public class User extends BaseTimeEntity implements Serializable {
 
                     return this;
                 });
+    }
+
+    public User deleteUser() {
+	    this.used = false;
+	    return this;
+    }
+
+    public void deleteRooms(List<Room> rooms) {
+	    this.rooms.removeAll(rooms);
     }
 }
