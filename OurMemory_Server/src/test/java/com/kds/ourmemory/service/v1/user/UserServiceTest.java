@@ -2,13 +2,18 @@ package com.kds.ourmemory.service.v1.user;
 
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
+import com.kds.ourmemory.controller.v1.friend.dto.AcceptFriendDto;
+import com.kds.ourmemory.controller.v1.friend.dto.PatchFriendStatusDto;
+import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
 import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
+import com.kds.ourmemory.service.v1.friend.FriendService;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +42,8 @@ class UserServiceTest {
 
     private final MemoryService memoryService;  // The creation process from adding to memory.
 
+    private final FriendService friendService;  // Add to pass the status of friends when viewing users
+
     /**
      * Assert time format -> delete sec
      *
@@ -46,10 +53,13 @@ class UserServiceTest {
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     @Autowired
-    private UserServiceTest(UserService userService, RoomService roomService, MemoryService memoryService) {
+    private UserServiceTest(
+            UserService userService, RoomService roomService, MemoryService memoryService, FriendService friendService
+    ) {
         this.userService = userService;
         this.roomService = roomService;
         this.memoryService = memoryService;
+        this.friendService = friendService;
     }
 
     @BeforeAll
@@ -160,9 +170,9 @@ class UserServiceTest {
         assertThat(insertSameNameRsp2.getJoinDate()).isNotNull();
         assertThat(isNow(insertSameNameRsp2.getJoinDate())).isTrue();
         
-        /* 2. Find users */
+        /* 2. Find users before set friend */
         // 1) find by id : insertUniqueNameReq
-        var findUsersByIdList1 = userService.findUsers(insertUniqueNameRsp.getUserId(), null);
+        var findUsersByIdList1 = userService.findUsers(insertSameNameRsp1.getUserId(), insertUniqueNameRsp.getUserId(), null, null);
         assertThat(findUsersByIdList1).isNotNull();
         assertThat(findUsersByIdList1.isEmpty()).isFalse();
         assertThat(findUsersByIdList1.size()).isOne();
@@ -176,9 +186,10 @@ class UserServiceTest {
         assertThat(findUsersById1.getBirthday()).isEqualTo(
                 insertUniqueNameReq.isBirthdayOpen()? insertUniqueNameReq.getBirthday() : null
         );
+        assertThat(findUsersById1.getFriendStatus()).isNull();
 
         // 2) find by id : insertSameNameReq1
-        var findUsersByIdList2 = userService.findUsers(insertSameNameRsp1.getUserId(), null);
+        var findUsersByIdList2 = userService.findUsers(insertUniqueNameRsp.getUserId(), insertSameNameRsp1.getUserId(), null, null);
         assertThat(findUsersByIdList2).isNotNull();
         assertThat(findUsersByIdList2.isEmpty()).isFalse();
         assertThat(findUsersByIdList2.size()).isOne();
@@ -192,9 +203,10 @@ class UserServiceTest {
         assertThat(findUsersById2.getBirthday()).isEqualTo(
                 insertSameNameReq1.isBirthdayOpen()? insertSameNameReq1.getBirthday() : null
         );
+        assertThat(findUsersById2.getFriendStatus()).isNull();
 
         // 3) find by id : insertSameNameReq2
-        var findUsersByIdList3 = userService.findUsers(insertSameNameRsp2.getUserId(), null);
+        var findUsersByIdList3 = userService.findUsers(insertSameNameRsp1.getUserId(), insertSameNameRsp2.getUserId(), null, null);
         assertThat(findUsersByIdList3).isNotNull();
         assertThat(findUsersByIdList3.isEmpty()).isFalse();
         assertThat(findUsersByIdList3.size()).isOne();
@@ -208,9 +220,10 @@ class UserServiceTest {
         assertThat(findUsersById3.getBirthday()).isEqualTo(
                 insertSameNameReq2.isBirthdayOpen()? insertSameNameReq2.getBirthday() : null
         );
+        assertThat(findUsersById3.getFriendStatus()).isNull();
 
         // 4) find by name : insertUniqueNameReq
-        var findUsersByUniqueNameList = userService.findUsers(null, insertUniqueNameReq.getName());
+        var findUsersByUniqueNameList = userService.findUsers(insertSameNameRsp1.getUserId(), null, insertUniqueNameReq.getName(), null);
         assertThat(findUsersByUniqueNameList).isNotNull();
         assertThat(findUsersByUniqueNameList.isEmpty()).isFalse();
         assertThat(findUsersByUniqueNameList.size()).isOne();
@@ -224,9 +237,10 @@ class UserServiceTest {
         assertThat(findUsersByUniqueName.getBirthday()).isEqualTo(
                 insertUniqueNameReq.isBirthdayOpen()? insertUniqueNameReq.getBirthday() : null
         );
+        assertThat(findUsersByUniqueName.getFriendStatus()).isNull();
 
         // 5) find by name : insertSameNameReq1 or 2
-        var findUsersBySameNameList = userService.findUsers(null, insertSameNameReq1.getName());
+        var findUsersBySameNameList = userService.findUsers(insertUniqueNameRsp.getUserId(), null, insertSameNameReq1.getName(), null);
         assertThat(findUsersBySameNameList).isNotNull();
         assertThat(findUsersBySameNameList.isEmpty()).isFalse();
         assertThat(findUsersBySameNameList.size()).isEqualTo(2);
@@ -245,7 +259,76 @@ class UserServiceTest {
             assertThat(findUsersBySameName.getBirthday()).isEqualTo(
                     findUsersBySameNameReq.isBirthdayOpen()? findUsersBySameNameReq.getBirthday() : null
             );
+            assertThat(findUsersBySameName.getFriendStatus()).isNull();
         }
+
+        /* 3. Set Friend Status */
+        // 1) WAIT - uniqueName -> sameName1, REQUESTED_BY - sameName1 -> uniqueName
+        var waitRequestFriendRsp = friendService.requestFriend(
+                new RequestFriendDto.Request(insertUniqueNameRsp.getUserId(), insertSameNameRsp1.getUserId())
+        );
+        assertThat(waitRequestFriendRsp).isNotNull();
+        assertTrue(isNow(waitRequestFriendRsp.getRequestDate()));
+
+        // 2) FRIEND - uniqueName -> sameName2, BLOCK - sameName2 -> uniqueName
+        var friendRequestFriendRsp = friendService.requestFriend(
+                new RequestFriendDto.Request(insertUniqueNameRsp.getUserId(), insertSameNameRsp2.getUserId())
+        );
+        assertThat(friendRequestFriendRsp).isNotNull();
+        assertTrue(isNow(friendRequestFriendRsp.getRequestDate()));
+
+        var friendAcceptFriendRsp = friendService.acceptFriend(
+                new AcceptFriendDto.Request(insertSameNameRsp2.getUserId(), insertUniqueNameRsp.getUserId())
+        );
+        assertThat(friendAcceptFriendRsp).isNotNull();
+        assertTrue(isNow(friendAcceptFriendRsp.getAcceptDate()));
+
+        var blockFriendRsp = friendService.patchFriendStatus(
+                new PatchFriendStatusDto.Request(insertSameNameRsp2.getUserId(), insertUniqueNameRsp.getUserId(), FriendStatus.BLOCK)
+        );
+        assertThat(blockFriendRsp).isNotNull();
+        assertTrue(isNow(blockFriendRsp.getPatchDate()));
+
+        /* 4. Find users after set friend */
+        // 1) WAIT
+        var findUsersByWaitList = userService.findUsers(insertUniqueNameRsp.getUserId(), null, null, FriendStatus.WAIT);
+        assertThat(findUsersByWaitList).isNotNull();
+        assertThat(findUsersByWaitList.size()).isOne();
+
+        var findUsersByWaitRsp = findUsersByWaitList.get(0);
+        assertThat(findUsersByWaitRsp).isNotNull();
+        assertThat(findUsersByWaitRsp.getUserId()).isEqualTo(insertSameNameRsp1.getUserId());
+        assertThat(findUsersByWaitRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
+
+        // 2) REQUESTED_BY
+        var findUsersByRequestedByList = userService.findUsers(insertSameNameRsp1.getUserId(), null, null, FriendStatus.REQUESTED_BY);
+        assertThat(findUsersByRequestedByList).isNotNull();
+        assertThat(findUsersByRequestedByList.size()).isOne();
+
+        var findUsersByRequestedByRsp = findUsersByRequestedByList.get(0);
+        assertThat(findUsersByRequestedByRsp).isNotNull();
+        assertThat(findUsersByRequestedByRsp.getUserId()).isEqualTo(insertUniqueNameRsp.getUserId());
+        assertThat(findUsersByRequestedByRsp.getFriendStatus()).isEqualTo(FriendStatus.REQUESTED_BY);
+
+        // 3) FRIEND
+        var findUsersByFriendList = userService.findUsers(insertUniqueNameRsp.getUserId(), null, null, FriendStatus.FRIEND);
+        assertThat(findUsersByFriendList).isNotNull();
+        assertThat(findUsersByFriendList.size()).isOne();
+
+        var findUsersByFriendRsp = findUsersByFriendList.get(0);
+        assertThat(findUsersByFriendRsp).isNotNull();
+        assertThat(findUsersByFriendRsp.getUserId()).isEqualTo(insertSameNameRsp2.getUserId());
+        assertThat(findUsersByFriendRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
+
+        // 4) BLOCK
+        var findUsersByBlockList = userService.findUsers(insertSameNameRsp2.getUserId(), null, null, FriendStatus.BLOCK);
+        assertThat(findUsersByBlockList).isNotNull();
+        assertThat(findUsersByBlockList.size()).isOne();
+
+        var findUsersByBlockRsp = findUsersByBlockList.get(0);
+        assertThat(findUsersByBlockRsp).isNotNull();
+        assertThat(findUsersByBlockRsp.getUserId()).isEqualTo(insertUniqueNameRsp.getUserId());
+        assertThat(findUsersByBlockRsp.getFriendStatus()).isEqualTo(FriendStatus.BLOCK);
     }
 
     @Test

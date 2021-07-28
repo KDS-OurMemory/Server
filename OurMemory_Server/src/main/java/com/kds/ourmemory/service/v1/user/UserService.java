@@ -3,14 +3,18 @@ package com.kds.ourmemory.service.v1.user;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.user.dto.*;
+import com.kds.ourmemory.entity.friend.Friend;
+import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
+import com.kds.ourmemory.repository.friend.FriendRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,9 +22,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class UserService {
-    private final UserRepository userRepo;
+    private final UserRepository userRepository;
 
+    // When delete a user, deleted because sometimes a room is deleted or transfer owner
     private final RoomService roomService;
+
+    // When searching for a user, add to pass the friend status
+    private final FriendRepository friendRepository;
 
     private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
     private static final String NOT_FOUND_LOGIN_USER_MESSAGE = "Not found user matched snsType '%d' and snsId '%s'.";
@@ -52,13 +60,29 @@ public class UserService {
                 );
     }
 
-    public List<FindUsersDto.Response> findUsers(Long userId, String name) {
-        return findUsersByIdOrName(userId, name)
-                .map(users -> users.stream().map(FindUsersDto.Response::new)
+    public List<FindUsersDto.Response> findUsers(long userId, Long findId, String name, FriendStatus friendStatus) {
+        // Find by friendStatus
+        var responseList = findFriendsByUserId(userId)
+                .map(list -> list.stream().filter(friend -> friend.getStatus().equals(friendStatus))
+                        .map(friend -> new FindUsersDto.Response(friend.getFriendUser(), friend))
                         .collect(Collectors.toList())
                 )
-                .orElseThrow(() -> new UserNotFoundException(
-                        String.format("Not found users matched id '%d' or name '%s'", userId, name)));
+                .orElseGet(ArrayList::new);
+
+        // Find by findId or name
+        responseList.addAll(
+                findUsersByIdOrName(findId, name)
+                        .map(users -> users.stream().map(user -> {
+                                            Friend friend = findFriend(userId, findId)
+                                                    .orElse(null);
+                                            return new FindUsersDto.Response(user, friend);
+                                        })
+                                        .collect(Collectors.toList())
+                        )
+                        .orElseGet(ArrayList::new)
+        );
+
+        return responseList.stream().distinct().collect(Collectors.toList());
     }
 
     @Transactional
@@ -158,20 +182,36 @@ public class UserService {
      * User Repository
      */
     private Optional<User> insertUser(User user) {
-        return Optional.of(userRepo.save(user));
+        return Optional.of(userRepository.save(user));
     }
 
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id).flatMap(userRepo::findById);
+        return Optional.ofNullable(id).flatMap(userRepository::findById);
     }
 
     private Optional<User> findUser(int snsType, String snsId) {
-        return Optional.ofNullable(snsId).flatMap(sid -> userRepo.findBySnsIdAndSnsType(snsId, snsType));
+        return Optional.ofNullable(snsId).flatMap(sid -> userRepository.findBySnsIdAndSnsType(snsId, snsType));
     }
 
     private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {
-        return Optional.ofNullable(userRepo.findAllByIdOrName(userId, name))
+        return Optional.ofNullable(userRepository.findAllByIdOrName(userId, name))
                 .filter(users -> users.isPresent() && !users.get().isEmpty())
                 .orElseGet(Optional::empty);
+    }
+
+    /**
+     * Friend Repository
+     *
+     * When working with a service code, the service code is connected to each other 
+     * and is caught in an infinite loop in the injection of dependencies.
+     */
+    private Optional<Friend> findFriend(Long userId, Long friendId) {
+        return Optional.ofNullable(userId)
+                .flatMap(f -> friendRepository.findByUserIdAndFriendUserId(userId, friendId));
+    }
+
+    private Optional<List<Friend>> findFriendsByUserId(Long userId) {
+        return Optional.ofNullable(userId)
+                .flatMap(friendRepository::findByUserId);
     }
 }
