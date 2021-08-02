@@ -204,10 +204,6 @@ public class FriendService {
     public List<FindFriendsDto.Response> findFriends(long userId) {
         return findFriendsByUserId(userId)
                 .map(friends -> friends.stream()
-                        .filter(
-                                friend -> friend.getStatus().equals(FriendStatus.FRIEND)
-                                        || friend.getStatus().equals(FriendStatus.BLOCK)
-                        )
                         .map(FindFriendsDto.Response::new)
                         .collect(Collectors.toList())
                 )
