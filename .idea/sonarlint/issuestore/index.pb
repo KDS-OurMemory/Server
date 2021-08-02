@@ -45,8 +45,6 @@ _OurMemory_Server/src/test/java/com/kds/ourmemory/controller/v1/memory/MemoryCon
 ^OurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/friend/dto/CancelFriendDto.java,4\2\4226b23e0c93e6a3f4c00f0479bd862e03a32ede
 é
 ^OurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/friend/dto/DeleteFriendDto.java,3\c\3c46d103cf6967f7bb6fdeb98a72f2833984d13e
-ç
-]OurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/friend/dto/FindFriendsDto.java,f\a\fa28f5608930b97d31d2b70ecf362b84c492b0e4
 é
 ^OurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/memory/dto/FindMemoriesDto.java,5\c\5cada40976cbec60bfd51cea5ab58f5f003e58dc
 ì
@@ -61,8 +59,6 @@ nOurMemory_Server/src/main/java/com/kds/ourmemory/advice/v1/friend/exception/Fri
 [OurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/friend/FriendController.java,0\2\023c72121d0a07e8fb13356996f99091311dc9cf
 ç
 ]OurMemory_Server/src/main/java/com/kds/ourmemory/advice/v1/friend/FriendControllerAdvice.java,6\c\6c47e7e5f0da01b6085cce2e56429deed56e6587
-â
-YOurMemory_Server/src/test/java/com/kds/ourmemory/service/v1/friend/FriendServiceTest.java,d\0\d0d75f1790eabf61c8a4fd40e36b528810c9e0c8
 M
 OurMemory_Server/build.gradle,2\2\2289ef643f9e1f2be32d08e96dd3e608f1bb20fc
 y
