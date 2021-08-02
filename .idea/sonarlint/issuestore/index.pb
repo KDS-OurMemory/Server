@@ -92,8 +92,6 @@ ZOurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/user/dto/InsertU
 ˆ
 XOurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/user/dto/FindUserDto.java,3\d\3d7b38385e4ca31d177eaaf2530e8ca3be2f46f7
 Š
-ZOurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/user/dto/SignInUserDto.java,2\c\2c3137a7c4716472faf88ffe8ea28b6869100039
-Š
 ZOurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/user/dto/UpdateUserDto.java,2\0\20dd5e4c1c7029e43aa0965ac5fe56623f1cbb75
 Š
 ZOurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/room/dto/InsertRoomDto.java,e\8\e8a52c8040803a5b68f9b88d87dd474b5c2c433c

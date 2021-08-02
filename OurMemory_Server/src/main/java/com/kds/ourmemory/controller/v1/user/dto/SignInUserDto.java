@@ -32,6 +32,9 @@ public class SignInUserDto {
         @ApiModelProperty(value = "FCM 푸시 토큰")
         private final String pushToken;
 
+        @ApiModelProperty(value = "푸시 사용 여부")
+        private final boolean push;
+
         public Response(User user) {
             userId = user.getId();
             name = user.getName();
@@ -39,6 +42,7 @@ public class SignInUserDto {
             solar = user.isSolar();
             birthdayOpen = user.isBirthdayOpen();
             pushToken = user.getPushToken();
+            push = user.isPush();
         }
     }
 }

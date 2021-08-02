@@ -95,6 +95,7 @@ class UserServiceTest {
         assertThat(signInRsp.getName()).isEqualTo(insertReq.getName());
         assertThat(signInRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
         assertThat(signInRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
+        assertTrue(signInRsp.isPush());
 
         /* 3. Find */
         var findRsp = userService.find(insertRsp.getUserId());
