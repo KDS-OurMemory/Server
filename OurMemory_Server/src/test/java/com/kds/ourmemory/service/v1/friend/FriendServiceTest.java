@@ -138,7 +138,7 @@ class FriendServiceTest {
         assertThat(friendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 3. Delete friend */
-        // Delete friend from user
+        // 1) Delete from my side
         DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(user.getId(), friend.getId());
         assertThat(mySideDeleteRsp).isNotNull();
         assertThat(isNow(mySideDeleteRsp.getDeleteDate())).isTrue();
@@ -160,7 +160,7 @@ class FriendServiceTest {
         assertThat(deleteFriendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
         assertThat(deleteFriendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
-        // Delete user from friend
+        // 2) Delete from friend side
         DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(friend.getId(), user.getId());
         assertThat(friendSideDeleteRsp).isNotNull();
         assertThat(isNow(friendSideDeleteRsp.getDeleteDate())).isTrue();
@@ -423,7 +423,16 @@ class FriendServiceTest {
         // My side
         List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(user.getId());
         assertThat(mySideFindList).isNotNull();
-        assertThat(mySideFindList.size()).isZero();
+        assertThat(mySideFindList.size()).isOne();
+
+        FindFriendsDto.Response mySideFindRsp = mySideFindList.get(0);
+        assertThat(mySideFindRsp).isNotNull();
+        assertThat(mySideFindRsp.getFriendId()).isEqualTo(friend.getId());
+        assertThat(mySideFindRsp.getName()).isEqualTo(friend.getName());
+        assertThat(mySideFindRsp.isBirthdayOpen()).isEqualTo(friend.isBirthdayOpen());
+        assertThat(mySideFindRsp.getBirthday()).isEqualTo(friend.isBirthdayOpen() ? friend.getBirthday() : null);
+        assertThat(mySideFindRsp.isSolar()).isEqualTo(friend.isSolar());
+        assertThat(mySideFindRsp.getStatus()).isEqualTo(FriendStatus.WAIT);
 
         // Friend side
         List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(friend.getId());
