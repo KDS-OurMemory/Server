@@ -130,6 +130,7 @@ public class User extends BaseTimeEntity implements Serializable {
                 .map(req -> {
                     name = Objects.nonNull(req.getName()) ? req.getName() : name;
                     birthday = Objects.nonNull(req.getBirthday()) ? req.getBirthday() : birthday;
+                    solar = Objects.nonNull(req.getSolar()) ? req.getSolar() : solar;
                     birthdayOpen = Objects.nonNull(req.getBirthdayOpen()) ? req.getBirthdayOpen() : birthdayOpen;
                     push = Objects.nonNull(req.getPush()) ? req.getPush() : push;
 
