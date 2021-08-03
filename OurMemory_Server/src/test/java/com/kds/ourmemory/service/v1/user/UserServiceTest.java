@@ -80,7 +80,7 @@ class UserServiceTest {
                 false, DeviceOs.ANDROID
         );
         var patchReq = new PatchTokenDto.Request("patch token");
-        var updateReq = new UpdateUserDto.Request("update name", "0927", false, false);
+        var updateReq = new UpdateUserDto.Request("update name", "0927", false, false, false);
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -129,6 +129,7 @@ class UserServiceTest {
         assertThat(afterUpdateFindRsp.getBirthday()).isEqualTo(updateReq.getBirthday());
         assertThat(afterUpdateFindRsp.isBirthdayOpen()).isEqualTo(updateReq.getBirthdayOpen());
         assertThat(afterUpdateFindRsp.isPush()).isEqualTo(updateReq.getPush());
+        assertThat(afterUpdateFindRsp.isSolar()).isEqualTo(updateReq.getSolar());
     }
 
     @Test

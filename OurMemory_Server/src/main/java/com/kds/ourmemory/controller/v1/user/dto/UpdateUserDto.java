@@ -22,10 +22,13 @@ public class UpdateUserDto {
         @ApiModelProperty(value = "생일", notes = "MMdd, null 또는 빈 값일 경우 업데이트 안함.", example = "0101|null")
         private String birthday;
 
-        @ApiModelProperty(value = "생일 공개여부", notes = "null 또는 빈 값일 경우 업데이트 안함.", example = "true|false|null")
+        @ApiModelProperty(value = "양력 여부", notes = "null 일 경우 업데이트 안함.", example = "true|false|null")
+        private Boolean solar;
+
+        @ApiModelProperty(value = "생일 공개여부", notes = "null 일 경우 업데이트 안함.", example = "true|false|null")
         private Boolean birthdayOpen;
 
-        @ApiModelProperty(value = "푸시 사용여부", notes = "null 또는 빈 값일 경우 업데이트 안함.", example = "true|false|null")
+        @ApiModelProperty(value = "푸시 사용여부", notes = "null 일 경우 업데이트 안함.", example = "true|false|null")
         private Boolean push;
     }
 
