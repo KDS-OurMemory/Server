@@ -14,11 +14,11 @@ public class RequestFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Request {
-        @ApiModelProperty(value = "사용자 번호")
-        private final Long userId;
+        @ApiModelProperty(value = "요청한 사용자 번호")
+        private final Long fromUserId;
 
         @ApiModelProperty(value = "친구 요청할 사용자 번호")
-        private final Long friendId;
+        private final Long toUserId;
     }
 
     @ApiModel(value = "RequestFriendDto.Response", description = "Nested class in RequestFriendDto")

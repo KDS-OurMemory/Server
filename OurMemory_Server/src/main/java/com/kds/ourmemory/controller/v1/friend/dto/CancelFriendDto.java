@@ -14,11 +14,11 @@ public class CancelFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Request {
-        @ApiModelProperty(value = "사용자 번호")
-        private final Long userId;
+        @ApiModelProperty(value = "친구 요청보낸 사용자 번호")
+        private final Long fromUserId;
 
-        @ApiModelProperty(value = "친구 번호")
-        private final Long friendId;
+        @ApiModelProperty(value = "친구 요청 취소할 사용자 번호")
+        private final Long toUserId;
     }
 
     @ApiModel(value = "CancelFriendDto.Response", description = "nested class in CancelFriendDto")
