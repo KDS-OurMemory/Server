@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -104,7 +104,11 @@ public class RoomService {
                 rooms -> findRooms.addAll(rooms.stream().filter(Room::isUsed).collect(toList()))
         );
 
-        return findRooms.stream().map(FindRoomsDto.Response::new).collect(Collectors.toList());
+        return findRooms.stream()
+                .distinct()
+                .sorted(Comparator.comparing(Room::getRegDate).reversed())
+                .map(FindRoomsDto.Response::new)
+                .collect(toList());
     }
 
     @Transactional
