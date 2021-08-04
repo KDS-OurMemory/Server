@@ -132,6 +132,7 @@ class RoomServiceTest {
 
         findRooms = roomService.findRooms(null, "TestRoom");
         assertThat(findRooms).isNotNull();
+        assertThat(findRooms.size()).isOne();
 
         log.info("[Create_Read_Update_Delete] Find rooms");
         findRooms.forEach(room -> log.info(room.toString()));
