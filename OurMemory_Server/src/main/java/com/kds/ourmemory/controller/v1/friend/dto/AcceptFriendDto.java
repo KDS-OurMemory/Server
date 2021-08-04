@@ -14,11 +14,11 @@ public class AcceptFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Request {
-        @ApiModelProperty(value = "요청받은 사용자 번호")
-        private final Long acceptUserId;
+        @ApiModelProperty(value = "친구 요청받은 사용자 번호")
+        private final Long userId;
 
-        @ApiModelProperty(value = "요청한 사용자 번호")
-        private final Long requestUserId;
+        @ApiModelProperty(value = "친구 요청보낸 사용자 번호")
+        private final Long friendUserId;
     }
 
     @ApiModel(value = "InsertFriendDto.Response", description = "nested class in InsertFriendDto")

@@ -18,7 +18,7 @@ public class ReAddFriendDto {
         private final Long userId;
 
         @ApiModelProperty(value = "재 추가할 친구 번호")
-        private final Long friendId;
+        private final Long friendUserId;
     }
 
     @ApiModel(value = "ReAddFriendDto.Response", description = "nested class in ReAddFriendDto")
