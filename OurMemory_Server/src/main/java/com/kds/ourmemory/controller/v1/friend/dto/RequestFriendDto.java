@@ -18,7 +18,7 @@ public class RequestFriendDto {
         private final Long userId;
 
         @ApiModelProperty(value = "친구 요청할 사용자 번호")
-        private final Long friendId;
+        private final Long friendUserId;
     }
 
     @ApiModel(value = "RequestFriendDto.Response", description = "Nested class in RequestFriendDto")

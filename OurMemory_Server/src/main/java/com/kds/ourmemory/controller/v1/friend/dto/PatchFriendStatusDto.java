@@ -18,8 +18,8 @@ public class PatchFriendStatusDto {
         @ApiModelProperty(value = "사용자 번호", required = true)
         private final Long userId;
 
-        @ApiModelProperty(value = "친구 번호", required = true)
-        private final Long friendId;
+        @ApiModelProperty(value = "친구 사용자 번호", required = true)
+        private final Long friendUserId;
 
         @ApiModelProperty(value = "상태", required = true)
         private final FriendStatus status;
