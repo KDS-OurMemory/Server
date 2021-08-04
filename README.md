@@ -41,7 +41,7 @@
 https://www.erdcloud.com/d/JHJubRmhG7e2aD5cA
 ![ERD](https://user-images.githubusercontent.com/43669379/122242668-7bdc9200-cefe-11eb-973a-5f7fc4e4091d.png)
 
-## 5. CI&CD
+## 5. CI&CD(서버 만료, 재구축 예정)
  * Jenkins http://34.64.158.97/
  * id/pwd : Guest/Guest
  * 프로젝트 : KDS-OurMemory-Server
