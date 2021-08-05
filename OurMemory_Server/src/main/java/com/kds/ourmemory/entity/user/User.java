@@ -62,11 +62,11 @@ public class User extends BaseTimeEntity implements Serializable {
 	@Column(nullable = false, name="user_birthday_open_flag", columnDefinition = "boolean not null comment '0: 비공개, 1: 공개'")
 	private boolean birthdayOpen;
 	
-	@Column(nullable = false, name="user_role", columnDefinition = "varchar2(10) not null comment 'USER: 사용자, ADMIN: 관리자'")
+	@Column(nullable = false, name="user_role", columnDefinition = "varchar(10) not null comment 'USER: 사용자, ADMIN: 관리자'")
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Column(nullable = false, name="user_device_os", columnDefinition = "varchar2(10) not null comment 'ANDROID: 안드로이드 OS, IOS: 아이폰 OS'")
+    @Column(nullable = false, name="user_device_os", columnDefinition = "varchar(10) not null comment 'ANDROID: 안드로이드 OS, IOS: 아이폰 OS'")
     @Enumerated(EnumType.STRING)
     private DeviceOs deviceOs;
 

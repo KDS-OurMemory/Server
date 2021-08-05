@@ -30,7 +30,7 @@ public class Notice extends BaseTimeEntity implements Serializable {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "user_id"))
     private User user;
 
-    @Column(nullable = false, name = "notice_type", columnDefinition = "varchar2(20) not null comment 'FRIEND_REQUEST: 친구 요청'")
+    @Column(nullable = false, name = "notice_type", columnDefinition = "varchar(20) not null comment 'FRIEND_REQUEST: 친구 요청'")
     @Enumerated(EnumType.STRING)
     private NoticeType type;
 
