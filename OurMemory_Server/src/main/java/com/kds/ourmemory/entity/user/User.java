@@ -4,8 +4,12 @@ import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -20,7 +24,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
-@EqualsAndHashCode(of = "id", callSuper = false)
 @DynamicUpdate
 @Entity(name = "users")
 @Getter
@@ -35,7 +38,7 @@ public class User extends BaseTimeEntity implements Serializable {
 	@Column(name = "user_id")	// JPARepository 에서 스네이크 표기법을 지원하지 않아 카멜로 수정
 	private Long id;
 
-    @Column(nullable = false, name="user_sns_type") // 1: 카카오, 2: 구글, 3: 네이버
+    @Column(nullable = false, name="user_sns_type", columnDefinition = "int(1) not null comment '1: 카카오, 2: 구글, 3: 네이버'")
     private int snsType;
     
 	@Column(nullable = false, name="user_sns_id")
@@ -44,7 +47,7 @@ public class User extends BaseTimeEntity implements Serializable {
 	@Column(name="user_push_token")
 	private String pushToken;
 	
-	@Column(nullable = false, name="user_fcm_push_flag")
+	@Column(nullable = false, name="user_fcm_push_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
     private boolean push;
 	
 	@Column(name="user_name")
@@ -53,21 +56,21 @@ public class User extends BaseTimeEntity implements Serializable {
 	@Column(name="user_birthday")
 	private String birthday;
 	
-	@Column(nullable = false, name="user_solar_flag")
+	@Column(nullable = false, name="user_solar_flag", columnDefinition = "boolean not null comment '0: 음력, 1: 양력'")
 	private boolean solar;
 	
-	@Column(nullable = false, name="user_birthday_open_flag")
+	@Column(nullable = false, name="user_birthday_open_flag", columnDefinition = "boolean not null comment '0: 비공개, 1: 공개'")
 	private boolean birthdayOpen;
 	
-	@Column(nullable = false, name="user_role")
+	@Column(nullable = false, name="user_role", columnDefinition = "varchar2(10) not null comment 'USER: 사용자, ADMIN: 관리자'")
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Column(nullable = false, name="user_device_os")
+    @Column(nullable = false, name="user_device_os", columnDefinition = "varchar2(10) not null comment 'ANDROID: 안드로이드 OS, IOS: 아이폰 OS'")
     @Enumerated(EnumType.STRING)
     private DeviceOs deviceOs;
 
-	@Column(nullable = false, name="user_used_flag")
+	@Column(nullable = false, name="user_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
 	private boolean used;
 
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -145,5 +148,19 @@ public class User extends BaseTimeEntity implements Serializable {
 
     public void deleteRooms(List<Room> rooms) {
 	    this.rooms.removeAll(rooms);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        User user = (User) o;
+
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 562048007;
     }
 }

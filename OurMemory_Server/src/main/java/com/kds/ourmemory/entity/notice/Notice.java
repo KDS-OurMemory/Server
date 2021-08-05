@@ -4,16 +4,16 @@ import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.User;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-
 import java.io.Serializable;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@EqualsAndHashCode(of = "id", callSuper = false)
 @ToString
 @DynamicUpdate
 @Entity(name = "notices")
@@ -30,14 +30,14 @@ public class Notice extends BaseTimeEntity implements Serializable {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "user_id"))
     private User user;
 
-    @Column(nullable = false, name = "notice_type")
+    @Column(nullable = false, name = "notice_type", columnDefinition = "varchar2(20) not null comment 'FRIEND_REQUEST: 친구 요청'")
     @Enumerated(EnumType.STRING)
     private NoticeType type;
 
     @Column(nullable = false, name = "notice_value")
     private String value;
 
-    @Column(nullable = false, name = "notice_used")
+    @Column(nullable = false, name = "notice_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
     private Boolean used;
 
     @Builder
@@ -56,4 +56,17 @@ public class Notice extends BaseTimeEntity implements Serializable {
         this.used = false;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Notice notice = (Notice) o;
+
+        return Objects.equals(id, notice.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 115781988;
+    }
 }

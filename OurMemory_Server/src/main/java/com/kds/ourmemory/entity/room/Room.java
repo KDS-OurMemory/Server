@@ -5,6 +5,7 @@ import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
 import lombok.*;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -17,8 +18,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@EqualsAndHashCode(of = "id", callSuper = false)
-@ToString(exclude = {"users", "memories"})
+@ToString
 @DynamicUpdate
 @Entity(name = "rooms")
 @Getter
@@ -40,21 +40,23 @@ public class Room extends BaseTimeEntity implements Serializable{
 	@Column(nullable = false, name="room_name")
 	private String name;
 	
-	@Column(nullable = false, name="room_used")
+	@Column(nullable = false, name="room_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
 	private boolean used;
 	
-	@Column(nullable = false, name="room_opened")
+	@Column(nullable = false, name="room_opened_flag", columnDefinition = "boolean not null comment '0: 비공개, 1: 공개'")
 	private boolean opened;
-	
+
+	@ToString.Exclude
 	@ManyToMany(mappedBy = "rooms", fetch = FetchType.LAZY)
 	private List<User> users = new ArrayList<>();
-	
+
+	@ToString.Exclude
 	@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="rooms_memories",
                 joinColumns = @JoinColumn(name = "room_id"),
                 inverseJoinColumns = @JoinColumn(name = "memory_id"))
     private List<Memory> memories = new ArrayList<>();
-	
+
 	@Builder
 	public Room(Long id, User owner, String name, boolean used, boolean opened) {
         checkNotNull(owner, "사용자 번호에 맞는 방 생성자의 정보가 없습니다. 방 생성자의 번호를 확인해주세요.");
@@ -102,5 +104,19 @@ public class Room extends BaseTimeEntity implements Serializable{
 
 	public void deleteUser(User user) {
 		users.remove(user);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+		Room room = (Room) o;
+
+		return Objects.equals(id, room.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return 1140760324;
 	}
 }
