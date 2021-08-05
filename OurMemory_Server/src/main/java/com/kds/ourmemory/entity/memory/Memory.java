@@ -5,6 +5,7 @@ import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import lombok.*;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -13,12 +14,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@EqualsAndHashCode(of = "id", callSuper = false)
-@ToString(exclude = {"rooms", "users"})
+@ToString
 @DynamicUpdate
 @Entity(name = "memories")
 @Getter
@@ -61,18 +62,22 @@ public class Memory extends BaseTimeEntity implements Serializable {
 	@Column(name="memory_second_alarm")
 	private LocalDateTime secondAlarm;
 	
-	@Column(nullable = false, name="memory_used")
+	@Column(nullable = false, name="memory_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
 	private boolean used;
-	
+
+    @ToString.Exclude
 	@ManyToMany(mappedBy = "memories", fetch = FetchType.LAZY)
     private List<Room> rooms = new ArrayList<>();
-	
+
+    @ToString.Exclude
 	@ManyToMany(mappedBy = "memories", fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
 	
 	@Builder
-    public Memory(Long id, User writer, String name, String contents, String place, LocalDateTime startDate, LocalDateTime endDate, String bgColor,
-            LocalDateTime firstAlarm, LocalDateTime secondAlarm, boolean used) {
+    public Memory(Long id, User writer, String name, String contents, String place,
+                  LocalDateTime startDate, LocalDateTime endDate, String bgColor,
+            LocalDateTime firstAlarm, LocalDateTime secondAlarm, boolean used
+    ) {
 	    checkNotNull(writer, "사용자 번호에 맞는 일정 작성자 정보가 없습니다. 일정 작성자 번호를 확인해주세요.");
         checkNotNull(name, "일정 제목이 입력되지 않았습니다. 일정 제목을 입력해주세요.");
         
@@ -123,5 +128,19 @@ public class Memory extends BaseTimeEntity implements Serializable {
     public Memory deleteMemory() {
 	    this.used = false;
 	    return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Memory memory = (Memory) o;
+
+        return Objects.equals(id, memory.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 1289417505;
     }
 }
