@@ -2,6 +2,7 @@ package com.kds.ourmemory.service.v1.user;
 
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
+import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.friend.dto.AcceptFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.PatchFriendStatusDto;
 import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
@@ -408,7 +409,16 @@ class UserServiceTest {
         assertThat(deleteUserRsp).isNotNull();
         assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
 
-        /* 2. Find room and check delete */
+        /* 2. Check delete user */
+        var userId = insertUserRsp.getUserId();
+        assertThrows(
+                UserNotFoundException.class, () -> userService.find(userId)
+        );
+
+        var findUsers = userService.findUsers(userId, null, null,  null);
+        assertTrue(findUsers.isEmpty());
+
+        /* 3. Find room and check delete */
         var roomId = insertPrivateRoomRsp.getRoomId();
         assertThrows(
                 RoomNotFoundException.class, () -> roomService.find(roomId)
@@ -418,7 +428,7 @@ class UserServiceTest {
         assertThat(findRooms).isNotNull();
         assertThat(findRooms.isEmpty()).isTrue();
 
-        /* 3. Find memories and check delete */
+        /* 4. Find memories and check delete */
         // 1) private memory(not in room)
         var privateMemoryId = insertPrivateMemoryRsp.getMemoryId();
         assertThrows(
@@ -502,7 +512,16 @@ class UserServiceTest {
         assertThat(deleteUserRsp).isNotNull();
         assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
 
-        /* 2. Find room and check transfer owner */
+        /* 2. Check delete user */
+        var userId = insertUserRsp.getUserId();
+        assertThrows(
+                UserNotFoundException.class, () -> userService.find(userId)
+        );
+
+        var findUsers = userService.findUsers(userId, null, null,  null);
+        assertTrue(findUsers.isEmpty());
+
+        /* 3. Find room and check transfer owner */
         var findRoomRsp = roomService.find(insertOwnerRoomRsp.getRoomId());
         assertThat(findRoomRsp).isNotNull();
         assertThat(findRoomRsp.getOwnerId()).isNotEqualTo(insertUserRsp.getUserId());
@@ -519,7 +538,7 @@ class UserServiceTest {
         assertThat(findRoomsByMemberRsp).isNotNull();
         assertThat(findRoomsByMemberRsp.getRoomId()).isEqualTo(insertOwnerRoomRsp.getRoomId());
         
-        /* 3. Find memory */
+        /* 4. Find memory */
         var findMemoryRsp = memoryService.find(insertOwnerRoomMemoryRsp.getMemoryId());
         assertThat(findMemoryRsp).isNotNull();
         assertThat(findMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
@@ -610,7 +629,16 @@ class UserServiceTest {
         assertThat(deleteUserRsp).isNotNull();
         assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
 
-        /* 2. Find room and check member */
+        /* 2. Check delete user */
+        var userId = insertUserRsp.getUserId();
+        assertThrows(
+                UserNotFoundException.class, () -> userService.find(userId)
+        );
+
+        var findUsers = userService.findUsers(userId, null, null,  null);
+        assertTrue(findUsers.isEmpty());
+
+        /* 3. Find room and check member */
         var findRoomRsp = roomService.find(insertParticipantRoomRsp.getRoomId());
         assertThat(findRoomRsp).isNotNull();
         assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
@@ -627,7 +655,7 @@ class UserServiceTest {
         assertThat(findRoomsByMemberRsp).isNotNull();
         assertThat(findRoomsByMemberRsp.getRoomId()).isEqualTo(insertParticipantRoomRsp.getRoomId());
 
-        /* 3. Find memory */
+        /* 4. Find memory */
         var findMemoryRsp = memoryService.find(insertParticipantRoomMemoryRsp.getMemoryId());
         assertThat(findMemoryRsp).isNotNull();
         assertThat(findMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
