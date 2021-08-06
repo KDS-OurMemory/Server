@@ -128,6 +128,7 @@ public class UserService {
      * @param userId [long]
      * @return DeleteUserDto.Response
      */
+    @Transactional
     public DeleteUserDto.Response delete(long userId) {
         return findUser(userId)
                 .map(User::deleteUser)
@@ -186,15 +187,17 @@ public class UserService {
     }
 
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id).flatMap(userRepository::findById);
+        return Optional.ofNullable(id).flatMap(userRepository::findById).filter(User::isUsed);
     }
 
     private Optional<User> findUser(int snsType, String snsId) {
-        return Optional.ofNullable(snsId).flatMap(sid -> userRepository.findBySnsIdAndSnsType(snsId, snsType));
+        return Optional.ofNullable(snsId).flatMap(
+                sid -> userRepository.findBySnsIdAndSnsType(snsId, snsType)
+        ).filter(User::isUsed);
     }
 
     private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {
-        return Optional.ofNullable(userRepository.findAllByIdOrName(userId, name))
+        return Optional.ofNullable(userRepository.findAllByUsedAndIdOrName(true, userId, name))
                 .filter(users -> users.isPresent() && !users.get().isEmpty())
                 .orElseGet(Optional::empty);
     }
