@@ -336,6 +336,84 @@ class UserServiceTest {
 
     @Test
     @Order(3)
+    @DisplayName("사용자 삭제-친구")
+    @Transactional
+    void deleteFriend() {
+        /* 0. Create users */
+        // 1) user
+        var insertUserReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+
+        // 2) friendUser
+        var insertFriendUserReq = new InsertUserDto.Request(
+                2, "member1 sns id", "member1 pushToken",
+                "멤버1", "0101", true,
+                true, DeviceOs.ANDROID
+        );
+        var insertFriendUserRsp = userService.signUp(insertFriendUserReq);
+        assertThat(insertFriendUserRsp).isNotNull();
+
+        /* 0-2. Create friend */
+        var requestFriendRsp = friendService.requestFriend(
+                new RequestFriendDto.Request(insertUserRsp.getUserId(), insertFriendUserRsp.getUserId())
+        );
+        assertThat(requestFriendRsp).isNotNull();
+        assertTrue(isNow(requestFriendRsp.getRequestDate()));
+
+        var acceptFriendRsp = friendService.acceptFriend(
+                new AcceptFriendDto.Request(insertFriendUserRsp.getUserId(), insertUserRsp.getUserId())
+        );
+        assertThat(acceptFriendRsp).isNotNull();
+        assertTrue(isNow(acceptFriendRsp.getAcceptDate()));
+
+        /* 0-3. Find friend before delete */
+        // 1) user side
+        var beforeFindFriendsUserSide = friendService.findFriends(insertUserRsp.getUserId());
+        assertThat(beforeFindFriendsUserSide).isNotNull();
+        assertThat(beforeFindFriendsUserSide.size()).isOne();
+
+        var beforeFindFriendsRspUserSide = beforeFindFriendsUserSide.get(0);
+        assertThat(beforeFindFriendsRspUserSide).isNotNull();
+        assertThat(beforeFindFriendsRspUserSide.getFriendId()).isEqualTo(insertFriendUserRsp.getUserId());
+        assertThat(beforeFindFriendsRspUserSide.getStatus()).isEqualTo(FriendStatus.FRIEND);
+
+        // 2) friendUser side
+        var beforeFindFriendsFriendUserSide = friendService.findFriends(insertFriendUserRsp.getUserId());
+        assertThat(beforeFindFriendsFriendUserSide).isNotNull();
+        assertThat(beforeFindFriendsFriendUserSide.size()).isOne();
+
+        var beforeFindFriendsRspFriendUserSide = beforeFindFriendsFriendUserSide.get(0);
+        assertThat(beforeFindFriendsRspFriendUserSide).isNotNull();
+        assertThat(beforeFindFriendsRspFriendUserSide.getFriendId()).isEqualTo(insertUserRsp.getUserId());
+        assertThat(beforeFindFriendsRspFriendUserSide.getStatus()).isEqualTo(FriendStatus.FRIEND);
+
+        /* 1. Delete user */
+        var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
+        assertThat(deleteUserRsp).isNotNull();
+        assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
+
+        /* 2. Check delete user */
+        var userId = insertUserRsp.getUserId();
+        assertThrows(
+                UserNotFoundException.class, () -> userService.find(userId)
+        );
+
+        var findUsers = userService.findUsers(userId, null, null,  null);
+        assertTrue(findUsers.isEmpty());
+
+        /* 3. Find friend from friendUser and check delete */
+        var findFriendsFriendSide = friendService.findFriends(insertFriendUserRsp.getUserId());
+        assertThat(findFriendsFriendSide).isNotNull();
+        assertTrue(findFriendsFriendSide.isEmpty());
+    }
+
+    @Test
+    @Order(4)
     @DisplayName("사용자 삭제-개인방/일정")
     @Transactional
     void deletePrivateUser() {
@@ -451,7 +529,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("사용자 삭제-방장 방/일정")
     @Transactional
     void deleteOwnerUser() {
@@ -559,7 +637,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("사용자 삭제-참여방/일정")
     @Transactional
     void deleteParticipantUser() {
