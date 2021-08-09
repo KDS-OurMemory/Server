@@ -200,8 +200,8 @@ public class UserService {
 
     private Optional<User> findUser(int snsType, String snsId) {
         return Optional.ofNullable(snsId).flatMap(
-                sid -> userRepository.findBySnsIdAndSnsType(snsId, snsType)
-        ).filter(User::isUsed);
+                sid -> userRepository.findByUsedAndSnsIdAndSnsType(true, snsId, snsType)
+        );
     }
 
     private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {

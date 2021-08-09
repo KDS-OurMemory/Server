@@ -752,6 +752,47 @@ class UserServiceTest {
         assertThat(findMemoriesByMemberRsp).isNotNull();
         assertThat(findMemoriesByMemberRsp.getMemoryId()).isEqualTo(insertParticipantRoomMemoryRsp.getMemoryId());
     }
+
+    @Test
+    @Order(7)
+    @DisplayName("로그인-사용자 삭제 후 재가입한 사용자")
+    @Transactional
+    void reSignUpSignIn() {
+        /* 0. Create user */
+        var insertUserReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+
+        /* 0-1. Sign in before delete */
+        var beforeSignInRsp = userService.signIn(insertUserReq.getSnsType(), insertUserReq.getSnsId());
+        assertThat(beforeSignInRsp).isNotNull();
+        assertThat(beforeSignInRsp.getUserId()).isEqualTo(insertUserRsp.getUserId());
+
+        /* 0-2. Delete user */
+        var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
+        assertThat(deleteUserRsp).isNotNull();
+        assertTrue(isNow(deleteUserRsp.getDeleteDate()));
+
+        /* 0-3. Check delete user */
+        var userId = insertUserRsp.getUserId();
+        assertThrows(
+                UserNotFoundException.class, () -> userService.find(userId)
+        );
+
+        /* 0-4. Re-sign up user */
+        var reInsertUserRsp = userService.signUp(insertUserReq);
+        assertThat(reInsertUserRsp).isNotNull();
+        assertTrue(isNow(reInsertUserRsp.getJoinDate()));
+
+        /* 1. Sign in after Re-sign up */
+        var afterSignInRsp = userService.signIn(insertUserReq.getSnsType(), insertUserReq.getSnsId());
+        assertThat(afterSignInRsp).isNotNull();
+        assertThat(afterSignInRsp.getUserId()).isEqualTo(reInsertUserRsp.getUserId());
+    }
     
     boolean isNow(String time) {
         return StringUtils.equals(LocalDateTime.now().format(format),
