@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 @RequiredArgsConstructor
 @Service
 public class FriendService {
-    private final FriendRepository friendRepo;
+    private final FriendRepository friendRepository;
 
     // Add to work in rooms and user relationship tables
     private final UserRepository userRepo;
@@ -252,25 +252,25 @@ public class FriendService {
      * Friend Repository
      */
     private void insertFriend(Friend friend) {
-        friendRepo.save(friend);
+        friendRepository.save(friend);
     }
 
     private Optional<Friend> findFriend(Long userId, Long friendId) {
         return Optional.ofNullable(userId)
-                .flatMap(f -> friendRepo.findByUserIdAndFriendUserId(userId, friendId));
+                .flatMap(f -> friendRepository.findByUserIdAndFriendUserId(userId, friendId));
     }
 
     private Optional<List<Friend>> findFriendsByUserId(Long userId) {
         return Optional.ofNullable(userId)
-                .flatMap(friendRepo::findByUserId);
+                .flatMap(friendRepository::findAllByUserId);
     }
 
     private void updateFriend(Friend friend) {
-        friendRepo.save(friend);
+        friendRepository.save(friend);
     }
 
     private void deleteFriend(Friend friend) {
-        friendRepo.delete(friend);
+        friendRepository.delete(friend);
     }
 
     /**

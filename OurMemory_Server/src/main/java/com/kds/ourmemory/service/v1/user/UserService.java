@@ -116,6 +116,8 @@ public class UserService {
      *
      * user - used = false
      *
+     * friend - delete both side
+     *
      * Related memories
      *  1) owner, member - maintain
      *  2) private - Delete memories
@@ -132,6 +134,12 @@ public class UserService {
     public DeleteUserDto.Response delete(long userId) {
         return findUser(userId)
                 .map(User::deleteUser)
+                .map(user -> {
+                    findFriendsByUserOrFriendUser(user, user)
+                            .ifPresent(friends -> friends.forEach(this::deleteFriend));
+
+                    return user;
+                })
                 .map(user -> {
                     user.getRooms().forEach(room -> {
                         var members = room.getUsers();
@@ -210,11 +218,20 @@ public class UserService {
      */
     private Optional<Friend> findFriend(Long userId, Long friendId) {
         return Optional.ofNullable(userId)
-                .flatMap(f -> friendRepository.findByUserIdAndFriendUserId(userId, friendId));
+                .flatMap(u -> friendRepository.findByUserIdAndFriendUserId(userId, friendId));
     }
 
     private Optional<List<Friend>> findFriendsByUserId(Long userId) {
         return Optional.ofNullable(userId)
-                .flatMap(friendRepository::findByUserId);
+                .flatMap(friendRepository::findAllByUserId);
+    }
+
+    private Optional<List<Friend>> findFriendsByUserOrFriendUser(User user, User friendUser) {
+        return Optional.ofNullable(user)
+                .flatMap(u -> friendRepository.findAllByUserOrFriendUser(user, friendUser));
+    }
+
+    private void deleteFriend(Friend friend) {
+        friendRepository.delete(friend);
     }
 }
