@@ -139,8 +139,6 @@ class MemoryServiceTest {
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
-        assertThat(findMemoriesRsp.getMembers()).isNotNull();
-        assertThat(findMemoriesRsp.getMembers().size()).isOne();
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
         assertThat(findMemoriesRsp.getShareRooms().size()).isOne();
 
@@ -236,8 +234,6 @@ class MemoryServiceTest {
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
-        assertThat(findMemoriesRsp.getMembers()).isNotNull();
-        assertThat(findMemoriesRsp.getMembers().size()).isOne();
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
         assertTrue(findMemoriesRsp.getShareRooms().isEmpty());
 

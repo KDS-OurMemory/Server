@@ -149,10 +149,10 @@ public class MemoryService {
                 );
     }
 
-    public List<FindMemoriesDto.Response> findMemories(Long userId, String name) {
+    public List<FindMemoriesDto.Response> findMemories(Long writerId, String name) {
         List<Memory> findMemories = new ArrayList<>();
 
-        findUser(userId).ifPresent(user -> findMemories.addAll(
+        findUser(writerId).ifPresent(user -> findMemories.addAll(
                 user.getMemories().stream().filter(Memory::isUsed).collect(toList()))
         );
         findMemoriesByName(name).ifPresent(findMemories::addAll);
