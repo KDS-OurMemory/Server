@@ -239,61 +239,55 @@ class RoomServiceTest {
                 owner.getId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
-                Stream.of(owner.getId()).collect(Collectors.toList()),
                 "Test Contents",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
                 null,
                 null,       // 두 번째 알림
-                "#FFFFFF",  // 배경색
-                null
+                "#FFFFFF"  // 배경색
         );
 
         InsertMemoryDto.Response insertMemoryRspOwner = memoryService.insert(insertMemoryReqOwner);
         assertThat(insertMemoryRspOwner).isNotNull();
         assertThat(insertMemoryRspOwner.getWriterId()).isEqualTo(owner.getId());
-        assertThat(insertMemoryRspOwner.getMainRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
+        assertThat(insertMemoryRspOwner.getAddedRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
 
         InsertMemoryDto.Request insertMemoryReqMember1 = new InsertMemoryDto.Request(
                 member1.getId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
-                Stream.of(owner.getId()).collect(Collectors.toList()),
                 "Test Contents",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
                 null,
-                null,       // 두 번째 알림
-                "#FFFFFF",  // 배경색
-                null
+                null,   // 두 번째 알림
+                "#FFFFFF"  // 배경색
         );
 
         InsertMemoryDto.Response insertMemoryRspMember1 = memoryService.insert(insertMemoryReqMember1);
         assertThat(insertMemoryRspMember1).isNotNull();
         assertThat(insertMemoryRspMember1.getWriterId()).isEqualTo(member1.getId());
-        assertThat(insertMemoryRspMember1.getMainRoomId()).isEqualTo(insertMemoryReqMember1.getRoomId());
+        assertThat(insertMemoryRspMember1.getAddedRoomId()).isEqualTo(insertMemoryReqMember1.getRoomId());
 
         InsertMemoryDto.Request insertMemoryReqMember2 = new InsertMemoryDto.Request(
                 member2.getId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
-                Stream.of(member1.getId()).collect(Collectors.toList()),
                 "Test Contents",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
                 null,
-                null,       // 두 번째 알림
-                "#FFFFFF",  // 배경색
-                null
+                null,   // 두 번째 알림
+                "#FFFFFF"  // 배경색
         );
 
         InsertMemoryDto.Response insertMemoryRspMember2 = memoryService.insert(insertMemoryReqMember2);
         assertThat(insertMemoryRspMember2).isNotNull();
         assertThat(insertMemoryRspMember2.getWriterId()).isEqualTo(member2.getId());
-        assertThat(insertMemoryRspMember2.getMainRoomId()).isEqualTo(insertMemoryReqMember2.getRoomId());
+        assertThat(insertMemoryRspMember2.getAddedRoomId()).isEqualTo(insertMemoryReqMember2.getRoomId());
 
         /* 3. Delete room */
         DeleteRoomDto.Response deleteRsp = roomService.delete(insertRoomRsp.getRoomId());

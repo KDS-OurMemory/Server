@@ -443,44 +443,36 @@ class UserServiceTest {
                 insertUserRsp.getUserId(),
                 null,
                 "개인 일정(방x)",
-                new ArrayList<>(),
                 "Test Contents",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
                 LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
                 null,       // 두 번째 알림
-                "#FFFFFF",  // 배경색
-                null
+                "#FFFFFF"  // 배경색
         );
         var insertPrivateMemoryRsp = memoryService.insert(insertPrivateMemoryReq);
         assertThat(insertPrivateMemoryRsp).isNotNull();
         assertThat(insertPrivateMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
-        assertThat(insertPrivateMemoryRsp.getMainRoomId()).isNull();
-        assertThat(insertPrivateMemoryRsp.getMembers()).isNotNull();
-        assertThat(insertPrivateMemoryRsp.getMembers().size()).isOne();
+        assertThat(insertPrivateMemoryRsp.getAddedRoomId()).isNull();
 
         // 2) private room memory
         var insertPrivateRoomMemoryReq = new InsertMemoryDto.Request(
                 insertUserRsp.getUserId(),
                 insertPrivateRoomRsp.getRoomId(),
                 "개인 일정(방o)",
-                new ArrayList<>(),
                 "Test Contents",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
                 LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF",  // 배경색
-                null
+                null,   // 두 번째 알림
+                "#FFFFFF"  // 배경색
         );
         var insertPrivateRoomMemoryRsp = memoryService.insert(insertPrivateRoomMemoryReq);
         assertThat(insertPrivateRoomMemoryRsp).isNotNull();
         assertThat(insertPrivateRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
-        assertThat(insertPrivateRoomMemoryRsp.getMainRoomId()).isEqualTo(insertPrivateRoomRsp.getRoomId());
-        assertThat(insertPrivateRoomMemoryRsp.getMembers()).isNotNull();
-        assertThat(insertPrivateRoomMemoryRsp.getMembers().size()).isOne();
+        assertThat(insertPrivateRoomMemoryRsp.getAddedRoomId()).isEqualTo(insertPrivateRoomRsp.getRoomId());
 
         /* 1. Delete private room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
@@ -568,22 +560,18 @@ class UserServiceTest {
                 insertUserRsp.getUserId(),
                 insertOwnerRoomRsp.getRoomId(),
                 "방장 방의 공유 일정",
-                Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList()),
                 "Test Contents",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
                 LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF",  // 배경색
-                null
+                null,   // 두 번째 알림
+                "#FFFFFF"  // 배경색
         );
         var insertOwnerRoomMemoryRsp = memoryService.insert(insertOwnerRoomMemoryReq);
         assertThat(insertOwnerRoomMemoryRsp).isNotNull();
         assertThat(insertOwnerRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
-        assertThat(insertOwnerRoomMemoryRsp.getMainRoomId()).isEqualTo(insertOwnerRoomRsp.getRoomId());
-        assertThat(insertOwnerRoomMemoryRsp.getMembers()).isNotNull();
-        assertThat(insertOwnerRoomMemoryRsp.getMembers().size()).isEqualTo(2);
+        assertThat(insertOwnerRoomMemoryRsp.getAddedRoomId()).isEqualTo(insertOwnerRoomRsp.getRoomId());
 
         /* 1. Delete room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
@@ -685,22 +673,18 @@ class UserServiceTest {
                 insertUserRsp.getUserId(),
                 insertParticipantRoomRsp.getRoomId(),
                 "참여방 일정",
-                Stream.of(insertMemberRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList()),
                 "Test Contents",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
                 LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF",  // 배경색
-                null
+                null,   // 두 번째 알림
+                "#FFFFFF"  // 배경색
         );
         var insertParticipantRoomMemoryRsp = memoryService.insert(insertParticipantRoomMemoryReq);
         assertThat(insertParticipantRoomMemoryRsp).isNotNull();
         assertThat(insertParticipantRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
-        assertThat(insertParticipantRoomMemoryRsp.getMainRoomId()).isEqualTo(insertParticipantRoomRsp.getRoomId());
-        assertThat(insertParticipantRoomMemoryRsp.getMembers()).isNotNull();
-        assertThat(insertParticipantRoomMemoryRsp.getMembers().size()).isEqualTo(3);
+        assertThat(insertParticipantRoomMemoryRsp.getAddedRoomId()).isEqualTo(insertParticipantRoomRsp.getRoomId());
 
         /* 1. Delete room participant */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
