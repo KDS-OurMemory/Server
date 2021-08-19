@@ -3,7 +3,6 @@ package com.kds.ourmemory.controller.v1.memory.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
-import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -61,9 +60,6 @@ public class FindMemoriesDto {
         
         @ApiModelProperty(value = "일정 수정날짜", notes = "yyyy-MM-dd HH:mm:ss")
         private final String modDate;
-        
-        @ApiModelProperty(value = "일정 참여자", notes = "일정을 생성한 사람도 참여자에 포함되어 전달됨.", example = "[{참여자1}, {참여자2}]")
-        private final List<Member> members;
 
         @ApiModelProperty(value = "일정 공유방 목록", notes = "일정이 공유된 방 목록")
         private final List<ShareRoom> shareRooms;
@@ -81,40 +77,8 @@ public class FindMemoriesDto {
             secondAlarm = memory.getSecondAlarm();
             regDate = memory.formatRegDate();
             modDate = memory.formatModDate();
-            members = memory.getUsers().stream().filter(User::isUsed).map(Member::new)
-                    .collect(Collectors.toList());
             shareRooms = memory.getRooms().stream().filter(Room::isUsed).map(ShareRoom::new)
                     .collect(Collectors.toList());
-        }
-        
-        /**
-         * Memory member non static inner class
-         */
-        @ApiModel(value = "FindMemoriesResponse.Member", description = "inner class in FindMemoriesDto.Response")
-        @Getter
-        private class Member {
-            @ApiModelProperty(value = "사용자 번호", example = "49")
-            private final Long userId;
-
-            @ApiModelProperty(value = "사용자 이름", example = "김동영")
-            private final String name;
-
-            @ApiModelProperty(value = "사용자 생일", example = "null")
-            private final String birthday;
-
-            @ApiModelProperty(value = "양력 여부", example = "true")
-            private final boolean solar;
-
-            @ApiModelProperty(value = "생일 공개여부", example = "false")
-            private final boolean birthdayOpen;
-            
-            private Member(User user) {
-                userId = user.getId();
-                name = user.getName();
-                birthday = user.isBirthdayOpen() ? user.getBirthday() : null;
-                solar = user.isSolar();
-                birthdayOpen = user.isBirthdayOpen();
-            }
         }
 
         /**

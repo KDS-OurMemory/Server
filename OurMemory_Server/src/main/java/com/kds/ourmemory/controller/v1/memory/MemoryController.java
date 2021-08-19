@@ -36,10 +36,10 @@ public class MemoryController {
     @ApiOperation(value = "일정 목록 조회", notes = "조건에 맞는 일정을 검색한다.")
     @GetMapping
     public ApiResult<List<FindMemoriesDto.Response>> findMemories(
-            @ApiParam(value = "사용자 번호, 일정 작성자 혹은 참여자") @RequestParam(required = false) Long userId,
+            @ApiParam(value = "일정 작성자 번호") @RequestParam(required = false) Long writerId,
             @ApiParam(value = "일정 제목") @RequestParam(required = false) String name
     ) {
-        return ok(memoryService.findMemories(userId, name));
+        return ok(memoryService.findMemories(writerId, name));
     }
 
     @ApiOperation(value = "일정 수정", notes = "전달받은 값이 있는 경우 수정")
