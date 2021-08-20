@@ -1,6 +1,7 @@
 package com.kds.ourmemory.service.v1.room;
 
 import com.kds.ourmemory.advice.v1.room.exception.*;
+import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
@@ -86,6 +87,31 @@ public class RoomService {
         );
         
         return room;
+    }
+
+    @Transactional
+    public Long insertPrivateRoom(Long userId) {
+        return findUser(userId)
+                .map(user -> {
+                    var privateRoom = Room.builder()
+                            .name(user.getName())
+                            .opened(false)
+                            .owner(user)
+                            .used(true)
+                            .build();
+                    return insertRoom(privateRoom)
+                            .map(room -> {
+                                room.addUser(user);
+                                user.addRoom(room);
+
+                                return room.getId();
+                            })
+                            .get();
+                })
+                .orElseThrow(() -> new UserNotFoundException(
+                                String.format(NOT_FOUND_MESSAGE, "user", userId)
+                        )
+                );
     }
 
     public FindRoomDto.Response find(Long roomId) {

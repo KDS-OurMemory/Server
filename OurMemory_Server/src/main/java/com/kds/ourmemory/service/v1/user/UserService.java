@@ -36,7 +36,13 @@ public class UserService {
     @Transactional
     public InsertUserDto.Response signUp(InsertUserDto.Request request) {
         var user = request.toEntity();
-        return insertUser(user).map(u -> new InsertUserDto.Response(u.getId(), u.formatRegDate()))
+        return insertUser(user)
+                .map(u -> {
+                    var privateRoomId = roomService.insertPrivateRoom(u.getId());
+                    user.updatePrivateRoomId(privateRoomId);
+
+                    return new InsertUserDto.Response(u.getId(), privateRoomId, u.formatRegDate());
+                })
                 .orElseThrow(() -> new UserInternalServerException(
                                 String.format("User '%s' insert failed.", user.getName())
                         )
