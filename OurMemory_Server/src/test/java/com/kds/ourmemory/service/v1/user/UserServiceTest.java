@@ -7,6 +7,7 @@ import com.kds.ourmemory.controller.v1.friend.dto.AcceptFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.PatchFriendStatusDto;
 import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
+import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
@@ -86,7 +87,8 @@ class UserServiceTest {
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
         assertThat(insertRsp).isNotNull();
-        assertThat(insertRsp.getJoinDate()).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+        assertThat(insertRsp.getPrivateRoomId()).isNotNull();
         assertThat(isNow(insertRsp.getJoinDate())).isTrue();
 
         /* 2. Sign in */
@@ -599,10 +601,13 @@ class UserServiceTest {
 
         var findRoomsByMember = roomService.findRooms(insertMemberRsp.getUserId(), null);
         assertThat(findRoomsByMember).isNotNull();
-        assertThat(findRoomsByMember.size()).isOne();
-        var findRoomsByMemberRsp = findRoomsByMember.get(0);
-        assertThat(findRoomsByMemberRsp).isNotNull();
-        assertThat(findRoomsByMemberRsp.getRoomId()).isEqualTo(insertOwnerRoomRsp.getRoomId());
+        assertThat(findRoomsByMember.size()).isEqualTo(2);
+
+        var ownerRoomCnt = 0;
+        for (FindRoomsDto.Response response : findRoomsByMember) {
+            if (response.getRoomId() == insertOwnerRoomRsp.getRoomId()) ownerRoomCnt++;
+        }
+        assertThat(ownerRoomCnt).isOne();
         
         /* 4. Find memory */
         var findMemoryRsp = memoryService.find(insertOwnerRoomMemoryRsp.getMemoryId());
@@ -618,10 +623,7 @@ class UserServiceTest {
 
         var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
         assertThat(findMemoriesByMember).isNotNull();
-        assertThat(findMemoriesByMember.size()).isOne();
-        var findMemoriesByMemberRsp = findMemoriesByMember.get(0);
-        assertThat(findMemoriesByMemberRsp).isNotNull();
-        assertThat(findMemoriesByMemberRsp.getMemoryId()).isEqualTo(insertOwnerRoomMemoryRsp.getMemoryId());
+        assertThat(findMemoriesByMember.size()).isZero();
     }
 
     @Test
@@ -712,10 +714,12 @@ class UserServiceTest {
 
         var findRoomsByMember = roomService.findRooms(insertMemberRsp.getUserId(), null);
         assertThat(findRoomsByMember).isNotNull();
-        assertThat(findRoomsByMember.size()).isOne();
-        var findRoomsByMemberRsp = findRoomsByMember.get(0);
-        assertThat(findRoomsByMemberRsp).isNotNull();
-        assertThat(findRoomsByMemberRsp.getRoomId()).isEqualTo(insertParticipantRoomRsp.getRoomId());
+        assertThat(findRoomsByMember.size()).isEqualTo(2);
+        var ownerRoomCnt = 0;
+        for (FindRoomsDto.Response response : findRoomsByMember) {
+            if (response.getRoomId() == insertParticipantRoomRsp.getRoomId()) ownerRoomCnt++;
+        }
+        assertThat(ownerRoomCnt).isOne();
 
         /* 4. Find memory */
         var findMemoryRsp = memoryService.find(insertParticipantRoomMemoryRsp.getMemoryId());
@@ -731,10 +735,7 @@ class UserServiceTest {
 
         var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
         assertThat(findMemoriesByMember).isNotNull();
-        assertThat(findMemoriesByMember.size()).isOne();
-        var findMemoriesByMemberRsp = findMemoriesByMember.get(0);
-        assertThat(findMemoriesByMemberRsp).isNotNull();
-        assertThat(findMemoriesByMemberRsp.getMemoryId()).isEqualTo(insertParticipantRoomMemoryRsp.getMemoryId());
+        assertThat(findMemoriesByMember.size()).isZero();
     }
 
     @Test

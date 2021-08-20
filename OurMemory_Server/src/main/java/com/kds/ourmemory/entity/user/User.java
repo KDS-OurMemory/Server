@@ -70,6 +70,9 @@ public class User extends BaseTimeEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private DeviceOs deviceOs;
 
+    @Column(name="user_private_room_id")
+    private Long privateRoomId;
+
 	@Column(nullable = false, name="user_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
 	private boolean used;
 
@@ -115,6 +118,10 @@ public class User extends BaseTimeEntity implements Serializable {
     public void addMemory(Memory memory) {
         this.memories = this.memories == null? new ArrayList<>() : this.memories;
         this.memories.add(memory);
+    }
+
+    public void updatePrivateRoomId(Long privateRoomId) {
+	    this.privateRoomId = privateRoomId;
     }
     
     public Optional<User> changePushToken(String pushToken) {
