@@ -97,7 +97,7 @@ public class InsertMemoryDto {
         @ApiModelProperty(value = "일정 수정날짜", notes = "yyyy-MM-dd HH:mm:ss")
         private final String modDate;
 
-        @ApiModelProperty(value = "일정이 추가된 방", notes = "일정이 추가된 방 번호를 전달한다. 개인 일정인 경우 null 전달")
+        @ApiModelProperty(value = "일정이 추가된 방", notes = "일정이 추가된 방 번호를 전달한다. 개인 일정인 경우 개인방 번호가 전달된다.")
         private final Long addedRoomId;
 
         public Response(Memory memory, Long addedRoomId) {

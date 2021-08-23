@@ -20,7 +20,7 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 public class MemoryController {
     private final MemoryService memoryService;
 
-    @ApiOperation(value = "일정 추가", notes = "일정을 추가하고 일정-방-사용자 의 관계를 설정한다.")
+    @ApiOperation(value = "일정 추가", notes = "일정을 개인방에 추가한 뒤 추가할 방에 공유한다. 추가/공유 둘다 동일한 기능으로 일정-방 관계데이터를 만들어준다.")
     @PostMapping
     public ApiResult<InsertMemoryDto.Response> insert(@RequestBody InsertMemoryDto.Request request) {
         return ok(memoryService.insert(request));
