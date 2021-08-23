@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -76,8 +77,16 @@ public class MemoryService {
                     memory.getWriter().addMemory(memory);
                     memory.addUser(memory.getWriter());
 
-                    // Relation memory and room
-                    var roomId = relationMemoryToRoom(memory, request.getRoomId());
+                    // Relation memory and private room
+                    var roomId = relationMemoryToPrivateRoom(memory, memory.getWriter().getPrivateRoomId());
+
+                    // Share memory to room
+                    roomId = Optional.ofNullable(request.getRoomId())
+                            .map(shareRoomId -> {
+                                shareMemoryToRooms(memory, Stream.of(shareRoomId).collect(toList()));
+                                return shareRoomId;
+                            })
+                            .orElse(roomId);
 
                     return new InsertMemoryDto.Response(memory, roomId);
                 })
@@ -88,29 +97,17 @@ public class MemoryService {
     }
 
     @Transactional
-    private Long relationMemoryToRoom(Memory memory, Long roomId) {
-        return findRoom(roomId)
+    private Long relationMemoryToPrivateRoom(Memory memory, Long privateRoomId) {
+        return findRoom(privateRoomId)
                 .map(room -> {
                     room.addMemory(memory);
                     memory.addRoom(room);
 
-                    room.getUsers().forEach(user ->
-                        fcmService.sendMessageTo(
-                                FcmDto.Request.builder()
-                                        .token(user.getPushToken())
-                                        .deviceOs(user.getDeviceOs())
-                                        .title("OurMemory - 일정 추가")
-                                        .body(String.format("'%s' 일정이 방에 추가되었습니다.", memory.getName()))
-                                        .build()
-                        )
-                    );
-
-                    return roomId;
+                    return privateRoomId;
                 })
                 .orElse(null);
     }
 
-    // 일정 공유용 기능
     @Transactional
     private void shareMemoryToRooms(Memory memory, List<Long> roomIds) {
         Optional.ofNullable(roomIds)
