@@ -9,5 +9,6 @@ import java.util.Optional;
 
 @Transactional
 public interface MemoryRepository extends JpaRepository<Memory, Long> {
-    public Optional<List<Memory>> findAllByName(String name);
+    Optional<List<Memory>> findAllByName(String name);
+    Optional<List<Memory>> findAllByWriterId(Long userId);
 }

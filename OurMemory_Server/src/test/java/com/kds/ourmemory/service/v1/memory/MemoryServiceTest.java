@@ -5,6 +5,7 @@ import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import com.kds.ourmemory.service.v1.user.UserService;
@@ -47,6 +48,8 @@ class MemoryServiceTest {
 
     // Base data for test memoryService
     private InsertUserDto.Response insertWriterRsp;
+
+    private InsertUserDto.Response insertMemberRsp;
 
     private InsertRoomDto.Response insertRoomRsp;
 
@@ -227,6 +230,76 @@ class MemoryServiceTest {
         );
     }
 
+    @Test
+    @Order(3)
+    @DisplayName("일정 참석")
+    @Transactional
+    void attendMemory() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        /* 1. Make memory */
+        InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertReq.getRoomId());
+
+        /* 2. Attend memory of member */
+        AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
+                insertRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ATTEND);
+        assertThat(attendRsp).isNotNull();
+        assertTrue(isNow(attendRsp.getSetDate()));
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("일정 불참")
+    @Transactional
+    void attendanceMemory() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        /* 1. Make memory */
+        InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertReq.getRoomId());
+
+        /* 2. Attend memory of member */
+        AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
+                insertRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ABSENCE);
+        assertThat(attendRsp).isNotNull();
+        assertTrue(isNow(attendRsp.getSetDate()));
+    }
+
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
@@ -247,7 +320,7 @@ class MemoryServiceTest {
                 "writer", "0720", true,
                 false, DeviceOs.ANDROID
         );
-        var insertMemberRsp = userService.signUp(insertMemberReq);
+        insertMemberRsp = userService.signUp(insertMemberReq);
         assertThat(insertMemberRsp).isNotNull();
         assertThat(insertMemberRsp.getUserId()).isNotNull();
         assertThat(insertMemberRsp.getPrivateRoomId()).isNotNull();

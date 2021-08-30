@@ -2,7 +2,7 @@ package com.kds.ourmemory.entity.user;
 
 import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
-import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.relation.UserMemory;
 import com.kds.ourmemory.entity.room.Room;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -82,11 +82,8 @@ public class User extends BaseTimeEntity implements Serializable {
                 inverseJoinColumns = @JoinColumn(name = "room_id"))
 	private List<Room> rooms = new ArrayList<>();
 	
-	@ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name="users_memories",
-                joinColumns = @JoinColumn(name = "user_id"),
-                inverseJoinColumns = @JoinColumn(name = "memory_id"))
-    private List<Memory> memories = new ArrayList<>();
+	@OneToMany(mappedBy = "user")
+    private List<UserMemory> memories = new ArrayList<>();
 	
 	@Builder
     public User(Long id, int snsType, String snsId, String pushToken, boolean push, String name, String birthday,
@@ -114,10 +111,9 @@ public class User extends BaseTimeEntity implements Serializable {
 	    this.rooms = this.rooms==null? new ArrayList<>() : this.rooms;
 	    this.rooms.add(room);
 	}
-	
-    public void addMemory(Memory memory) {
-        this.memories = this.memories == null? new ArrayList<>() : this.memories;
-        this.memories.add(memory);
+
+	public void addMemory(UserMemory userMemory) {
+	    this.memories.add(userMemory);
     }
 
     public void updatePrivateRoomId(Long privateRoomId) {

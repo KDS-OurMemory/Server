@@ -429,23 +429,13 @@ class UserServiceTest {
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
-        /* 0-2. Create room */
-        var insertPrivateRoomReq = new InsertRoomDto.Request(
-                "개인방", insertUserRsp.getUserId(), false, new ArrayList<>()
-        );
-        var insertPrivateRoomRsp = roomService.insert(insertPrivateRoomReq);
-        assertThat(insertPrivateRoomRsp).isNotNull();
-        assertThat(insertPrivateRoomRsp.getMembers()).isNotNull();
-        assertThat(insertPrivateRoomRsp.getOwnerId()).isEqualTo(insertUserRsp.getUserId());
-        assertThat(insertPrivateRoomRsp.getMembers().size()).isOne();
-
-        /* 0-3. Create private memories */
+        /* 0-2. Create private memories */
         // 1) not in room memory
         var insertPrivateMemoryReq = new InsertMemoryDto.Request(
                 insertUserRsp.getUserId(),
                 null,
-                "개인 일정(방x)",
-                "Test Contents",
+                "개인 일정",
+                "방 밖에서 생성",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
@@ -456,14 +446,14 @@ class UserServiceTest {
         var insertPrivateMemoryRsp = memoryService.insert(insertPrivateMemoryReq);
         assertThat(insertPrivateMemoryRsp).isNotNull();
         assertThat(insertPrivateMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
-        assertThat(insertPrivateMemoryRsp.getAddedRoomId()).isNull();
+        assertThat(insertPrivateMemoryRsp.getAddedRoomId()).isEqualTo(insertUserRsp.getPrivateRoomId());
 
         // 2) private room memory
         var insertPrivateRoomMemoryReq = new InsertMemoryDto.Request(
                 insertUserRsp.getUserId(),
-                insertPrivateRoomRsp.getRoomId(),
-                "개인 일정(방o)",
-                "Test Contents",
+                insertUserRsp.getPrivateRoomId(),
+                "개인 일정",
+                "방 안에서 생성",
                 "Test Place",
                 LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
                 LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
@@ -474,7 +464,7 @@ class UserServiceTest {
         var insertPrivateRoomMemoryRsp = memoryService.insert(insertPrivateRoomMemoryReq);
         assertThat(insertPrivateRoomMemoryRsp).isNotNull();
         assertThat(insertPrivateRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
-        assertThat(insertPrivateRoomMemoryRsp.getAddedRoomId()).isEqualTo(insertPrivateRoomRsp.getRoomId());
+        assertThat(insertPrivateRoomMemoryRsp.getAddedRoomId()).isEqualTo(insertUserRsp.getPrivateRoomId());
 
         /* 1. Delete private room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
@@ -491,7 +481,7 @@ class UserServiceTest {
         assertTrue(findUsers.isEmpty());
 
         /* 3. Find room and check delete */
-        var roomId = insertPrivateRoomRsp.getRoomId();
+        var roomId = insertUserRsp.getPrivateRoomId();
         assertThrows(
                 RoomNotFoundException.class, () -> roomService.find(roomId)
         );
@@ -610,20 +600,18 @@ class UserServiceTest {
         assertThat(ownerRoomCnt).isOne();
         
         /* 4. Find memory */
-        var findMemoryRsp = memoryService.find(insertOwnerRoomMemoryRsp.getMemoryId());
-        assertThat(findMemoryRsp).isNotNull();
-        assertThat(findMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
-        
+        var ownerRoomMemoryId = insertOwnerRoomMemoryRsp.getMemoryId();
+        assertThrows(
+                MemoryNotFoundException.class, () -> memoryService.find(ownerRoomMemoryId)
+        );
+
         var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
         assertThat(findMemoriesByUser).isNotNull();
-        assertThat(findMemoriesByUser.size()).isOne();
-        var findMemoriesByUserRsp = findMemoriesByUser.get(0);
-        assertThat(findMemoriesByUserRsp).isNotNull();
-        assertThat(findMemoriesByUserRsp.getMemoryId()).isEqualTo(insertOwnerRoomMemoryRsp.getMemoryId());
+        assertTrue(findMemoriesByUser.isEmpty());
 
         var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
         assertThat(findMemoriesByMember).isNotNull();
-        assertThat(findMemoriesByMember.size()).isZero();
+        assertTrue(findMemoriesByMember.isEmpty());
     }
 
     @Test
@@ -722,20 +710,18 @@ class UserServiceTest {
         assertThat(ownerRoomCnt).isOne();
 
         /* 4. Find memory */
-        var findMemoryRsp = memoryService.find(insertParticipantRoomMemoryRsp.getMemoryId());
-        assertThat(findMemoryRsp).isNotNull();
-        assertThat(findMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
+        var participantRoomMemoryId = insertParticipantRoomMemoryRsp.getMemoryId();
+        assertThrows(
+                MemoryNotFoundException.class, () -> memoryService.find(participantRoomMemoryId)
+        );
 
         var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
         assertThat(findMemoriesByUser).isNotNull();
-        assertThat(findMemoriesByUser.size()).isOne();
-        var findMemoriesByUserRsp = findMemoriesByUser.get(0);
-        assertThat(findMemoriesByUserRsp).isNotNull();
-        assertThat(findMemoriesByUserRsp.getMemoryId()).isEqualTo(insertParticipantRoomMemoryRsp.getMemoryId());
+        assertTrue(findMemoriesByUser.isEmpty());
 
         var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
         assertThat(findMemoriesByMember).isNotNull();
-        assertThat(findMemoriesByMember.size()).isZero();
+        assertTrue(findMemoriesByMember.isEmpty());
     }
 
     @Test

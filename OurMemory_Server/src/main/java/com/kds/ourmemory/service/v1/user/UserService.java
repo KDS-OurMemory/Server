@@ -8,6 +8,7 @@ import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.friend.FriendRepository;
+import com.kds.ourmemory.repository.memory.MemoryRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,9 @@ public class UserService {
 
     // When searching for a user, add to pass the friend status
     private final FriendRepository friendRepository;
+
+    // When deleting a user, find memories to delete.
+    private final MemoryRepository memoryRepository;
 
     private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
     private static final String NOT_FOUND_LOGIN_USER_MESSAGE = "Not found user matched snsType '%d' and snsId '%s'.";
@@ -125,8 +129,7 @@ public class UserService {
      * friend - delete both side
      *
      * Related memories
-     *  1) owner, member - maintain
-     *  2) private - Delete memories
+     *  1) owner - Delete memories
      *
      * Related rooms
      *  1) owner - transferring the owner and delete user from room member.
@@ -170,11 +173,11 @@ public class UserService {
                     return user;
                 })
                 .map(user -> {
-                    // Related memories - 2)
-                    user.getMemories().forEach(memory ->
-                        Optional.of(memory).filter(m -> m.getRooms().isEmpty())
-                                .ifPresent(Memory::deleteMemory)
-                    );
+                    // Related memories - 1)
+                    findMemoriesByWriterId(user.getId())
+                            .ifPresent(memories ->
+                                    memories.forEach(Memory::deleteMemory)
+                            );
                     return user;
                 })
                 .map(user -> new DeleteUserDto.Response(user.formatModDate()))
@@ -239,5 +242,9 @@ public class UserService {
 
     private void deleteFriend(Friend friend) {
         friendRepository.delete(friend);
+    }
+
+    private Optional<List<Memory>> findMemoriesByWriterId(Long userId) {
+        return memoryRepository.findAllByWriterId(userId);
     }
 }
