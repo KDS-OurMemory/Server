@@ -4,13 +4,18 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerExceptio
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
+import com.kds.ourmemory.advice.v1.relation.exception.UserMemoryInternalServerException;
+import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.relation.AttendanceStatus;
+import com.kds.ourmemory.entity.relation.UserMemory;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.memory.MemoryRepository;
+import com.kds.ourmemory.repository.relation.UserMemoryRepository;
 import com.kds.ourmemory.repository.room.RoomRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FcmService;
@@ -35,8 +40,11 @@ public class MemoryService {
     // When creating a memory, added because sometimes a room is created
     private final RoomService roomService;
 
-    // Add to work in memory and user relationship tables
+    // Add to work in user table
     private final UserRepository userRepo;
+
+    // Add to work in memory and user relationship tables
+    private final UserMemoryRepository userMemoryRepo;
     
     // Add to work in memory and rooms relationship tables    
     private final RoomRepository roomRepo;
@@ -73,10 +81,6 @@ public class MemoryService {
                                     String.format("Memory '%s' insert failed.", memory.getName())));
                 })
                 .map(memory -> {
-                    // Relation memory and writer
-                    memory.getWriter().addMemory(memory);
-                    memory.addUser(memory.getWriter());
-
                     // Relation memory and private room
                     var roomId = relationMemoryToPrivateRoom(memory, memory.getWriter().getPrivateRoomId());
 
@@ -149,9 +153,7 @@ public class MemoryService {
     public List<FindMemoriesDto.Response> findMemories(Long writerId, String name) {
         List<Memory> findMemories = new ArrayList<>();
 
-        findUser(writerId).ifPresent(user -> findMemories.addAll(
-                user.getMemories().stream().filter(Memory::isUsed).collect(toList()))
-        );
+        findMemoriesByWriterId(writerId).ifPresent(findMemories::addAll);
         findMemoriesByName(name).ifPresent(findMemories::addAll);
 
         return findMemories.stream()
@@ -173,6 +175,45 @@ public class MemoryService {
         .orElseThrow(
                 () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, "memory", memoryId))
         );
+    }
+
+    @Transactional
+    public AttendMemoryDto.Response setAttendanceStatus(long memoryId, long userId, AttendanceStatus status) {
+        var attendMemoryResponse = findByMemoryIdAndUserId(memoryId, userId)
+                .map(userMemory -> {
+                    userMemory.updateAttendance(status);
+                    return new AttendMemoryDto.Response(BaseTimeEntity.formatNow());
+                })
+                .orElse(null);
+
+        if (attendMemoryResponse != null) {
+            return attendMemoryResponse;
+        }
+
+        return findMemory(memoryId)
+                .map(memory -> {
+                    var user = findUser(userId)
+                            .orElseThrow(() -> new UserNotFoundException(
+                                    String.format(NOT_FOUND_MESSAGE, "user", userId)
+                            ));
+
+                    var userMemory = UserMemory.builder()
+                            .user(user)
+                            .memory(memory)
+                            .status(status)
+                            .build();
+
+                    insertUserMemory(userMemory)
+                            .orElseThrow(() -> new UserMemoryInternalServerException(
+                                    String.format("UserMemory [user: %d, memory: %d] insert failed.",
+                                            memory.getWriter().getId(), memory.getId())
+                            ));
+
+                    return new AttendMemoryDto.Response(BaseTimeEntity.formatNow());
+                })
+                .orElseThrow(
+                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, "memory", memoryId))
+                );
     }
 
     @Transactional
@@ -200,6 +241,10 @@ public class MemoryService {
         return memoryRepo.findAllByName(name);
     }
 
+    private Optional<List<Memory>> findMemoriesByWriterId(Long userId) {
+        return memoryRepo.findAllByWriterId(userId);
+    }
+
     /**
      * User Repository
      * 
@@ -214,7 +259,21 @@ public class MemoryService {
         return userRepo.findById(id)
                 .filter(user -> !user.isUsed()).isPresent();
     }
-    
+
+    /**
+     * UserMemory Repository
+     *
+     * When working with a service code, the service code is connected to each other
+     * and is caught in an infinite loop in the injection of dependencies.
+     */
+    private Optional<UserMemory> insertUserMemory(UserMemory userMemory) {
+        return Optional.of(userMemoryRepo.save(userMemory));
+    }
+
+    private Optional<UserMemory> findByMemoryIdAndUserId(Long memoryId, Long userId) {
+        return userMemoryRepo.findByMemoryIdAndUserId(memoryId, userId);
+    }
+
     /**
      * Room Repository
      * 

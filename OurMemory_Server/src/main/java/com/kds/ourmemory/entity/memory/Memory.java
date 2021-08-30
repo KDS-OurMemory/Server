@@ -2,6 +2,7 @@ package com.kds.ourmemory.entity.memory;
 
 import com.kds.ourmemory.controller.v1.memory.dto.UpdateMemoryDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.relation.UserMemory;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import lombok.*;
@@ -70,8 +71,8 @@ public class Memory extends BaseTimeEntity implements Serializable {
     private List<Room> rooms = new ArrayList<>();
 
     @ToString.Exclude
-	@ManyToMany(mappedBy = "memories", fetch = FetchType.LAZY)
-    private List<User> users = new ArrayList<>();
+	@OneToMany(mappedBy = "memory", fetch = FetchType.LAZY)
+    private List<UserMemory> users = new ArrayList<>();
 	
 	@Builder
     public Memory(Long id, User writer, String name, String contents, String place,
@@ -104,9 +105,8 @@ public class Memory extends BaseTimeEntity implements Serializable {
         this.rooms.add(room);
     }
 
-    public void addUser(User user) {
-        this.users = this.users==null? new ArrayList<>() : this.users;
-        this.users.add(user);
+    public void addUser(UserMemory userMemory) {
+	    this.users.add(userMemory);
     }
 
     public Optional<Memory> updateMemory(UpdateMemoryDto.Request request) {

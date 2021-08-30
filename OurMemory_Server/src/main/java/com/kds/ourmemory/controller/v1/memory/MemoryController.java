@@ -2,6 +2,7 @@ package com.kds.ourmemory.controller.v1.memory;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
+import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,6 +50,16 @@ public class MemoryController {
             @RequestParam UpdateMemoryDto.Request request
     ) {
         return ok(memoryService.update(memoryId, request));
+    }
+
+    @ApiOperation(value = "일정 참석 여부 설정", notes = "일정에 참석/불참 여부 설정, 사용자-일정 관계 테이블에 레코드를 추가하는 방식으로 설정함.")
+    @PostMapping("/{memoryId}/attendance/{userId}/{status}")
+    public ApiResult<AttendMemoryDto.Response> setAttend(
+            @PathVariable long memoryId,
+            @PathVariable long userId,
+            @PathVariable AttendanceStatus status
+            ) {
+        return ok(memoryService.setAttendanceStatus(memoryId, userId, status));
     }
 
     @ApiOperation(value = "일정 삭제", notes = "일정 삭제 처리")
