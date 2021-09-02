@@ -62,6 +62,22 @@ public class MemoryController {
         return ok(memoryService.setAttendanceStatus(memoryId, userId, status));
     }
 
+    @ApiOperation(value = "일정 공유",
+            notes = """
+                    사용자가 대상 목록에게 일정을 공유시킨다.\s
+                    1. 사용자 개별 공유: 각 사용자 별로 방 생성 뒤 일정 공유,\s
+                    2. 사용자 그룹 공유: 사용자들을 참여자로 방 생성 후 일정 공유,\s
+                    3. 기존 방에 공유: 전달받은 각각의 방에 일정 공유"""
+    )
+    @PostMapping("/{memoryId}/share/{userId}")
+    public ApiResult<ShareMemoryDto.Response> shareMemory(
+            @PathVariable long memoryId,
+            @PathVariable long userId,
+            @RequestBody ShareMemoryDto.Request request
+    ) {
+        return ok(memoryService.shareMemory(memoryId, userId, request));
+    }
+
     @ApiOperation(value = "일정 삭제", notes = "일정 삭제 처리")
     @DeleteMapping("/{memoryId}")
     public ApiResult<DeleteMemoryDto.Response> delete(

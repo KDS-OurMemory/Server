@@ -21,7 +21,8 @@
 bin/
 src/main/resources/application.yml
 
-# Sonarlint
+# idea, Sonarlint
+/.idea/
 .idea/sonarlint/
 
 # Custom

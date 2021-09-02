@@ -1,13 +1,12 @@
 package com.kds.ourmemory.service.v1.memory;
 
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryInternalServerException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundRoomException;
-import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundWriterException;
+import com.kds.ourmemory.advice.v1.memory.exception.*;
 import com.kds.ourmemory.advice.v1.relation.exception.UserMemoryInternalServerException;
+import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
+import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
@@ -53,6 +53,8 @@ public class MemoryService {
     private final FcmService fcmService;
 
     private static final String NOT_FOUND_MESSAGE = "Not found %s matched id: %d";
+
+    private static final String MEMORY = "memory";
     
     @Transactional
     public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
@@ -78,7 +80,9 @@ public class MemoryService {
 
                     return insertMemory(memory)
                             .orElseThrow(() -> new MemoryInternalServerException(
-                                    String.format("Memory '%s' insert failed.", memory.getName())));
+                                        String.format("Memory '%s' insert failed.", memory.getName())
+                                    )
+                            );
                 })
                 .map(memory -> {
                     // Relation memory and private room
@@ -145,7 +149,7 @@ public class MemoryService {
                 .filter(Memory::isUsed)
                 .map(FindMemoryDto.Response::new)
                 .orElseThrow(() -> new MemoryNotFoundException(
-                                String.format(NOT_FOUND_MESSAGE, "memory", id)
+                                String.format(NOT_FOUND_MESSAGE, MEMORY, id)
                         )
                 );
     }
@@ -173,7 +177,7 @@ public class MemoryService {
                 .orElseThrow(() -> new MemoryInternalServerException("Failed to update for memory data"))
         )
         .orElseThrow(
-                () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, "memory", memoryId))
+                () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
         );
     }
 
@@ -203,17 +207,91 @@ public class MemoryService {
                             .status(status)
                             .build();
 
-                    insertUserMemory(userMemory)
+                    return insertUserMemory(userMemory)
+                            .map(um -> new AttendMemoryDto.Response(BaseTimeEntity.formatNow()))
                             .orElseThrow(() -> new UserMemoryInternalServerException(
                                     String.format("UserMemory [user: %d, memory: %d] insert failed.",
                                             memory.getWriter().getId(), memory.getId())
                             ));
-
-                    return new AttendMemoryDto.Response(BaseTimeEntity.formatNow());
                 })
                 .orElseThrow(
-                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, "memory", memoryId))
+                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
                 );
+    }
+
+    @Transactional
+    public ShareMemoryDto.Response shareMemory(long memoryId, long userId, ShareMemoryDto.Request request) {
+        checkNotNull(request.getTargetIds(), "공유 대상 목록이 없습니다. 공유 대상 목록을 입력해주세요.");
+        checkNotNull(request.getType(), "일정 공유 대상 종류값이 없습니다. 값을 입력해주세요.");
+
+        var memory = findMemory(memoryId)
+                .orElseThrow(() -> new MemoryNotFoundException(
+                        String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId)
+                ));
+
+        var user = findUser(userId)
+                .orElseThrow(() -> new UserNotFoundException(
+                        String.format(NOT_FOUND_MESSAGE, "user", userId)
+                ));
+
+        switch (request.getType()) {
+            case USERS -> request.getTargetIds().forEach(id -> findUser(id)
+                    .map(target -> {
+                        var insertRoomReq = new InsertRoomDto.Request(
+                                user.getName() + ", " + target.getName(),
+                                userId,
+                                false,
+                                Stream.of(target.getId()).collect(toList())
+                        );
+                        var insertRoomRsp = roomService.insert(insertRoomReq);
+                        return findRoom(insertRoomRsp.getRoomId())
+                                .orElseThrow(() -> new RoomNotFoundException(
+                                        String.format(NOT_FOUND_MESSAGE, "insertedRoom", insertRoomRsp.getRoomId())
+                                ));
+                    })
+                    .map(room -> {
+                        room.addMemory(memory);
+                        memory.addRoom(room);
+
+                        return room;
+                    })
+                    .orElseThrow(() -> new MemoryNotFoundShareMemberException(
+                            String.format(NOT_FOUND_MESSAGE, "shareMember", id)
+                    )));
+
+            case USER_GROUP -> {
+                var insertRoomReq = new InsertRoomDto.Request(
+                        "Share room from " + user.getName(),
+                        userId,
+                        false,
+                        request.getTargetIds()
+                );
+                var insertRoomRsp = roomService.insert(insertRoomReq);
+                return findRoom(insertRoomRsp.getRoomId())
+                        .map(room -> {
+                            room.addMemory(memory);
+                            memory.addRoom(room);
+                            return new ShareMemoryDto.Response(BaseTimeEntity.formatNow());
+                        })
+                        .orElseThrow(() -> new MemoryInternalServerException(
+                                String.format("Memory '%s' insert failed.", memory.getName())
+                        ));
+            }
+            case ROOMS -> request.getTargetIds().forEach(roomId ->
+                    findRoom(roomId)
+                            .map(room -> {
+                                room.addMemory(memory);
+                                memory.addRoom(room);
+
+                                return room;
+                            })
+                            .orElseThrow(() -> new RoomNotFoundException(
+                                    String.format(NOT_FOUND_MESSAGE, "shareRoom", roomId)
+                            ))
+            );
+        }
+
+        return new ShareMemoryDto.Response(BaseTimeEntity.formatNow());
     }
 
     @Transactional
@@ -222,7 +300,7 @@ public class MemoryService {
                 .map(Memory::deleteMemory)
                 .map(memory -> new DeleteMemoryDto.Response(BaseTimeEntity.formatNow()))
                 .orElseThrow(
-                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, "memory", id))
+                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, id))
                 );
     }
     
@@ -252,7 +330,7 @@ public class MemoryService {
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {
-        return Optional.ofNullable(id).flatMap(userRepo::findById);
+        return Optional.ofNullable(id).flatMap(userRepo::findById).filter(User::isUsed);
     }
 
     private boolean isDeleteUser(Long id) {
