@@ -23,8 +23,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @Slf4j
@@ -75,7 +74,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -100,13 +99,13 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
+        InsertMemoryDto.Response insertRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertRsp).isNotNull();
         assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
-        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertReq.getRoomId());
+        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertReq.getUserId(), null);
+        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -157,7 +156,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 null,
                 "Test Memory",
@@ -182,13 +181,13 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
+        InsertMemoryDto.Response insertRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertRsp).isNotNull();
         assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertWriterRsp.getPrivateRoomId());
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertReq.getUserId(), null);
+        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -239,7 +238,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -253,10 +252,10 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
+        InsertMemoryDto.Response insertRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertRsp).isNotNull();
         assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
-        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertReq.getRoomId());
+        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Attend memory of member */
         AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
@@ -274,7 +273,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertReq = new InsertMemoryDto.Request(
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -288,10 +287,10 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertRsp = memoryService.insert(insertReq);
+        InsertMemoryDto.Response insertRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertRsp).isNotNull();
         assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
-        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertReq.getRoomId());
+        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Attend memory of member */
         AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
@@ -300,10 +299,270 @@ class MemoryServiceTest {
         assertTrue(isNow(attendRsp.getSetDate()));
     }
 
+    @Test
+    @Order(5)
+    @DisplayName("일정 공유 - 개별 사용자 목록")
+    @Transactional
+    void shareMemoryForUsers() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMember2Req = new InsertUserDto.Request(
+                2, "member2_snsId", "member2 Token",
+                "member2", "0527", true,
+                false, DeviceOs.IOS
+        );
+        InsertUserDto.Response insertMemberRsp2 = userService.signUp(insertMember2Req);
+        assertThat(insertMemberRsp2).isNotNull();
+        assertThat(insertMemberRsp2.getUserId()).isNotNull();
+        assertThat(insertMemberRsp2.getPrivateRoomId()).isNotNull();
+        assertTrue(isNow(insertMemberRsp2.getJoinDate()));
+
+        var shareMemoryUsersReq = new ShareMemoryDto.Request(
+                ShareMemoryDto.ShareType.USERS,
+                Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList())
+        );
+
+        /* 1. Make memory */
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+
+        /* 2. Share memory for users */
+        var shareMemoryRsp = memoryService.shareMemory(
+                insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
+        );
+        assertThat(shareMemoryRsp).isNotNull();
+        assertTrue(isNow(shareMemoryRsp.getShareDate()));
+
+        /* 3. find share memory */
+        // 1) Check from member
+        var findMemberRooms = roomService.findRooms(insertMemberRsp.getUserId(), null);
+        assertThat(findMemberRooms).isNotNull();
+        assertThat(findMemberRooms.size()).isEqualTo(3);
+
+        var isValidMember = false;
+        Long memberRoomId = null;
+        for (var findMemberRoomRsp : findMemberRooms) {
+            if (findMemberRoomRsp.getRoomId() == insertRoomRsp.getRoomId() 
+                    || findMemberRoomRsp.getRoomId() == insertMemberRsp.getPrivateRoomId()
+            ) {
+                continue;
+            }
+
+            assertThat(findMemberRoomRsp.getMemories().size()).isOne();
+            assertThat(findMemberRoomRsp.getMembers().size()).isEqualTo(2);
+            assertThat(findMemberRoomRsp.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
+            isValidMember = true;
+            memberRoomId = findMemberRoomRsp.getRoomId();
+        }
+        assertTrue(isValidMember);
+
+        // 2) Check from member2
+        var findMemberRooms2 = roomService.findRooms(insertMemberRsp2.getUserId(), null);
+        assertThat(findMemberRooms2).isNotNull();
+        assertThat(findMemberRooms2.size()).isEqualTo(2);
+
+        var isValidMember2 = false;
+        Long memberRoomId2 = null;
+        for (var findMemberRoomRsp2 : findMemberRooms2) {
+            if (findMemberRoomRsp2.getRoomId() == insertMemberRsp2.getPrivateRoomId())
+                continue;
+
+            assertThat(findMemberRoomRsp2.getMemories().size()).isOne();
+            assertThat(findMemberRoomRsp2.getMembers().size()).isEqualTo(2);
+            assertThat(findMemberRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
+            isValidMember2 = true;
+            memberRoomId2 = findMemberRoomRsp2.getRoomId();
+        }
+        assertTrue(isValidMember2);
+
+        // 3) Check not same member roomId and member2 roomId
+        assertNotEquals(memberRoomId.longValue(), memberRoomId2.longValue());
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("일정 공유 - 사용자 그룹")
+    @Transactional
+    void shareMemoryForUserGroup() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMember2Req = new InsertUserDto.Request(
+                2, "member2_snsId", "member2 Token",
+                "member2", "0527", true,
+                false, DeviceOs.IOS
+        );
+        InsertUserDto.Response insertMemberRsp2 = userService.signUp(insertMember2Req);
+        assertThat(insertMemberRsp2).isNotNull();
+        assertThat(insertMemberRsp2.getUserId()).isNotNull();
+        assertThat(insertMemberRsp2.getPrivateRoomId()).isNotNull();
+        assertTrue(isNow(insertMemberRsp2.getJoinDate()));
+
+        var shareMemoryUsersReq = new ShareMemoryDto.Request(
+                ShareMemoryDto.ShareType.USER_GROUP,
+                Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList())
+        );
+
+        /* 1. Make memory */
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+
+        /* 2. Share memory for user group */
+        var shareMemoryRsp = memoryService.shareMemory(
+                insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
+        );
+        assertThat(shareMemoryRsp).isNotNull();
+        assertTrue(isNow(shareMemoryRsp.getShareDate()));
+
+        /* 3. find share memory */
+        // 1) Check from member1
+        var findMemberRooms = roomService.findRooms(insertMemberRsp.getUserId(), null);
+        assertThat(findMemberRooms).isNotNull();
+        assertThat(findMemberRooms.size()).isEqualTo(3);
+
+        var isValidMember = false;
+        Long memberRoomId = null;
+        for (var findMemberRoomRsp : findMemberRooms) {
+            if (findMemberRoomRsp.getRoomId() == insertRoomRsp.getRoomId()
+                    || findMemberRoomRsp.getRoomId() == insertMemberRsp.getPrivateRoomId()
+            ) {
+                continue;
+            }
+
+            assertThat(findMemberRoomRsp.getMemories().size()).isOne();
+            assertThat(findMemberRoomRsp.getMembers().size()).isEqualTo(3);
+            assertThat(findMemberRoomRsp.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
+            isValidMember = true;
+            memberRoomId = findMemberRoomRsp.getRoomId();
+        }
+        assertTrue(isValidMember);
+
+        // 2) Check from member2
+        var findMemberRooms2 = roomService.findRooms(insertMemberRsp2.getUserId(), null);
+        assertThat(findMemberRooms2).isNotNull();
+        assertThat(findMemberRooms2.size()).isEqualTo(2);
+
+        var isValidMember2 = false;
+        Long memberRoomId2 = null;
+        for (var findMemberRoomRsp2 : findMemberRooms2) {
+            if (findMemberRoomRsp2.getRoomId() == insertMemberRsp2.getPrivateRoomId())
+                continue;
+
+            assertThat(findMemberRoomRsp2.getMemories().size()).isOne();
+            assertThat(findMemberRoomRsp2.getMembers().size()).isEqualTo(3);
+            assertThat(findMemberRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
+            isValidMember2 = true;
+            memberRoomId2 = findMemberRoomRsp2.getRoomId();
+        }
+        assertTrue(isValidMember2);
+
+        // 3) check same member1 roomId and member2 roomId
+        assertEquals(memberRoomId.longValue(), memberRoomId2.longValue());
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("일정 공유 - 방 목록")
+    @Transactional
+    void shareMemoryForRooms() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var members2 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var insertRoomReq2 = new InsertRoomDto.Request("room name2", insertMemberRsp.getUserId(), false, members2);
+        InsertRoomDto.Response insertRoomRsp2 = roomService.insert(insertRoomReq2);
+        assertThat(insertRoomRsp2).isNotNull();
+        assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
+        assertThat(insertRoomRsp2.getMembers()).isNotNull();
+        assertThat(insertRoomRsp2.getMembers().size()).isEqualTo(2);
+
+        var members3 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var insertRoomReq3 = new InsertRoomDto.Request("room name2", insertMemberRsp.getUserId(), false, members3);
+        InsertRoomDto.Response insertRoomRsp3 = roomService.insert(insertRoomReq3);
+        assertThat(insertRoomRsp3).isNotNull();
+        assertThat(insertRoomRsp3.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
+        assertThat(insertRoomRsp3.getMembers()).isNotNull();
+        assertThat(insertRoomRsp3.getMembers().size()).isEqualTo(2);
+
+        var shareMemoryUsersReq = new ShareMemoryDto.Request(
+                ShareMemoryDto.ShareType.ROOMS,
+                Stream.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()).collect(toList())
+        );
+
+        /* 1. Make memory */
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+
+        /* 2. Share memory for user group */
+        var shareMemoryRsp = memoryService.shareMemory(
+                insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
+        );
+        assertThat(shareMemoryRsp).isNotNull();
+        assertTrue(isNow(shareMemoryRsp.getShareDate()));
+
+        /* 3. Check share memory from original memory */
+        var findMemories = memoryService.findMemories(insertWriterRsp.getUserId(), null);
+        assertThat(findMemories).isNotNull();
+        assertThat(findMemories.size()).isOne();
+
+        var findMemoryRsp = findMemories.get(0);
+        assertThat(findMemoryRsp).isNotNull();
+        assertThat(findMemoryRsp.getShareRooms().size()).isEqualTo(4);
+    }
+
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
-        /* 1. Create Writer, Member */
+        /* 1. Create Writer, Member1, Member2 */
         var insertWriterReq = new InsertUserDto.Request(
                 1, "writer_snsId", "member Token",
                 "member", "0519", true,
@@ -316,8 +575,8 @@ class MemoryServiceTest {
         assertTrue(isNow(insertWriterRsp.getJoinDate()));
 
         var insertMemberReq = new InsertUserDto.Request(
-                1, "member_snsId", "writer Token",
-                "writer", "0720", true,
+                1, "member1_snsId", "member1 Token",
+                "member1", "0720", true,
                 false, DeviceOs.ANDROID
         );
         insertMemberRsp = userService.signUp(insertMemberReq);

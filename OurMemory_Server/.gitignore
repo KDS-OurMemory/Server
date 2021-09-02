@@ -21,6 +21,10 @@
 bin/
 src/main/resources/application.yml
 
+# idea, Sonarlint
+/.idea/
+.idea/sonarlint/
+
 # Custom
 logs/
 src/main/resources/FCM_ServiceKey.json

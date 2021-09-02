@@ -28,9 +28,9 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse{
         return response(NOT_FOUND_WRITER, e);
     }
 
-    @ExceptionHandler(MemoryNotFoundMemberException.class)
-    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundMemberException(MemoryNotFoundMemberException e) {
-        return response(NOT_FOUND_MEMBER, e);
+    @ExceptionHandler(MemoryNotFoundShareMemberException.class)
+    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundMemberException(MemoryNotFoundShareMemberException e) {
+        return response(NOT_FOUND_SHARE_MEMBER, e);
     }
     
     @ExceptionHandler(MemoryNotFoundRoomException.class)
