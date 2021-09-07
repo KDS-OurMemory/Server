@@ -55,6 +55,8 @@ public class MemoryService {
     private static final String NOT_FOUND_MESSAGE = "Not found %s matched id: %d";
 
     private static final String MEMORY = "memory";
+
+    private static final String USER = "user";
     
     @Transactional
     public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
@@ -183,7 +185,7 @@ public class MemoryService {
 
     @Transactional
     public AttendMemoryDto.Response setAttendanceStatus(long memoryId, long userId, AttendanceStatus status) {
-        var attendMemoryResponse = findByMemoryIdAndUserId(memoryId, userId)
+        var attendMemoryResponse = findUserMemoryByMemoryIdAndUserId(memoryId, userId)
                 .map(userMemory -> {
                     userMemory.updateAttendance(status);
                     return new AttendMemoryDto.Response(BaseTimeEntity.formatNow());
@@ -207,12 +209,16 @@ public class MemoryService {
                             .status(status)
                             .build();
 
-                    return insertUserMemory(userMemory)
-                            .map(um -> new AttendMemoryDto.Response(BaseTimeEntity.formatNow()))
+                    var insertedUserMemory = insertUserMemory(userMemory)
                             .orElseThrow(() -> new UserMemoryInternalServerException(
                                     String.format("UserMemory [user: %d, memory: %d] insert failed.",
                                             memory.getWriter().getId(), memory.getId())
                             ));
+
+                    user.addMemory(insertedUserMemory);
+                    memory.addUser(insertedUserMemory);
+
+                    return new AttendMemoryDto.Response(BaseTimeEntity.formatNow());
                 })
                 .orElseThrow(
                         () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
@@ -295,12 +301,31 @@ public class MemoryService {
     }
 
     @Transactional
-    public DeleteMemoryDto.Response delete(long id) {
-        return findMemory(id)
-                .map(Memory::deleteMemory)
-                .map(memory -> new DeleteMemoryDto.Response(BaseTimeEntity.formatNow()))
+    public DeleteMemoryDto.Response delete(long memoryId, DeleteMemoryDto.Request request) {
+        var memory = findMemory(memoryId)
                 .orElseThrow(
-                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, id))
+                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
+                );
+
+        return findUser(request.getUserId())
+                .map(user -> {
+                    // 1. Delete memory from private room -> delete memory
+                    if (user.getPrivateRoomId() == request.getTargetRoomId()) {
+                        memory.deleteMemory();
+                    }
+                    // 2. Delete memory from share room -> delete room-memory relation
+                    else {
+                        findRoom(request.getTargetRoomId())
+                                .ifPresent(room -> {
+                                    room.deleteMemory(memory);
+                                    memory.deleteRoom(room);
+                                });
+                    }
+
+                    return new DeleteMemoryDto.Response(BaseTimeEntity.formatNow());
+                })
+                .orElseThrow(
+                        () -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, request.getUserId()))
                 );
     }
     
@@ -348,7 +373,7 @@ public class MemoryService {
         return Optional.of(userMemoryRepo.save(userMemory));
     }
 
-    private Optional<UserMemory> findByMemoryIdAndUserId(Long memoryId, Long userId) {
+    private Optional<UserMemory> findUserMemoryByMemoryIdAndUserId(Long memoryId, Long userId) {
         return userMemoryRepo.findByMemoryIdAndUserId(memoryId, userId);
     }
 

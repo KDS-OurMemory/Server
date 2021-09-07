@@ -72,7 +72,7 @@ public class Memory extends BaseTimeEntity implements Serializable {
 
     @ToString.Exclude
 	@OneToMany(mappedBy = "memory", fetch = FetchType.LAZY)
-    private List<UserMemory> users = new ArrayList<>();
+    private final List<UserMemory> users = new ArrayList<>();
 	
 	@Builder
     public Memory(Long id, User writer, String name, String contents, String place,
@@ -125,9 +125,12 @@ public class Memory extends BaseTimeEntity implements Serializable {
                 });
     }
 
-    public Memory deleteMemory() {
+    public void deleteMemory() {
 	    this.used = false;
-	    return this;
+    }
+
+    public void deleteRoom(Room room) {
+        this.rooms.remove(room);
     }
 
     @Override

@@ -50,7 +50,8 @@ public class FindRoomDto {
             opened = room.isOpened();
             members = room.getUsers().stream().filter(User::isUsed).map(FindRoomDto.Response.Member::new)
                     .collect(Collectors.toList());
-            memories = room.getMemories().stream().filter(memory -> memory.getEndDate().isAfter(now))
+            memories = room.getMemories().stream().filter(com.kds.ourmemory.entity.memory.Memory::isUsed)
+                    .filter(memory -> memory.getEndDate().isAfter(now))
                     .map(FindRoomDto.Response.Memory::new)
                     .collect(Collectors.toList());
         }

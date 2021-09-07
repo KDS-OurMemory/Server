@@ -78,10 +78,14 @@ public class MemoryController {
         return ok(memoryService.shareMemory(memoryId, userId, request));
     }
 
-    @ApiOperation(value = "일정 삭제", notes = "일정 삭제 처리")
+    @ApiOperation(value = "일정 삭제", notes = """
+            일정을 방에서 삭제처리한다. 아래의 경우에 따라 처리 방식이 나뉜다.\s
+            1. 공유방에서 삭제 -> 일정-방 관계 삭제\s
+            2. 개인방에서 삭제 -> 일정 삭제 처리""")
     @DeleteMapping("/{memoryId}")
     public ApiResult<DeleteMemoryDto.Response> delete(
-            @PathVariable long memoryId) {
-        return ok(memoryService.delete(memoryId));
+            @PathVariable long memoryId,
+            @RequestBody DeleteMemoryDto.Request request) {
+        return ok(memoryService.delete(memoryId, request));
     }
 }
