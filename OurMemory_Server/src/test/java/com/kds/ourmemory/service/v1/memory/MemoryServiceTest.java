@@ -67,7 +67,7 @@ class MemoryServiceTest {
 
     @Test
     @Order(1)
-    @DisplayName("방 안에서 일정 추가")
+    @DisplayName("일정 추가 -> 방 안")
     @Transactional
     void addMemoryInRoom() {
         /* 0-1. Set base data */
@@ -99,10 +99,10 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertRsp = memoryService.insert(insertMemoryReq);
-        assertThat(insertRsp).isNotNull();
-        assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
-        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
         List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
@@ -113,43 +113,31 @@ class MemoryServiceTest {
 
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
-        assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
+        assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
         assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
 
         /* 3. Find before update */
-        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertRsp.getMemoryId());
+        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertMemoryRsp.getMemoryId());
         assertThat(beforeFindRsp).isNotNull();
-        assertThat(beforeFindRsp.getName()).isEqualTo(insertRsp.getName());
-        assertThat(beforeFindRsp.getContents()).isEqualTo(insertRsp.getContents());
+        assertThat(beforeFindRsp.getName()).isEqualTo(insertMemoryRsp.getName());
+        assertThat(beforeFindRsp.getContents()).isEqualTo(insertMemoryRsp.getContents());
 
         /* 4. Update */
-        UpdateMemoryDto.Response updateRsp = memoryService.update(insertRsp.getMemoryId(), updateReq);
+        UpdateMemoryDto.Response updateRsp = memoryService.update(insertMemoryRsp.getMemoryId(), updateReq);
         assertThat(updateRsp).isNotNull();
         assertTrue(isNow(updateRsp.getUpdateDate()));
 
         /* 5. Find after update */
-        FindMemoryDto.Response afterFindRsp = memoryService.find(insertRsp.getMemoryId());
+        FindMemoryDto.Response afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId());
         assertThat(afterFindRsp).isNotNull();
         assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
         assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
-
-        /* 6. Delete memory */
-        DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertRsp.getMemoryId());
-        assertThat(deleteRsp).isNotNull();
-        assertTrue(isNow(deleteRsp.getDeleteDate()));
-
-        /* 7. Find after delete */
-        Long memoryId = insertRsp.getMemoryId();
-        assertThat(memoryId).isNotNull();
-        assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(memoryId)
-        );
     }
 
     @Test
     @Order(2)
-    @DisplayName("방 밖에서 일정 추가")
+    @DisplayName("일정 추가 -> 방 밖")
     @Transactional
     void addMemoryOutRoom() {
         /* 0-1. Set base data */
@@ -181,10 +169,10 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertRsp = memoryService.insert(insertMemoryReq);
-        assertThat(insertRsp).isNotNull();
-        assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
-        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertWriterRsp.getPrivateRoomId());
+        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertWriterRsp.getPrivateRoomId());
 
         /* 2. Find memories */
         List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
@@ -195,38 +183,26 @@ class MemoryServiceTest {
 
         FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
-        assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertRsp.getMemoryId());
+        assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
         assertThat(findMemoriesRsp.getShareRooms().size()).isOne();
 
         /* 3. Find before update */
-        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertRsp.getMemoryId());
+        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertMemoryRsp.getMemoryId());
         assertThat(beforeFindRsp).isNotNull();
-        assertThat(beforeFindRsp.getName()).isEqualTo(insertRsp.getName());
-        assertThat(beforeFindRsp.getContents()).isEqualTo(insertRsp.getContents());
+        assertThat(beforeFindRsp.getName()).isEqualTo(insertMemoryRsp.getName());
+        assertThat(beforeFindRsp.getContents()).isEqualTo(insertMemoryRsp.getContents());
 
         /* 4. Update */
-        UpdateMemoryDto.Response updateRsp = memoryService.update(insertRsp.getMemoryId(), updateReq);
+        UpdateMemoryDto.Response updateRsp = memoryService.update(insertMemoryRsp.getMemoryId(), updateReq);
         assertThat(updateRsp).isNotNull();
         assertTrue(isNow(updateRsp.getUpdateDate()));
 
         /* 5. Find after update */
-        FindMemoryDto.Response afterFindRsp = memoryService.find(insertRsp.getMemoryId());
+        FindMemoryDto.Response afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId());
         assertThat(afterFindRsp).isNotNull();
         assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
         assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
-
-        /* 6. Delete memory */
-        DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertRsp.getMemoryId());
-        assertThat(deleteRsp).isNotNull();
-        assertTrue(isNow(deleteRsp.getDeleteDate()));
-
-        /* 7. Find after delete */
-        Long memoryId = insertRsp.getMemoryId();
-        assertThat(memoryId).isNotNull();
-        assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(memoryId)
-        );
     }
 
     @Test
@@ -252,14 +228,14 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertRsp = memoryService.insert(insertMemoryReq);
-        assertThat(insertRsp).isNotNull();
-        assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
-        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Attend memory of member */
         AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
-                insertRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ATTEND);
+                insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ATTEND);
         assertThat(attendRsp).isNotNull();
         assertTrue(isNow(attendRsp.getSetDate()));
     }
@@ -287,14 +263,14 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertRsp = memoryService.insert(insertMemoryReq);
-        assertThat(insertRsp).isNotNull();
-        assertThat(insertRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
-        assertThat(insertRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Attend memory of member */
         AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
-                insertRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ABSENCE);
+                insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ABSENCE);
         assertThat(attendRsp).isNotNull();
         assertTrue(isNow(attendRsp.getSetDate()));
     }
@@ -557,6 +533,137 @@ class MemoryServiceTest {
         var findMemoryRsp = findMemories.get(0);
         assertThat(findMemoryRsp).isNotNull();
         assertThat(findMemoryRsp.getShareRooms().size()).isEqualTo(4);
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("일정 삭제 - 공유방")
+    @Transactional
+    void deleteMemoryFromShareRoom() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        DeleteMemoryDto.Request deleteMemoryReq = new DeleteMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId()
+        );
+
+        /* 1. Make memory */
+        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+
+        /* 2. Find memories */
+        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        assertThat(findMemoriesList).isNotNull();
+
+        findMemoriesList = memoryService.findMemories(null, "Test Memory");
+        assertThat(findMemoriesList).isNotNull();
+
+        FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
+        assertThat(findMemoriesRsp).isNotNull();
+        assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
+        assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
+        assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
+
+        /* 3. Delete memory from share room */
+        DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
+        assertThat(deleteRsp).isNotNull();
+        assertTrue(isNow(deleteRsp.getDeleteDate()));
+
+        /* 4. Find memory after delete */
+        var findMemoryRsp = memoryService.find(insertMemoryRsp.getMemoryId());
+        assertThat(findMemoryRsp).isNotNull();
+        assertThat(findMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+
+        /* 5. Find memory after delete from private room */
+        var findPrivateRoomRsp = roomService.find(insertWriterRsp.getPrivateRoomId());
+        assertThat(findPrivateRoomRsp.getMemories().size()).isOne();
+
+        /* 6. Find memory after delete from share room */
+        var findShareRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(findShareRoomRsp.getMemories().size()).isZero();
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("일정 삭제 - 개인방")
+    @Transactional
+    void deleteMemoryFromPrivateRoom() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        DeleteMemoryDto.Request deleteMemoryReq = new DeleteMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertWriterRsp.getPrivateRoomId()
+        );
+
+        /* 1. Make memory */
+        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+
+        /* 2. Find memories */
+        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        assertThat(findMemoriesList).isNotNull();
+
+        findMemoriesList = memoryService.findMemories(null, "Test Memory");
+        assertThat(findMemoriesList).isNotNull();
+
+        FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
+        assertThat(findMemoriesRsp).isNotNull();
+        assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
+        assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
+        assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
+
+        /* 3. Delete memory from private room */
+        DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
+        assertThat(deleteRsp).isNotNull();
+        assertTrue(isNow(deleteRsp.getDeleteDate()));
+
+        /* 4. Find memory after delete */
+        var memoryId = insertMemoryRsp.getMemoryId();
+        assertThrows(
+                MemoryNotFoundException.class, () -> memoryService.find(memoryId)
+        );
+
+        /* 5. Find memory after delete from private room */
+        var findPrivateRoomRsp = roomService.find(insertWriterRsp.getPrivateRoomId());
+        assertThat(findPrivateRoomRsp.getMemories().size()).isZero();
+
+        /* 6. Find memory after delete from share room */
+        var findShareRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(findShareRoomRsp.getMemories().size()).isZero();
     }
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
