@@ -67,7 +67,7 @@ class MemoryServiceTest {
 
     @Test
     @Order(1)
-    @DisplayName("일정 추가 -> 방 안")
+    @DisplayName("일정 추가 -> 방 안(공유 일정 취급)")
     @Transactional
     void addMemoryInRoom() {
         /* 0-1. Set base data */
@@ -118,7 +118,7 @@ class MemoryServiceTest {
         assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
 
         /* 3. Find before update */
-        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertMemoryRsp.getMemoryId());
+        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
         assertThat(beforeFindRsp).isNotNull();
         assertThat(beforeFindRsp.getName()).isEqualTo(insertMemoryRsp.getName());
         assertThat(beforeFindRsp.getContents()).isEqualTo(insertMemoryRsp.getContents());
@@ -129,7 +129,7 @@ class MemoryServiceTest {
         assertTrue(isNow(updateRsp.getUpdateDate()));
 
         /* 5. Find after update */
-        FindMemoryDto.Response afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId());
+        FindMemoryDto.Response afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
         assertThat(afterFindRsp).isNotNull();
         assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
         assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
@@ -137,7 +137,7 @@ class MemoryServiceTest {
 
     @Test
     @Order(2)
-    @DisplayName("일정 추가 -> 방 밖")
+    @DisplayName("일정 추가 -> 방 밖(개인 일정 취급)")
     @Transactional
     void addMemoryOutRoom() {
         /* 0-1. Set base data */
@@ -188,7 +188,7 @@ class MemoryServiceTest {
         assertThat(findMemoriesRsp.getShareRooms().size()).isOne();
 
         /* 3. Find before update */
-        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertMemoryRsp.getMemoryId());
+        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertWriterRsp.getPrivateRoomId());
         assertThat(beforeFindRsp).isNotNull();
         assertThat(beforeFindRsp.getName()).isEqualTo(insertMemoryRsp.getName());
         assertThat(beforeFindRsp.getContents()).isEqualTo(insertMemoryRsp.getContents());
@@ -199,7 +199,7 @@ class MemoryServiceTest {
         assertTrue(isNow(updateRsp.getUpdateDate()));
 
         /* 5. Find after update */
-        FindMemoryDto.Response afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId());
+        FindMemoryDto.Response afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertWriterRsp.getPrivateRoomId());
         assertThat(afterFindRsp).isNotNull();
         assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
         assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
@@ -233,11 +233,23 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
-        /* 2. Attend memory of member */
+        /* 2. Find memory before attend memory and check attendance status */
+        var beforeFindMemoryRsp = memoryService.find(
+                insertMemoryRsp.getMemoryId(), insertMemoryRsp.getAddedRoomId());
+        assertThat(beforeFindMemoryRsp).isNotNull();
+        assertTrue(beforeFindMemoryRsp.getUserAttendances().isEmpty());
+
+        /* 3. Attend memory of member */
         AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ATTEND);
         assertThat(attendRsp).isNotNull();
         assertTrue(isNow(attendRsp.getSetDate()));
+
+        /* 4. Find memory after attend memory and check attendance status */
+        var afterFindMemoryRsp = memoryService.find(
+                insertMemoryRsp.getMemoryId(), insertMemoryRsp.getAddedRoomId());
+        assertThat(afterFindMemoryRsp).isNotNull();
+        assertThat(afterFindMemoryRsp.getUserAttendances().size()).isOne();
     }
 
     @Test
@@ -268,11 +280,23 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
-        /* 2. Attend memory of member */
+        /* 2. Find memory before absence memory and check attendance status */
+        var beforeFindMemoryRsp = memoryService.find(
+                insertMemoryRsp.getMemoryId(), insertMemoryRsp.getAddedRoomId());
+        assertThat(beforeFindMemoryRsp).isNotNull();
+        assertTrue(beforeFindMemoryRsp.getUserAttendances().isEmpty());
+
+        /* 3. Absence memory of member */
         AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ABSENCE);
         assertThat(attendRsp).isNotNull();
         assertTrue(isNow(attendRsp.getSetDate()));
+
+        /* 4. Find memory after absence memory and check attendance status */
+        var afterFindMemoryRsp = memoryService.find(
+                insertMemoryRsp.getMemoryId(), insertMemoryRsp.getAddedRoomId());
+        assertThat(afterFindMemoryRsp).isNotNull();
+        assertThat(afterFindMemoryRsp.getUserAttendances().size()).isOne();
     }
 
     @Test
@@ -587,7 +611,7 @@ class MemoryServiceTest {
         assertTrue(isNow(deleteRsp.getDeleteDate()));
 
         /* 4. Find memory after delete */
-        var findMemoryRsp = memoryService.find(insertMemoryRsp.getMemoryId());
+        var findMemoryRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
         assertThat(findMemoryRsp).isNotNull();
         assertThat(findMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
 
@@ -653,8 +677,9 @@ class MemoryServiceTest {
 
         /* 4. Find memory after delete */
         var memoryId = insertMemoryRsp.getMemoryId();
+        var roomId = insertRoomRsp.getRoomId();
         assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(memoryId)
+                MemoryNotFoundException.class, () -> memoryService.find(memoryId, roomId)
         );
 
         /* 5. Find memory after delete from private room */

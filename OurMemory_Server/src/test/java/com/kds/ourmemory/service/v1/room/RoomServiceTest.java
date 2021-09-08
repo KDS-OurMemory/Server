@@ -301,19 +301,22 @@ class RoomServiceTest {
                 RoomNotFoundException.class, () -> roomService.find(roomId)
         );
 
-        Long memoryOwner = insertMemoryRspOwner.getMemoryId();
+        var memoryOwner = insertMemoryRspOwner.getMemoryId();
+        var roomIdOwner = insertMemoryRspOwner.getAddedRoomId();
         assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(memoryOwner)
+                MemoryNotFoundException.class, () -> memoryService.find(memoryOwner, roomIdOwner)
         );
 
-        Long memoryMember1 = insertMemoryRspMember1.getMemoryId();
+        var memoryMember1 = insertMemoryRspMember1.getMemoryId();
+        var roomIdMember1 = insertMemoryRspMember1.getAddedRoomId();
         assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(memoryMember1)
+                MemoryNotFoundException.class, () -> memoryService.find(memoryMember1, roomIdMember1)
         );
 
-        Long memoryMember2 = insertMemoryRspMember2.getMemoryId();
+        var memoryMember2 = insertMemoryRspMember2.getMemoryId();
+        var roomIdMember2 = insertMemoryRspMember2.getAddedRoomId();
         assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(memoryMember2)
+                MemoryNotFoundException.class, () -> memoryService.find(memoryMember2, roomIdMember2)
         );
     }
 

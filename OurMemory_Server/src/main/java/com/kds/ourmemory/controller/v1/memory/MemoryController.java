@@ -28,10 +28,12 @@ public class MemoryController {
     }
 
     @ApiOperation(value = "일정 개별 조회")
-    @GetMapping("/{memoryId}")
+    @GetMapping("/{memoryId}/room/{roomId}")
     public ApiResult<FindMemoryDto.Response> findMemory(
-            @PathVariable long memoryId) {
-        return ok(memoryService.find(memoryId));
+            @PathVariable long memoryId,
+            @PathVariable long roomId
+    ) {
+        return ok(memoryService.find(memoryId, roomId));
     }
 
     @ApiOperation(value = "일정 목록 조회", notes = "조건에 맞는 일정을 검색한다.")
