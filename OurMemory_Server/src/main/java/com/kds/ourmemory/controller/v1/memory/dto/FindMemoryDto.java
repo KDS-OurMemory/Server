@@ -2,6 +2,8 @@ package com.kds.ourmemory.controller.v1.memory.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kds.ourmemory.entity.memory.Memory;
+import com.kds.ourmemory.entity.relation.AttendanceStatus;
+import com.kds.ourmemory.entity.relation.UserMemory;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -9,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FindMemoryDto {
@@ -56,7 +61,10 @@ public class FindMemoryDto {
         @ApiModelProperty(value = "일정 수정날짜", notes = "yyyy-MM-dd HH:mm:ss")
         private final String modDate;
 
-        public Response(Memory memory) {
+        @ApiModelProperty(value = "참석 여부 목록", notes = "일정을 조회한 방 인원에 대한 참석 여부 목록을 전달한다. 참석 여부를 설정하지 않은 경우 미정으로 취급한다.")
+        private final List<UserAttendance> userAttendances;
+
+        public Response(Memory memory, List<UserMemory> userMemories) {
             memoryId = memory.getId();
             writerId = memory.getWriter().getId();
             name = memory.getName();
@@ -69,6 +77,25 @@ public class FindMemoryDto {
             secondAlarm = memory.getSecondAlarm();
             regDate = memory.formatRegDate();
             modDate = memory.formatModDate();
+            this.userAttendances = userMemories.stream().map(UserAttendance::new).collect(toList());
+        }
+
+        /**
+         * Memory attendance non static inner class
+         */
+        @ApiModel(value = "FindMemoryDto.Response.UserAttendance", description = "inner class in FindMemoryDto.Response")
+        @Getter
+        private class UserAttendance {
+            @ApiModelProperty(value = "사용자 번호")
+            private final long userId;
+
+            @ApiModelProperty(value = "참석 여부", notes = "ATTEND: 참석, ABSENCE: 불참")
+            private final AttendanceStatus status;
+
+            protected UserAttendance(UserMemory userMemory) {
+                this.userId = userMemory.getUser().getId();
+                this.status = userMemory.getStatus();
+            }
         }
     }
 }

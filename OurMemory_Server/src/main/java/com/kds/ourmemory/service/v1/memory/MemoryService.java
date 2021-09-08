@@ -57,7 +57,9 @@ public class MemoryService {
     private static final String MEMORY = "memory";
 
     private static final String USER = "user";
-    
+
+    private static final String ROOM = "room";
+
     @Transactional
     public InsertMemoryDto.Response insert(InsertMemoryDto.Request request) {
         if (isDeleteUser(request.getUserId()))
@@ -140,18 +142,29 @@ public class MemoryService {
                             return room;
                         })
                         .orElseThrow(() -> new MemoryNotFoundRoomException(
-                                        String.format(NOT_FOUND_MESSAGE, "room", id)
+                                        String.format(NOT_FOUND_MESSAGE, ROOM, id)
                                 )
                         )
         ));
     }
 
-    public FindMemoryDto.Response find(long id) {
-        return findMemory(id)
+    public FindMemoryDto.Response find(long memoryId, long roomId) {
+        return findMemory(memoryId)
                 .filter(Memory::isUsed)
-                .map(FindMemoryDto.Response::new)
+                .map(memory -> {
+                    var roomMember = findRoom(roomId)
+                            .map(Room::getUsers)
+                            .orElseThrow(() -> new RoomNotFoundException(
+                                    String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
+                            ));
+
+                    var userMemories = findUserMemoryByMemoryAndUserIn(memory, roomMember)
+                            .orElseGet(ArrayList::new);
+
+                    return new FindMemoryDto.Response(memory, userMemories);
+                })
                 .orElseThrow(() -> new MemoryNotFoundException(
-                                String.format(NOT_FOUND_MESSAGE, MEMORY, id)
+                                String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId)
                         )
                 );
     }
@@ -200,7 +213,7 @@ public class MemoryService {
                 .map(memory -> {
                     var user = findUser(userId)
                             .orElseThrow(() -> new UserNotFoundException(
-                                    String.format(NOT_FOUND_MESSAGE, "user", userId)
+                                    String.format(NOT_FOUND_MESSAGE, USER, userId)
                             ));
 
                     var userMemory = UserMemory.builder()
@@ -237,7 +250,7 @@ public class MemoryService {
 
         var user = findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException(
-                        String.format(NOT_FOUND_MESSAGE, "user", userId)
+                        String.format(NOT_FOUND_MESSAGE, USER, userId)
                 ));
 
         switch (request.getType()) {
@@ -375,6 +388,10 @@ public class MemoryService {
 
     private Optional<UserMemory> findUserMemoryByMemoryIdAndUserId(Long memoryId, Long userId) {
         return userMemoryRepo.findByMemoryIdAndUserId(memoryId, userId);
+    }
+
+    private Optional<List<UserMemory>> findUserMemoryByMemoryAndUserIn(Memory memory, List<User> users) {
+        return userMemoryRepo.findAllByMemoryAndUserIn(memory, users);
     }
 
     /**

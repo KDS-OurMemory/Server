@@ -26,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -493,8 +492,9 @@ class UserServiceTest {
         /* 4. Find memories and check delete */
         // 1) private memory(not in room)
         var privateMemoryId = insertPrivateMemoryRsp.getMemoryId();
+        var privateMemoryRoomId = insertPrivateMemoryRsp.getAddedRoomId();
         assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(privateMemoryId)
+                MemoryNotFoundException.class, () -> memoryService.find(privateMemoryId, privateMemoryRoomId)
         );
 
         var findPrivateMemories = memoryService.findMemories(insertUserRsp.getUserId(), null);
@@ -503,8 +503,9 @@ class UserServiceTest {
 
         // 2) private room memory
         var privateRoomMemoryId = insertPrivateRoomMemoryRsp.getMemoryId();
+        var privateRoomRoomId = insertPrivateRoomMemoryRsp.getAddedRoomId();
         assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(privateRoomMemoryId)
+                MemoryNotFoundException.class, () -> memoryService.find(privateRoomMemoryId, privateRoomRoomId)
         );
 
         var findPrivateRoomMemories = memoryService.findMemories(insertUserRsp.getUserId(), null);
@@ -601,8 +602,9 @@ class UserServiceTest {
         
         /* 4. Find memory */
         var ownerRoomMemoryId = insertOwnerRoomMemoryRsp.getMemoryId();
+        var ownerRoomRoomId = insertOwnerRoomMemoryRsp.getAddedRoomId();
         assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(ownerRoomMemoryId)
+                MemoryNotFoundException.class, () -> memoryService.find(ownerRoomMemoryId, ownerRoomRoomId)
         );
 
         var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
@@ -711,8 +713,9 @@ class UserServiceTest {
 
         /* 4. Find memory */
         var participantRoomMemoryId = insertParticipantRoomMemoryRsp.getMemoryId();
+        var participantRoomRoomId = insertParticipantRoomMemoryRsp.getAddedRoomId();
         assertThrows(
-                MemoryNotFoundException.class, () -> memoryService.find(participantRoomMemoryId)
+                MemoryNotFoundException.class, () -> memoryService.find(participantRoomMemoryId, participantRoomRoomId)
         );
 
         var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
