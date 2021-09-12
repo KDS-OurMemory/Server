@@ -2,6 +2,7 @@ package com.kds.ourmemory.service.v1.user;
 
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
+import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
@@ -165,7 +166,7 @@ public class UserService {
                         }
                         // Related rooms - 3)
                         else if (members.size() == 1) {
-                            roomService.delete(room.getId());
+                            roomService.delete(room.getId(), new DeleteRoomDto.Request(userId));
                         }
                     });
                     user.deleteRooms(user.getRooms());

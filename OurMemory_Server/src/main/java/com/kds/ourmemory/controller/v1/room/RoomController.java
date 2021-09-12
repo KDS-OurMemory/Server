@@ -58,9 +58,12 @@ public class RoomController {
         return ok(roomService.update(roomId, request));
     }
 
-    @ApiOperation(value = "방 삭제", notes = "방 삭제 처리")
+    @ApiOperation(value = "방 삭제", notes = "1. 개인방 -> 일정 삭제 후 방 삭제, 2. 공유방 -> 방만 삭제")
     @DeleteMapping(value = "/{roomId}")
-    public ApiResult<DeleteRoomDto.Response> delete(@PathVariable long roomId) {
-        return ok(roomService.delete(roomId));
+    public ApiResult<DeleteRoomDto.Response> delete(
+            @PathVariable long roomId,
+            @RequestBody DeleteRoomDto.Request request
+    ) {
+        return ok(roomService.delete(roomId, request));
     }
 }
