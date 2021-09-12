@@ -5,6 +5,7 @@ import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.room.RoomRepository;
@@ -33,7 +34,14 @@ public class RoomService {
     private final FcmService fcmService;
 
     private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
+    
     private static final String ALREADY_OWNER_MESSAGE = "User '%d' is already owner room '%d'.";
+    
+    private static final String ROOM = "room";
+    
+    private static final String USER = "user";
+    
+    private static final String MEMBER = "member";
 
     @Transactional
     public InsertRoomDto.Response insert(InsertRoomDto.Request request) {
@@ -59,7 +67,7 @@ public class RoomService {
                 })
                 .map(InsertRoomDto.Response::new)
                 .orElseThrow(() -> new RoomNotFoundOwnerException(
-                                String.format(NOT_FOUND_MESSAGE, "user", request.getOwner())
+                                String.format(NOT_FOUND_MESSAGE, USER, request.getOwner())
                         )
                 );
     }
@@ -80,7 +88,7 @@ public class RoomService {
                                 return user;
                         })
                         .orElseThrow(() -> new RoomNotFoundMemberException(
-                                        String.format(NOT_FOUND_MESSAGE, "member", id)
+                                        String.format(NOT_FOUND_MESSAGE, MEMBER, id)
                                 )
                         )
                 )
@@ -109,7 +117,7 @@ public class RoomService {
                             .get();
                 })
                 .orElseThrow(() -> new UserNotFoundException(
-                                String.format(NOT_FOUND_MESSAGE, "user", userId)
+                                String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
     }
@@ -119,7 +127,7 @@ public class RoomService {
                 .filter(Room::isUsed)
                 .map(FindRoomDto.Response::new)
                 .orElseThrow(() -> new RoomNotFoundException(
-                            String.format(NOT_FOUND_MESSAGE, "room", roomId)
+                            String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
                         )
                 );
     }
@@ -162,7 +170,7 @@ public class RoomService {
 
                     if (beforeOwnerId == afterOwnerId) {
                         throw new RoomNotFoundMemberException(
-                                String.format(NOT_FOUND_MESSAGE, "member", userId)
+                                String.format(NOT_FOUND_MESSAGE, MEMBER, userId)
                         );
                     }
 
@@ -170,7 +178,7 @@ public class RoomService {
                 })
                 .map(room -> new PatchRoomOwnerDto.Response(BaseTimeEntity.formatNow()))
                 .orElseThrow(() -> new RoomNotFoundException(
-                        String.format(NOT_FOUND_MESSAGE, "room", roomId)
+                        String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
                     )
                 );
     }
@@ -183,21 +191,31 @@ public class RoomService {
                         .orElseThrow(() -> new RoomInternalServerException("Failed to update for room data."))
         )
         .orElseThrow(
-                () -> new RoomNotFoundException(String.format(NOT_FOUND_MESSAGE, "room", roomId))
+                () -> new RoomNotFoundException(String.format(NOT_FOUND_MESSAGE, ROOM, roomId))
         );
     }
 
     @Transactional
-    public DeleteRoomDto.Response delete(long id) {
-        return findRoom(id)
+    public DeleteRoomDto.Response delete(long roomId, DeleteRoomDto.Request request) {
+        var privateRoomId = findUser(request.getUserId())
+                .map(User::getPrivateRoomId)
+                .orElseThrow(() -> new UserNotFoundException(
+                        String.format(NOT_FOUND_MESSAGE, USER, request.getUserId())
+                ));
+
+        return findRoom(roomId)
+                // 1. delete room
                 .map(Room::deleteRoom)
                 .map(room -> {
-                    room.getMemories().forEach(room::deleteMemory);
-                    return room;
+                    // 2. delete memories -> private room only
+                    if (room.getId().longValue() == privateRoomId) {
+                        room.getMemories().forEach(Memory::deleteMemory);
+                    }
+
+                    return new DeleteRoomDto.Response(BaseTimeEntity.formatNow());
                 })
-                .map(room -> new DeleteRoomDto.Response(BaseTimeEntity.formatNow()))
                 .orElseThrow(() -> new RoomNotFoundException(
-                                String.format(NOT_FOUND_MESSAGE, "room", id)
+                                String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
                         )
                 );
     }

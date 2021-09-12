@@ -694,7 +694,7 @@ class MemoryServiceTest {
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
-        /* 1. Create Writer, Member1, Member2 */
+        /* 1. Create Writer, Member */
         var insertWriterReq = new InsertUserDto.Request(
                 1, "writer_snsId", "member Token",
                 "member", "0519", true,
