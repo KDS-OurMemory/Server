@@ -6,10 +6,8 @@ import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
-import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.friend.FriendRepository;
-import com.kds.ourmemory.repository.memory.MemoryRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +30,19 @@ public class UserService {
     // When searching for a user, add to pass the friend status
     private final FriendRepository friendRepository;
 
-    // When deleting a user, find memories to delete.
-    private final MemoryRepository memoryRepository;
-
     private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
+
     private static final String NOT_FOUND_LOGIN_USER_MESSAGE = "Not found user matched snsType '%d' and snsId '%s'.";
+
+    private static final String FAILED_MESSAGE = "Failed to %s for %s";
+
+    private static final String USER = "user";
+
+    private static final String INSERT = "insert";
+
+    private static final String PATCH = "patch";
+
+    private static final String UPDATE = "update";
 
     @Transactional
     public InsertUserDto.Response signUp(InsertUserDto.Request request) {
@@ -49,7 +55,7 @@ public class UserService {
                     return new InsertUserDto.Response(u.getId(), privateRoomId, u.formatRegDate());
                 })
                 .orElseThrow(() -> new UserInternalServerException(
-                                String.format("User '%s' insert failed.", user.getName())
+                                String.format(FAILED_MESSAGE, INSERT, USER + user.getName())
                         )
                 );
     }
@@ -66,7 +72,7 @@ public class UserService {
         return findUser(userId)
                 .map(FindUserDto.Response::new)
                 .orElseThrow(() -> new UserNotFoundException(
-                            String.format(NOT_FOUND_MESSAGE, "user", userId)
+                            String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
     }
@@ -101,10 +107,11 @@ public class UserService {
         return findUser(userId).map(user ->
                 user.changePushToken(request.getPushToken())
                         .map(u -> new PatchTokenDto.Response(u.formatModDate()))
-                        .orElseThrow(() -> new UserInternalServerException("Failed to patch for user token."))
+                        .orElseThrow(() -> new UserInternalServerException(
+                                String.format(FAILED_MESSAGE, PATCH, USER + " token")))
                 )
                 .orElseThrow(() -> new UserNotFoundException(
-                                String.format(NOT_FOUND_MESSAGE, "user", userId)
+                                String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
     }
@@ -114,10 +121,11 @@ public class UserService {
         return findUser(userId).map(user ->
                 user.updateUser(request)
                         .map(u -> new UpdateUserDto.Response(u.formatModDate()))
-                        .orElseThrow(() -> new UserInternalServerException("Failed to update for user data."))
+                        .orElseThrow(() -> new UserInternalServerException(
+                                String.format(FAILED_MESSAGE, UPDATE, USER + " data")))
                 )
                 .orElseThrow(() -> new UserNotFoundException(
-                                String.format(NOT_FOUND_MESSAGE, "user", userId)
+                                String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
     }
@@ -125,17 +133,14 @@ public class UserService {
     /**
      * Delete user
      *
-     * user - used = false
+     * 1. friend - delete both side
      *
-     * friend - delete both side
-     *
-     * Related memories
-     *  1) owner - Delete memories
-     *
-     * Related rooms
+     * 2. Related rooms
      *  1) owner - transferring the owner and delete user from room member.
      *  2) participant - Delete user from room member
-     *  3) private - Delete room
+     *  3) private - Delete room -> delete private room's memories(side effect)
+     *
+     * 3.user - used = false
      *
      * @param userId [long]
      * @return DeleteUserDto.Response
@@ -143,7 +148,6 @@ public class UserService {
     @Transactional
     public DeleteUserDto.Response delete(long userId) {
         return findUser(userId)
-                .map(User::deleteUser)
                 .map(user -> {
                     findFriendsByUserOrFriendUser(user, user)
                             .ifPresent(friends -> friends.forEach(this::deleteFriend));
@@ -164,26 +168,23 @@ public class UserService {
                             // Related rooms - 1) 2)
                             room.deleteUser(user);
                         }
+
                         // Related rooms - 3)
-                        else if (members.size() == 1) {
-                            roomService.delete(room.getId(), new DeleteRoomDto.Request(userId));
+                        if (room.getId().longValue() == user.getPrivateRoomId()) {
+                            roomService.delete(user.getPrivateRoomId(), new DeleteRoomDto.Request(user.getId()));
                         }
                     });
                     user.deleteRooms(user.getRooms());
 
                     return user;
                 })
+                // Delete the user after all job.
                 .map(user -> {
-                    // Related memories - 1)
-                    findMemoriesByWriterId(user.getId())
-                            .ifPresent(memories ->
-                                    memories.forEach(Memory::deleteMemory)
-                            );
-                    return user;
+                    user.deleteUser();
+                    return new DeleteUserDto.Response(user.formatModDate());
                 })
-                .map(user -> new DeleteUserDto.Response(user.formatModDate()))
                 .orElseThrow(() -> new UserNotFoundException(
-                                String.format(NOT_FOUND_MESSAGE, "user", userId)
+                                String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
     }
@@ -243,9 +244,5 @@ public class UserService {
 
     private void deleteFriend(Friend friend) {
         friendRepository.delete(friend);
-    }
-
-    private Optional<List<Memory>> findMemoriesByWriterId(Long userId) {
-        return memoryRepository.findAllByWriterId(userId);
     }
 }
