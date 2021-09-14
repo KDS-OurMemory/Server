@@ -46,12 +46,13 @@ public class MemoryController {
     }
 
     @ApiOperation(value = "일정 수정", notes = "전달받은 값이 있는 경우 수정")
-    @PutMapping("/{memoryId}")
+    @PutMapping("/{memoryId}/writer/{userId}")
     public ApiResult<UpdateMemoryDto.Response> update(
             @PathVariable long memoryId,
-            @RequestParam UpdateMemoryDto.Request request
+            @PathVariable long userId,
+            @RequestBody UpdateMemoryDto.Request request
     ) {
-        return ok(memoryService.update(memoryId, request));
+        return ok(memoryService.update(memoryId, userId, request));
     }
 
     @ApiOperation(value = "일정 참석 여부 설정", notes = "일정에 참석/불참 여부 설정, 사용자-일정 관계 테이블에 레코드를 추가하는 방식으로 설정함.")

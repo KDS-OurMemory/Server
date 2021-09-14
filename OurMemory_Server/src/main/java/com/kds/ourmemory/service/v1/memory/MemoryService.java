@@ -185,15 +185,21 @@ public class MemoryService {
     }
 
     @Transactional
-    public UpdateMemoryDto.Response update(long memoryId, UpdateMemoryDto.Request request) {
-        return findMemory(memoryId).map(memory ->
-                memory.updateMemory(request)
+    public UpdateMemoryDto.Response update(long memoryId, long userId, UpdateMemoryDto.Request request) {
+        var memory = findMemory(memoryId)
+                .orElseThrow(
+                        () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
+                );
+
+        if (memory.getWriter().getId() != userId) {
+            throw new MemoryNotWriterException(
+                    String.format("%s must be updated by writer.", MEMORY)
+            );
+        }
+
+        return memory.updateMemory(request)
                 .map(r -> new UpdateMemoryDto.Response(r.formatModDate()))
-                .orElseThrow(() -> new MemoryInternalServerException("Failed to update for memory data"))
-        )
-        .orElseThrow(
-                () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
-        );
+                .orElseThrow(() -> new MemoryInternalServerException("Failed to update for memory data"));
     }
 
     @Transactional

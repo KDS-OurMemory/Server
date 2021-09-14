@@ -37,6 +37,11 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse{
     public ResponseEntity<ApiResult<String>> handleMemoryNotFoundRoomException(MemoryNotFoundRoomException e) {
         return response(NOT_FOUND_ROOM, e);
     }
+
+    @ExceptionHandler(MemoryNotWriterException.class)
+    public ResponseEntity<ApiResult<String>> handleMemoryNotWriterException(MemoryNotWriterException e) {
+        return response(NOT_WRITER, e);
+    }
     
     
     /* HTTP Status Error */
