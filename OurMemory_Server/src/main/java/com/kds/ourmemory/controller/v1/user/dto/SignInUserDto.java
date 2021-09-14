@@ -2,6 +2,7 @@ package com.kds.ourmemory.controller.v1.user.dto;
 
 import com.kds.ourmemory.entity.user.User;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -35,6 +36,9 @@ public class SignInUserDto {
         @ApiModelProperty(value = "푸시 사용 여부")
         private final boolean push;
 
+        @ApiModelProperty(value = "개인방 번호")
+        private final long privateRoomId;
+
         public Response(User user) {
             userId = user.getId();
             name = user.getName();
@@ -43,6 +47,7 @@ public class SignInUserDto {
             birthdayOpen = user.isBirthdayOpen();
             pushToken = user.getPushToken();
             push = user.isPush();
+            privateRoomId = user.getPrivateRoomId();
         }
     }
 }
