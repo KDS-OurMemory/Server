@@ -30,8 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -98,6 +97,7 @@ class UserServiceTest {
         assertThat(signInRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
         assertThat(signInRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
         assertTrue(signInRsp.isPush());
+        assertThat(signInRsp.getPrivateRoomId()).isEqualTo(insertRsp.getPrivateRoomId());
 
         /* 3. Find */
         var findRsp = userService.find(insertRsp.getUserId());
@@ -744,7 +744,7 @@ class UserServiceTest {
         /* 0-1. Sign in before delete */
         var beforeSignInRsp = userService.signIn(insertUserReq.getSnsType(), insertUserReq.getSnsId());
         assertThat(beforeSignInRsp).isNotNull();
-        assertThat(beforeSignInRsp.getUserId()).isEqualTo(insertUserRsp.getUserId());
+        assertEquals(beforeSignInRsp.getUserId(), insertUserRsp.getUserId());
 
         /* 0-2. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
@@ -766,6 +766,7 @@ class UserServiceTest {
         var afterSignInRsp = userService.signIn(insertUserReq.getSnsType(), insertUserReq.getSnsId());
         assertThat(afterSignInRsp).isNotNull();
         assertThat(afterSignInRsp.getUserId()).isEqualTo(reInsertUserRsp.getUserId());
+        assertNotEquals(afterSignInRsp.getPrivateRoomId(), beforeSignInRsp.getPrivateRoomId());
     }
     
     boolean isNow(String time) {
