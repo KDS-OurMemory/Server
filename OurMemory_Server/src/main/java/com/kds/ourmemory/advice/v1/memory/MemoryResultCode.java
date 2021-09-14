@@ -12,6 +12,7 @@ public enum MemoryResultCode implements ResultCode{
     NOT_FOUND_WRITER("M001", "일정 생성자의 정보를 찾을 수 없습니다. 생성자의 회원 번호를 확인해주시기 바랍니다."),
     NOT_FOUND_SHARE_MEMBER("M002", "일정을 공유할 사용자 정보를 찾을 수 없습니다. 사용자의 회원 번호를 확인해주시기 바랍니다."),
     NOT_FOUND_ROOM("M003", "일정을 등록시킬 방을 찾을 수 없습니다. 방 번호를 확인해주시기 바랍니다."),
+    NOT_WRITER("M004", "일정은 작성자만 수정할 수 있습니다."),
     
     
     /* Http Status Error */
