@@ -178,8 +178,10 @@ public class MemoryService {
         return findMemories.stream()
                 .filter(Memory::isUsed)
                 .distinct()
-                .sorted(Comparator.comparing(Memory::getStartDate)) // first order
-                .sorted(Comparator.comparing(Memory::getEndDate))   // second order
+                .sorted(
+                        Comparator.comparing(Memory::getStartDate)  // first order
+                                .thenComparing(Memory::getRegDate)  // second order
+                )
                 .map(FindMemoriesDto.Response::new)
                 .collect(toList());
     }

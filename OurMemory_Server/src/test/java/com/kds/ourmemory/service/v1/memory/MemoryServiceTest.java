@@ -767,6 +767,155 @@ class MemoryServiceTest {
         );
     }
 
+    @Test
+    @Order(11)
+    @DisplayName("일정 목록 조회")
+    @Transactional
+    void findMemories() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertMemoryReq1 = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory1",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-25 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMemoryReq2 = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory2",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-23 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMemoryReq3 = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory3",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-23 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-19 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMemoryReq4 = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory4",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-24 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMemoryReq5 = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory5",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-22 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-19 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMemoryReq6 = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory6",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-25 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-21 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMemoryReq7 = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory7",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-27 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-27 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-20 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        /* 1. Make memories */
+        var insertMemoryRsp1 = memoryService.insert(insertMemoryReq1);
+        assertThat(insertMemoryRsp1).isNotNull();
+
+        var insertMemoryRsp2 = memoryService.insert(insertMemoryReq2);
+        assertThat(insertMemoryRsp2).isNotNull();
+
+        var insertMemoryRsp3 = memoryService.insert(insertMemoryReq3);
+        assertThat(insertMemoryRsp3).isNotNull();
+
+        var insertMemoryRsp4 = memoryService.insert(insertMemoryReq4);
+        assertThat(insertMemoryRsp4).isNotNull();
+
+        var insertMemoryRsp5 = memoryService.insert(insertMemoryReq5);
+        assertThat(insertMemoryRsp5).isNotNull();
+
+        var insertMemoryRsp6 = memoryService.insert(insertMemoryReq6);
+        assertThat(insertMemoryRsp6).isNotNull();
+
+        var insertMemoryRsp7 = memoryService.insert(insertMemoryReq7);
+        assertThat(insertMemoryRsp7).isNotNull();
+
+        /* 2. Find memories */
+        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq1.getUserId(), null);
+        assertThat(findMemoriesList.size()).isEqualTo(7);
+
+        // expected order: 3 5 2 4 6 1 7
+        var findMemoriesRsp1 = findMemoriesList.get(0);
+        assertThat(findMemoriesRsp1.getMemoryId()).isEqualTo(insertMemoryRsp3.getMemoryId());
+
+        var findMemoriesRsp2 = findMemoriesList.get(1);
+        assertThat(findMemoriesRsp2.getMemoryId()).isEqualTo(insertMemoryRsp5.getMemoryId());
+
+        var findMemoriesRsp3 = findMemoriesList.get(2);
+        assertThat(findMemoriesRsp3.getMemoryId()).isEqualTo(insertMemoryRsp2.getMemoryId());
+
+        var findMemoriesRsp4 = findMemoriesList.get(3);
+        assertThat(findMemoriesRsp4.getMemoryId()).isEqualTo(insertMemoryRsp4.getMemoryId());
+
+        var findMemoriesRsp5 = findMemoriesList.get(4);
+        assertThat(findMemoriesRsp5.getMemoryId()).isEqualTo(insertMemoryRsp6.getMemoryId());
+
+        var findMemoriesRsp6 = findMemoriesList.get(5);
+        assertThat(findMemoriesRsp6.getMemoryId()).isEqualTo(insertMemoryRsp1.getMemoryId());
+
+        var findMemoriesRsp7 = findMemoriesList.get(6);
+        assertThat(findMemoriesRsp7.getMemoryId()).isEqualTo(insertMemoryRsp7.getMemoryId());
+    }
+
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
