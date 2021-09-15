@@ -36,7 +36,7 @@ public class MemoryController {
         return ok(memoryService.find(memoryId, roomId));
     }
 
-    @ApiOperation(value = "일정 목록 조회", notes = "조건에 맞는 일정을 검색한다.")
+    @ApiOperation(value = "일정 목록 조회", notes = "조건에 맞는 일정을 검색한다. 일정 시작시간 -> 일정 생성시간 순으로 정렬된다.")
     @GetMapping
     public ApiResult<List<FindMemoriesDto.Response>> findMemories(
             @ApiParam(value = "일정 작성자 번호") @RequestParam(required = false) Long writerId,
