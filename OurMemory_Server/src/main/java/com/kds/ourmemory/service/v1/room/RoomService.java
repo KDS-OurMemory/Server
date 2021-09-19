@@ -123,13 +123,14 @@ public class RoomService {
     }
 
     public FindRoomDto.Response find(Long roomId) {
-        return findRoom(roomId)
+        var room = findRoom(roomId)
                 .filter(Room::isUsed)
-                .map(FindRoomDto.Response::new)
                 .orElseThrow(() -> new RoomNotFoundException(
-                            String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
+                                String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
                         )
                 );
+
+        return new FindRoomDto.Response(room);
     }
 
     public List<FindRoomsDto.Response> findRooms(Long userId, String name) {
