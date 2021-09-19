@@ -73,7 +73,7 @@ public class FindRoomDto {
          * Room Member non static inner class
          */
         @ToString
-        @ApiModel(value = "FindRooms.Response.Member", description = "inner class in FindRoomDto.Response")
+        @ApiModel(value = "FindRoomDto.Response.Member", description = "inner class in FindRoomDto.Response")
         @Getter
         private class Member {
             @ApiModelProperty(value = "사용자 번호", example = "49")
@@ -104,7 +104,7 @@ public class FindRoomDto {
          * Room Memories non static inner class
          */
         @ToString
-        @ApiModel(value = "FindRooms.Response.Memories", description = "inner class in FindRoomDto.Response")
+        @ApiModel(value = "FindRoomDto.Response.Memory", description = "inner class in FindRoomDto.Response")
         @Getter
         private class Memory {
             @ApiModelProperty(value = "일정 번호", example = "5")
