@@ -5,9 +5,11 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomAlreadyOwnerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.ShareMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
+import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
 import com.kds.ourmemory.service.v1.user.UserService;
@@ -22,6 +24,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import static java.util.stream.Collectors.toList;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -134,6 +138,101 @@ class RoomServiceTest {
 
     @Test
     @Order(2)
+    @DisplayName("방 개별 조회")
+    @Transactional
+    void findRoom() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = new InsertRoomDto.Request(
+                "TestRoom", insertOwnerRsp.getUserId(), false,
+                Stream.of(insertMember1Rsp.getUserId()).collect(toList())
+        );
+
+        var insertShareRoomReq = new InsertRoomDto.Request(
+                "TestRoom", insertOwnerRsp.getUserId(), false,
+                Stream.of(insertMember2Rsp.getUserId()).collect(toList())
+        );
+
+        /* 1. Insert room, share room */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp).isNotNull();
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getMembers()).isNotNull();
+        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(2);
+
+        var insertShareRoomRsp = roomService.insert(insertShareRoomReq);
+        assertThat(insertShareRoomRsp).isNotNull();
+        assertThat(insertShareRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertShareRoomRsp.getMembers()).isNotNull();
+        assertThat(insertShareRoomRsp.getMembers().size()).isEqualTo(2);
+
+        /* 2. Insert memory */
+        var insertMemoryReq = new InsertMemoryDto.Request(
+                insertOwnerRsp.getUserId(),
+                insertRoomRsp.getRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                null,
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
+
+        /* 3. Share Memory */
+        var shareMemoryRsp = memoryService.shareMemory(
+                insertMemoryRsp.getMemoryId(), insertOwnerRsp.getUserId(),
+                new ShareMemoryDto.Request(
+                        ShareMemoryDto.ShareType.ROOMS,
+                        Stream.of(insertShareRoomRsp.getRoomId()).collect(toList())
+                )
+        );
+        assertThat(shareMemoryRsp).isNotNull();
+        assertTrue(isNow(shareMemoryRsp.getShareDate()));
+
+        /* 4. Set attendance */
+        var setAttendanceOwnerRsp = memoryService.setAttendanceStatus(
+                insertMemoryRsp.getMemoryId(),
+                insertOwnerRsp.getUserId(),
+                AttendanceStatus.ATTEND
+        );
+        assertThat(setAttendanceOwnerRsp).isNotNull();
+        assertTrue(isNow(setAttendanceOwnerRsp.getSetDate()));
+
+        var setAttendanceMember1Rsp = memoryService.setAttendanceStatus(
+                insertMemoryRsp.getMemoryId(),
+                insertMember1Rsp.getUserId(),
+                AttendanceStatus.ABSENCE
+        );
+        assertThat(setAttendanceMember1Rsp).isNotNull();
+        assertTrue(isNow(setAttendanceMember1Rsp.getSetDate()));
+
+        var setAttendanceMember2Rsp = memoryService.setAttendanceStatus(
+                insertMemoryRsp.getMemoryId(),
+                insertMember2Rsp.getUserId(),
+                AttendanceStatus.ATTEND
+        );
+        assertThat(setAttendanceMember2Rsp).isNotNull();
+        assertTrue(isNow(setAttendanceMember2Rsp.getSetDate()));
+
+        /* 5. Find room */
+        var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(findRoomRsp).isNotNull();
+        log.debug("==========================================================");
+        log.debug(findRoomRsp.toString());
+        log.debug("==========================================================");
+    }
+
+    @Test
+    @Order(3)
     @DisplayName("방 삭제 -> 공유방")
     @Transactional
     void deleteShareRoom() {
@@ -147,7 +246,6 @@ class RoomServiceTest {
 
         /* 1. Insert */
         InsertRoomDto.Response insertRoomRsp = roomService.insert(insertRoomReq);
-        assertThat(insertRoomRsp).isNotNull();
         assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
         assertThat(insertRoomRsp.getMembers()).isNotNull();
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
@@ -167,7 +265,6 @@ class RoomServiceTest {
         );
 
         InsertMemoryDto.Response insertMemoryRspOwner = memoryService.insert(insertMemoryReqOwner);
-        assertThat(insertMemoryRspOwner).isNotNull();
         assertThat(insertMemoryRspOwner.getWriterId()).isEqualTo(insertOwnerRsp.getUserId());
         assertThat(insertMemoryRspOwner.getAddedRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
 
@@ -185,7 +282,6 @@ class RoomServiceTest {
         );
 
         InsertMemoryDto.Response insertMemoryRspMember1 = memoryService.insert(insertMemoryReqMember1);
-        assertThat(insertMemoryRspMember1).isNotNull();
         assertThat(insertMemoryRspMember1.getWriterId()).isEqualTo(insertMember1Rsp.getUserId());
         assertThat(insertMemoryRspMember1.getAddedRoomId()).isEqualTo(insertMemoryReqMember1.getRoomId());
 
@@ -203,13 +299,11 @@ class RoomServiceTest {
         );
 
         InsertMemoryDto.Response insertMemoryRspMember2 = memoryService.insert(insertMemoryReqMember2);
-        assertThat(insertMemoryRspMember2).isNotNull();
         assertThat(insertMemoryRspMember2.getWriterId()).isEqualTo(insertMember2Rsp.getUserId());
         assertThat(insertMemoryRspMember2.getAddedRoomId()).isEqualTo(insertMemoryReqMember2.getRoomId());
 
         /* 3. Delete share room */
         DeleteRoomDto.Response deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
-        assertThat(deleteRsp).isNotNull();
         assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
         /* 4. Find room and memories after delete */
@@ -274,7 +368,7 @@ class RoomServiceTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     @DisplayName("방 삭제 -> 개인방")
     @Transactional
     void deletePrivateRoom() {
@@ -335,7 +429,7 @@ class RoomServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("방장 양도")
     @Transactional
     void patchOwner() {
