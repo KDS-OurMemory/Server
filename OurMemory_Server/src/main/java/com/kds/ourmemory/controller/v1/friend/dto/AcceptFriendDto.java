@@ -25,7 +25,5 @@ public class AcceptFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value="친구 요청 수락한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-05-13 14:33:05")
-        private final String acceptDate;
     }
 }

@@ -52,7 +52,7 @@ public class UserService {
                     var privateRoomId = roomService.insertPrivateRoom(u.getId());
                     user.updatePrivateRoomId(privateRoomId);
 
-                    return new InsertUserDto.Response(u.getId(), privateRoomId, u.formatRegDate());
+                    return new InsertUserDto.Response(u.getId(), privateRoomId);
                 })
                 .orElseThrow(() -> new UserInternalServerException(
                                 String.format(FAILED_MESSAGE, INSERT, USER + user.getName())
@@ -106,7 +106,7 @@ public class UserService {
     public PatchTokenDto.Response patchToken(long userId, PatchTokenDto.Request request) {
         return findUser(userId).map(user ->
                 user.changePushToken(request.getPushToken())
-                        .map(u -> new PatchTokenDto.Response(u.formatModDate()))
+                        .map(u -> new PatchTokenDto.Response())
                         .orElseThrow(() -> new UserInternalServerException(
                                 String.format(FAILED_MESSAGE, PATCH, USER + " token")))
                 )
@@ -120,7 +120,7 @@ public class UserService {
     public UpdateUserDto.Response update(long userId, UpdateUserDto.Request request) {
         return findUser(userId).map(user ->
                 user.updateUser(request)
-                        .map(u -> new UpdateUserDto.Response(u.formatModDate()))
+                        .map(u -> new UpdateUserDto.Response())
                         .orElseThrow(() -> new UserInternalServerException(
                                 String.format(FAILED_MESSAGE, UPDATE, USER + " data")))
                 )
@@ -181,7 +181,7 @@ public class UserService {
                 // Delete the user after all job.
                 .map(user -> {
                     user.deleteUser();
-                    return new DeleteUserDto.Response(user.formatModDate());
+                    return new DeleteUserDto.Response();
                 })
                 .orElseThrow(() -> new UserNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, USER, userId)

@@ -14,7 +14,5 @@ public class DeleteFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value="친구 삭제한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-06-08 21:27:35")
-        private final String deleteDate;
     }
 }

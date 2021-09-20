@@ -12,13 +12,11 @@ import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
 import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.friend.FriendService;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
 import com.kds.ourmemory.service.v1.room.RoomService;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,7 +47,6 @@ class UserServiceTest {
      *
      * This is because time difference occurs after room creation due to relation table work.
      */
-    private DateTimeFormatter format;
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     @Autowired
@@ -64,7 +61,6 @@ class UserServiceTest {
 
     @BeforeAll
     void setUp() {
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
         alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
 
@@ -87,7 +83,6 @@ class UserServiceTest {
         assertThat(insertRsp).isNotNull();
         assertThat(insertRsp.getUserId()).isNotNull();
         assertThat(insertRsp.getPrivateRoomId()).isNotNull();
-        assertThat(isNow(insertRsp.getJoinDate())).isTrue();
 
         /* 2. Sign in */
         var signInRsp = userService.signIn(insertReq.getSnsType(), insertReq.getSnsId());
@@ -114,7 +109,6 @@ class UserServiceTest {
         /* 4. Patch token */
         var patchRsp = userService.patchToken(insertRsp.getUserId(), patchReq);
         assertThat(patchRsp).isNotNull();
-        assertThat(isNow(patchRsp.getPatchDate())).isTrue();
 
         /* 5. Find after patch */
         var afterPatchFindRsp = userService.find(insertRsp.getUserId());
@@ -123,7 +117,6 @@ class UserServiceTest {
         /* 6. Update */
         var updateRsp = userService.update(insertRsp.getUserId(), updateReq);
         assertThat(updateRsp).isNotNull();
-        assertThat(isNow(updateRsp.getUpdateDate())).isTrue();
 
         /* 7. Find after update */
         var afterUpdateFindRsp = userService.find(insertRsp.getUserId());
@@ -161,19 +154,13 @@ class UserServiceTest {
         /* 1. Insert */
         var insertUniqueNameRsp = userService.signUp(insertUniqueNameReq);
         assertThat(insertUniqueNameRsp).isNotNull();
-        assertThat(insertUniqueNameRsp.getJoinDate()).isNotNull();
-        assertThat(isNow(insertUniqueNameRsp.getJoinDate())).isTrue();
 
         var insertSameNameRsp1 = userService.signUp(insertSameNameReq1);
         assertThat(insertSameNameRsp1).isNotNull();
-        assertThat(insertSameNameRsp1.getJoinDate()).isNotNull();
-        assertThat(isNow(insertSameNameRsp1.getJoinDate())).isTrue();
 
         var insertSameNameRsp2 = userService.signUp(insertSameNameReq2);
         assertThat(insertSameNameRsp2).isNotNull();
-        assertThat(insertSameNameRsp2.getJoinDate()).isNotNull();
-        assertThat(isNow(insertSameNameRsp2.getJoinDate())).isTrue();
-        
+
         /* 2. Find users before set friend */
         // 1) find by id : insertUniqueNameReq
         var findUsersByIdList1 = userService.findUsers(insertSameNameRsp1.getUserId(), insertUniqueNameRsp.getUserId(), null, null);
@@ -272,26 +259,22 @@ class UserServiceTest {
                 new RequestFriendDto.Request(insertUniqueNameRsp.getUserId(), insertSameNameRsp1.getUserId())
         );
         assertThat(waitRequestFriendRsp).isNotNull();
-        assertTrue(isNow(waitRequestFriendRsp.getRequestDate()));
 
         // 2) FRIEND - uniqueName -> sameName2, BLOCK - sameName2 -> uniqueName
         var friendRequestFriendRsp = friendService.requestFriend(
                 new RequestFriendDto.Request(insertUniqueNameRsp.getUserId(), insertSameNameRsp2.getUserId())
         );
         assertThat(friendRequestFriendRsp).isNotNull();
-        assertTrue(isNow(friendRequestFriendRsp.getRequestDate()));
 
         var friendAcceptFriendRsp = friendService.acceptFriend(
                 new AcceptFriendDto.Request(insertSameNameRsp2.getUserId(), insertUniqueNameRsp.getUserId())
         );
         assertThat(friendAcceptFriendRsp).isNotNull();
-        assertTrue(isNow(friendAcceptFriendRsp.getAcceptDate()));
 
         var blockFriendRsp = friendService.patchFriendStatus(
                 new PatchFriendStatusDto.Request(insertSameNameRsp2.getUserId(), insertUniqueNameRsp.getUserId(), FriendStatus.BLOCK)
         );
         assertThat(blockFriendRsp).isNotNull();
-        assertTrue(isNow(blockFriendRsp.getPatchDate()));
 
         /* 4. Find users after set friend */
         // 1) WAIT
@@ -364,13 +347,11 @@ class UserServiceTest {
                 new RequestFriendDto.Request(insertUserRsp.getUserId(), insertFriendUserRsp.getUserId())
         );
         assertThat(requestFriendRsp).isNotNull();
-        assertTrue(isNow(requestFriendRsp.getRequestDate()));
 
         var acceptFriendRsp = friendService.acceptFriend(
                 new AcceptFriendDto.Request(insertFriendUserRsp.getUserId(), insertUserRsp.getUserId())
         );
         assertThat(acceptFriendRsp).isNotNull();
-        assertTrue(isNow(acceptFriendRsp.getAcceptDate()));
 
         /* 0-3. Find friend before delete */
         // 1) user side
@@ -396,7 +377,6 @@ class UserServiceTest {
         /* 1. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
-        assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -468,7 +448,6 @@ class UserServiceTest {
         /* 1. Delete private room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
-        assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -569,7 +548,6 @@ class UserServiceTest {
         /* 1. Delete room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
-        assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -681,7 +659,6 @@ class UserServiceTest {
         /* 1. Delete room participant */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
-        assertThat(isNow(deleteUserRsp.getDeleteDate())).isTrue();
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -749,7 +726,6 @@ class UserServiceTest {
         /* 0-2. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
-        assertTrue(isNow(deleteUserRsp.getDeleteDate()));
 
         /* 0-3. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -760,17 +736,11 @@ class UserServiceTest {
         /* 0-4. Re-sign up user */
         var reInsertUserRsp = userService.signUp(insertUserReq);
         assertThat(reInsertUserRsp).isNotNull();
-        assertTrue(isNow(reInsertUserRsp.getJoinDate()));
 
         /* 1. Sign in after Re-sign up */
         var afterSignInRsp = userService.signIn(insertUserReq.getSnsType(), insertUserReq.getSnsId());
         assertThat(afterSignInRsp).isNotNull();
         assertThat(afterSignInRsp.getUserId()).isEqualTo(reInsertUserRsp.getUserId());
         assertNotEquals(afterSignInRsp.getPrivateRoomId(), beforeSignInRsp.getPrivateRoomId());
-    }
-    
-    boolean isNow(String time) {
-        return StringUtils.equals(LocalDateTime.now().format(format),
-                LocalDateTime.parse(time, BaseTimeEntity.format).format(format));
     }
 }

@@ -45,9 +45,6 @@ public class InsertRoomDto {
         @ApiModelProperty(value = "방 이름", example = "가족방")
         private final String name;
 
-        @ApiModelProperty(value = "방 생성일", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:33:05")
-        private final String regDate;
-
         @ApiModelProperty(value = "방 공개여부", example = "false")
         private final boolean opened;
 
@@ -58,7 +55,6 @@ public class InsertRoomDto {
             roomId = room.getId();
             ownerId = room.getOwner().getId();
             name = room.getName();
-            regDate = room.formatRegDate();
             opened = room.isOpened();
             members = room.getUsers().stream().filter(User::isUsed).map(InsertRoomDto.Response.Member::new)
                     .collect(Collectors.toList());

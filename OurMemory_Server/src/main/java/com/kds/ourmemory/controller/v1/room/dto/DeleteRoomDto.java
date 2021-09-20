@@ -23,8 +23,5 @@ public class DeleteRoomDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        
-        @ApiModelProperty(value = "방 삭제 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:33:05")
-        private final String deleteDate;
     }
 }

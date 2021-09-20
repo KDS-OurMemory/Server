@@ -25,7 +25,5 @@ public class CancelFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value = "요청 취소 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-06-19 00:22:05")
-        private final String cancelDate;
     }
 }

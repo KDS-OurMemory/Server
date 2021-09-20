@@ -33,7 +33,7 @@ class RoomControllerTest {
         ApiResult<List<FindRoomsDto.Response>> responseDto = roomController.findRooms(99L, null);
 
         assertThat(responseDto).isNotNull();
-        assertThat(responseDto.getResultcode()).isEqualTo("00");
+        assertThat(responseDto.getResultCode()).isEqualTo("00");
         assertThat(responseDto.getResponse()).isNotNull();
 
         log.debug(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseDto));

@@ -30,7 +30,5 @@ public class InsertNoticeDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value = "알림 생성 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-0420 11:03")
-        private final String createDate;
     }
 }

@@ -1,8 +1,6 @@
 package com.kds.ourmemory.controller.v1.user.dto;
 
 import com.kds.ourmemory.entity.user.User;
-
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
