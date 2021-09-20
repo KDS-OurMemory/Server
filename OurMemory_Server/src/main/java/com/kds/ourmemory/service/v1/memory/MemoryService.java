@@ -7,7 +7,6 @@ import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.relation.UserMemory;
@@ -200,7 +199,7 @@ public class MemoryService {
         }
 
         return memory.updateMemory(request)
-                .map(r -> new UpdateMemoryDto.Response(r.formatModDate()))
+                .map(r -> new UpdateMemoryDto.Response())
                 .orElseThrow(() -> new MemoryInternalServerException("Failed to update for memory data"));
     }
 
@@ -209,7 +208,7 @@ public class MemoryService {
         var attendMemoryResponse = findUserMemoryByMemoryIdAndUserId(memoryId, userId)
                 .map(userMemory -> {
                     userMemory.updateAttendance(status);
-                    return new AttendMemoryDto.Response(BaseTimeEntity.formatNow());
+                    return new AttendMemoryDto.Response();
                 })
                 .orElse(null);
 
@@ -239,7 +238,7 @@ public class MemoryService {
                     user.addMemory(insertedUserMemory);
                     memory.addUser(insertedUserMemory);
 
-                    return new AttendMemoryDto.Response(BaseTimeEntity.formatNow());
+                    return new AttendMemoryDto.Response();
                 })
                 .orElseThrow(
                         () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
@@ -298,7 +297,7 @@ public class MemoryService {
                         .map(room -> {
                             room.addMemory(memory);
                             memory.addRoom(room);
-                            return new ShareMemoryDto.Response(BaseTimeEntity.formatNow());
+                            return new ShareMemoryDto.Response();
                         })
                         .orElseThrow(() -> new MemoryInternalServerException(
                                 String.format("Memory '%s' insert failed.", memory.getName())
@@ -318,7 +317,7 @@ public class MemoryService {
             );
         }
 
-        return new ShareMemoryDto.Response(BaseTimeEntity.formatNow());
+        return new ShareMemoryDto.Response();
     }
 
     @Transactional
@@ -343,7 +342,7 @@ public class MemoryService {
                                 });
                     }
 
-                    return new DeleteMemoryDto.Response(BaseTimeEntity.formatNow());
+                    return new DeleteMemoryDto.Response();
                 })
                 .orElseThrow(
                         () -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, request.getUserId()))

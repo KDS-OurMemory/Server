@@ -44,7 +44,5 @@ public class ShareMemoryDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value = "공유 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-07-06 23:58:33")
-        private final String shareDate;
     }
 }

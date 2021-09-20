@@ -23,8 +23,5 @@ public class PatchTokenDto {
     @AllArgsConstructor
     @Getter
     public static class Response {
-        
-        @ApiModelProperty(value = "업데이트 날짜", notes = "yyyy-MM-dd HH:mm:ss")
-        private final String patchDate;
     }
 }

@@ -1,10 +1,10 @@
 package com.kds.ourmemory.service.v1.room;
 
 import com.kds.ourmemory.advice.v1.room.exception.*;
+import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.room.dto.*;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
@@ -36,6 +36,10 @@ public class RoomService {
     private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
     
     private static final String ALREADY_OWNER_MESSAGE = "User '%d' is already owner room '%d'.";
+
+    private static final String NOT_INSERTED_MESSAGE = "%s '%s' insert failed.";
+
+    private static final String MEMORY = "memory";
     
     private static final String ROOM = "room";
     
@@ -114,7 +118,9 @@ public class RoomService {
 
                                 return room.getId();
                             })
-                            .get();
+                            .orElseThrow(() -> new UserInternalServerException(
+                                    String.format(NOT_INSERTED_MESSAGE, MEMORY, privateRoom.getName())
+                            ));
                 })
                 .orElseThrow(() -> new UserNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, USER, userId)
@@ -177,7 +183,7 @@ public class RoomService {
 
                     return room;
                 })
-                .map(room -> new PatchRoomOwnerDto.Response(BaseTimeEntity.formatNow()))
+                .map(room -> new PatchRoomOwnerDto.Response())
                 .orElseThrow(() -> new RoomNotFoundException(
                         String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
                     )
@@ -188,7 +194,7 @@ public class RoomService {
     public UpdateRoomDto.Response update(long roomId, UpdateRoomDto.Request request) {
         return findRoom(roomId).map(room ->
                 room.updateRoom(request)
-                        .map(r -> new UpdateRoomDto.Response(r.formatModDate()))
+                        .map(r -> new UpdateRoomDto.Response())
                         .orElseThrow(() -> new RoomInternalServerException("Failed to update for room data."))
         )
         .orElseThrow(
@@ -213,7 +219,7 @@ public class RoomService {
                         room.getMemories().forEach(Memory::deleteMemory);
                     }
 
-                    return new DeleteRoomDto.Response(BaseTimeEntity.formatNow());
+                    return new DeleteRoomDto.Response();
                 })
                 .orElseThrow(() -> new RoomNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, ROOM, roomId)

@@ -41,12 +41,12 @@ public class NoticeService {
                             .value(request.getValue())
                             .build();
 
-                    Notice insertedNotice = insertNotice(notice)
+                    insertNotice(notice)
                             .orElseThrow(() -> new NoticeInternalServerException(
                                     String.format("Notice [type: %s, value: %s] insert failed.",
                                             request.getType(), request.getValue())
                             ));
-                    return new InsertNoticeDto.Response(insertedNotice.formatRegDate());
+                    return new InsertNoticeDto.Response();
                 })
                 .orElseThrow(() -> new NoticeNotFoundUserException(
                         "Not found user matched to userId: " + request.getUserId()));
@@ -62,7 +62,7 @@ public class NoticeService {
         return findNotice(id)
                 .map(notice -> {
                     notice.deleteNotice();
-                    return updateNotice(notice).map(n -> new DeleteNoticeDto.Response(n.formatModDate()))
+                    return updateNotice(notice).map(n -> new DeleteNoticeDto.Response())
                             .orElseThrow(() ->
                                     new NoticeInternalServerException("Failed to update for notice used set false."));
                 })

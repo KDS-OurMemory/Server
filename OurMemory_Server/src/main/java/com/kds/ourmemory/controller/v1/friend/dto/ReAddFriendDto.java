@@ -25,7 +25,5 @@ public class ReAddFriendDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value="친구 재 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-06-21 10:40:05")
-        private final String reAddDate;
     }
 }

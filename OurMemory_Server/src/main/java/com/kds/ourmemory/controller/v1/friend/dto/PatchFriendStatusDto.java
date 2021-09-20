@@ -29,7 +29,5 @@ public class PatchFriendStatusDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value = "친구 상태 수정 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-06-18 23:18:05")
-        private final String patchDate;
     }
 }

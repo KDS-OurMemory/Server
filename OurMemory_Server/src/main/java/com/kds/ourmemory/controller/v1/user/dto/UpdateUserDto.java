@@ -36,7 +36,5 @@ public class UpdateUserDto {
     @AllArgsConstructor
     @Getter
     public static class Response {
-        @ApiModelProperty(value = "수정 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-04-20 14:21:33")
-        private final String updateDate;
     }
 }

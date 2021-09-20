@@ -8,13 +8,11 @@ import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.memory.dto.ShareMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
 import com.kds.ourmemory.service.v1.user.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,9 +22,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import static java.util.stream.Collectors.toList;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,7 +45,6 @@ class RoomServiceTest {
      * 
      * This is because time difference occurs after room creation due to relation table work.
      */
-    private DateTimeFormatter format;
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     // Base data for test RoomService
@@ -68,7 +65,6 @@ class RoomServiceTest {
 
     @BeforeAll
     void setUp() {
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
         alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
 
@@ -113,7 +109,6 @@ class RoomServiceTest {
         /* 4. Update */
         UpdateRoomDto.Response updateRsp = roomService.update(insertRoomRsp.getRoomId(), updateRoomReq);
         assertThat(updateRsp).isNotNull();
-        assertThat(isNow(updateRsp.getUpdateDate())).isTrue();
 
         /* 5. Find after update */
         FindRoomDto.Response afterFindRsp = roomService.find(insertRoomRsp.getRoomId());
@@ -124,7 +119,6 @@ class RoomServiceTest {
         /* 6. Delete */
         DeleteRoomDto.Response deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
         assertThat(deleteRsp).isNotNull();
-        assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
         /* 7. Find after delete */
         Long roomId = insertRoomRsp.getRoomId();
@@ -132,8 +126,6 @@ class RoomServiceTest {
         assertThrows(
                 RoomNotFoundException.class, () -> roomService.find(roomId)
         );
-
-        log.info("deleteDate: {}", deleteRsp.getDeleteDate());
     }
 
     @Test
@@ -196,7 +188,6 @@ class RoomServiceTest {
                 )
         );
         assertThat(shareMemoryRsp).isNotNull();
-        assertTrue(isNow(shareMemoryRsp.getShareDate()));
 
         /* 4. Set attendance */
         var setAttendanceOwnerRsp = memoryService.setAttendanceStatus(
@@ -205,7 +196,6 @@ class RoomServiceTest {
                 AttendanceStatus.ATTEND
         );
         assertThat(setAttendanceOwnerRsp).isNotNull();
-        assertTrue(isNow(setAttendanceOwnerRsp.getSetDate()));
 
         var setAttendanceMember1Rsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(),
@@ -213,7 +203,6 @@ class RoomServiceTest {
                 AttendanceStatus.ABSENCE
         );
         assertThat(setAttendanceMember1Rsp).isNotNull();
-        assertTrue(isNow(setAttendanceMember1Rsp.getSetDate()));
 
         var setAttendanceMember2Rsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(),
@@ -221,7 +210,6 @@ class RoomServiceTest {
                 AttendanceStatus.ATTEND
         );
         assertThat(setAttendanceMember2Rsp).isNotNull();
-        assertTrue(isNow(setAttendanceMember2Rsp.getSetDate()));
 
         /* 5. Find room */
         var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
@@ -304,7 +292,7 @@ class RoomServiceTest {
 
         /* 3. Delete share room */
         DeleteRoomDto.Response deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
-        assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
+        assertThat(deleteRsp).isNotNull();
 
         /* 4. Find room and memories after delete */
         Long roomId = insertRoomRsp.getRoomId();
@@ -409,7 +397,6 @@ class RoomServiceTest {
         /* 3. Delete room */
         var deleteRsp = roomService.delete(insertOwnerRsp.getPrivateRoomId(), deleteRoomReq);
         assertThat(deleteRsp).isNotNull();
-        assertThat(isNow(deleteRsp.getDeleteDate())).isTrue();
 
         /* 4. Find room and memories after delete */
         Long privateRoomId = insertOwnerRsp.getPrivateRoomId();
@@ -445,7 +432,6 @@ class RoomServiceTest {
         assertThat(insertExcludeMemberRsp).isNotNull();
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
         assertThat(insertExcludeMemberRsp.getPrivateRoomId()).isNotNull();
-        assertTrue(isNow(insertExcludeMemberRsp.getJoinDate()));
 
         /* 0-2. Create request */
         InsertRoomDto.Request insertRoomReq = new InsertRoomDto.Request(
@@ -466,7 +452,6 @@ class RoomServiceTest {
         /* 3. Patch owner */
         PatchRoomOwnerDto.Response patchOwnerRsp = roomService.patchOwner(insertRoomRsp.getRoomId(), insertMember1Rsp.getUserId());
         assertThat(patchOwnerRsp).isNotNull();
-        assertThat(isNow(patchOwnerRsp.getPatchDate())).isTrue();
 
         /* 4. Find after patch owner */
         FindRoomDto.Response afterFindRsp = roomService.find(insertRoomRsp.getRoomId());
@@ -507,7 +492,6 @@ class RoomServiceTest {
         assertThat(insertOwnerRsp).isNotNull();
         assertThat(insertOwnerRsp.getUserId()).isNotNull();
         assertThat(insertOwnerRsp.getPrivateRoomId()).isNotNull();
-        assertTrue(isNow(insertOwnerRsp.getJoinDate()));
 
         var insertMember1Req = new InsertUserDto.Request(
                 1, "member1_snsId", "member1 Token",
@@ -518,7 +502,6 @@ class RoomServiceTest {
         assertThat(insertMember1Rsp).isNotNull();
         assertThat(insertMember1Rsp.getUserId()).isNotNull();
         assertThat(insertMember1Rsp.getPrivateRoomId()).isNotNull();
-        assertTrue(isNow(insertMember1Rsp.getJoinDate()));
 
         var insertMember2Req = new InsertUserDto.Request(
                 1, "member2_snsId", "member2 Token",
@@ -529,15 +512,9 @@ class RoomServiceTest {
         assertThat(insertMember2Rsp).isNotNull();
         assertThat(insertMember2Rsp.getUserId()).isNotNull();
         assertThat(insertMember2Rsp.getPrivateRoomId()).isNotNull();
-        assertTrue(isNow(insertMember2Rsp.getJoinDate()));
 
         roomMembers = new ArrayList<>();
         roomMembers.add(insertMember1Rsp.getUserId());
         roomMembers.add(insertMember2Rsp.getUserId());
-    }
-    
-    boolean isNow(String time) {
-        return StringUtils.equals(LocalDateTime.now().format(format),
-                LocalDateTime.parse(time, BaseTimeEntity.format).format(format));
     }
 }

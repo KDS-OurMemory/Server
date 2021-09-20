@@ -26,7 +26,5 @@ public class DeleteMemoryDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value = "일정 삭제 날짜", notes = "yyyy-MM-dd HH:mm:ss")
-        private final String deleteDate;
     }
 }

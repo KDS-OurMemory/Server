@@ -4,7 +4,6 @@ import com.kds.ourmemory.advice.v1.friend.exception.*;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.friend.dto.*;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.notice.NoticeType;
@@ -74,7 +73,7 @@ public class FriendService {
                 .map(friendSideFriend ->
                         Optional.of(friendSideFriend)
                                 .filter(f -> f.getStatus().equals(FriendStatus.BLOCK))
-                                .map(f -> new RequestFriendDto.Response(BaseTimeEntity.formatNow()))
+                                .map(f -> new RequestFriendDto.Response())
                                 .orElseThrow(() -> new FriendAlreadyAcceptException("Already accepted a friend request.")))
                 // Add friend side REQUESTED_BY status
                 .orElseGet(() -> {
@@ -95,7 +94,7 @@ public class FriendService {
                                     false, NoticeType.FRIEND_REQUEST.name(),
                                     Long.toString(request.getUserId())));
 
-                    return new RequestFriendDto.Response(BaseTimeEntity.formatNow());
+                    return new RequestFriendDto.Response();
                 });
     }
 
@@ -131,7 +130,7 @@ public class FriendService {
 
                     deleteFriend(mySideFriend);
 
-                    return new CancelFriendDto.Response(BaseTimeEntity.formatNow());
+                    return new CancelFriendDto.Response();
                 })
                 .orElseThrow(
                         () -> new FriendNotFoundException(
@@ -164,7 +163,7 @@ public class FriendService {
         acceptFriend.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
         requestFriend.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
 
-        return new AcceptFriendDto.Response(BaseTimeEntity.formatNow());
+        return new AcceptFriendDto.Response();
     }
 
     public ReAddFriendDto.Response reAddFriend(ReAddFriendDto.Request request) {
@@ -191,7 +190,7 @@ public class FriendService {
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.WAIT))
                         .map(f -> {
                             f.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
-                            return new ReAddFriendDto.Response(BaseTimeEntity.formatNow());
+                            return new ReAddFriendDto.Response();
                         })
                         .orElseThrow(() -> new FriendStatusException(
                                 String.format(STATUS_ERROR_MESSAGE, FriendStatus.WAIT.name(), fa.getStatus().name()))
@@ -218,7 +217,7 @@ public class FriendService {
                             .map(status -> {
                                 friend.changeStatus(status);
                                 updateFriend(friend);
-                                return new PatchFriendStatusDto.Response(BaseTimeEntity.formatNow());
+                                return new PatchFriendStatusDto.Response();
                             })
                             .orElseThrow(() -> new FriendStatusException(
                                     String.format("Friend status cannot be '%s' and '%s'", FriendStatus.WAIT, FriendStatus.REQUESTED_BY))
@@ -240,7 +239,7 @@ public class FriendService {
 
                     // Delete friend only my side. The other side does not delete.
                     deleteFriend(friend);
-                    return new DeleteFriendDto.Response(BaseTimeEntity.formatNow());
+                    return new DeleteFriendDto.Response();
                 })
                 .orElseThrow(() -> new FriendNotFoundFriendException(
                                 String.format(NOT_FOUND_FRIEND_MESSAGE, userId, friendUserId)

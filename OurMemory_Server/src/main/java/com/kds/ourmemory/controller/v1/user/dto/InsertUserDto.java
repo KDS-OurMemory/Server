@@ -72,8 +72,5 @@ public class InsertUserDto {
 
         @ApiModelProperty(value = "개인방 번호")
         private final Long privateRoomId;
-        
-        @ApiModelProperty(value = "사용자 추가한 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-0420 11:03")
-        private final String joinDate;
     }
 }

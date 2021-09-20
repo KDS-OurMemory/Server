@@ -15,22 +15,22 @@ public class FindNoticesDto {
     @Getter
     public static class Response {
         @ApiModelProperty(value = "알림 번호")
-        private long noticeId;
+        private final long noticeId;
 
         @ApiModelProperty(value = "알림 종류", example = "friend_request")
-        private NoticeType type;
+        private final NoticeType type;
 
         @ApiModelProperty(value = "알림 문자열 값", example = "99")
-        private String value;
+        private final String value;
 
-        @ApiModelProperty(value = "알림 등록 시간", notes = "yyyy-MM-dd HH:mm:ss")
-        private String createDate;
+        @ApiModelProperty(value = "알림 생성 날짜", notes = "yyyy-MM-dd HH:mm:ss")
+        private final String regDate;
 
         public Response(Notice notice) {
             this.noticeId = notice.getId();
             this.type = notice.getType();
             this.value = notice.getValue();
-            this.createDate = notice.formatRegDate();
+            this.regDate = notice.formatRegDate();
         }
     }
 }

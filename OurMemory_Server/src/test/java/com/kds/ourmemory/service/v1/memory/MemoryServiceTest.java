@@ -5,13 +5,11 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotWriterException;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import com.kds.ourmemory.service.v1.user.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,7 +41,6 @@ class MemoryServiceTest {
      * 
      * This is because time difference occurs after room creation due to relation table work.
      */
-    private DateTimeFormatter format;
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     // Base data for test memoryService
@@ -62,7 +59,6 @@ class MemoryServiceTest {
 
     @BeforeAll
     void setUp() {
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
         alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
 
@@ -188,7 +184,6 @@ class MemoryServiceTest {
         AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ATTEND);
         assertThat(attendRsp).isNotNull();
-        assertTrue(isNow(attendRsp.getSetDate()));
 
         /* 4. Find memory after attend memory and check attendance status */
         var afterFindMemoryRsp = memoryService.find(
@@ -235,7 +230,6 @@ class MemoryServiceTest {
         AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ABSENCE);
         assertThat(attendRsp).isNotNull();
-        assertTrue(isNow(attendRsp.getSetDate()));
 
         /* 4. Find memory after absence memory and check attendance status */
         var afterFindMemoryRsp = memoryService.find(
@@ -275,7 +269,6 @@ class MemoryServiceTest {
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
         assertThat(insertMemberRsp2.getPrivateRoomId()).isNotNull();
-        assertTrue(isNow(insertMemberRsp2.getJoinDate()));
 
         var shareMemoryUsersReq = new ShareMemoryDto.Request(
                 ShareMemoryDto.ShareType.USERS,
@@ -293,7 +286,6 @@ class MemoryServiceTest {
                 insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
         );
         assertThat(shareMemoryRsp).isNotNull();
-        assertTrue(isNow(shareMemoryRsp.getShareDate()));
 
         /* 3. find share memory */
         // 1) Check from member
@@ -372,7 +364,6 @@ class MemoryServiceTest {
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
         assertThat(insertMemberRsp2.getPrivateRoomId()).isNotNull();
-        assertTrue(isNow(insertMemberRsp2.getJoinDate()));
 
         var shareMemoryUsersReq = new ShareMemoryDto.Request(
                 ShareMemoryDto.ShareType.USER_GROUP,
@@ -390,7 +381,6 @@ class MemoryServiceTest {
                 insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
         );
         assertThat(shareMemoryRsp).isNotNull();
-        assertTrue(isNow(shareMemoryRsp.getShareDate()));
 
         /* 3. find share memory */
         // 1) Check from member1
@@ -492,7 +482,6 @@ class MemoryServiceTest {
                 insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
         );
         assertThat(shareMemoryRsp).isNotNull();
-        assertTrue(isNow(shareMemoryRsp.getShareDate()));
 
         /* 3. Check share memory from original memory */
         var findMemories = memoryService.findMemories(insertWriterRsp.getUserId(), null);
@@ -553,7 +542,6 @@ class MemoryServiceTest {
         /* 3. Delete memory from share room */
         DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
         assertThat(deleteRsp).isNotNull();
-        assertTrue(isNow(deleteRsp.getDeleteDate()));
 
         /* 4. Find memory after delete */
         var findMemoryRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
@@ -618,7 +606,6 @@ class MemoryServiceTest {
         /* 3. Delete memory from private room */
         DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
         assertThat(deleteRsp).isNotNull();
-        assertTrue(isNow(deleteRsp.getDeleteDate()));
 
         /* 4. Find memory after delete */
         var memoryId = insertMemoryRsp.getMemoryId();
@@ -698,7 +685,6 @@ class MemoryServiceTest {
         UpdateMemoryDto.Response updateRsp = memoryService.update(
                 insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), updateReq);
         assertThat(updateRsp).isNotNull();
-        assertTrue(isNow(updateRsp.getUpdateDate()));
 
         /* 5. Find after update */
         FindMemoryDto.Response afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
@@ -929,7 +915,6 @@ class MemoryServiceTest {
         assertThat(insertWriterRsp).isNotNull();
         assertThat(insertWriterRsp.getUserId()).isNotNull();
         assertThat(insertWriterRsp.getPrivateRoomId()).isNotNull();
-        assertTrue(isNow(insertWriterRsp.getJoinDate()));
 
         var insertMemberReq = new InsertUserDto.Request(
                 1, "member1_snsId", "member1 Token",
@@ -940,7 +925,6 @@ class MemoryServiceTest {
         assertThat(insertMemberRsp).isNotNull();
         assertThat(insertMemberRsp.getUserId()).isNotNull();
         assertThat(insertMemberRsp.getPrivateRoomId()).isNotNull();
-        assertTrue(isNow(insertMemberRsp.getJoinDate()));
 
         /* 2. Create room */
         var members = Stream.of(insertMemberRsp.getUserId()).collect(toList());
@@ -950,10 +934,5 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertRoomRsp.getMembers()).isNotNull();
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(2);
-    }
-
-    boolean isNow(String time) {
-        return StringUtils.equals(LocalDateTime.now().format(format),
-                LocalDateTime.parse(time, BaseTimeEntity.format).format(format));
     }
 }

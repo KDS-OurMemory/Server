@@ -51,7 +51,5 @@ public class UpdateMemoryDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        @ApiModelProperty(value = "수정 날짜", notes = "yyyy-MM-dd HH:mm:ss", example = "2021-07-06 23:58:33")
-        private final String updateDate;
     }
 }

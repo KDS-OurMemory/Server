@@ -1,7 +1,6 @@
 package com.kds.ourmemory.service.v1.notice;
 
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
-import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -15,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,22 +27,11 @@ class NoticeServiceTest {
 
     private final UserRepository userRepo;  // Add to work with user data
 
-    /**
-     * Assert time format -> delete sec
-     *
-     * This is because time difference occurs after room creation due to relation table work.
-     */
-    private DateTimeFormatter format;
 
     @Autowired
     private NoticeServiceTest(NoticeService noticeService, UserRepository userRepo) {
         this.noticeService = noticeService;
         this.userRepo = userRepo;
-    }
-
-    @BeforeAll
-    void setUp() {
-        format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
     }
 
     @Test
@@ -77,15 +63,9 @@ class NoticeServiceTest {
         /* 1. Add notice */
         InsertNoticeDto.Response insertNoticeResponse1 = noticeService.insert(request1);
         assertThat(insertNoticeResponse1).isNotNull();
-        assertThat(isNow(insertNoticeResponse1.getCreateDate())).isTrue();
-
-        log.debug("createDate: {}", insertNoticeResponse1.getCreateDate());
 
         InsertNoticeDto.Response insertNoticeResponse2 = noticeService.insert(request2);
         assertThat(insertNoticeResponse2).isNotNull();
-        assertThat(isNow(insertNoticeResponse2.getCreateDate())).isTrue();
-
-        log.debug("createDate: {}", insertNoticeResponse2.getCreateDate());
 
         /* 2. Find notices */
         List<Notice> responseList = noticeService.findNotices(user.getId());
@@ -97,10 +77,5 @@ class NoticeServiceTest {
             assertThat(StringUtils.equals(notice.getValue(), "testValue1")
                     || StringUtils.equals(notice.getValue(), "testValue2")).isTrue();
         }
-    }
-
-    boolean isNow(String time) {
-        return StringUtils.equals(LocalDateTime.now().format(format),
-                LocalDateTime.parse(time, BaseTimeEntity.format).format(format));
     }
 }
