@@ -2,6 +2,8 @@ package com.kds.ourmemory.service.v1.user;
 
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
+import com.kds.ourmemory.advice.v1.user.exception.UserProfileImageUploadException;
+import com.kds.ourmemory.config.S3Uploader;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.friend.Friend;
@@ -12,6 +14,7 @@ import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -26,6 +29,9 @@ public class UserService {
 
     // When delete a user, deleted because sometimes a room is deleted or transfer owner
     private final RoomService roomService;
+
+    // For profile upload
+    private final S3Uploader s3Uploader;
 
     // When searching for a user, add to pass the friend status
     private final FriendRepository friendRepository;
@@ -130,6 +136,20 @@ public class UserService {
                 );
     }
 
+    public ProfileImageDto.Response uploadProfileImage(long userId, MultipartFile profileImage) {
+        if (!existsUserById(userId)) {
+            throw new UserNotFoundException(
+                    String.format(NOT_FOUND_MESSAGE, USER, userId)
+            );
+        }
+
+        var imageUrl = s3Uploader.upload(profileImage, Long.toString(userId));
+
+        return Optional.ofNullable(imageUrl)
+                .map(ProfileImageDto.Response::new)
+                .orElseThrow(() -> new UserProfileImageUploadException("Failed upload image."));
+    }
+
     /**
      * Delete user
      *
@@ -219,6 +239,10 @@ public class UserService {
         return Optional.ofNullable(userRepository.findAllByUsedAndIdOrName(true, userId, name))
                 .filter(users -> users.isPresent() && !users.get().isEmpty())
                 .orElseGet(Optional::empty);
+    }
+
+    private boolean existsUserById(Long userId) {
+        return userRepository.existsById(userId);
     }
 
     /**
