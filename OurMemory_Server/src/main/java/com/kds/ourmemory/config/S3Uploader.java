@@ -3,6 +3,7 @@ package com.kds.ourmemory.config;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.kds.ourmemory.advice.v1.user.exception.UserProfileImageUploadException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +28,7 @@ public class S3Uploader {
 
     public String upload(MultipartFile multipartFile, String dirName) {
         File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
-                .orElseThrow(() -> new IllegalArgumentException("error: MultipartFile -> File convert fail"));
+                .orElseThrow(() -> new UserProfileImageUploadException("error: MultipartFile -> File convert fail"));
 
         return upload(uploadFile, dirName);
     }
