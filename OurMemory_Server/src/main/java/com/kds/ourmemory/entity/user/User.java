@@ -73,6 +73,9 @@ public class User extends BaseTimeEntity implements Serializable {
     @Column(name="user_private_room_id")
     private Long privateRoomId;
 
+    @Column(name="user_profile_image_url")
+    private String profileImageUrl;
+
 	@Column(nullable = false, name="user_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
 	private boolean used;
 
@@ -118,6 +121,10 @@ public class User extends BaseTimeEntity implements Serializable {
 
     public void updatePrivateRoomId(Long privateRoomId) {
 	    this.privateRoomId = privateRoomId;
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
     
     public Optional<User> changePushToken(String pushToken) {

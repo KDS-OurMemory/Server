@@ -753,7 +753,7 @@ class UserServiceTest {
     @Transactional
     void uploadProfileImage() throws IOException {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
+        var insertUserReq = new InsertUserDto.Request(
                 1, "TESTS_SNS_ID", "before pushToken",
                 "테스트 유저", "0720", true,
                 false, DeviceOs.ANDROID
@@ -764,14 +764,23 @@ class UserServiceTest {
                 new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
 
         /* 1. Insert */
-        var insertRsp = userService.signUp(insertReq);
-        assertThat(insertRsp).isNotNull();
-        assertThat(insertRsp.getUserId()).isNotNull();
-        assertThat(insertRsp.getPrivateRoomId()).isNotNull();
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+        assertThat(insertUserRsp.getUserId()).isNotNull();
 
-        /* 2. Upload profile image */
-        var profileImageRsp = userService.uploadProfileImage(insertRsp.getUserId(), file);
+        /* 2. Find User */
+        var findUserRsp = userService.find(insertUserRsp.getUserId());
+        assertThat(findUserRsp).isNotNull();
+        assertThat(findUserRsp.getProfileImageUrl()).isNull();
+
+        /* 3. Upload profile image */
+        var profileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), file);
         assertThat(profileImageRsp).isNotNull();
         assertThat(profileImageRsp.getUrl()).isNotNull();
+
+        /* 4. Find User after upload */
+        var afterFindUserRsp = userService.find(insertUserRsp.getUserId());
+        assertThat(afterFindUserRsp).isNotNull();
+        assertThat(afterFindUserRsp.getProfileImageUrl()).isEqualTo(profileImageRsp.getUrl());
     }
 }

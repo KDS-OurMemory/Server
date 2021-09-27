@@ -53,6 +53,9 @@ public class FindUserDto {
         @Enumerated(EnumType.STRING)
         private final DeviceOs deviceOs;
 
+        @ApiModelProperty(value = "프로필사진 Url")
+        private final String profileImageUrl;
+
         @ApiModelProperty(value = "계정 사용여부")
         private final boolean used;
 
@@ -68,6 +71,7 @@ public class FindUserDto {
             this.birthdayOpen = user.isBirthdayOpen();
             this.role = user.getRole();
             this.deviceOs = user.getDeviceOs();
+            this.profileImageUrl = user.getProfileImageUrl();
             this.used = user.isUsed();
         }
     }

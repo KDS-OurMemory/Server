@@ -136,17 +136,16 @@ public class UserService {
                 );
     }
 
+    @Transactional
     public ProfileImageDto.Response uploadProfileImage(long userId, MultipartFile profileImage) {
-        if (!existsUserById(userId)) {
-            throw new UserNotFoundException(
-                    String.format(NOT_FOUND_MESSAGE, USER, userId)
-            );
-        }
+        var user = findUser(userId)
+                .orElseThrow(() -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, userId)));
 
-        var imageUrl = s3Uploader.upload(profileImage, Long.toString(userId));
-
-        return Optional.ofNullable(imageUrl)
-                .map(ProfileImageDto.Response::new)
+        return Optional.ofNullable(s3Uploader.upload(profileImage, Long.toString(userId)))
+                .map(url -> {
+                    user.updateProfileImageUrl(url);
+                    return new ProfileImageDto.Response(url);
+                })
                 .orElseThrow(() -> new UserProfileImageUploadException("Failed upload image."));
     }
 
