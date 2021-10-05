@@ -29,6 +29,9 @@ public class FindFriendsDto {
         @ApiModelProperty(value = "생일 공개여부", example = "false")
         private final boolean birthdayOpen;
 
+        @ApiModelProperty(value = "친구 프로필사진 Url")
+        private final String profileImageUrl;
+
         @ApiModelProperty(value = "친구 상태")
         private final FriendStatus status;
 
@@ -38,6 +41,7 @@ public class FindFriendsDto {
             this.birthday = friend.getFriendUser().isBirthdayOpen()? friend.getFriendUser().getBirthday() : null;
             this.solar = friend.getFriendUser().isSolar();
             this.birthdayOpen = friend.getFriendUser().isBirthdayOpen();
+            this.profileImageUrl = friend.getFriendUser().getProfileImageUrl();
 
             this.status = friend.getStatus();
         }

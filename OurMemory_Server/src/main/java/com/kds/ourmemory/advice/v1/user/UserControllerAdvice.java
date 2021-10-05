@@ -3,6 +3,7 @@ package com.kds.ourmemory.advice.v1.user;
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
+import com.kds.ourmemory.advice.v1.user.exception.UserProfileImageUploadException;
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.user.UserController;
 import org.springframework.core.Ordered;
@@ -23,6 +24,12 @@ import static com.kds.ourmemory.advice.v1.user.UserResultCode.*;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = UserController.class)
 public class UserControllerAdvice extends RestControllerAdviceResponse {
+
+    /* Custom Error */
+    @ExceptionHandler(UserProfileImageUploadException.class)
+    public ResponseEntity<ApiResult<String>> handleUserProfileImageUploadException(UserProfileImageUploadException e) {
+        return response(PROFILE_IMAGE_UPLOAD_ERROR, e);
+    }
 
     /* Http Status Error */
     @ExceptionHandler({ MissingServletRequestParameterException.class, HttpMessageNotReadableException.class,

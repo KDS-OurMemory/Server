@@ -37,6 +37,9 @@ public class SignInUserDto {
         @ApiModelProperty(value = "개인방 번호")
         private final long privateRoomId;
 
+        @ApiModelProperty(value = "프로필사진 Url")
+        private final String profileImageUrl;
+
         public Response(User user) {
             userId = user.getId();
             name = user.getName();
@@ -46,6 +49,7 @@ public class SignInUserDto {
             pushToken = user.getPushToken();
             push = user.isPush();
             privateRoomId = user.getPrivateRoomId();
+            profileImageUrl = user.getProfileImageUrl();
         }
     }
 }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PatchTokenDto {
 
-    @ApiModel(value = "PatchUser.Request", description = "nested class in PatchTokenDto")
+    @ApiModel(value = "PatchTokenDto.Request", description = "nested class in PatchTokenDto")
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
     @Getter
@@ -19,7 +19,7 @@ public class PatchTokenDto {
         private String pushToken;
     }
 
-    @ApiModel(value = "PatchUser.Response", description = "nested class in PatchTokenDto")
+    @ApiModel(value = "PatchTokenDto.Response", description = "nested class in PatchTokenDto")
     @AllArgsConstructor
     @Getter
     public static class Response {

@@ -32,6 +32,9 @@ public class FindUsersDto {
         @ApiModelProperty(value = "생일 공개여부", example = "false")
         private final boolean birthdayOpen;
 
+        @ApiModelProperty(value = "프로필사진 Url")
+        private final String profileImageUrl;
+
         @ApiModelProperty(value = "친구 상태",
                 example = "요청 후 대기: WAIT, 요청받은 상태: REQUESTED_BY, 친구: FRIEND, 차단: BLOCK | 관계없음: null")
         private final FriendStatus friendStatus;
@@ -42,6 +45,7 @@ public class FindUsersDto {
             this.birthday = user.isBirthdayOpen()? user.getBirthday() : null;
             this.solar = user.isSolar();
             this.birthdayOpen = user.isBirthdayOpen();
+            this.profileImageUrl = user.getProfileImageUrl();
             this.friendStatus = Objects.nonNull(friend)? friend.getStatus() : null;
        }
     }

@@ -11,6 +11,7 @@ import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
+import com.kds.ourmemory.controller.v1.user.dto.ProfileImageDto;
 import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -20,8 +21,11 @@ import com.kds.ourmemory.service.v1.room.RoomService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
@@ -742,5 +746,49 @@ class UserServiceTest {
         assertThat(afterSignInRsp).isNotNull();
         assertThat(afterSignInRsp.getUserId()).isEqualTo(reInsertUserRsp.getUserId());
         assertNotEquals(afterSignInRsp.getPrivateRoomId(), beforeSignInRsp.getPrivateRoomId());
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("프로필 사진 업로드")
+    @Transactional
+    void uploadProfileImage() throws IOException {
+        /* 0. Create Request */
+        var insertUserReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+        var file = new MockMultipartFile("image",
+                "CD 명함사이즈.jpg",
+                "image/jpg",
+                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var profileImageReq = new ProfileImageDto.Request(file);
+
+        /* 1. Insert */
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+        assertThat(insertUserRsp.getUserId()).isNotNull();
+
+        /* 2. Find User */
+        var findUserRsp = userService.find(insertUserRsp.getUserId());
+        assertThat(findUserRsp).isNotNull();
+        assertThat(findUserRsp.getProfileImageUrl()).isNull();
+
+        /* 3. Upload profile image */
+        var profileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
+        assertThat(profileImageRsp).isNotNull();
+        assertThat(profileImageRsp.getUrl()).isNotNull();
+
+        /* 4. Find User after upload */
+        var afterFindUserRsp = userService.find(insertUserRsp.getUserId());
+        assertThat(afterFindUserRsp).isNotNull();
+        assertThat(afterFindUserRsp.getProfileImageUrl()).isEqualTo(profileImageRsp.getUrl());
+
+        /* 5. Re upload profile image */
+        var reProfileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
+        assertThat(reProfileImageRsp).isNotNull();
+        assertThat(reProfileImageRsp.getUrl()).isNotNull();
+        assertNotSame(reProfileImageRsp.getUrl(), profileImageRsp.getUrl());
     }
 }

@@ -2,6 +2,8 @@ package com.kds.ourmemory.service.v1.user;
 
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
+import com.kds.ourmemory.advice.v1.user.exception.UserProfileImageUploadException;
+import com.kds.ourmemory.config.S3Uploader;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.friend.Friend;
@@ -16,8 +18,11 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
 @Service
@@ -26,6 +31,9 @@ public class UserService {
 
     // When delete a user, deleted because sometimes a room is deleted or transfer owner
     private final RoomService roomService;
+
+    // For profile upload
+    private final S3Uploader s3Uploader;
 
     // When searching for a user, add to pass the friend status
     private final FriendRepository friendRepository;
@@ -128,6 +136,29 @@ public class UserService {
                                 String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
+    }
+
+    @Transactional
+    public ProfileImageDto.Response uploadProfileImage(long userId, ProfileImageDto.Request request) {
+        // 1. Check image
+        checkNotNull(request.getProfileImage(), "ProfileImage is Null.");
+
+        // 2. Get user
+        var user = findUser(userId)
+                .orElseThrow(() -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, userId)));
+
+        // 3. Check and delete exists image
+        if (Objects.nonNull(user.getProfileImageUrl())) {
+            s3Uploader.delete(user.getProfileImageUrl());
+        }
+
+        // 4. Upload image
+        return Optional.ofNullable(s3Uploader.upload(request.getProfileImage(), Long.toString(userId)))
+                .map(url -> {
+                    user.updateProfileImageUrl(url);
+                    return new ProfileImageDto.Response(url);
+                })
+                .orElseThrow(() -> new UserProfileImageUploadException("Failed upload image."));
     }
 
     /**
