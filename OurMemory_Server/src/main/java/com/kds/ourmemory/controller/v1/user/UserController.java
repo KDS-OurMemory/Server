@@ -72,7 +72,7 @@ public class UserController {
         return ok(userService.update(userId, request));
     }
 
-    @ApiOperation(value = "프로필 사진 업로드", notes = "프로필 사진을 업로드한다.")
+    @ApiOperation(value = "프로필사진 업로드", notes = "프로필 사진을 업로드한다. 1개만 업로드가능하며, 새로 업로드할 경우 이전 파일은 삭제된다.")
     @PostMapping("/{userId}/profileImage")
     public ApiResult<ProfileImageDto.Response> uploadProfileImage(
             @PathVariable long userId,
