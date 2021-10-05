@@ -11,6 +11,7 @@ import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
+import com.kds.ourmemory.controller.v1.user.dto.ProfileImageDto;
 import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -762,6 +763,7 @@ class UserServiceTest {
                 "CD 명함사이즈.jpg",
                 "image/jpg",
                 new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var profileImageReq = new ProfileImageDto.Request(file);
 
         /* 1. Insert */
         var insertUserRsp = userService.signUp(insertUserReq);
@@ -774,7 +776,7 @@ class UserServiceTest {
         assertThat(findUserRsp.getProfileImageUrl()).isNull();
 
         /* 3. Upload profile image */
-        var profileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), file);
+        var profileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
         assertThat(profileImageRsp).isNotNull();
         assertThat(profileImageRsp.getUrl()).isNotNull();
 
@@ -782,5 +784,11 @@ class UserServiceTest {
         var afterFindUserRsp = userService.find(insertUserRsp.getUserId());
         assertThat(afterFindUserRsp).isNotNull();
         assertThat(afterFindUserRsp.getProfileImageUrl()).isEqualTo(profileImageRsp.getUrl());
+
+        /* 5. Re upload profile image */
+        var reProfileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
+        assertThat(reProfileImageRsp).isNotNull();
+        assertThat(reProfileImageRsp.getUrl()).isNotNull();
+        assertNotSame(reProfileImageRsp.getUrl(), profileImageRsp.getUrl());
     }
 }

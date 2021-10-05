@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -77,9 +76,9 @@ public class UserController {
     @PostMapping("/{userId}/profileImage")
     public ApiResult<ProfileImageDto.Response> uploadProfileImage(
             @PathVariable long userId,
-            @RequestPart MultipartFile profileImage
+            @RequestPart ProfileImageDto.Request request
     ) {
-        return ok(userService.uploadProfileImage(userId, profileImage));
+        return ok(userService.uploadProfileImage(userId, request));
     }
 
     @ApiOperation(value = "사용자 삭제", notes = "사용자 삭제 처리, 일정은 유지, 관계된 방에서 사용자 삭제/방장인 경우 방장 양도 후 삭제")

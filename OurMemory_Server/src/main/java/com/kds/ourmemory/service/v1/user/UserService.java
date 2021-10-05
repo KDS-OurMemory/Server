@@ -14,13 +14,15 @@ import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
 @Service
@@ -137,11 +139,21 @@ public class UserService {
     }
 
     @Transactional
-    public ProfileImageDto.Response uploadProfileImage(long userId, MultipartFile profileImage) {
+    public ProfileImageDto.Response uploadProfileImage(long userId, ProfileImageDto.Request request) {
+        // 1. Check image
+        checkNotNull(request.getProfileImage(), "ProfileImage is Null.");
+
+        // 2. Get user
         var user = findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, userId)));
 
-        return Optional.ofNullable(s3Uploader.upload(profileImage, Long.toString(userId)))
+        // 3. Check and delete exists image
+        if (Objects.nonNull(user.getProfileImageUrl())) {
+            s3Uploader.delete(user.getProfileImageUrl());
+        }
+
+        // 4. Upload image
+        return Optional.ofNullable(s3Uploader.upload(request.getProfileImage(), Long.toString(userId)))
                 .map(url -> {
                     user.updateProfileImageUrl(url);
                     return new ProfileImageDto.Response(url);
@@ -238,10 +250,6 @@ public class UserService {
         return Optional.ofNullable(userRepository.findAllByUsedAndIdOrName(true, userId, name))
                 .filter(users -> users.isPresent() && !users.get().isEmpty())
                 .orElseGet(Optional::empty);
-    }
-
-    private boolean existsUserById(Long userId) {
-        return userRepository.existsById(userId);
     }
 
     /**

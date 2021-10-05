@@ -75,6 +75,9 @@ public class FindRoomsDto {
 
             @ApiModelProperty(value = "생일 공개여부", example = "false")
             private final boolean birthdayOpen;
+
+            @ApiModelProperty(value = "프로필사진 Url")
+            private final String profileImageUrl;
             
             protected Member(User user) {
                 userId = user.getId();
@@ -82,6 +85,7 @@ public class FindRoomsDto {
                 birthday = user.isBirthdayOpen() ? user.getBirthday() : null;
                 solar = user.isSolar();
                 birthdayOpen = user.isBirthdayOpen();
+                profileImageUrl = user.getProfileImageUrl();
             }
         }
 

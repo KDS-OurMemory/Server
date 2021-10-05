@@ -2,6 +2,7 @@ package com.kds.ourmemory.config;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.kds.ourmemory.advice.v1.user.exception.UserProfileImageUploadException;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,10 +35,31 @@ public class S3Uploader {
     public String bucket;   // S3 버킷 이름
 
     public String upload(MultipartFile multipartFile, String dirName) {
+        checkNotNull(multipartFile, "Upload target file is null. Check request parameter.");
         File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
-                .orElseThrow(() -> new UserProfileImageUploadException("error: MultipartFile -> File convert fail"));
+                .orElseThrow(() -> new UserProfileImageUploadException("Failed to convert multipartFile to file"));
 
         return upload(uploadFile, dirName);
+    }
+
+    public Optional<Boolean> delete(String urlString) {
+        try {
+            var key = URLDecoder.decode(
+                    new URL(urlString).getPath().replace("/", ""), StandardCharsets.UTF_8
+            );
+            deleteFromS3(key);
+
+            return Optional.of(true);
+        } catch (MalformedURLException e) {
+            log.error(e.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
+    private void deleteFromS3(String key) {
+        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, key);
+        amazonS3Client.deleteObject(deleteObjectRequest);
     }
 
     // S3로 파일 업로드하기
@@ -49,16 +78,12 @@ public class S3Uploader {
 
     // 로컬에 저장된 이미지 지우기
     private void removeNewFile(File targetFile) {
-        if (targetFile.delete()) {
-            log.info("File delete success");
-            return;
-        }
-        log.info("File delete fail");
+        targetFile.delete();
     }
 
     // 로컬에 파일 업로드 하기
     private Optional<File> convert(MultipartFile file) {
-        File convertFile = new File(System.getProperty("user.dir") + File.pathSeparator + file.getOriginalFilename());
+        File convertFile = Paths.get(System.getProperty("user.dir"), file.getOriginalFilename()).toFile();
 
         try {
             if (convertFile.createNewFile()) { // 바로 위에서 지정한 경로에 File이 생성됨 (경로가 잘못되었다면 생성 불가능)
