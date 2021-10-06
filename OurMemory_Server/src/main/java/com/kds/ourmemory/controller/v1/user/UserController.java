@@ -82,6 +82,14 @@ public class UserController {
         return ok(userService.uploadProfileImage(userId, request));
     }
 
+    @ApiOperation(value = "프로필사진 삭제", notes = "프로필 사진을 삭제한다.")
+    @DeleteMapping(value = "/{userId}/profileImage")
+    public ApiResult<DeleteProfileImageDto.Response> deleteProfileImage(
+            @PathVariable long userId
+    ) {
+        return ok(userService.deleteProfileImage(userId));
+    }
+
     @ApiOperation(value = "사용자 삭제", notes = "사용자 삭제 처리, 일정은 유지, 관계된 방에서 사용자 삭제/방장인 경우 방장 양도 후 삭제")
     @DeleteMapping(value = "/{userId}")
     public ApiResult<DeleteUserDto.Response> delete(@PathVariable long userId) {

@@ -14,8 +14,8 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.FileInputStream;
 
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @Slf4j
 @SpringBootTest
@@ -37,12 +37,15 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("프로필 사진 업로드")
-    void uploadProfileImage() throws Exception {
+    @DisplayName("프로필사진 업로드/삭제")
+    void uploadProfileImage() {
        var request = new UploadProfileImageDto.Request(file);
 
-        var response = userController.uploadProfileImage(1588, request);
-        assertThat(response.getResultCode()).isEqualTo(CommonResultCode.SUCCESS.getCode());
+        var uploadResponse = userController.uploadProfileImage(1588, request);
+        assertThat(uploadResponse.getResultCode()).isEqualTo(CommonResultCode.SUCCESS.getCode());
+
+        var deleteResponse = userController.deleteProfileImage(1588);
+        assertThat(deleteResponse.getResultCode()).isEqualTo(CommonResultCode.SUCCESS.getCode());
     }
 
 }
