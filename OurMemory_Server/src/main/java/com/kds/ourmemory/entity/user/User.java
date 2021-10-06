@@ -124,7 +124,6 @@ public class User extends BaseTimeEntity implements Serializable {
     }
 
     public void updateProfileImageUrl(String profileImageUrl) {
-        checkArgument(StringUtils.isNoneBlank(profileImageUrl), "프로필 사진 Url 이 없습니다. 업로드 기능을 확인해주시기 바랍니다.");
         this.profileImageUrl = profileImageUrl;
     }
     

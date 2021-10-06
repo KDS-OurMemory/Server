@@ -161,6 +161,19 @@ public class UserService {
                 .orElseThrow(() -> new UserProfileImageUploadException("Failed upload image."));
     }
 
+    @Transactional
+    public DeleteProfileImageDto.Response deleteProfileImage(long userId) {
+        return findUser(userId)
+                .map(user -> {
+                    s3Uploader.delete(user.getProfileImageUrl());
+                    user.updateProfileImageUrl(null);
+                    return new DeleteProfileImageDto.Response();
+                })
+                .orElseThrow(() -> new UserNotFoundException(
+                        String.format(NOT_FOUND_MESSAGE, USER, userId)
+                ));
+    }
+
     /**
      * Delete user
      *

@@ -750,9 +750,9 @@ class UserServiceTest {
 
     @Test
     @Order(8)
-    @DisplayName("프로필 사진 업로드")
+    @DisplayName("프로필 사진 업로드/삭제")
     @Transactional
-    void uploadProfileImage() throws IOException {
+    void uploadDeleteProfileImage() throws IOException {
         /* 0. Create Request */
         var insertUserReq = new InsertUserDto.Request(
                 1, "TESTS_SNS_ID", "before pushToken",
@@ -780,7 +780,7 @@ class UserServiceTest {
         assertThat(profileImageRsp).isNotNull();
         assertThat(profileImageRsp.getUrl()).isNotNull();
 
-        /* 4. Find User after upload */
+        /* 4. Find User after upload profile image */
         var afterFindUserRsp = userService.find(insertUserRsp.getUserId());
         assertThat(afterFindUserRsp).isNotNull();
         assertThat(afterFindUserRsp.getProfileImageUrl()).isEqualTo(profileImageRsp.getUrl());
@@ -790,5 +790,14 @@ class UserServiceTest {
         assertThat(reProfileImageRsp).isNotNull();
         assertThat(reProfileImageRsp.getUrl()).isNotNull();
         assertNotSame(reProfileImageRsp.getUrl(), profileImageRsp.getUrl());
+
+        /* 6. Delete profile image */
+        var deleteProfileImageRsp = userService.deleteProfileImage(insertUserRsp.getUserId());
+        assertThat(deleteProfileImageRsp).isNotNull();
+
+        /* 7. Find User after delete profile image*/
+        var deleteAfterFindUserRsp = userService.find(insertUserRsp.getUserId());
+        assertThat(deleteAfterFindUserRsp).isNotNull();
+        assertNull(deleteAfterFindUserRsp.getProfileImageUrl());
     }
 }
