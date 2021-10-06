@@ -22,8 +22,6 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -35,7 +33,6 @@ public class S3Uploader {
     public String bucket;   // S3 버킷 이름
 
     public String upload(MultipartFile multipartFile, String dirName) {
-        checkNotNull(multipartFile, "Upload target file is null. Check request parameter.");
         File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
                 .orElseThrow(() -> new UserProfileImageUploadException("Failed to convert multipartFile to file"));
 

@@ -11,7 +11,7 @@ import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
-import com.kds.ourmemory.controller.v1.user.dto.ProfileImageDto;
+import com.kds.ourmemory.controller.v1.user.dto.UploadProfileImageDto;
 import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -763,7 +763,7 @@ class UserServiceTest {
                 "CD 명함사이즈.jpg",
                 "image/jpg",
                 new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
-        var profileImageReq = new ProfileImageDto.Request(file);
+        var profileImageReq = new UploadProfileImageDto.Request(file);
 
         /* 1. Insert */
         var insertUserRsp = userService.signUp(insertUserReq);
