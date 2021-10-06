@@ -139,7 +139,7 @@ public class UserService {
     }
 
     @Transactional
-    public ProfileImageDto.Response uploadProfileImage(long userId, ProfileImageDto.Request request) {
+    public UploadProfileImageDto.Response uploadProfileImage(long userId, UploadProfileImageDto.Request request) {
         // 1. Check image
         checkNotNull(request.getProfileImage(), "ProfileImage is Null.");
 
@@ -156,7 +156,7 @@ public class UserService {
         return Optional.ofNullable(s3Uploader.upload(request.getProfileImage(), Long.toString(userId)))
                 .map(url -> {
                     user.updateProfileImageUrl(url);
-                    return new ProfileImageDto.Response(url);
+                    return new UploadProfileImageDto.Response(url);
                 })
                 .orElseThrow(() -> new UserProfileImageUploadException("Failed upload image."));
     }

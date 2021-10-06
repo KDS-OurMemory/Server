@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -73,10 +74,10 @@ public class UserController {
     }
 
     @ApiOperation(value = "프로필사진 업로드", notes = "프로필 사진을 업로드한다. 1개만 업로드가능하며, 새로 업로드할 경우 이전 파일은 삭제된다.")
-    @PostMapping("/{userId}/profileImage")
-    public ApiResult<ProfileImageDto.Response> uploadProfileImage(
+    @PostMapping(value = "/{userId}/profileImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResult<UploadProfileImageDto.Response> uploadProfileImage(
             @PathVariable long userId,
-            @RequestPart ProfileImageDto.Request request
+            UploadProfileImageDto.Request request
     ) {
         return ok(userService.uploadProfileImage(userId, request));
     }

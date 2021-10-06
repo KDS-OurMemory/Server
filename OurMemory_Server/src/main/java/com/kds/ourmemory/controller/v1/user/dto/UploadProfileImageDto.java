@@ -6,7 +6,7 @@ import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProfileImageDto {
+public class UploadProfileImageDto {
 
     @ApiModel(value = "ProfileImageDto.Request", description = "nested class in PatchTokenDto")
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
