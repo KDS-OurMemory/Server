@@ -38,7 +38,7 @@ class RoomServiceTest {
 
     private final MemoryService memoryService;  // The creation process from adding to the deletion of the memory.
 
-    private final UserService userService;  // The creation process from adding to the deletion of the room.
+    private final UserService userService;  // The creation process from adding to the deletion of the user.
 
     /**
      * Assert time format -> delete sec

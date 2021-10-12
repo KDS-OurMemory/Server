@@ -30,7 +30,7 @@ public class S3Uploader {
     private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
-    public String bucket;   // S3 버킷 이름
+    private String bucket;   // S3 버킷 이름
 
     public String upload(MultipartFile multipartFile, String dirName) {
         File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
@@ -39,11 +39,9 @@ public class S3Uploader {
         return upload(uploadFile, dirName);
     }
 
-    public Optional<Boolean> delete(String urlString) {
+    public Optional<Boolean> delete(String url) {
         try {
-            var key = URLDecoder.decode(
-                    new URL(urlString).getPath().replace("/", ""), StandardCharsets.UTF_8
-            );
+            var key = new URL(url).getPath().substring(1); // delete first string "/"(slash)
             deleteFromS3(key);
 
             return Optional.of(true);
@@ -61,7 +59,7 @@ public class S3Uploader {
 
     // S3로 파일 업로드하기
     private String upload(File uploadFile, String dirName) {
-        String fileName = dirName + File.pathSeparator + UUID.randomUUID() + uploadFile.getName();   // S3에 저장된 파일 이름
+        String fileName = dirName + "/" + UUID.randomUUID();   // S3에 저장된 파일 이름
         String uploadImageUrl = putS3(uploadFile, fileName); // s3로 업로드
         removeNewFile(uploadFile);
         return uploadImageUrl;

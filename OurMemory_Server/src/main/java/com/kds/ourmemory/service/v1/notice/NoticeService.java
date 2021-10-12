@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Service
@@ -53,8 +54,9 @@ public class NoticeService {
     }
 
     public List<Notice> findNotices(long userId) {
-        return findNoticesByUserId(userId)
-                .orElseGet(ArrayList::new);
+        return new ArrayList<>(findNoticesByUserId(userId)
+                .map(notices1 -> notices1.stream().filter(Notice::getUsed).collect(toList()))
+                .orElseGet(ArrayList::new));
     }
 
     @Transactional
