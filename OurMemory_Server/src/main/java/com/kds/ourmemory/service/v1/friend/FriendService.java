@@ -15,6 +15,7 @@ import com.kds.ourmemory.service.v1.notice.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,9 +38,16 @@ public class FriendService {
     private final NoticeService noticeService;
 
     private static final String NOT_FOUND_MESSAGE = "Not found %s matched id: %d";
+
     private static final String NOT_FOUND_FRIEND_MESSAGE = "Not found Friend matched userId '%d', friendId '%d'";
+
     private static final String STATUS_ERROR_MESSAGE = "Friend status must be '%s'. friendStatus: %s";
+
     private static final String NOT_REQUESTED_ERROR = "Addition cannot be proceeded without a friend request.";
+
+    private static final String USER_ALREADY_FRIEND = "User '%d' already friend. delete request plz.";
+
+    private static final String USER = "user";
 
     public RequestFriendDto.Response requestFriend(RequestFriendDto.Request request) {
         findFriend(request.getUserId(), request.getFriendUserId())
@@ -56,12 +64,12 @@ public class FriendService {
 
         var user = findUser(request.getUserId()).orElseThrow(
                 () -> new FriendNotFoundUserException(
-                        String.format(NOT_FOUND_MESSAGE, "user", request.getUserId())
+                        String.format(NOT_FOUND_MESSAGE, USER, request.getUserId())
                 )
         );
         var friend = findUser(request.getFriendUserId()).orElseThrow(
                 () -> new FriendNotFoundFriendException(
-                        String.format(NOT_FOUND_MESSAGE, "user", request.getFriendUserId())
+                        String.format(NOT_FOUND_MESSAGE, USER, request.getFriendUserId())
                 )
         );
 
@@ -105,7 +113,7 @@ public class FriendService {
                     FriendStatus status = friend.getStatus();
                     if (status.equals(FriendStatus.FRIEND) || status.equals(FriendStatus.BLOCK))
                         throw new FriendInternalServerException(
-                                String.format("User '%d' already friend. delete request plz.", request.getFriendUserId())
+                                String.format(USER_ALREADY_FRIEND, request.getFriendUserId())
                         );
 
                     return friend;
@@ -122,7 +130,7 @@ public class FriendService {
                     FriendStatus status = friend.getStatus();
                     if (status.equals(FriendStatus.FRIEND)) {
                         throw new FriendInternalServerException(
-                                String.format("User '%d' already friend. delete request plz.", request.getUserId())
+                                String.format(USER_ALREADY_FRIEND, request.getUserId())
                         );
                     } else if (status.equals(FriendStatus.WAIT) || status.equals(FriendStatus.REQUESTED_BY)) {
                         deleteFriend(friend);
@@ -139,6 +147,7 @@ public class FriendService {
                 );
     }
 
+    @Transactional
     public AcceptFriendDto.Response acceptFriend(AcceptFriendDto.Request request) {
         // Check friend status on accept side
         var acceptFriend = findFriend(request.getUserId(), request.getFriendUserId())
@@ -160,8 +169,21 @@ public class FriendService {
                 .orElseThrow(() -> new FriendNotRequestedException(NOT_REQUESTED_ERROR));
 
         // Accept request
-        acceptFriend.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
-        requestFriend.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
+        acceptFriend.changeStatus(FriendStatus.FRIEND)
+                .orElseThrow(() -> new FriendInternalServerException("Failed to update for friend status data."));
+        requestFriend.changeStatus(FriendStatus.FRIEND)
+                .orElseThrow(() -> new FriendInternalServerException("Failed to update for friend status data."));
+
+        // Delete related notice
+        // 1) Accept user
+        noticeService.findNotices(request.getUserId())
+                .forEach(acceptUserNotice -> {
+                    if (NoticeType.FRIEND_REQUEST.equals(acceptUserNotice.getType())
+                            && acceptUserNotice.getValue().equals(Long.toString(request.getFriendUserId()))
+                    ) {
+                        acceptUserNotice.deleteNotice();
+                    }
+                });
 
         return new AcceptFriendDto.Response();
     }

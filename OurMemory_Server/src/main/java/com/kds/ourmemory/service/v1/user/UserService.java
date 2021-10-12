@@ -52,6 +52,8 @@ public class UserService {
 
     private static final String UPDATE = "update";
 
+    private static final String PROFILE_IMAGE_DIR = "profileImages";
+
     @Transactional
     public InsertUserDto.Response signUp(InsertUserDto.Request request) {
         var user = request.toEntity();
@@ -153,7 +155,7 @@ public class UserService {
         }
 
         // 4. Upload image
-        return Optional.ofNullable(s3Uploader.upload(request.getProfileImage(), Long.toString(userId)))
+        return Optional.ofNullable(s3Uploader.upload(request.getProfileImage(), PROFILE_IMAGE_DIR))
                 .map(url -> {
                     user.updateProfileImageUrl(url);
                     return new UploadProfileImageDto.Response(url);

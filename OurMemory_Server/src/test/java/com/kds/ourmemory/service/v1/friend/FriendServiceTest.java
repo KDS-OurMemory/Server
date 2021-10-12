@@ -2,11 +2,12 @@ package com.kds.ourmemory.service.v1.friend;
 
 import com.kds.ourmemory.advice.v1.friend.exception.*;
 import com.kds.ourmemory.controller.v1.friend.dto.*;
+import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
+import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.DeviceOs;
-import com.kds.ourmemory.entity.user.User;
-import com.kds.ourmemory.entity.user.UserRole;
-import com.kds.ourmemory.repository.user.UserRepository;
+import com.kds.ourmemory.service.v1.notice.NoticeService;
+import com.kds.ourmemory.service.v1.user.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,12 +24,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class FriendServiceTest {
     private final FriendService friendService;
 
-    // Add to work with user data
-    private final UserRepository userRepo;
+    private final UserService userService;  // The creation process from adding to the deletion of the user.
 
-    // Base data for test RoomService
-    private User user;
-    private User friendUser;
+    private final NoticeService noticeService;  // The creation process from adding to the deletion of the notice.
+
+    // Base data for test NoticeService
+    private InsertUserDto.Response requestUserRsp;
+    
+    private InsertUserDto.Response acceptUserRsp;
 
     /**
      * Test case
@@ -45,9 +48,10 @@ class FriendServiceTest {
      */
 
     @Autowired
-    private FriendServiceTest(FriendService friendService, UserRepository userRepo) {
+    private FriendServiceTest(FriendService friendService, UserService userService, NoticeService noticeService) {
         this.friendService = friendService;
-        this.userRepo = userRepo;
+        this.userService = userService;
+        this.noticeService = noticeService;
     }
 
     @Test
@@ -59,8 +63,8 @@ class FriendServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friendUser.getId());
-        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friendUser.getId(), user.getId());
+        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
 
         /* 1. Request friend */
         RequestFriendDto.Response requestRsp = friendService.requestFriend(requestReq);
@@ -72,65 +76,53 @@ class FriendServiceTest {
 
         /* 2. Find friends */
         // My side
-        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         FindFriendsDto.Response mySideFindRsp = mySideFindList.get(0);
         assertThat(mySideFindRsp).isNotNull();
-        assertThat(mySideFindRsp.getFriendId()).isEqualTo(friendUser.getId());
-        assertThat(mySideFindRsp.getName()).isEqualTo(friendUser.getName());
-        assertThat(mySideFindRsp.isBirthdayOpen()).isEqualTo(friendUser.isBirthdayOpen());
-        assertThat(mySideFindRsp.getBirthday()).isEqualTo(friendUser.isBirthdayOpen() ? friendUser.getBirthday() : null);
-        assertThat(mySideFindRsp.isSolar()).isEqualTo(friendUser.isSolar());
+        assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Friend side
-        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(friendSideFindList).isNotNull();
         assertFalse(friendSideFindList.isEmpty());
 
         FindFriendsDto.Response friendSideFindRsp = friendSideFindList.get(0);
         assertThat(friendSideFindRsp).isNotNull();
-        assertThat(friendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(friendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(friendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(friendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(friendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(friendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(friendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 3. Delete friend */
         // 1) Delete from my side
-        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(user.getId(), friendUser.getId());
+        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
         assertThat(mySideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromMySideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         FindFriendsDto.Response deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
         assertThat(deleteFriendSideFindRsp).isNotNull();
-        assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(deleteFriendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(deleteFriendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(deleteFriendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(deleteFriendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(deleteFriendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // 2) Delete from friend side
-        DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(friendUser.getId(), user.getId());
+        DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
         assertThat(friendSideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromFriendSideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromFriendSideFriendSideList.size()).isZero();
     }
 
@@ -143,9 +135,9 @@ class FriendServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friendUser.getId());
-        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friendUser.getId(), user.getId());
-        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(user.getId(), friendUser.getId());
+        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
+        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
 
         /* 0-3. Request friend for other side friend */
         RequestFriendDto.Response beforeRequestRsp = friendService.requestFriend(requestReq);
@@ -156,25 +148,21 @@ class FriendServiceTest {
         assertThat(beforeInsertRsp).isNotNull();
 
         /* 0-5. Delete friend from my side */
-        // Delete from user side
-        DeleteFriendDto.Response beforeMySideDeleteRsp = friendService.deleteFriend(user.getId(), friendUser.getId());
+        // Delete from requestUserRsp side
+        DeleteFriendDto.Response beforeMySideDeleteRsp = friendService.deleteFriend(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
         assertThat(beforeMySideDeleteRsp).isNotNull();
 
         // My side
-        List<FindFriendsDto.Response> beforeMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> beforeMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(beforeMySideList.size()).isZero();
 
         // Friend side
-        List<FindFriendsDto.Response> beforeFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> beforeFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(beforeFriendSideList.size()).isOne();
 
         FindFriendsDto.Response beforeFriendSideFindRsp = beforeFriendSideList.get(0);
         assertThat(beforeFriendSideFindRsp).isNotNull();
-        assertThat(beforeFriendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(beforeFriendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(beforeFriendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(beforeFriendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(beforeFriendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(beforeFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeFriendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
 
@@ -194,65 +182,53 @@ class FriendServiceTest {
 
         /* 4. Find friends */
         // My side
-        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         FindFriendsDto.Response mySideFindRsp = mySideFindList.get(0);
         assertThat(mySideFindRsp).isNotNull();
-        assertThat(mySideFindRsp.getFriendId()).isEqualTo(friendUser.getId());
-        assertThat(mySideFindRsp.getName()).isEqualTo(friendUser.getName());
-        assertThat(mySideFindRsp.isBirthdayOpen()).isEqualTo(friendUser.isBirthdayOpen());
-        assertThat(mySideFindRsp.getBirthday()).isEqualTo(friendUser.isBirthdayOpen() ? friendUser.getBirthday() : null);
-        assertThat(mySideFindRsp.isSolar()).isEqualTo(friendUser.isSolar());
+        assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Friend side
-        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(friendSideFindList).isNotNull();
         assertFalse(friendSideFindList.isEmpty());
 
         FindFriendsDto.Response friendSideFindRsp = friendSideFindList.get(0);
         assertThat(friendSideFindRsp).isNotNull();
-        assertThat(friendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(friendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(friendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(friendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(friendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(friendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(friendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 5. Delete friend */
-        // 1) Delete from user side
-        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(user.getId(), friendUser.getId());
+        // 1) Delete from requestUserRsp side
+        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
         assertThat(mySideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromMySideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         FindFriendsDto.Response deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
         assertThat(deleteFriendSideFindRsp).isNotNull();
-        assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(deleteFriendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(deleteFriendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(deleteFriendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(deleteFriendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(deleteFriendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // 2) Delete from friend side
-        DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(friendUser.getId(), user.getId());
+        DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
         assertThat(friendSideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromFriendSideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromFriendSideFriendSideList.size()).isZero();
     }
 
@@ -265,11 +241,11 @@ class FriendServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friendUser.getId());
-        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friendUser.getId(), user.getId());
-        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(user.getId(), friendUser.getId());
-        PatchFriendStatusDto.Request blockReq = new PatchFriendStatusDto.Request(friendUser.getId(), user.getId(), FriendStatus.BLOCK);
-        CancelFriendDto.Request cancelReq = new CancelFriendDto.Request(user.getId(), friendUser.getId());
+        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
+        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        PatchFriendStatusDto.Request blockReq = new PatchFriendStatusDto.Request(acceptUserRsp.getUserId(), requestUserRsp.getUserId(), FriendStatus.BLOCK);
+        CancelFriendDto.Request cancelReq = new CancelFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
 
         /* 0-3. Request friend for other side friend */
         RequestFriendDto.Response beforeRequestRsp = friendService.requestFriend(requestReq);
@@ -280,25 +256,21 @@ class FriendServiceTest {
         assertThat(beforeInsertRsp).isNotNull();
 
         /* 0-5. Delete friend from my side */
-        // Delete from user side
-        DeleteFriendDto.Response beforeMySideDeleteRsp = friendService.deleteFriend(user.getId(), friendUser.getId());
+        // Delete from requestUserRsp side
+        DeleteFriendDto.Response beforeMySideDeleteRsp = friendService.deleteFriend(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
         assertThat(beforeMySideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> beforeMySideFriends = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> beforeMySideFriends = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(beforeMySideFriends.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> beforeFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> beforeFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(beforeFriendSideList.size()).isOne();
 
         FindFriendsDto.Response beforeFriendSideFindRsp = beforeFriendSideList.get(0);
         assertThat(beforeFriendSideFindRsp).isNotNull();
-        assertThat(beforeFriendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(beforeFriendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(beforeFriendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(beforeFriendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(beforeFriendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(beforeFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeFriendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 0-6. Block from friend side */
@@ -322,37 +294,29 @@ class FriendServiceTest {
 
         /* 4. Find friends */
         // My side
-        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(mySideFindList).isNotNull();
         assertThat(mySideFindList.size()).isOne();
 
         FindFriendsDto.Response mySideFindRsp = mySideFindList.get(0);
         assertThat(mySideFindRsp).isNotNull();
-        assertThat(mySideFindRsp.getFriendId()).isEqualTo(friendUser.getId());
-        assertThat(mySideFindRsp.getName()).isEqualTo(friendUser.getName());
-        assertThat(mySideFindRsp.isBirthdayOpen()).isEqualTo(friendUser.isBirthdayOpen());
-        assertThat(mySideFindRsp.getBirthday()).isEqualTo(friendUser.isBirthdayOpen() ? friendUser.getBirthday() : null);
-        assertThat(mySideFindRsp.isSolar()).isEqualTo(friendUser.isSolar());
+        assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getStatus()).isEqualTo(FriendStatus.WAIT);
 
         // Friend side
-        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(friendSideFindList).isNotNull();
         assertFalse(friendSideFindList.isEmpty());
 
         FindFriendsDto.Response friendSideFindRsp = friendSideFindList.get(0);
         assertThat(friendSideFindRsp).isNotNull();
-        assertThat(friendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(friendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(friendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(friendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(friendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(friendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(friendSideFindRsp.getStatus()).isEqualTo(FriendStatus.BLOCK);
 
         /* 5. Delete friend */
-        // 1) Delete from user side
-        Long userId = user.getId();
-        Long friendId = friendUser.getId();
+        // 1) Delete from requestUserRsp side
+        Long userId = requestUserRsp.getUserId();
+        Long friendId = acceptUserRsp.getUserId();
         assertThrows(
                 FriendInternalServerException.class, () -> friendService.deleteFriend(userId, friendId)
         );
@@ -362,32 +326,28 @@ class FriendServiceTest {
         assertThat(cancelRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromMySideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromMySideFriendSideList  = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromMySideFriendSideList  = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         FindFriendsDto.Response deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
         assertThat(deleteFriendSideFindRsp).isNotNull();
-        assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(deleteFriendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(deleteFriendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(deleteFriendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(deleteFriendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(deleteFriendSideFindRsp.getStatus()).isEqualTo(FriendStatus.BLOCK);
 
         // 2) Delete from friend side
-        DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(friendUser.getId(), user.getId());
+        DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
         assertThat(friendSideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromFriendSideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromFriendSideFriendSideList.size()).isZero();
     }
 
@@ -400,9 +360,9 @@ class FriendServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friendUser.getId());
-        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friendUser.getId(), user.getId());
-        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(user.getId(), friendUser.getId());
+        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
+        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
 
         /* 0-3. Request friend for my side friend */
         RequestFriendDto.Response beforeRequestRsp = friendService.requestFriend(requestReq);
@@ -412,26 +372,22 @@ class FriendServiceTest {
         AcceptFriendDto.Response beforeInsertRsp = friendService.acceptFriend(acceptReq);
         assertThat(beforeInsertRsp).isNotNull();
 
-        /* 0-5. Delete user from friend side */
-        // Delete user from friend
-        DeleteFriendDto.Response beforeMySideDeleteRsp = friendService.deleteFriend(friendUser.getId(), user.getId());
+        /* 0-5. Delete requestUserRsp from friend side */
+        // Delete requestUserRsp from friend
+        DeleteFriendDto.Response beforeMySideDeleteRsp = friendService.deleteFriend(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
         assertThat(beforeMySideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> beforeMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> beforeMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(beforeMySideList.size()).isOne();
 
         FindFriendsDto.Response beforeMySideFindRsp = beforeMySideList.get(0);
         assertThat(beforeMySideFindRsp).isNotNull();
-        assertThat(beforeMySideFindRsp.getFriendId()).isEqualTo(friendUser.getId());
-        assertThat(beforeMySideFindRsp.getName()).isEqualTo(friendUser.getName());
-        assertThat(beforeMySideFindRsp.isBirthdayOpen()).isEqualTo(friendUser.isBirthdayOpen());
-        assertThat(beforeMySideFindRsp.getBirthday()).isEqualTo(friendUser.isBirthdayOpen() ? friendUser.getBirthday() : null);
-        assertThat(beforeMySideFindRsp.isSolar()).isEqualTo(friendUser.isSolar());
+        assertThat(beforeMySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeMySideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Check friend side
-        List<FindFriendsDto.Response> beforeFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> beforeFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(beforeFriendSideList.size()).isZero();
 
 
@@ -452,50 +408,46 @@ class FriendServiceTest {
 
         /* 4. Find friend */
         // My side
-        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         FindFriendsDto.Response mySideFindRsp = mySideFindList.get(0);
         assertThat(mySideFindRsp).isNotNull();
-        assertThat(mySideFindRsp.getFriendId()).isEqualTo(friendUser.getId());
-        assertThat(mySideFindRsp.getName()).isEqualTo(friendUser.getName());
-        assertThat(mySideFindRsp.isBirthdayOpen()).isEqualTo(friendUser.isBirthdayOpen());
-        assertThat(mySideFindRsp.getBirthday()).isEqualTo(friendUser.isBirthdayOpen() ? friendUser.getBirthday() : null);
-        assertThat(mySideFindRsp.isSolar()).isEqualTo(friendUser.isSolar());
+        assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Friend side
-        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(friendSideFindList).isNotNull();
         assertTrue(friendSideFindList.isEmpty());
 
         /* 5. Delete friend */
-        // 1) Delete from user side
-        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(user.getId(), friendUser.getId());
+        // 1) Delete from requestUserRsp side
+        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
         assertThat(mySideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromMySideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromMySideFriendSideList.size()).isZero();
 
         // 2) Delete from friend side
-        Long userId = user.getId();
-        Long friendId = friendUser.getId();
+        Long userId = requestUserRsp.getUserId();
+        Long friendId = acceptUserRsp.getUserId();
         assertThrows(
                 FriendNotFoundFriendException.class, () -> friendService.deleteFriend(friendId, userId)
         );
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromFriendSideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromFriendSideFriendSideList.size()).isZero();
     }
 
@@ -508,10 +460,10 @@ class FriendServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friendUser.getId());
-        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friendUser.getId(), user.getId());
-        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(user.getId(), friendUser.getId());
-        PatchFriendStatusDto.Request blockReq = new PatchFriendStatusDto.Request(user.getId(), friendUser.getId(), FriendStatus.BLOCK);
+        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
+        ReAddFriendDto.Request addReq = new ReAddFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        PatchFriendStatusDto.Request blockReq = new PatchFriendStatusDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId(), FriendStatus.BLOCK);
 
         /* 0-3. Request friend for my side friend */
         RequestFriendDto.Response beforeRequestRsp = friendService.requestFriend(requestReq);
@@ -521,26 +473,22 @@ class FriendServiceTest {
         AcceptFriendDto.Response beforeInsertRsp = friendService.acceptFriend(acceptReq);
         assertThat(beforeInsertRsp).isNotNull();
 
-        /* 0-5. Delete user from friend side */
-        // Delete user from friend
-        DeleteFriendDto.Response beforeMySideDeleteRsp = friendService.deleteFriend(friendUser.getId(), user.getId());
+        /* 0-5. Delete requestUserRsp from friend side */
+        // Delete requestUserRsp from friend
+        DeleteFriendDto.Response beforeMySideDeleteRsp = friendService.deleteFriend(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
         assertThat(beforeMySideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> beforeMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> beforeMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(beforeMySideList.size()).isOne();
 
         FindFriendsDto.Response beforeMySideFindRsp = beforeMySideList.get(0);
         assertThat(beforeMySideFindRsp).isNotNull();
-        assertThat(beforeMySideFindRsp.getFriendId()).isEqualTo(friendUser.getId());
-        assertThat(beforeMySideFindRsp.getName()).isEqualTo(friendUser.getName());
-        assertThat(beforeMySideFindRsp.isBirthdayOpen()).isEqualTo(friendUser.isBirthdayOpen());
-        assertThat(beforeMySideFindRsp.getBirthday()).isEqualTo(friendUser.isBirthdayOpen() ? friendUser.getBirthday() : null);
-        assertThat(beforeMySideFindRsp.isSolar()).isEqualTo(friendUser.isSolar());
+        assertThat(beforeMySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeMySideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Check friend side
-        List<FindFriendsDto.Response> beforeFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> beforeFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(beforeFriendSideList.size()).isZero();
 
         /* 0-6. Block from my side */
@@ -565,50 +513,46 @@ class FriendServiceTest {
 
         /* 4. Find friend */
         // My side
-        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         FindFriendsDto.Response mySideFindRsp = mySideFindList.get(0);
         assertThat(mySideFindRsp).isNotNull();
-        assertThat(mySideFindRsp.getFriendId()).isEqualTo(friendUser.getId());
-        assertThat(mySideFindRsp.getName()).isEqualTo(friendUser.getName());
-        assertThat(mySideFindRsp.isBirthdayOpen()).isEqualTo(friendUser.isBirthdayOpen());
-        assertThat(mySideFindRsp.getBirthday()).isEqualTo(friendUser.isBirthdayOpen() ? friendUser.getBirthday() : null);
-        assertThat(mySideFindRsp.isSolar()).isEqualTo(friendUser.isSolar());
+        assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getStatus()).isEqualTo(FriendStatus.BLOCK);
 
         // Friend side
-        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(friendSideFindList).isNotNull();
         assertThat(friendSideFindList.size()).isZero();
 
         /* 4. Delete friend */
-        // 1) Delete from user side
-        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(user.getId(), friendUser.getId());
+        // 1) Delete from requestUserRsp side
+        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
         assertThat(mySideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromMySideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromMySideFriendSideList.size()).isZero();
 
         // 2) Delete from friend side
-        Long userId = user.getId();
-        Long friendId = friendUser.getId();
+        Long userId = requestUserRsp.getUserId();
+        Long friendId = acceptUserRsp.getUserId();
         assertThrows(
                 FriendNotFoundFriendException.class, () -> friendService.deleteFriend(friendId, userId)
         );
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromFriendSideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromFriendSideFriendSideList.size()).isZero();
     }
 
@@ -621,8 +565,8 @@ class FriendServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(user.getId(), friendUser.getId());
-        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(friendUser.getId(), user.getId());
+        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
 
         /* 0-3. Request friend for my side friend */
         RequestFriendDto.Response beforeRequestRsp = friendService.requestFriend(requestReq);
@@ -645,96 +589,112 @@ class FriendServiceTest {
 
         /* 3. Find friend */
         // My side
-        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         FindFriendsDto.Response mySideFindRsp = mySideFindList.get(0);
         assertThat(mySideFindRsp).isNotNull();
-        assertThat(mySideFindRsp.getFriendId()).isEqualTo(friendUser.getId());
-        assertThat(mySideFindRsp.getName()).isEqualTo(friendUser.getName());
-        assertThat(mySideFindRsp.isBirthdayOpen()).isEqualTo(friendUser.isBirthdayOpen());
-        assertThat(mySideFindRsp.getBirthday()).isEqualTo(friendUser.isBirthdayOpen() ? friendUser.getBirthday() : null);
-        assertThat(mySideFindRsp.isSolar()).isEqualTo(friendUser.isSolar());
+        assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Friend side
-        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(friendSideFindList).isNotNull();
         assertThat(friendSideFindList.size()).isOne();
 
         FindFriendsDto.Response friendSideFindRsp = friendSideFindList.get(0);
         assertThat(friendSideFindRsp).isNotNull();
-        assertThat(friendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(friendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(friendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(friendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(friendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(friendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(friendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 4. Delete friend */
-        // 1) Delete from user side
-        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(user.getId(), friendUser.getId());
+        // 1) Delete from requestUserRsp side
+        DeleteFriendDto.Response mySideDeleteRsp = friendService.deleteFriend(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
         assertThat(mySideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromMySideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         FindFriendsDto.Response deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
         assertThat(deleteFriendSideFindRsp).isNotNull();
-        assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(user.getId());
-        assertThat(deleteFriendSideFindRsp.getName()).isEqualTo(user.getName());
-        assertThat(deleteFriendSideFindRsp.isBirthdayOpen()).isEqualTo(user.isBirthdayOpen());
-        assertThat(deleteFriendSideFindRsp.getBirthday()).isEqualTo(user.isBirthdayOpen() ? user.getBirthday() : null);
-        assertThat(deleteFriendSideFindRsp.isSolar()).isEqualTo(user.isSolar());
+        assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(deleteFriendSideFindRsp.getStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // 2) Delete from friend side
-        DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(friendUser.getId(), user.getId());
+        DeleteFriendDto.Response friendSideDeleteRsp = friendService.deleteFriend(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
         assertThat(friendSideDeleteRsp).isNotNull();
 
         // Check my side
-        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(user.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
         assertThat(deleteFromFriendSideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(friendUser.getId());
+        List<FindFriendsDto.Response> deleteFromFriendSideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromFriendSideFriendSideList.size()).isZero();
     }
 
+    @Test
+    @Order(7)
+    @DisplayName("친구 수락 후 관련 알림 삭제 확인")
+    @Transactional
+    void checkNoticeAfterAcceptFriend() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        RequestFriendDto.Request requestReq = new RequestFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        AcceptFriendDto.Request acceptReq = new AcceptFriendDto.Request(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
+
+        /* 1. Request friend */
+        RequestFriendDto.Response requestRsp = friendService.requestFriend(requestReq);
+        assertThat(requestRsp).isNotNull();
+        
+        /* 2. Check notice before accept */
+        var beforeAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId());
+        assertThat(beforeAcceptUserNotices.size()).isOne();
+
+        var beforeAcceptUserNoticeRsp = beforeAcceptUserNotices.get(0);
+        assertThat(beforeAcceptUserNoticeRsp.getType()).isEqualTo(NoticeType.FRIEND_REQUEST);
+        assertThat(beforeAcceptUserNoticeRsp.getUser().getId()).isEqualTo(requestReq.getFriendUserId());
+        assertThat(beforeAcceptUserNoticeRsp.getValue()).isEqualTo(Long.toString(requestReq.getUserId()));
+
+        /* 3. Accept friend */
+        AcceptFriendDto.Response insertRsp = friendService.acceptFriend(acceptReq);
+        assertThat(insertRsp).isNotNull();
+
+        /* 4. Check notice after accept */
+        var afterAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId());
+        assertTrue(afterAcceptUserNotices.isEmpty());
+    }
+            
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
-        /* 0-1. Create user, friend */
-        user = userRepo.save(User.builder()
-                .snsId("user_snsId")
-                .snsType(1)
-                .pushToken("User Token")
-                .name("User")
-                .birthday("0724")
-                .solar(true)
-                .birthdayOpen(true)
-                .used(true)
-                .deviceOs(DeviceOs.ANDROID)
-                .role(UserRole.USER)
-                .build());
+        /* 1. Create RequestUser, AcceptUser */
+        var insertRequestUserReq = new InsertUserDto.Request(
+                1, "request_snsId", "request user Token",
+                "requestUser", "0519", true,
+                false, DeviceOs.IOS
+        );
+        requestUserRsp = userService.signUp(insertRequestUserReq);
+        assertThat(requestUserRsp).isNotNull();
+        assertThat(requestUserRsp.getUserId()).isNotNull();
+        assertThat(requestUserRsp.getPrivateRoomId()).isNotNull();
 
-        friendUser = userRepo.save(User.builder()
-                .snsId("Friend1_snsId")
-                .snsType(2)
-                .pushToken("Friend1 Token")
-                .name("Friend1")
-                .birthday("0519")
-                .solar(true)
-                .birthdayOpen(true)
-                .used(true)
-                .deviceOs(DeviceOs.IOS)
-                .role(UserRole.USER)
-                .build());
+        var insertAcceptUserReq = new InsertUserDto.Request(
+                1, "accept_user_snsId", "accept user Token",
+                "acceptUser", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+        acceptUserRsp = userService.signUp(insertAcceptUserReq);
+        assertThat(acceptUserRsp).isNotNull();
+        assertThat(acceptUserRsp.getUserId()).isNotNull();
+        assertThat(acceptUserRsp.getPrivateRoomId()).isNotNull();
     }
 }
