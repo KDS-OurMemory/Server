@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class FriendService {
     private final FriendRepository friendRepository;
 
-    // Add to work in rooms and user relationship tables
+    // Add to work in friend and user relationship tables
     private final UserRepository userRepo;
 
     // Add to FCM
@@ -176,12 +176,12 @@ public class FriendService {
 
         // Delete related notice
         // 1) Accept user
-        noticeService.findNotices(request.getUserId())
-                .forEach(acceptUserNotice -> {
-                    if (NoticeType.FRIEND_REQUEST.equals(acceptUserNotice.getType())
-                            && acceptUserNotice.getValue().equals(Long.toString(request.getFriendUserId()))
+        noticeService.findNotices(request.getUserId(), false)
+                .forEach(acceptUserNoticeRsp -> {
+                    if (NoticeType.FRIEND_REQUEST.equals(acceptUserNoticeRsp.getType())
+                            && acceptUserNoticeRsp.getValue().equals(Long.toString(request.getFriendUserId()))
                     ) {
-                        acceptUserNotice.deleteNotice();
+                        noticeService.deleteNotice(acceptUserNoticeRsp.getNoticeId());
                     }
                 });
 

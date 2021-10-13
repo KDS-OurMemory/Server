@@ -4,6 +4,7 @@ import com.kds.ourmemory.advice.v1.notice.exception.NoticeInternalServerExceptio
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundException;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundUserException;
 import com.kds.ourmemory.controller.v1.notice.dto.DeleteNoticeDto;
+import com.kds.ourmemory.controller.v1.notice.dto.FindNoticesDto;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
 import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.entity.user.User;
@@ -53,10 +54,16 @@ public class NoticeService {
                         "Not found user matched to userId: " + request.getUserId()));
     }
 
-    public List<Notice> findNotices(long userId) {
-        return new ArrayList<>(findNoticesByUserId(userId)
-                .map(notices1 -> notices1.stream().filter(Notice::getUsed).collect(toList()))
-                .orElseGet(ArrayList::new));
+    @Transactional
+    public List<FindNoticesDto.Response> findNotices(long userId, boolean isDelete) {
+        return findNoticesByUserId(userId)
+                .map(notices -> notices.stream().map(notice -> {
+                    if (isDelete) {
+                        notice.deleteNotice();
+                    }
+                    return new FindNoticesDto.Response(notice);
+                }).collect(toList()))
+                .orElseGet(ArrayList::new);
     }
 
     @Transactional
@@ -83,9 +90,15 @@ public class NoticeService {
     }
 
     private Optional<List<Notice>> findNoticesByUserId(Long userId) {
-        return Optional.ofNullable(noticeRepo.findAllByUserId(userId))
-                .filter(notices -> notices.isPresent() && !notices.get().isEmpty())
-                .orElseGet(Optional::empty);
+        List<Notice> notices = new ArrayList<>();
+
+        noticeRepo.findAllByUserId(userId)
+                .ifPresent(noticeList -> notices.addAll(
+                        noticeList.stream().filter(Notice::isUsed).collect(toList()))
+                );
+
+        return Optional.of(notices)
+                .filter(noticeList -> !noticeList.isEmpty());
     }
 
     private Optional<Notice> updateNotice(Notice notice) {
