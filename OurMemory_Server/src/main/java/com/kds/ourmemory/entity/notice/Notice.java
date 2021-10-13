@@ -38,7 +38,7 @@ public class Notice extends BaseTimeEntity implements Serializable {
     private String value;
 
     @Column(nullable = false, name = "notice_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
-    private Boolean used;
+    private boolean used;
 
     @Builder
     public Notice(User user, NoticeType type, String value) {

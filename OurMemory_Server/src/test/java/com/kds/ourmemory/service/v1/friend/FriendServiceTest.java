@@ -656,12 +656,11 @@ class FriendServiceTest {
         assertThat(requestRsp).isNotNull();
         
         /* 2. Check notice before accept */
-        var beforeAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId());
+        var beforeAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
         assertThat(beforeAcceptUserNotices.size()).isOne();
 
         var beforeAcceptUserNoticeRsp = beforeAcceptUserNotices.get(0);
         assertThat(beforeAcceptUserNoticeRsp.getType()).isEqualTo(NoticeType.FRIEND_REQUEST);
-        assertThat(beforeAcceptUserNoticeRsp.getUser().getId()).isEqualTo(requestReq.getFriendUserId());
         assertThat(beforeAcceptUserNoticeRsp.getValue()).isEqualTo(Long.toString(requestReq.getUserId()));
 
         /* 3. Accept friend */
@@ -669,7 +668,7 @@ class FriendServiceTest {
         assertThat(insertRsp).isNotNull();
 
         /* 4. Check notice after accept */
-        var afterAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId());
+        var afterAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
         assertTrue(afterAcceptUserNotices.isEmpty());
     }
             
