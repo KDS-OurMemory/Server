@@ -55,13 +55,16 @@ public class NoticeService {
     }
 
     @Transactional
-    public List<FindNoticesDto.Response> findNotices(long userId, boolean isDelete) {
+    public List<FindNoticesDto.Response> findNotices(long userId, boolean isReadProcessing) {
         return findNoticesByUserId(userId)
                 .map(notices -> notices.stream().map(notice -> {
-                    if (isDelete) {
-                        notice.deleteNotice();
+                    // new response before read processing
+                    var response = new FindNoticesDto.Response(notice);
+
+                    if (isReadProcessing) {
+                        notice.readNotice();
                     }
-                    return new FindNoticesDto.Response(notice);
+                    return response;
                 }).collect(toList()))
                 .orElseGet(ArrayList::new);
     }

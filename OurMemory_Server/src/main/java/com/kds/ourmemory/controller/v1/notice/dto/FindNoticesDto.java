@@ -23,6 +23,9 @@ public class FindNoticesDto {
         @ApiModelProperty(value = "알림 문자열 값", example = "99")
         private final String value;
 
+        @ApiModelProperty(value = "알림 읽음 여부", example = "true")
+        private final boolean read;
+
         @ApiModelProperty(value = "알림 생성 날짜", notes = "yyyy-MM-dd HH:mm:ss")
         private final String regDate;
 
@@ -30,6 +33,7 @@ public class FindNoticesDto {
             this.noticeId = notice.getId();
             this.type = notice.getType();
             this.value = notice.getValue();
+            this.read = notice.isRead();
             this.regDate = notice.formatRegDate();
         }
     }

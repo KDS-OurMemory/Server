@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -56,32 +57,31 @@ class NoticeServiceTest {
         assertThat(insertNoticeResponse2).isNotNull();
 
         /* 2. Find notices */
-        var responseList = noticeService.findNotices(insertUserRsp.getUserId(), false);
-        assertThat(responseList).isNotNull();
-        assertThat(responseList.isEmpty()).isFalse();
-        assertThat(responseList.size()).isEqualTo(2);
+        var findNoticesList = noticeService.findNotices(insertUserRsp.getUserId(), false);
+        assertThat(findNoticesList).isNotNull();
+        assertThat(findNoticesList.size()).isEqualTo(2);
 
-        for (FindNoticesDto.Response notice : responseList) {
-            assertThat(StringUtils.equals(notice.getValue(), "testValue1")
-                    || StringUtils.equals(notice.getValue(), "testValue2")).isTrue();
+        for (FindNoticesDto.Response findNoticesRsp : findNoticesList) {
+            assertThat(StringUtils.equals(findNoticesRsp.getValue(), "testValue1")
+                    || StringUtils.equals(findNoticesRsp.getValue(), "testValue2")).isTrue();
+            assertFalse(findNoticesRsp.isRead());
         }
 
         /* 3. Delete notice */
-        var deleteNoticeRsp = noticeService.deleteNotice(responseList.get(0).getNoticeId());
+        var deleteNoticeRsp = noticeService.deleteNotice(findNoticesList.get(0).getNoticeId());
         assertThat(deleteNoticeRsp).isNotNull();
 
         /* 4. Find notices after delete */
         var afterResponseList = noticeService.findNotices(insertUserRsp.getUserId(), false);
         assertThat(afterResponseList).isNotNull();
-        assertThat(afterResponseList.isEmpty()).isFalse();
         assertThat(afterResponseList.size()).isOne();
     }
 
     @Test
     @Order(2)
-    @DisplayName("조회된 알림 삭제 확인")
+    @DisplayName("조회된 알림 읽음 여부 확인")
     @Transactional
-    void checkDeleteAfterFindNotices() {
+    void checkReadAfterFindNotices() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -99,19 +99,22 @@ class NoticeServiceTest {
         assertThat(insertNoticeResponse2).isNotNull();
 
         /* 2. Find notices */
-        var responseList = noticeService.findNotices(insertUserRsp.getUserId(), true);
-        assertThat(responseList).isNotNull();
-        assertThat(responseList.isEmpty()).isFalse();
-        assertThat(responseList.size()).isEqualTo(2);
+        var findNoticesList = noticeService.findNotices(insertUserRsp.getUserId(), true);
+        assertThat(findNoticesList).isNotNull();
+        assertThat(findNoticesList.size()).isEqualTo(2);
 
-        for (FindNoticesDto.Response notice : responseList) {
-            assertThat(StringUtils.equals(notice.getValue(), "testValue1")
-                    || StringUtils.equals(notice.getValue(), "testValue2")).isTrue();
+        for (FindNoticesDto.Response findNoticesRsp : findNoticesList) {
+            assertFalse(findNoticesRsp.isRead());
         }
 
-        /* 3. Check delete after find notices */
+        /* 3. Check read after find notices */
         var afterFindNoticesList = noticeService.findNotices(insertUserRsp.getUserId(), true);
-        assertTrue(afterFindNoticesList.isEmpty());
+        assertThat(afterFindNoticesList).isNotNull();
+        assertThat(afterFindNoticesList.size()).isEqualTo(2);
+
+        for (FindNoticesDto.Response findNoticesRsp : afterFindNoticesList) {
+            assertTrue(findNoticesRsp.isRead());
+        }
     }
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
