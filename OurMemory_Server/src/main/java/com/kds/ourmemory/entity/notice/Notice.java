@@ -37,6 +37,9 @@ public class Notice extends BaseTimeEntity implements Serializable {
     @Column(nullable = false, name = "notice_value")
     private String value;
 
+    @Column(nullable = false, name = "notice_read_flag", columnDefinition = "boolean not null comment '0: 읽지 않음, 1: 읽음'")
+    private boolean read;
+
     @Column(nullable = false, name = "notice_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
     private boolean used;
 
@@ -49,8 +52,11 @@ public class Notice extends BaseTimeEntity implements Serializable {
         this.user = user;
         this.type = type;
         this.value = value;
+        this.read = false;
         this.used = true;
     }
+
+    public void readNotice() { this.read = true; }
 
     public void deleteNotice() {
         this.used = false;

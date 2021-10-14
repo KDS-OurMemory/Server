@@ -21,7 +21,7 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 public class NoticeController {
     private final NoticeService noticeService;
 
-    @ApiOperation(value = "알림 목록 조회", notes = "사용자 번호에 해당하는 알림 목록을 조회한다. 조회된 모든 알림은 삭제처리한다.")
+    @ApiOperation(value = "알림 목록 조회", notes = "사용자 번호에 해당하는 알림 목록을 조회한다. 조회된 모든 알림은 읽음처리한다.")
     @GetMapping("/{userId}")
     public ApiResult<List<FindNoticesDto.Response>> findNotices(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
