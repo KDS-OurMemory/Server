@@ -6,9 +6,11 @@ import com.kds.ourmemory.controller.v1.friend.dto.*;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
+import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.friend.FriendRepository;
+import com.kds.ourmemory.repository.notice.NoticeRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
 import com.kds.ourmemory.service.v1.firebase.FcmService;
 import com.kds.ourmemory.service.v1.notice.NoticeService;
@@ -22,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +33,9 @@ public class FriendService {
 
     // Add to work in friend and user relationship tables
     private final UserRepository userRepo;
+
+    // Add to work in friend and notice relationship tables
+    private final NoticeRepository noticeRepo;
 
     // Add to FCM
     private final FcmService fcmService;
@@ -174,16 +180,16 @@ public class FriendService {
         requestFriend.changeStatus(FriendStatus.FRIEND)
                 .orElseThrow(() -> new FriendInternalServerException("Failed to update for friend status data."));
 
-        // Delete related notice
-        // 1) Accept user
-        noticeService.findNotices(request.getUserId(), false)
-                .forEach(acceptUserNoticeRsp -> {
-                    if (NoticeType.FRIEND_REQUEST.equals(acceptUserNoticeRsp.getType())
-                            && acceptUserNoticeRsp.getValue().equals(Long.toString(request.getFriendUserId()))
+        // Read related notice from accept user
+        findNoticesByUserId(request.getUserId())
+                .ifPresent(notices -> notices.forEach(notice -> {
+                    if (NoticeType.FRIEND_REQUEST.equals(notice.getType())
+                            && notice.getValue().equals(Long.toString(request.getFriendUserId()))
                     ) {
-                        noticeService.deleteNotice(acceptUserNoticeRsp.getNoticeId());
+                        notice.readNotice();
                     }
-                });
+                })
+        );
 
         return new AcceptFriendDto.Response();
     }
@@ -302,5 +308,22 @@ public class FriendService {
      */
     private Optional<User> findUser(Long id) {
         return Optional.ofNullable(id).flatMap(userRepo::findById);
+    }
+
+    /**
+     * Notice Repository
+     * <p>
+     * When working with a service code, the service code is connected to each other
+     * and is caught in an infinite loop in the injection of dependencies.
+     */
+    private Optional<List<Notice>> findNoticesByUserId(Long userId) {
+        List<Notice> notices = new ArrayList<>();
+
+        noticeRepo.findAllByUserId(userId).ifPresent(noticeList -> notices.addAll(
+                noticeList.stream().filter(Notice::isUsed).collect(toList()))
+        );
+
+        return Optional.of(notices)
+                .filter(noticeList -> !noticeList.isEmpty());
     }
 }

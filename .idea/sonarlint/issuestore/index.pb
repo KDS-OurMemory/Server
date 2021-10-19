@@ -113,8 +113,6 @@ GOurMemory_Server/src/main/java/com/kds/ourmemory/config/S3Uploader.java,c\5\c5
 KOurMemory_Server/src/test/java/com/kds/ourmemory/config/S3UploaderTest.java,5\0\509cb26b244991a136c5e990b0131c4e042e7a34
 Å
 QOurMemory_Server/src/main/java/com/kds/ourmemory/service/v1/user/UserService.java,d\9\d9ddd83145c27c8b56b37803621aad7f5bb1b3b5
-ã
-[OurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/friend/FriendController.java,0\2\023c72121d0a07e8fb13356996f99091311dc9cf
 à
 XOurMemory_Server/src/main/java/com/kds/ourmemory/repository/notice/NoticeRepository.java,d\2\d2ee4b984329d92244cb2fbd07dae7aad020bf35
 v
@@ -123,7 +121,13 @@ FOurMemory_Server/src/main/java/com/kds/ourmemory/entity/room/Room.java,f\2\f20
 WOurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/room/RoomController.java,3\c\3c437999932ef238e9c726a738bcc5e51f51a4d4
 Å
 QOurMemory_Server/src/main/java/com/kds/ourmemory/service/v1/room/RoomService.java,e\5\e530f0a7d457ec61d051ff8769c9bba970fd09f9
-Ö
-UOurMemory_Server/src/main/java/com/kds/ourmemory/service/v1/friend/FriendService.java,a\7\a7ba3ebb632c879b576406f98e427f800b9ee8f8
 á
 WOurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/user/UserController.java,2\3\23d5cf6e7a59533f608ef6831efa19b1a7f84594
+z
+JOurMemory_Server/src/main/java/com/kds/ourmemory/entity/friend/Friend.java,3\8\38b8de1716a2cd21869aa53340f8b5bcd8f7b216
+v
+FOurMemory_Server/src/main/java/com/kds/ourmemory/entity/user/User.java,b\7\b729f301383d445fdf8cad7944d366cad23dba0d
+ç
+]OurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/notice/dto/FindNoticesDto.java,7\b\7ba68f9dde8f1558b18b4c30b4bd47355b2ca158
+â
+YOurMemory_Server/src/test/java/com/kds/ourmemory/service/v1/notice/NoticeServiceTest.java,7\5\752b0c553a462ccdedbe603e68207555a9e3ebdc

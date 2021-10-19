@@ -641,7 +641,7 @@ class FriendServiceTest {
 
     @Test
     @Order(7)
-    @DisplayName("친구 수락 후 관련 알림 삭제 확인")
+    @DisplayName("친구 수락 후 관련 알림 읽음 확인")
     @Transactional
     void checkNoticeAfterAcceptFriend() {
         /* 0-1. Set base data */
@@ -662,6 +662,7 @@ class FriendServiceTest {
         var beforeAcceptUserNoticeRsp = beforeAcceptUserNotices.get(0);
         assertThat(beforeAcceptUserNoticeRsp.getType()).isEqualTo(NoticeType.FRIEND_REQUEST);
         assertThat(beforeAcceptUserNoticeRsp.getValue()).isEqualTo(Long.toString(requestReq.getUserId()));
+        assertFalse(beforeAcceptUserNoticeRsp.isRead());
 
         /* 3. Accept friend */
         AcceptFriendDto.Response insertRsp = friendService.acceptFriend(acceptReq);
@@ -669,7 +670,12 @@ class FriendServiceTest {
 
         /* 4. Check notice after accept */
         var afterAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
-        assertTrue(afterAcceptUserNotices.isEmpty());
+        assertThat(afterAcceptUserNotices.size()).isOne();
+
+        var afterAcceptUserNoticeRsp = afterAcceptUserNotices.get(0);
+        assertThat(afterAcceptUserNoticeRsp.getType()).isEqualTo(NoticeType.FRIEND_REQUEST);
+        assertThat(afterAcceptUserNoticeRsp.getValue()).isEqualTo(Long.toString(requestReq.getUserId()));
+        assertTrue(afterAcceptUserNoticeRsp.isRead());
     }
             
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional

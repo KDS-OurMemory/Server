@@ -33,8 +33,7 @@ public class FriendController {
     }
 
     @ApiOperation(value = "친구 수락",
-            notes = "친구 요청을 수락하고 친구를 추가한다. " +
-                    "요청한 사람/요청받은 사람 모두 친구 추가를 진행하며 요청을 수락한 사용자 알림 중 친구 요청 알림을 삭제한다."
+            notes = "친구 요청을 수락하고 친구를 추가한다. 요청을 수락한 사용자 알림 중 친구 요청 알림을 읽음처리한다."
     )
     @PostMapping(value = "/accept")
     public ApiResult<AcceptFriendDto.Response> acceptFriend(@RequestBody AcceptFriendDto.Request request) {
