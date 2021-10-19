@@ -95,8 +95,7 @@ public class NoticeService {
     private Optional<List<Notice>> findNoticesByUserId(Long userId) {
         List<Notice> notices = new ArrayList<>();
 
-        noticeRepo.findAllByUserId(userId)
-                .ifPresent(noticeList -> notices.addAll(
+        noticeRepo.findAllByUserId(userId).ifPresent(noticeList -> notices.addAll(
                         noticeList.stream().filter(Notice::isUsed).collect(toList()))
                 );
 
