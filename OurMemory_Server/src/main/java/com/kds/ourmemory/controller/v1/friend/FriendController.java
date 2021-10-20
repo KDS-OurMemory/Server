@@ -26,7 +26,7 @@ public class FriendController {
         return ok(friendService.requestFriend(request));
     }
 
-    @ApiOperation(value = "친구 요청 취소", notes = "친구 요청을 취소한다.")
+    @ApiOperation(value = "친구 요청 취소", notes = "친구 요청을 취소한 뒤, 요청보낸 사용자의 친구요청 알림을 삭제한다.")
     @DeleteMapping(value = "/cancel")
     public ApiResult<CancelFriendDto.Response> cancelFriend(@RequestBody CancelFriendDto.Request request) {
         return ok(friendService.cancelFriend(request));

@@ -30,7 +30,7 @@ class FriendServiceTest {
 
     // Base data for test NoticeService
     private InsertUserDto.Response requestUserRsp;
-    
+
     private InsertUserDto.Response acceptUserRsp;
 
     /**
@@ -330,7 +330,7 @@ class FriendServiceTest {
         assertThat(deleteFromMySideMySideList.size()).isZero();
 
         // Check friend side
-        List<FindFriendsDto.Response> deleteFromMySideFriendSideList  = friendService.findFriends(acceptUserRsp.getUserId());
+        List<FindFriendsDto.Response> deleteFromMySideFriendSideList = friendService.findFriends(acceptUserRsp.getUserId());
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         FindFriendsDto.Response deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
@@ -579,7 +579,7 @@ class FriendServiceTest {
 
         /* 1. Request friend */
         assertThrows(
-            IllegalArgumentException.class, () -> friendService.requestFriend(requestReq)
+                IllegalArgumentException.class, () -> friendService.requestFriend(requestReq)
         );
 
         /* 2. Accept friend */
@@ -654,7 +654,7 @@ class FriendServiceTest {
         /* 1. Request friend */
         RequestFriendDto.Response requestRsp = friendService.requestFriend(requestReq);
         assertThat(requestRsp).isNotNull();
-        
+
         /* 2. Check notice before accept */
         var beforeAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
         assertThat(beforeAcceptUserNotices.size()).isOne();
@@ -677,7 +677,42 @@ class FriendServiceTest {
         assertThat(afterAcceptUserNoticeRsp.getValue()).isEqualTo(Long.toString(requestReq.getUserId()));
         assertTrue(afterAcceptUserNoticeRsp.isRead());
     }
-            
+
+    @Test
+    @Order(8)
+    @DisplayName("친구 요청 취소 후 알림 삭제 확인")
+    @Transactional
+    void cancelFriendRequestAndCheckDeleteNotice() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var requestReq = new RequestFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        var cancelReq = new CancelFriendDto.Request(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+
+        /* 1. Request friend */
+        var requestRsp = friendService.requestFriend(requestReq);
+        assertThat(requestRsp).isNotNull();
+
+        /* 2. Check notice before cancel */
+        var beforeCancelUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
+        assertThat(beforeCancelUserNotices.size()).isOne();
+
+        var beforeAcceptUserNoticeRsp = beforeCancelUserNotices.get(0);
+        assertThat(beforeAcceptUserNoticeRsp.getType()).isEqualTo(NoticeType.FRIEND_REQUEST);
+        assertThat(beforeAcceptUserNoticeRsp.getValue()).isEqualTo(Long.toString(requestReq.getUserId()));
+        assertFalse(beforeAcceptUserNoticeRsp.isRead());
+
+        /* 3. Cancel friend request */
+        var cancelFriendRsp = friendService.cancelFriend(cancelReq);
+        assertThat(cancelFriendRsp).isNotNull();
+
+        /* 4. Check notice after cancel */
+        var afterAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
+        assertTrue(afterAcceptUserNotices.isEmpty());
+    }
+
+
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {

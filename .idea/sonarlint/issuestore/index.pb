@@ -47,8 +47,6 @@ XOurMemory_Server/src/test/java/com/kds/ourmemory/service/v1/firebase/FcmService
 YOurMemory_Server/src/test/java/com/kds/ourmemory/service/v1/memory/MemoryServiceTest.java,3\7\372463252ccbab34a6398f95c53bb272d078eeec
 v
 FOurMemory_Server/src/main/java/com/kds/ourmemory/config/WebConfig.java,9\c\9cdfa293baa33e04d9cd654779285f240965087c
-‡
-WOurMemory_Server/src/main/java/com/kds/ourmemory/advice/v1/friend/FriendResultCode.java,4\7\47f8b33191db124e82574ca2ab24cf6256959e77
 ƒ
 SOurMemory_Server/src/main/java/com/kds/ourmemory/advice/v1/room/RoomResultCode.java,f\c\fc7dcdec7d66f68f066d28c97833727110e18560
 ‰
@@ -131,3 +129,5 @@ FOurMemory_Server/src/main/java/com/kds/ourmemory/entity/user/User.java,b\7\b72
 ]OurMemory_Server/src/main/java/com/kds/ourmemory/controller/v1/notice/dto/FindNoticesDto.java,7\b\7ba68f9dde8f1558b18b4c30b4bd47355b2ca158
 ‰
 YOurMemory_Server/src/test/java/com/kds/ourmemory/service/v1/notice/NoticeServiceTest.java,7\5\752b0c553a462ccdedbe603e68207555a9e3ebdc
+…
+UOurMemory_Server/src/main/java/com/kds/ourmemory/service/v1/notice/NoticeService.java,b\0\b0b191e169c00c3be4576dca61222f9a4b033c3f
