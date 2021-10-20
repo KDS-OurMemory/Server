@@ -112,15 +112,23 @@ public class FriendService {
                 });
     }
 
+    @Transactional
     public CancelFriendDto.Response cancelFriend(CancelFriendDto.Request request) {
         // Check my side
-        var mySideFriend = findFriend(request.getUserId(), request.getFriendUserId())
+        findFriend(request.getUserId(), request.getFriendUserId())
                 .map(friend -> {
                     FriendStatus status = friend.getStatus();
-                    if (status.equals(FriendStatus.FRIEND) || status.equals(FriendStatus.BLOCK))
+                    if (status.equals(FriendStatus.FRIEND) || status.equals(FriendStatus.BLOCK)) {
                         throw new FriendInternalServerException(
                                 String.format(USER_ALREADY_FRIEND, request.getFriendUserId())
                         );
+                    } else if (!FriendStatus.WAIT.equals(status)) {
+                        throw new FriendStatusException(
+                                String.format(STATUS_ERROR_MESSAGE, FriendStatus.WAIT, status)
+                        );
+                    }
+
+                    deleteFriend(friend);
 
                     return friend;
                 })
@@ -134,15 +142,29 @@ public class FriendService {
         return findFriend(request.getFriendUserId(), request.getUserId())
                 .map(friend -> {
                     FriendStatus status = friend.getStatus();
-                    if (status.equals(FriendStatus.FRIEND)) {
-                        throw new FriendInternalServerException(
+                    switch (status) {
+                        case REQUESTED_BY -> {
+                            deleteFriend(friend);
+
+                            // Delete friend request notice from accepted user
+                            noticeService.findNotices(friend.getUser().getId(), false)
+                                    .forEach(findNoticesRsp -> {
+                                        if (NoticeType.FRIEND_REQUEST.equals(findNoticesRsp.getType())
+                                                && findNoticesRsp.getValue().equals(Long.toString(friend.getFriendUser().getId()))
+                                        ) {
+                                            noticeService.deleteNotice(findNoticesRsp.getNoticeId());
+                                        }
+                                    });
+                        }
+                        case BLOCK -> {
+                        }
+                        case FRIEND -> throw new FriendInternalServerException(
                                 String.format(USER_ALREADY_FRIEND, request.getUserId())
                         );
-                    } else if (status.equals(FriendStatus.WAIT) || status.equals(FriendStatus.REQUESTED_BY)) {
-                        deleteFriend(friend);
+                        default -> throw new FriendStatusException(
+                                String.format(STATUS_ERROR_MESSAGE, FriendStatus.REQUESTED_BY, status)
+                        );
                     }
-
-                    deleteFriend(mySideFriend);
 
                     return new CancelFriendDto.Response();
                 })
@@ -183,13 +205,13 @@ public class FriendService {
         // Read related notice from accept user
         findNoticesByUserId(request.getUserId())
                 .ifPresent(notices -> notices.forEach(notice -> {
-                    if (NoticeType.FRIEND_REQUEST.equals(notice.getType())
-                            && notice.getValue().equals(Long.toString(request.getFriendUserId()))
-                    ) {
-                        notice.readNotice();
-                    }
-                })
-        );
+                            if (NoticeType.FRIEND_REQUEST.equals(notice.getType())
+                                    && notice.getValue().equals(Long.toString(request.getFriendUserId()))
+                            ) {
+                                notice.readNotice();
+                            }
+                        })
+                );
 
         return new AcceptFriendDto.Response();
     }
@@ -240,16 +262,16 @@ public class FriendService {
     public PatchFriendStatusDto.Response patchFriendStatus(PatchFriendStatusDto.Request request) {
         return findFriend(request.getUserId(), request.getFriendUserId())
                 .map(friend ->
-                    Optional.ofNullable(request.getStatus())
-                            .filter(status -> !(status.equals(FriendStatus.WAIT)|| status.equals(FriendStatus.REQUESTED_BY)))
-                            .map(status -> {
-                                friend.changeStatus(status);
-                                updateFriend(friend);
-                                return new PatchFriendStatusDto.Response();
-                            })
-                            .orElseThrow(() -> new FriendStatusException(
-                                    String.format("Friend status cannot be '%s' and '%s'", FriendStatus.WAIT, FriendStatus.REQUESTED_BY))
-                            )
+                        Optional.ofNullable(request.getStatus())
+                                .filter(status -> !(status.equals(FriendStatus.WAIT) || status.equals(FriendStatus.REQUESTED_BY)))
+                                .map(status -> {
+                                    friend.changeStatus(status);
+                                    updateFriend(friend);
+                                    return new PatchFriendStatusDto.Response();
+                                })
+                                .orElseThrow(() -> new FriendStatusException(
+                                        String.format("Friend status cannot be '%s' and '%s'", FriendStatus.WAIT, FriendStatus.REQUESTED_BY))
+                                )
                 )
                 .orElseThrow(() -> new FriendNotFoundFriendException(
                                 String.format(NOT_FOUND_FRIEND_MESSAGE, request.getUserId(), request.getFriendUserId())
