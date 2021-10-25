@@ -38,8 +38,8 @@
     `참여자가 전부 포함된 방이 있다면, 해당 방에 입장하여 일정을 생성해보세요. 입장한 방에 일정이 추가됩니다.`
 
 ## 4. ERD
-https://www.erdcloud.com/d/ytjrK9nTH9vmHjeFA
-![ERD](https://user-images.githubusercontent.com/43669379/137326946-89598098-efe9-4f21-b312-687a199df0c6.png)
+https://www.erdcloud.com/d/eKXiLkBGXpt5pm4Fo
+![ERD](https://user-images.githubusercontent.com/43669379/138722168-fdc264b0-4a3a-42cd-86bf-e3d067f47c50.png)
 
 ## 5. CI&CD(서버 만료, 재구축 예정)
  * Jenkins http://34.64.158.97/
