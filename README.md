@@ -39,7 +39,7 @@
 
 ## 4. ERD
 https://www.erdcloud.com/d/eKXiLkBGXpt5pm4Fo
-![ERD](https://user-images.githubusercontent.com/43669379/138722168-fdc264b0-4a3a-42cd-86bf-e3d067f47c50.png)
+![ERD](https://user-images.githubusercontent.com/43669379/139289642-b6817fe1-616d-4cfe-9fc0-4fa50331f822.png)
 
 ## 5. CI&CD(서버 만료, 재구축 예정)
  * Jenkins http://34.64.158.97/
