@@ -1,4 +1,4 @@
-package com.kds.ourmemory.advice.v1.todolist;
+package com.kds.ourmemory.advice.v1.todo;
 
 import com.kds.ourmemory.advice.v1.ResultCode;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum TodolistResultCode implements ResultCode {
+public enum TodoResultCode implements ResultCode {
     /* Custom Error */
     // TODO: 로직 생성 후 커스텀 추가
 
