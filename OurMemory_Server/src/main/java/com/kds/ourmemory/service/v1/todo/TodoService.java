@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalQueries;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -77,7 +78,9 @@ public class TodoService {
         return findTodos.stream()
                 .filter(Todo::isUsed)
                 .filter(todo -> todo.getTodoDate().isAfter(LocalDateTime.now().minusDays(1))) // filtering past
-                .filter(todo -> todo.getTodoDate().isBefore(LocalDateTime.now().plusDays(2))) // filtering 2days more
+                .filter(todo -> todo.getTodoDate().isBefore(
+                        LocalDateTime.now().plusDays(2).query(TemporalQueries.localDate()).atStartOfDay()) // filtering 2days more
+                )
                 .sorted(
                         Comparator.comparing(Todo::getTodoDate)
                                 .thenComparing(Todo::getRegDate)

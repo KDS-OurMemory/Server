@@ -146,12 +146,11 @@ class TodoServiceTest {
         /* 2. Find todos */
         var findTodosList = todoService.findTodos(insertWriterRsp.getUserId());
         // 1 => past todoDate -> expect not found.
-        assertThat(findTodosList.size()).isEqualTo(3);
+        assertThat(findTodosList.size()).isEqualTo(2);
 
-        // Expect order (1: not found) -> 3 -> 4 -> 2
+        // Expect order (1: not found) -> 3 -> 4 -> (2: not found)
         assertThat(findTodosList.get(0).getTodoId()).isEqualTo(insertTodoRsp3.getTodoId());
         assertThat(findTodosList.get(1).getTodoId()).isEqualTo(insertTodoRsp4.getTodoId());
-        assertThat(findTodosList.get(2).getTodoId()).isEqualTo(insertTodoRsp2.getTodoId());
     }
 
     @Test
