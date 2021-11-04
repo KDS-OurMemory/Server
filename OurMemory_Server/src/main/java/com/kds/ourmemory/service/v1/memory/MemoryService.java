@@ -91,13 +91,15 @@ public class MemoryService {
                     // Relation memory and private room
                     var roomId = relationMemoryToPrivateRoom(memory, memory.getWriter().getPrivateRoomId());
 
-                    // Share memory to room
-                    roomId = Optional.ofNullable(request.getRoomId())
-                            .map(shareRoomId -> {
-                                shareMemoryToRooms(memory, Stream.of(shareRoomId).collect(toList()));
-                                return shareRoomId;
-                            })
-                            .orElse(roomId);
+                    // Share memory to room only not private room
+                    if (!memory.getWriter().getPrivateRoomId().equals(request.getRoomId())) {
+                        roomId = Optional.ofNullable(request.getRoomId())
+                                .map(shareRoomId -> {
+                                    shareMemoryToRooms(memory, Stream.of(shareRoomId).collect(toList()));
+                                    return shareRoomId;
+                                })
+                                .orElse(roomId);
+                    }
 
                     return new InsertMemoryDto.Response(memory, roomId);
                 })

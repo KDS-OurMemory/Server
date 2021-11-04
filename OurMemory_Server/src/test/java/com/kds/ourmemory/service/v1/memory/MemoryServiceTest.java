@@ -7,6 +7,7 @@ import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
+import com.kds.ourmemory.service.v1.notice.NoticeService;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import com.kds.ourmemory.service.v1.user.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,9 @@ class MemoryServiceTest {
     private InsertRoomDto.Response insertRoomRsp;
 
     @Autowired
-    private MemoryServiceTest(MemoryService memoryService, UserService userService, RoomService roomService) {
+    private MemoryServiceTest(
+            MemoryService memoryService, UserService userService, RoomService roomService
+    ) {
         this.memoryService = memoryService;
         this.userService = userService;
         this.roomService = roomService;
@@ -71,7 +74,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -85,7 +88,7 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
@@ -97,7 +100,7 @@ class MemoryServiceTest {
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
         assertThat(findMemoriesList).isNotNull();
 
-        FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
+        var findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
@@ -113,7 +116,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 null,
                 "Test Memory",
@@ -127,7 +130,7 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertWriterRsp.getPrivateRoomId());
@@ -139,7 +142,7 @@ class MemoryServiceTest {
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
         assertThat(findMemoriesList).isNotNull();
 
-        FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
+        var findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
@@ -148,6 +151,35 @@ class MemoryServiceTest {
 
     @Test
     @Order(3)
+    @DisplayName("일정 추가 -> 개인방")
+    @Transactional
+    void addMemoryInPrivateRoom() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertMemoryReq = new InsertMemoryDto.Request(
+                insertWriterRsp.getUserId(),
+                insertWriterRsp.getPrivateRoomId(),
+                "Test Memory",
+                "Test Contents",
+                "Test Place",
+                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
+                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
+                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
+                null,       // 두 번째 알림
+                "#FFFFFF"  // 배경색
+        );
+
+        /* 1. Make memory to private room */
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        assertThat(insertMemoryRsp).isNotNull();
+        assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
+        assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertWriterRsp.getPrivateRoomId());
+    }
+
+    @Test
+    @Order(4)
     @DisplayName("일정 참석")
     @Transactional
     void attendMemory() {
@@ -155,7 +187,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -169,7 +201,7 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
@@ -181,7 +213,7 @@ class MemoryServiceTest {
         assertTrue(beforeFindMemoryRsp.getUserAttendances().isEmpty());
 
         /* 3. Attend memory of member */
-        AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
+        var attendRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ATTEND);
         assertThat(attendRsp).isNotNull();
 
@@ -193,7 +225,7 @@ class MemoryServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("일정 불참")
     @Transactional
     void attendanceMemory() {
@@ -201,7 +233,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -215,7 +247,7 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
@@ -227,7 +259,7 @@ class MemoryServiceTest {
         assertTrue(beforeFindMemoryRsp.getUserAttendances().isEmpty());
 
         /* 3. Absence memory of member */
-        AttendMemoryDto.Response attendRsp = memoryService.setAttendanceStatus(
+        var attendRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ABSENCE);
         assertThat(attendRsp).isNotNull();
 
@@ -239,7 +271,7 @@ class MemoryServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("일정 공유 - 개별 사용자 목록")
     @Transactional
     void shareMemoryForUsers() {
@@ -247,7 +279,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -265,7 +297,7 @@ class MemoryServiceTest {
                 "member2", "0527", true,
                 false, DeviceOs.IOS
         );
-        InsertUserDto.Response insertMemberRsp2 = userService.signUp(insertMember2Req);
+        var insertMemberRsp2 = userService.signUp(insertMember2Req);
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
         assertThat(insertMemberRsp2.getPrivateRoomId()).isNotNull();
@@ -334,7 +366,7 @@ class MemoryServiceTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     @DisplayName("일정 공유 - 사용자 그룹")
     @Transactional
     void shareMemoryForUserGroup() {
@@ -342,7 +374,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -360,7 +392,7 @@ class MemoryServiceTest {
                 "member2", "0527", true,
                 false, DeviceOs.IOS
         );
-        InsertUserDto.Response insertMemberRsp2 = userService.signUp(insertMember2Req);
+        var insertMemberRsp2 = userService.signUp(insertMember2Req);
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
         assertThat(insertMemberRsp2.getPrivateRoomId()).isNotNull();
@@ -429,7 +461,7 @@ class MemoryServiceTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     @DisplayName("일정 공유 - 방 목록")
     @Transactional
     void shareMemoryForRooms() {
@@ -437,7 +469,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -494,7 +526,7 @@ class MemoryServiceTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     @DisplayName("일정 삭제 - 공유방")
     @Transactional
     void deleteMemoryFromShareRoom() {
@@ -502,7 +534,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -515,13 +547,13 @@ class MemoryServiceTest {
                 "#FFFFFF"  // 배경색
         );
 
-        DeleteMemoryDto.Request deleteMemoryReq = new DeleteMemoryDto.Request(
+        var deleteMemoryReq = new DeleteMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId()
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
@@ -533,14 +565,14 @@ class MemoryServiceTest {
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
         assertThat(findMemoriesList).isNotNull();
 
-        FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
+        var findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
         assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
 
         /* 3. Delete memory from share room */
-        DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
+        var deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
         assertThat(deleteRsp).isNotNull();
 
         /* 4. Find memory after delete */
@@ -558,7 +590,7 @@ class MemoryServiceTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     @DisplayName("일정 삭제 - 개인방")
     @Transactional
     void deleteMemoryFromPrivateRoom() {
@@ -566,7 +598,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -579,13 +611,13 @@ class MemoryServiceTest {
                 "#FFFFFF"  // 배경색
         );
 
-        DeleteMemoryDto.Request deleteMemoryReq = new DeleteMemoryDto.Request(
+        var deleteMemoryReq = new DeleteMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertWriterRsp.getPrivateRoomId()
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
@@ -597,14 +629,14 @@ class MemoryServiceTest {
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
         assertThat(findMemoriesList).isNotNull();
 
-        FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
+        var findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
         assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
 
         /* 3. Delete memory from private room */
-        DeleteMemoryDto.Response deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
+        var deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
         assertThat(deleteRsp).isNotNull();
 
         /* 4. Find memory after delete */
@@ -624,7 +656,7 @@ class MemoryServiceTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     @DisplayName("일정 수정 - 작성자")
     @Transactional
     void updateMemoryByWriter() {
@@ -632,7 +664,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -645,7 +677,7 @@ class MemoryServiceTest {
                 "#FFFFFF"  // 배경색
         );
 
-        UpdateMemoryDto.Request updateReq = new UpdateMemoryDto.Request(
+        var updateReq = new UpdateMemoryDto.Request(
                 "Update memory name",
                 "Update contents",
                 "Update place",
@@ -657,7 +689,7 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
@@ -669,32 +701,32 @@ class MemoryServiceTest {
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
         assertThat(findMemoriesList).isNotNull();
 
-        FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
+        var findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
         assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
 
         /* 3. Find before update */
-        FindMemoryDto.Response beforeFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
+        var beforeFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
         assertThat(beforeFindRsp).isNotNull();
         assertThat(beforeFindRsp.getName()).isEqualTo(insertMemoryRsp.getName());
         assertThat(beforeFindRsp.getContents()).isEqualTo(insertMemoryRsp.getContents());
 
         /* 4. Update */
-        UpdateMemoryDto.Response updateRsp = memoryService.update(
+        var updateRsp = memoryService.update(
                 insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), updateReq);
         assertThat(updateRsp).isNotNull();
 
         /* 5. Find after update */
-        FindMemoryDto.Response afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
+        var afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
         assertThat(afterFindRsp).isNotNull();
         assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
         assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
     }
 
     @Test
-    @Order(10)
+    @Order(12)
     @DisplayName("일정 수정 - 작성자 외 다른 사람")
     @Transactional
     void updateMemoryByOther() {
@@ -702,7 +734,7 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertMemoryDto.Request insertMemoryReq = new InsertMemoryDto.Request(
+        var insertMemoryReq = new InsertMemoryDto.Request(
                 insertWriterRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -715,7 +747,7 @@ class MemoryServiceTest {
                 "#FFFFFF"  // 배경색
         );
 
-        UpdateMemoryDto.Request updateReq = new UpdateMemoryDto.Request(
+        var updateReq = new UpdateMemoryDto.Request(
                 "Update memory name",
                 "Update contents",
                 "Update place",
@@ -727,7 +759,7 @@ class MemoryServiceTest {
         );
 
         /* 1. Make memory */
-        InsertMemoryDto.Response insertMemoryRsp = memoryService.insert(insertMemoryReq);
+        var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
         assertThat(insertMemoryRsp.getWriterId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
@@ -739,7 +771,7 @@ class MemoryServiceTest {
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
         assertThat(findMemoriesList).isNotNull();
 
-        FindMemoriesDto.Response findMemoriesRsp = findMemoriesList.get(0);
+        var findMemoriesRsp = findMemoriesList.get(0);
         assertThat(findMemoriesRsp).isNotNull();
         assertThat(findMemoriesRsp.getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
         assertThat(findMemoriesRsp.getShareRooms()).isNotNull();
@@ -754,7 +786,7 @@ class MemoryServiceTest {
     }
 
     @Test
-    @Order(11)
+    @Order(13)
     @DisplayName("일정 목록 조회")
     @Transactional
     void findMemories() {
