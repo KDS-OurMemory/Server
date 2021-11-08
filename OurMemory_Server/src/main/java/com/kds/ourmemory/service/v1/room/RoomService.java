@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class RoomService {
     private final RoomRepository roomRepo;
-    
+
     // Add to work in rooms and user relationship tables
     private final UserRepository userRepo;
 
@@ -34,17 +34,17 @@ public class RoomService {
     private final FcmService fcmService;
 
     private static final String NOT_FOUND_MESSAGE = "Not found '%s' matched id: %d";
-    
+
     private static final String ALREADY_OWNER_MESSAGE = "User '%d' is already owner room '%d'.";
 
     private static final String NOT_INSERTED_MESSAGE = "%s '%s' insert failed.";
 
     private static final String MEMORY = "memory";
-    
+
     private static final String ROOM = "room";
-    
+
     private static final String USER = "user";
-    
+
     private static final String MEMBER = "member";
 
     @Transactional
@@ -79,25 +79,25 @@ public class RoomService {
     private Room addMemberToRoom(Room room, List<Long> members) {
         Optional.ofNullable(members)
                 .ifPresent(mem -> mem.forEach(id ->
-                        findUser(id).map(user -> {
-                                user.addRoom(room);
-                                room.addUser(user);
+                                findUser(id).map(user -> {
+                                            user.addRoom(room);
+                                            room.addUser(user);
 
-                                fcmService.sendMessageTo(
-                                        new FcmDto.Request(
-                                                user.getPushToken(), user.getDeviceOs(),
-                                            "OurMemory - 방 참여", String.format("'%s' 방에 초대되셨습니다.", room.getName())
+                                            fcmService.sendMessageTo(
+                                                    new FcmDto.Request(
+                                                            user.getPushToken(), user.getDeviceOs(),
+                                                            "OurMemory - 방 참여", String.format("'%s' 방에 초대되셨습니다.", room.getName())
+                                                    )
+                                            );
+                                            return user;
+                                        })
+                                        .orElseThrow(() -> new RoomNotFoundMemberException(
+                                                        String.format(NOT_FOUND_MESSAGE, MEMBER, id)
+                                                )
                                         )
-                                );
-                                return user;
-                        })
-                        .orElseThrow(() -> new RoomNotFoundMemberException(
-                                        String.format(NOT_FOUND_MESSAGE, MEMBER, id)
-                                )
                         )
-                )
-        );
-        
+                );
+
         return room;
     }
 
@@ -143,7 +143,12 @@ public class RoomService {
         List<Room> findRooms = new ArrayList<>();
 
         findUser(userId).ifPresent(
-                user -> findRooms.addAll(user.getRooms().stream().filter(Room::isUsed).collect(toList()))
+                user -> findRooms.addAll(
+                        user.getRooms().stream().filter(
+                                        room -> room.isUsed() && !room.getId().equals(user.getPrivateRoomId())
+                                )
+                                .collect(toList())
+                )
         );
         findRoomsByName(name).ifPresent(
                 rooms -> findRooms.addAll(rooms.stream().filter(Room::isUsed).collect(toList()))
@@ -162,7 +167,7 @@ public class RoomService {
                 .map(room -> {
                     long beforeOwnerId = room.getOwner().getId();
 
-                    for (var member: room.getUsers()) {
+                    for (var member : room.getUsers()) {
                         Optional.of(member).filter(m -> m.getId() == userId)
                                 .ifPresent(owner -> {
                                     if (room.getOwner().equals(owner)) {
@@ -185,21 +190,21 @@ public class RoomService {
                 })
                 .map(room -> new PatchRoomOwnerDto.Response())
                 .orElseThrow(() -> new RoomNotFoundException(
-                        String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
-                    )
+                                String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
+                        )
                 );
     }
 
     @Transactional
     public UpdateRoomDto.Response update(long roomId, UpdateRoomDto.Request request) {
         return findRoom(roomId).map(room ->
-                room.updateRoom(request)
-                        .map(r -> new UpdateRoomDto.Response())
-                        .orElseThrow(() -> new RoomInternalServerException("Failed to update for room data."))
-        )
-        .orElseThrow(
-                () -> new RoomNotFoundException(String.format(NOT_FOUND_MESSAGE, ROOM, roomId))
-        );
+                        room.updateRoom(request)
+                                .map(r -> new UpdateRoomDto.Response())
+                                .orElseThrow(() -> new RoomInternalServerException("Failed to update for room data."))
+                )
+                .orElseThrow(
+                        () -> new RoomNotFoundException(String.format(NOT_FOUND_MESSAGE, ROOM, roomId))
+                );
     }
 
     @Transactional
@@ -226,14 +231,14 @@ public class RoomService {
                         )
                 );
     }
-    
+
     /**
      * Room Repository
      */
     private Optional<Room> insertRoom(Room room) {
         return Optional.of(roomRepo.save(room));
     }
-    
+
     private Optional<Room> findRoom(Long id) {
         return Optional.ofNullable(id).flatMap(roomId -> roomRepo.findById(roomId).filter(Room::isUsed));
     }
@@ -244,8 +249,8 @@ public class RoomService {
 
     /**
      * User Repository
-     * 
-     * When working with a service code, the service code is connected to each other 
+     * <p>
+     * When working with a service code, the service code is connected to each other
      * and is caught in an infinite loop in the injection of dependencies.
      */
     private Optional<User> findUser(Long id) {

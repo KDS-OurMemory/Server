@@ -12,7 +12,6 @@ import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
 import com.kds.ourmemory.service.v1.user.UserService;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Slf4j
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -96,9 +94,6 @@ class RoomServiceTest {
         findRooms = roomService.findRooms(null, "TestRoom");
         assertThat(findRooms).isNotNull();
         assertThat(findRooms.size()).isOne();
-
-        log.info("[Create_Read_Update_Delete] Find rooms");
-        findRooms.forEach(room -> log.info(room.toString()));
 
         /* 3. Find before update */
         FindRoomDto.Response beforeFindRsp = roomService.find(insertRoomRsp.getRoomId());
@@ -214,13 +209,35 @@ class RoomServiceTest {
         /* 5. Find room */
         var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
         assertThat(findRoomRsp).isNotNull();
-        log.debug("==========================================================");
-        log.debug(findRoomRsp.toString());
-        log.debug("==========================================================");
     }
 
     @Test
     @Order(3)
+    @DisplayName("방 목록 조회")
+    @Transactional
+    void findRooms() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = new InsertRoomDto.Request(
+                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getMembers()).isNotNull();
+        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
+
+        /* 2. Find rooms and check private room not found */
+        var findRoomsRsp = roomService.findRooms(insertOwnerRsp.getUserId(), null);
+        assertThat(findRoomsRsp).isNotNull();
+        assertThat(findRoomsRsp.size()).isOne();
+        assertThat(findRoomsRsp.get(0).getRoomId()).isEqualTo(insertRoomRsp.getRoomId());
+    }
+
+    @Test
+    @Order(4)
     @DisplayName("방 삭제 -> 공유방")
     @Transactional
     void deleteShareRoom() {
@@ -356,7 +373,7 @@ class RoomServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("방 삭제 -> 개인방")
     @Transactional
     void deletePrivateRoom() {
@@ -416,7 +433,7 @@ class RoomServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @DisplayName("방장 양도")
     @Transactional
     void patchOwner() {
