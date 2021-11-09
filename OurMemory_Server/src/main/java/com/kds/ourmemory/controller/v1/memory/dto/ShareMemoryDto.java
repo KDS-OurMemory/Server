@@ -39,10 +39,4 @@ public class ShareMemoryDto {
         ;
         private final String desc;
     }
-
-    @ApiModel(value = "ShareMemoryDto.Response", description = "nested class in ShareMemoryDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-    }
 }

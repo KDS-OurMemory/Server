@@ -23,13 +23,13 @@ public class MemoryController {
 
     @ApiOperation(value = "일정 추가", notes = "일정을 개인방에 추가한 뒤 추가할 방에 공유한다. 추가/공유 둘다 동일한 기능으로 일정-방 관계데이터를 만들어준다.")
     @PostMapping
-    public ApiResult<InsertMemoryDto.Response> insert(@RequestBody InsertMemoryDto.Request request) {
+    public ApiResult<MemoryDto> insert(@RequestBody InsertMemoryDto.Request request) {
         return ok(memoryService.insert(request));
     }
 
     @ApiOperation(value = "일정 개별 조회")
     @GetMapping("/{memoryId}/room/{roomId}")
-    public ApiResult<FindMemoryDto.Response> findMemory(
+    public ApiResult<MemoryDto> findMemory(
             @PathVariable long memoryId,
             @PathVariable long roomId
     ) {
@@ -38,7 +38,7 @@ public class MemoryController {
 
     @ApiOperation(value = "일정 목록 조회", notes = "조건에 맞는 일정을 검색한다. 일정 시작시간 -> 일정 생성시간 순으로 정렬된다.")
     @GetMapping
-    public ApiResult<List<FindMemoriesDto.Response>> findMemories(
+    public ApiResult<List<MemoryDto>> findMemories(
             @ApiParam(value = "일정 작성자 번호") @RequestParam(required = false) Long writerId,
             @ApiParam(value = "일정 제목") @RequestParam(required = false) String name
     ) {
@@ -47,7 +47,7 @@ public class MemoryController {
 
     @ApiOperation(value = "일정 수정", notes = "전달받은 값이 있는 경우 수정")
     @PutMapping("/{memoryId}/writer/{userId}")
-    public ApiResult<UpdateMemoryDto.Response> update(
+    public ApiResult<MemoryDto> update(
             @PathVariable long memoryId,
             @PathVariable long userId,
             @RequestBody UpdateMemoryDto.Request request
@@ -57,7 +57,7 @@ public class MemoryController {
 
     @ApiOperation(value = "일정 참석 여부 설정", notes = "일정에 참석/불참 여부 설정, 사용자-일정 관계 테이블에 레코드를 추가하는 방식으로 설정함.")
     @PostMapping("/{memoryId}/attendance/{userId}/{status}")
-    public ApiResult<AttendMemoryDto.Response> setAttend(
+    public ApiResult<MemoryDto> setAttend(
             @PathVariable long memoryId,
             @PathVariable long userId,
             @PathVariable AttendanceStatus status
@@ -73,7 +73,7 @@ public class MemoryController {
                     3. 기존 방에 공유: 전달받은 각각의 방에 일정 공유"""
     )
     @PostMapping("/{memoryId}/share/{userId}")
-    public ApiResult<ShareMemoryDto.Response> shareMemory(
+    public ApiResult<MemoryDto> shareMemory(
             @PathVariable long memoryId,
             @PathVariable long userId,
             @RequestBody ShareMemoryDto.Request request
@@ -86,7 +86,7 @@ public class MemoryController {
             1. 공유방에서 삭제 -> 일정-방 관계 삭제\s
             2. 개인방에서 삭제 -> 일정 삭제 처리""")
     @DeleteMapping("/{memoryId}")
-    public ApiResult<DeleteMemoryDto.Response> delete(
+    public ApiResult<MemoryDto> delete(
             @PathVariable long memoryId,
             @RequestBody DeleteMemoryDto.Request request) {
         return ok(memoryService.delete(memoryId, request));

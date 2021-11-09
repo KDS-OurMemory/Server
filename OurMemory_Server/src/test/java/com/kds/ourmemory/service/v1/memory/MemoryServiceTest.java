@@ -7,7 +7,6 @@ import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
-import com.kds.ourmemory.service.v1.notice.NoticeService;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import com.kds.ourmemory.service.v1.user.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +93,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -136,7 +135,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertWriterRsp.getPrivateRoomId());
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -323,7 +322,7 @@ class MemoryServiceTest {
         // 1) Check from member
         var findMemberRooms = roomService.findRooms(insertMemberRsp.getUserId(), null);
         assertThat(findMemberRooms).isNotNull();
-        assertThat(findMemberRooms.size()).isEqualTo(3);
+        assertThat(findMemberRooms.size()).isEqualTo(2);
 
         var isValidMember = false;
         Long memberRoomId = null;
@@ -345,24 +344,16 @@ class MemoryServiceTest {
         // 2) Check from member2
         var findMemberRooms2 = roomService.findRooms(insertMemberRsp2.getUserId(), null);
         assertThat(findMemberRooms2).isNotNull();
-        assertThat(findMemberRooms2.size()).isEqualTo(2);
+        assertThat(findMemberRooms2.size()).isOne();
 
-        var isValidMember2 = false;
-        Long memberRoomId2 = null;
-        for (var findMemberRoomRsp2 : findMemberRooms2) {
-            if (findMemberRoomRsp2.getRoomId() == insertMemberRsp2.getPrivateRoomId())
-                continue;
-
-            assertThat(findMemberRoomRsp2.getMemories().size()).isOne();
-            assertThat(findMemberRoomRsp2.getMembers().size()).isEqualTo(2);
-            assertThat(findMemberRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
-            isValidMember2 = true;
-            memberRoomId2 = findMemberRoomRsp2.getRoomId();
-        }
-        assertTrue(isValidMember2);
+        var findMemberRoomRsp2 = findMemberRooms2.get(0);
+        assertThat(findMemberRoomRsp2.getMemories().size()).isOne();
+        assertThat(findMemberRoomRsp2.getMembers().size()).isEqualTo(2);
+        assertThat(findMemberRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
 
         // 3) Check not same member roomId and member2 roomId
-        assertNotEquals(memberRoomId.longValue(), memberRoomId2.longValue());
+        var memberRoomId2 = findMemberRoomRsp2.getRoomId();
+        assertNotEquals(memberRoomId.longValue(), memberRoomId2);
     }
 
     @Test
@@ -418,7 +409,7 @@ class MemoryServiceTest {
         // 1) Check from member1
         var findMemberRooms = roomService.findRooms(insertMemberRsp.getUserId(), null);
         assertThat(findMemberRooms).isNotNull();
-        assertThat(findMemberRooms.size()).isEqualTo(3);
+        assertThat(findMemberRooms.size()).isEqualTo(2);
 
         var isValidMember = false;
         Long memberRoomId = null;
@@ -440,24 +431,16 @@ class MemoryServiceTest {
         // 2) Check from member2
         var findMemberRooms2 = roomService.findRooms(insertMemberRsp2.getUserId(), null);
         assertThat(findMemberRooms2).isNotNull();
-        assertThat(findMemberRooms2.size()).isEqualTo(2);
+        assertThat(findMemberRooms2.size()).isOne();
 
-        var isValidMember2 = false;
-        Long memberRoomId2 = null;
-        for (var findMemberRoomRsp2 : findMemberRooms2) {
-            if (findMemberRoomRsp2.getRoomId() == insertMemberRsp2.getPrivateRoomId())
-                continue;
-
-            assertThat(findMemberRoomRsp2.getMemories().size()).isOne();
-            assertThat(findMemberRoomRsp2.getMembers().size()).isEqualTo(3);
-            assertThat(findMemberRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
-            isValidMember2 = true;
-            memberRoomId2 = findMemberRoomRsp2.getRoomId();
-        }
-        assertTrue(isValidMember2);
+        var findMemberRoomRsp2 = findMemberRooms2.get(0);
+        assertThat(findMemberRoomRsp2.getMemories().size()).isOne();
+        assertThat(findMemberRoomRsp2.getMembers().size()).isEqualTo(3);
+        assertThat(findMemberRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
 
         // 3) check same member1 roomId and member2 roomId
-        assertEquals(memberRoomId.longValue(), memberRoomId2.longValue());
+        var memberRoomId2 = findMemberRoomRsp2.getRoomId();
+        assertEquals(memberRoomId.longValue(), memberRoomId2);
     }
 
     @Test
@@ -522,7 +505,7 @@ class MemoryServiceTest {
 
         var findMemoryRsp = findMemories.get(0);
         assertThat(findMemoryRsp).isNotNull();
-        assertThat(findMemoryRsp.getShareRooms().size()).isEqualTo(4);
+        assertThat(findMemoryRsp.getShareRooms().size()).isEqualTo(3);
     }
 
     @Test
@@ -559,7 +542,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -623,7 +606,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -695,7 +678,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -714,9 +697,7 @@ class MemoryServiceTest {
         assertThat(beforeFindRsp.getContents()).isEqualTo(insertMemoryRsp.getContents());
 
         /* 4. Update */
-        var updateRsp = memoryService.update(
-                insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), updateReq);
-        assertThat(updateRsp).isNotNull();
+        memoryService.update(insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), updateReq);
 
         /* 5. Find after update */
         var afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
@@ -765,7 +746,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -908,7 +889,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp7).isNotNull();
 
         /* 2. Find memories */
-        List<FindMemoriesDto.Response> findMemoriesList = memoryService.findMemories(insertMemoryReq1.getUserId(), null);
+        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq1.getUserId(), null);
         assertThat(findMemoriesList.size()).isEqualTo(7);
 
         // expected order: 3 5 2 4 6 1 7

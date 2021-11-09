@@ -46,10 +46,4 @@ public class UpdateMemoryDto {
         @ApiModelProperty(value = "배경색", example = "#FFFFFF")
         private String bgColor;
     }
-
-    @ApiModel(value = "UpdateMemoryDto.Response", description = "nested class in UpdateMemoryDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-    }
 }
