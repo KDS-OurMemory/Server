@@ -21,10 +21,4 @@ public class DeleteMemoryDto {
         @ApiModelProperty(value = "일정을 삭제할 방 번호", required = true, notes = "일정을 삭제시킬 방 번호")
         private long targetRoomId;
     }
-
-    @ApiModel(value = "DeleteMemoryDto.Response", description = "nested class in DeleteMemoryDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-    }
 }

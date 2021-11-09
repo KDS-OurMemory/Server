@@ -3,7 +3,7 @@ package com.kds.ourmemory.controller.v1.memory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kds.ourmemory.controller.v1.ApiResult;
-import com.kds.ourmemory.controller.v1.memory.dto.FindMemoriesDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ class MemoryControllerTest {
     @Transactional
     @Test
     void findMemories() throws JsonProcessingException{
-        ApiResult<List<FindMemoriesDto.Response>> responseDto = memoryController.findMemories(99L, null);
+        ApiResult<List<MemoryDto>> responseDto = memoryController.findMemories(99L, null);
         
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.getResultCode()).isEqualTo("00");

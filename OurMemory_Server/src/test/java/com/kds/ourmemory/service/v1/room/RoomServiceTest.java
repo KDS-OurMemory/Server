@@ -269,7 +269,7 @@ class RoomServiceTest {
                 "#FFFFFF"  // 배경색
         );
 
-        InsertMemoryDto.Response insertMemoryRspOwner = memoryService.insert(insertMemoryReqOwner);
+        var insertMemoryRspOwner = memoryService.insert(insertMemoryReqOwner);
         assertThat(insertMemoryRspOwner.getWriterId()).isEqualTo(insertOwnerRsp.getUserId());
         assertThat(insertMemoryRspOwner.getAddedRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
 
@@ -286,7 +286,7 @@ class RoomServiceTest {
                 "#FFFFFF"  // 배경색
         );
 
-        InsertMemoryDto.Response insertMemoryRspMember1 = memoryService.insert(insertMemoryReqMember1);
+        var insertMemoryRspMember1 = memoryService.insert(insertMemoryReqMember1);
         assertThat(insertMemoryRspMember1.getWriterId()).isEqualTo(insertMember1Rsp.getUserId());
         assertThat(insertMemoryRspMember1.getAddedRoomId()).isEqualTo(insertMemoryReqMember1.getRoomId());
 
@@ -303,7 +303,7 @@ class RoomServiceTest {
                 "#FFFFFF"  // 배경색
         );
 
-        InsertMemoryDto.Response insertMemoryRspMember2 = memoryService.insert(insertMemoryReqMember2);
+        var insertMemoryRspMember2 = memoryService.insert(insertMemoryReqMember2);
         assertThat(insertMemoryRspMember2.getWriterId()).isEqualTo(insertMember2Rsp.getUserId());
         assertThat(insertMemoryRspMember2.getAddedRoomId()).isEqualTo(insertMemoryReqMember2.getRoomId());
 
