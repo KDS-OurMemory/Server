@@ -8,57 +8,56 @@ import com.kds.ourmemory.entity.room.Room;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
 @ApiModel(value = "MemoryDto", description = "Memory API Dto")
 @Getter
-@NoArgsConstructor
 public class MemoryDto {
     @ApiModelProperty(value = "일정 번호", example = "5")
-    private Long memoryId;
+    private final Long memoryId;
 
     @ApiModelProperty(value = "일정 작성자 번호", example = "64")
-    private Long writerId;
+    private final Long writerId;
 
     @ApiModelProperty(value = "일정 제목", example = "회의 일정")
-    private String name;
+    private final String name;
 
     @ApiModelProperty(value = "일정 내용", example = "주간 회의")
-    private String contents;
+    private final String contents;
 
     @ApiModelProperty(value = "장소", example = "신도림역 1번 출구")
-    private String place;
+    private final String place;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "시작 시간", notes = "yyyy-MM-dd HH:mm")
-    private LocalDateTime startDate;
+    private final LocalDateTime startDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "종료 시간", notes = "yyyy-MM-dd HH:mm")
-    private LocalDateTime endDate;
+    private final LocalDateTime endDate;
 
     @ApiModelProperty(value = "배경색", example = "#FFFFFF")
-    private String bgColor;
+    private final String bgColor;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "첫 번째 알림 시간", notes = "yyyy-MM-dd HH:mm")
-    private LocalDateTime firstAlarm;
+    private final LocalDateTime firstAlarm;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @ApiModelProperty(value = "두 번째 알림 시간", notes = "yyyy-MM-dd HH:mm")
-    private LocalDateTime secondAlarm;
+    private final LocalDateTime secondAlarm;
 
     @ApiModelProperty(value = "일정 등록날짜", notes = "yyyy-MM-dd HH:mm:ss")
-    private String regDate;
+    private final String regDate;
 
     @ApiModelProperty(value = "일정 수정날짜", notes = "yyyy-MM-dd HH:mm:ss")
-    private String modDate;
+    private final String modDate;
 
     @ApiModelProperty(value = "일정 공유방 목록", notes = "일정이 공유된 방 목록")
     private List<MemoryDto.ShareRoom> shareRooms;
@@ -82,6 +81,22 @@ public class MemoryDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
+    }
+
+    public MemoryDto(UserMemory userMemory) {
+        memoryId = userMemory.getMemory().getId();
+        writerId = userMemory.getMemory().getWriter().getId();
+        name = userMemory.getMemory().getName();
+        contents = userMemory.getMemory().getContents();
+        place = userMemory.getMemory().getPlace();
+        startDate = userMemory.getMemory().getStartDate();
+        endDate = userMemory.getMemory().getEndDate();
+        bgColor = userMemory.getMemory().getBgColor();
+        firstAlarm = userMemory.getMemory().getFirstAlarm();
+        secondAlarm = userMemory.getMemory().getSecondAlarm();
+        regDate = userMemory.getMemory().formatRegDate();
+        modDate = userMemory.getMemory().formatModDate();
+        userAttendances = Stream.of(new UserAttendance(userMemory)).collect(toList());
     }
 
     public MemoryDto(Long privateRoomId, Memory memory) {
