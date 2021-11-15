@@ -203,7 +203,7 @@ public class MemoryService {
         }
 
         return memory.updateMemory(request)
-                .map(r -> new MemoryDto())
+                .map(MemoryDto::new)
                 .orElseThrow(() -> new MemoryInternalServerException("Failed to update for memory data"));
     }
 
@@ -212,7 +212,7 @@ public class MemoryService {
         var attendMemoryResponse = findUserMemoryByMemoryIdAndUserId(memoryId, userId)
                 .map(userMemory -> {
                     userMemory.updateAttendance(status);
-                    return new MemoryDto();
+                    return new MemoryDto(userMemory);
                 })
                 .orElse(null);
 
@@ -242,7 +242,7 @@ public class MemoryService {
                     user.addMemory(insertedUserMemory);
                     memory.addUser(insertedUserMemory);
 
-                    return new MemoryDto();
+                    return new MemoryDto(userMemory);
                 })
                 .orElseThrow(
                         () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
@@ -322,7 +322,7 @@ public class MemoryService {
             );
         }
 
-        return new MemoryDto();
+        return new MemoryDto(user.getPrivateRoomId(), memory);
     }
 
     @Transactional
@@ -347,7 +347,7 @@ public class MemoryService {
                                 });
                     }
 
-                    return new MemoryDto();
+                    return new MemoryDto(memory);
                 })
                 .orElseThrow(
                         () -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, request.getUserId()))

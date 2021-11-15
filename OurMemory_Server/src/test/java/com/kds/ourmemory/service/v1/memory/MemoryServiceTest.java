@@ -215,6 +215,7 @@ class MemoryServiceTest {
         var attendRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ATTEND);
         assertThat(attendRsp).isNotNull();
+        assertThat(attendRsp.getUserAttendances().size()).isOne();
 
         /* 4. Find memory after attend memory and check attendance status */
         var afterFindMemoryRsp = memoryService.find(
@@ -227,7 +228,7 @@ class MemoryServiceTest {
     @Order(5)
     @DisplayName("일정 불참")
     @Transactional
-    void attendanceMemory() {
+    void absentMemory() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -261,6 +262,7 @@ class MemoryServiceTest {
         var attendRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ABSENCE);
         assertThat(attendRsp).isNotNull();
+        assertThat(attendRsp.getUserAttendances().size()).isOne();
 
         /* 4. Find memory after absence memory and check attendance status */
         var afterFindMemoryRsp = memoryService.find(
@@ -317,6 +319,7 @@ class MemoryServiceTest {
                 insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
         );
         assertThat(shareMemoryRsp).isNotNull();
+        assertThat(shareMemoryRsp.getShareRooms().size()).isEqualTo(3);
 
         /* 3. find share memory */
         // 1) Check from member
@@ -404,6 +407,7 @@ class MemoryServiceTest {
                 insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
         );
         assertThat(shareMemoryRsp).isNotNull();
+        assertThat(shareMemoryRsp.getShareRooms().size()).isEqualTo(2);
 
         /* 3. find share memory */
         // 1) Check from member1
@@ -474,7 +478,7 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp2.getMembers().size()).isEqualTo(2);
 
         var members3 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
-        var insertRoomReq3 = new InsertRoomDto.Request("room name2", insertMemberRsp.getUserId(), false, members3);
+        var insertRoomReq3 = new InsertRoomDto.Request("room name3", insertMemberRsp.getUserId(), false, members3);
         InsertRoomDto.Response insertRoomRsp3 = roomService.insert(insertRoomReq3);
         assertThat(insertRoomRsp3).isNotNull();
         assertThat(insertRoomRsp3.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
@@ -497,6 +501,7 @@ class MemoryServiceTest {
                 insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), shareMemoryUsersReq
         );
         assertThat(shareMemoryRsp).isNotNull();
+        assertThat(shareMemoryRsp.getShareRooms().size()).isEqualTo(3);
 
         /* 3. Check share memory from original memory */
         var findMemories = memoryService.findMemories(insertWriterRsp.getUserId(), null);
@@ -697,13 +702,12 @@ class MemoryServiceTest {
         assertThat(beforeFindRsp.getContents()).isEqualTo(insertMemoryRsp.getContents());
 
         /* 4. Update */
-        memoryService.update(insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), updateReq);
-
-        /* 5. Find after update */
-        var afterFindRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
-        assertThat(afterFindRsp).isNotNull();
-        assertThat(afterFindRsp.getName()).isEqualTo(updateReq.getName());
-        assertThat(afterFindRsp.getContents()).isEqualTo(updateReq.getContents());
+        var updateMemoryRsp = memoryService.update(insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), updateReq);
+        assertThat(updateMemoryRsp.getName()).isEqualTo(updateReq.getName());
+        assertThat(updateMemoryRsp.getContents()).isEqualTo(updateReq.getContents());
+        assertThat(updateMemoryRsp.getPlace()).isEqualTo(updateReq.getPlace());
+        assertThat(updateMemoryRsp.getStartDate()).isEqualTo(updateReq.getStartDate());
+        assertThat(updateMemoryRsp.getEndDate()).isEqualTo(updateReq.getEndDate());
     }
 
     @Test
