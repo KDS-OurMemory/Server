@@ -55,7 +55,7 @@ public class FriendService {
 
     private static final String USER = "user";
 
-    public RequestFriendDto.Response requestFriend(RequestFriendDto.Request request) {
+    public FriendDto requestFriend(RequestFriendDto.Request request) {
         findFriend(request.getUserId(), request.getFriendUserId())
                 .ifPresent(friend -> {
                     checkArgument(!friend.getStatus().equals(FriendStatus.WAIT),
@@ -80,14 +80,14 @@ public class FriendService {
         );
 
         // Add my side WAIT status
-        insertFriend(new Friend(user, friend, FriendStatus.WAIT));
+        var insertFriendMySideRsp = insertFriend(new Friend(user, friend, FriendStatus.WAIT));
 
         // Check Already friend
         return findFriend(request.getFriendUserId(), request.getUserId())
                 .map(friendSideFriend ->
                         Optional.of(friendSideFriend)
                                 .filter(f -> f.getStatus().equals(FriendStatus.BLOCK))
-                                .map(f -> new RequestFriendDto.Response())
+                                .map(f -> new FriendDto(insertFriendMySideRsp))  // response by request result
                                 .orElseThrow(() -> new FriendAlreadyAcceptException("Already accepted a friend request.")))
                 // Add friend side REQUESTED_BY status
                 .orElseGet(() -> {
@@ -108,12 +108,12 @@ public class FriendService {
                                     false, NoticeType.FRIEND_REQUEST.name(),
                                     Long.toString(request.getUserId())));
 
-                    return new RequestFriendDto.Response();
+                    return new FriendDto(insertFriendMySideRsp); // response by request result
                 });
     }
 
     @Transactional
-    public CancelFriendDto.Response cancelFriend(CancelFriendDto.Request request) {
+    public FriendDto cancelFriend(CancelFriendDto.Request request) {
         // Check my side
         findFriend(request.getUserId(), request.getFriendUserId())
                 .map(friend -> {
@@ -166,7 +166,7 @@ public class FriendService {
                         );
                     }
 
-                    return new CancelFriendDto.Response();
+                    return new FriendDto(); // TODO: 삭제 로직을 삭제 플래그로 수정 후 데이터 수정 예정
                 })
                 .orElseThrow(
                         () -> new FriendNotFoundException(
@@ -176,7 +176,7 @@ public class FriendService {
     }
 
     @Transactional
-    public AcceptFriendDto.Response acceptFriend(AcceptFriendDto.Request request) {
+    public FriendDto acceptFriend(AcceptFriendDto.Request request) {
         // Check friend status on accept side
         var acceptFriend = findFriend(request.getUserId(), request.getFriendUserId())
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.REQUESTED_BY))
@@ -213,10 +213,10 @@ public class FriendService {
                         })
                 );
 
-        return new AcceptFriendDto.Response();
+        return new FriendDto(acceptFriend);
     }
 
-    public ReAddFriendDto.Response reAddFriend(ReAddFriendDto.Request request) {
+    public FriendDto reAddFriend(ReAddFriendDto.Request request) {
         // Check friend status on friend side
         findFriend(request.getFriendUserId(), request.getUserId())
                 .map(ff -> {
@@ -240,7 +240,7 @@ public class FriendService {
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.WAIT))
                         .map(f -> {
                             f.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
-                            return new ReAddFriendDto.Response();
+                            return new FriendDto(f);
                         })
                         .orElseThrow(() -> new FriendStatusException(
                                 String.format(STATUS_ERROR_MESSAGE, FriendStatus.WAIT.name(), fa.getStatus().name()))
@@ -250,16 +250,16 @@ public class FriendService {
     }
 
     // Not found friend -> None Error, just empty -> return emptyList
-    public List<FindFriendsDto.Response> findFriends(long userId) {
+    public List<FriendDto> findFriends(long userId) {
         return findFriendsByUserId(userId)
                 .map(friends -> friends.stream()
-                        .map(FindFriendsDto.Response::new)
+                        .map(FriendDto::new)
                         .collect(Collectors.toList())
                 )
                 .orElseGet(ArrayList::new);
     }
 
-    public PatchFriendStatusDto.Response patchFriendStatus(PatchFriendStatusDto.Request request) {
+    public FriendDto patchFriendStatus(PatchFriendStatusDto.Request request) {
         return findFriend(request.getUserId(), request.getFriendUserId())
                 .map(friend ->
                         Optional.ofNullable(request.getStatus())
@@ -267,7 +267,7 @@ public class FriendService {
                                 .map(status -> {
                                     friend.changeStatus(status);
                                     updateFriend(friend);
-                                    return new PatchFriendStatusDto.Response();
+                                    return new FriendDto(friend);
                                 })
                                 .orElseThrow(() -> new FriendStatusException(
                                         String.format("Friend status cannot be '%s' and '%s'", FriendStatus.WAIT, FriendStatus.REQUESTED_BY))
@@ -279,7 +279,7 @@ public class FriendService {
                 );
     }
 
-    public DeleteFriendDto.Response deleteFriend(long userId, long friendUserId) {
+    public FriendDto deleteFriend(long userId, long friendUserId) {
         return findFriend(userId, friendUserId)
                 .map(friend -> {
                     if (friend.getStatus().equals(FriendStatus.WAIT) || friend.getStatus().equals(FriendStatus.REQUESTED_BY))
@@ -289,7 +289,7 @@ public class FriendService {
 
                     // Delete friend only my side. The other side does not delete.
                     deleteFriend(friend);
-                    return new DeleteFriendDto.Response();
+                    return new FriendDto(); // TODO: 삭제 로직을 삭제 플래그로 수정 후 데이터 수정 예정
                 })
                 .orElseThrow(() -> new FriendNotFoundFriendException(
                                 String.format(NOT_FOUND_FRIEND_MESSAGE, userId, friendUserId)
@@ -300,8 +300,8 @@ public class FriendService {
     /**
      * Friend Repository
      */
-    private void insertFriend(Friend friend) {
-        friendRepository.save(friend);
+    private Friend insertFriend(Friend friend) {
+        return friendRepository.save(friend);
     }
 
     private Optional<Friend> findFriend(Long userId, Long friendId) {

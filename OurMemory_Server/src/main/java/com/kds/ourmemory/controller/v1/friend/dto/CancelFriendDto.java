@@ -21,9 +21,4 @@ public class CancelFriendDto {
         private final Long friendUserId;
     }
 
-    @ApiModel(value = "CancelFriendDto.Response", description = "nested class in CancelFriendDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-    }
 }
