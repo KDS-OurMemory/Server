@@ -366,7 +366,7 @@ class UserServiceTest {
         var beforeFindFriendsRspUserSide = beforeFindFriendsUserSide.get(0);
         assertThat(beforeFindFriendsRspUserSide).isNotNull();
         assertThat(beforeFindFriendsRspUserSide.getFriendId()).isEqualTo(insertFriendUserRsp.getUserId());
-        assertThat(beforeFindFriendsRspUserSide.getStatus()).isEqualTo(FriendStatus.FRIEND);
+        assertThat(beforeFindFriendsRspUserSide.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // 2) friendUser side
         var beforeFindFriendsFriendUserSide = friendService.findFriends(insertFriendUserRsp.getUserId());
@@ -376,7 +376,7 @@ class UserServiceTest {
         var beforeFindFriendsRspFriendUserSide = beforeFindFriendsFriendUserSide.get(0);
         assertThat(beforeFindFriendsRspFriendUserSide).isNotNull();
         assertThat(beforeFindFriendsRspFriendUserSide.getFriendId()).isEqualTo(insertUserRsp.getUserId());
-        assertThat(beforeFindFriendsRspFriendUserSide.getStatus()).isEqualTo(FriendStatus.FRIEND);
+        assertThat(beforeFindFriendsRspFriendUserSide.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 1. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());

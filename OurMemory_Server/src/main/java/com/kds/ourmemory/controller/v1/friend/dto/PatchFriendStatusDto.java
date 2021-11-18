@@ -24,10 +24,5 @@ public class PatchFriendStatusDto {
         @ApiModelProperty(value = "상태", required = true)
         private final FriendStatus status;
     }
-
-    @ApiModel(value = "PatchFriendStatusDto.Response", description = "nested class in PatchFriendStatusDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-    }
+    
 }
