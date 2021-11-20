@@ -63,14 +63,4 @@ public class InsertUserDto {
         }
     }
 
-    @ApiModel(value = "InsertUser.Response", description = "nested class in InsertUserDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-        @ApiModelProperty(value = "사용자 번호")
-        private final Long userId;
-
-        @ApiModelProperty(value = "개인방 번호")
-        private final Long privateRoomId;
-    }
 }

@@ -3,6 +3,7 @@ package com.kds.ourmemory.service.v1.friend;
 import com.kds.ourmemory.advice.v1.friend.exception.*;
 import com.kds.ourmemory.controller.v1.friend.dto.*;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -29,9 +30,9 @@ class FriendServiceTest {
     private final NoticeService noticeService;  // The creation process from adding to the deletion of the notice.
 
     // Base data for test NoticeService
-    private InsertUserDto.Response requestUserRsp;
+    private UserDto requestUserRsp;
 
-    private InsertUserDto.Response acceptUserRsp;
+    private UserDto acceptUserRsp;
 
     /**
      * Test case

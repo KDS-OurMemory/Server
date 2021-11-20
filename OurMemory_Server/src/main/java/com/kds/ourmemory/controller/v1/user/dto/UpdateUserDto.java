@@ -32,9 +32,4 @@ public class UpdateUserDto {
         private Boolean push;
     }
 
-    @ApiModel(value = "UpdateUserDto.Response", description = "nested class in UpdateUserDto")
-    @AllArgsConstructor
-    @Getter
-    public static class Response {
-    }
 }

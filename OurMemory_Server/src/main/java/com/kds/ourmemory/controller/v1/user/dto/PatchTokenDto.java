@@ -19,9 +19,4 @@ public class PatchTokenDto {
         private String pushToken;
     }
 
-    @ApiModel(value = "PatchTokenDto.Response", description = "nested class in PatchTokenDto")
-    @AllArgsConstructor
-    @Getter
-    public static class Response {
-    }
 }

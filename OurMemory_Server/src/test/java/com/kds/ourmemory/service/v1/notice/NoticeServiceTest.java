@@ -3,6 +3,7 @@ package com.kds.ourmemory.service.v1.notice;
 import com.kds.ourmemory.controller.v1.notice.dto.FindNoticesDto;
 import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.user.UserService;
@@ -26,7 +27,7 @@ class NoticeServiceTest {
     private final UserService userService;  // The creation process from adding to the deletion of the user.
 
     // Base data for test NoticeService
-    private InsertUserDto.Response insertUserRsp;
+    private UserDto insertUserRsp;
 
 
     @Autowired
