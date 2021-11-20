@@ -8,6 +8,7 @@ import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.memory.dto.ShareMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
@@ -46,11 +47,11 @@ class RoomServiceTest {
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     // Base data for test RoomService
-    private InsertUserDto.Response insertOwnerRsp;
+    private UserDto insertOwnerRsp;
 
-    private InsertUserDto.Response insertMember1Rsp;
+    private UserDto insertMember1Rsp;
     
-    private InsertUserDto.Response insertMember2Rsp;
+    private UserDto insertMember2Rsp;
 
     private List<Long> roomMembers;
 

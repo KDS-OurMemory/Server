@@ -55,43 +55,42 @@ public class UserService {
     private static final String PROFILE_IMAGE_DIR = "profileImages";
 
     @Transactional
-    public InsertUserDto.Response signUp(InsertUserDto.Request request) {
-        var user = request.toEntity();
-        return insertUser(user)
-                .map(u -> {
-                    var privateRoomId = roomService.insertPrivateRoom(u.getId());
+    public UserDto signUp(InsertUserDto.Request request) {
+        return insertUser(request.toEntity())
+                .map(user -> {
+                    var privateRoomId = roomService.insertPrivateRoom(user.getId());
                     user.updatePrivateRoomId(privateRoomId);
 
-                    return new InsertUserDto.Response(u.getId(), privateRoomId);
+                    return new UserDto(user);
                 })
                 .orElseThrow(() -> new UserInternalServerException(
-                                String.format(FAILED_MESSAGE, INSERT, USER + user.getName())
+                                String.format(FAILED_MESSAGE, INSERT, USER + request.getName())
                         )
                 );
     }
 
-    public SignInUserDto.Response signIn(int snsType, String snsId) {
-        return findUser(snsType, snsId).map(SignInUserDto.Response::new)
+    public UserDto signIn(int snsType, String snsId) {
+        return findUser(snsType, snsId).map(UserDto::new)
                 .orElseThrow(() -> new UserNotFoundException(
                                 String.format(NOT_FOUND_LOGIN_USER_MESSAGE, snsType, snsId)
                         )
                 );
     }
 
-    public FindUserDto.Response find(long userId) {
+    public UserDto find(long userId) {
         return findUser(userId)
-                .map(FindUserDto.Response::new)
+                .map(UserDto::new)
                 .orElseThrow(() -> new UserNotFoundException(
                             String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
     }
 
-    public List<FindUsersDto.Response> findUsers(long userId, Long findId, String name, FriendStatus friendStatus) {
+    public List<UserDto> findUsers(long userId, Long findId, String name, FriendStatus friendStatus) {
         // Find by friendStatus
         var responseList = findFriendsByUserId(userId)
                 .map(list -> list.stream().filter(friend -> friend.getStatus().equals(friendStatus))
-                        .map(friend -> new FindUsersDto.Response(friend.getFriendUser(), friend))
+                        .map(friend -> new UserDto(friend.getFriendUser(), friend))
                         .collect(Collectors.toList())
                 )
                 .orElseGet(ArrayList::new);
@@ -102,7 +101,7 @@ public class UserService {
                         .map(users -> users.stream().map(user -> {
                                             Friend friend = findFriend(userId, findId)
                                                     .orElse(null);
-                                            return new FindUsersDto.Response(user, friend);
+                                            return new UserDto(user, friend);
                                         })
                                         .collect(Collectors.toList())
                         )
@@ -113,10 +112,10 @@ public class UserService {
     }
 
     @Transactional
-    public PatchTokenDto.Response patchToken(long userId, PatchTokenDto.Request request) {
+    public UserDto patchToken(long userId, PatchTokenDto.Request request) {
         return findUser(userId).map(user ->
                 user.changePushToken(request.getPushToken())
-                        .map(u -> new PatchTokenDto.Response())
+                        .map(UserDto::new)
                         .orElseThrow(() -> new UserInternalServerException(
                                 String.format(FAILED_MESSAGE, PATCH, USER + " token")))
                 )
@@ -127,10 +126,10 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateUserDto.Response update(long userId, UpdateUserDto.Request request) {
+    public UserDto update(long userId, UpdateUserDto.Request request) {
         return findUser(userId).map(user ->
                 user.updateUser(request)
-                        .map(u -> new UpdateUserDto.Response())
+                        .map(UserDto::new)
                         .orElseThrow(() -> new UserInternalServerException(
                                 String.format(FAILED_MESSAGE, UPDATE, USER + " data")))
                 )
@@ -141,7 +140,7 @@ public class UserService {
     }
 
     @Transactional
-    public UploadProfileImageDto.Response uploadProfileImage(long userId, UploadProfileImageDto.Request request) {
+    public UserDto uploadProfileImage(long userId, UploadProfileImageDto.Request request) {
         // 1. Check image
         checkNotNull(request.getProfileImage(), "ProfileImage is Null.");
 
@@ -158,18 +157,18 @@ public class UserService {
         return Optional.ofNullable(s3Uploader.upload(request.getProfileImage(), PROFILE_IMAGE_DIR))
                 .map(url -> {
                     user.updateProfileImageUrl(url);
-                    return new UploadProfileImageDto.Response(url);
+                    return new UserDto(user);
                 })
                 .orElseThrow(() -> new UserProfileImageUploadException("Failed upload image."));
     }
 
     @Transactional
-    public DeleteProfileImageDto.Response deleteProfileImage(long userId) {
+    public UserDto deleteProfileImage(long userId) {
         return findUser(userId)
                 .map(user -> {
                     s3Uploader.delete(user.getProfileImageUrl());
                     user.updateProfileImageUrl(null);
-                    return new DeleteProfileImageDto.Response();
+                    return new UserDto(user);
                 })
                 .orElseThrow(() -> new UserNotFoundException(
                         String.format(NOT_FOUND_MESSAGE, USER, userId)
@@ -192,7 +191,7 @@ public class UserService {
      * @return DeleteUserDto.Response
      */
     @Transactional
-    public DeleteUserDto.Response delete(long userId) {
+    public UserDto delete(long userId) {
         return findUser(userId)
                 .map(user -> {
                     findFriendsByUserOrFriendUser(user, user)
@@ -227,7 +226,7 @@ public class UserService {
                 // Delete the user after all job.
                 .map(user -> {
                     user.deleteUser();
-                    return new DeleteUserDto.Response();
+                    return new UserDto(user);
                 })
                 .orElseThrow(() -> new UserNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, USER, userId)

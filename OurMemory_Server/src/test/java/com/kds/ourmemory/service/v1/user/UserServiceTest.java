@@ -70,23 +70,39 @@ class UserServiceTest {
 
     @Test
     @Order(1)
-    @DisplayName("회원가입-로그인-단일 조회-토큰변경-업데이트")
+    @DisplayName("회원가입")
     @Transactional
-    void signUpSignInFind() {
+    void signUp() {
         /* 0. Create Request */
         var insertReq = new InsertUserDto.Request(
                 1, "TESTS_SNS_ID", "before pushToken",
                 "테스트 유저", "0720", true,
                 false, DeviceOs.ANDROID
         );
-        var patchReq = new PatchTokenDto.Request("patch token");
-        var updateReq = new UpdateUserDto.Request("update name", "0927", false, false, false);
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
         assertThat(insertRsp).isNotNull();
         assertThat(insertRsp.getUserId()).isNotNull();
         assertThat(insertRsp.getPrivateRoomId()).isNotNull();
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("로그인")
+    @Transactional
+    void signIn() {
+        /* 0. Create Request */
+        var insertReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
 
         /* 2. Sign in */
         var signInRsp = userService.signIn(insertReq.getSnsType(), insertReq.getSnsId());
@@ -97,11 +113,29 @@ class UserServiceTest {
         assertThat(signInRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
         assertTrue(signInRsp.isPush());
         assertThat(signInRsp.getPrivateRoomId()).isEqualTo(insertRsp.getPrivateRoomId());
+    }
 
-        /* 3. Find */
+    @Test
+    @Order(3)
+    @DisplayName("단일조회")
+    @Transactional
+    void find() {
+        /* 0. Create Request */
+        var insertReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+
+        /* 2. Find */
         var findRsp = userService.find(insertRsp.getUserId());
         assertThat(findRsp).isNotNull();
-        assertThat(findRsp.getId()).isEqualTo(insertRsp.getUserId());
+        assertThat(findRsp.getUserId()).isEqualTo(insertRsp.getUserId());
         assertThat(findRsp.getSnsType()).isEqualTo(insertReq.getSnsType());
         assertThat(findRsp.getSnsId()).isEqualTo(insertReq.getSnsId());
         assertThat(findRsp.getName()).isEqualTo(insertReq.getName());
@@ -109,30 +143,63 @@ class UserServiceTest {
         assertThat(findRsp.isSolar()).isEqualTo(insertReq.isSolar());
         assertThat(findRsp.isBirthdayOpen()).isEqualTo(insertReq.isBirthdayOpen());
         assertThat(findRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
-
-        /* 4. Patch token */
-        var patchRsp = userService.patchToken(insertRsp.getUserId(), patchReq);
-        assertThat(patchRsp).isNotNull();
-
-        /* 5. Find after patch */
-        var afterPatchFindRsp = userService.find(insertRsp.getUserId());
-        assertThat(afterPatchFindRsp.getPushToken()).isEqualTo(patchReq.getPushToken());
-
-        /* 6. Update */
-        var updateRsp = userService.update(insertRsp.getUserId(), updateReq);
-        assertThat(updateRsp).isNotNull();
-
-        /* 7. Find after update */
-        var afterUpdateFindRsp = userService.find(insertRsp.getUserId());
-        assertThat(afterUpdateFindRsp.getName()).isEqualTo(updateReq.getName());
-        assertThat(afterUpdateFindRsp.getBirthday()).isEqualTo(updateReq.getBirthday());
-        assertThat(afterUpdateFindRsp.isBirthdayOpen()).isEqualTo(updateReq.getBirthdayOpen());
-        assertThat(afterUpdateFindRsp.isPush()).isEqualTo(updateReq.getPush());
-        assertThat(afterUpdateFindRsp.isSolar()).isEqualTo(updateReq.getSolar());
     }
 
     @Test
-    @Order(2)
+    @Order(4)
+    @DisplayName("토큰변경")
+    @Transactional
+    void patchToken() {
+        /* 0. Create Request */
+        var insertReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+        var patchReq = new PatchTokenDto.Request("patch token");
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+        assertThat(insertRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
+
+        /* 2. Patch token */
+        var patchRsp = userService.patchToken(insertRsp.getUserId(), patchReq);
+        assertThat(patchRsp).isNotNull();
+        assertThat(patchRsp.getPushToken()).isEqualTo(patchReq.getPushToken());
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("업데이트")
+    @Transactional
+    void update() {
+        /* 0. Create Request */
+        var insertReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+        var updateReq = new UpdateUserDto.Request("update name", "0927", false, false, false);
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+
+        /* 2. Update */
+        var updateRsp = userService.update(insertRsp.getUserId(), updateReq);
+        assertThat(updateRsp).isNotNull();
+        assertThat(updateRsp.getName()).isEqualTo(updateReq.getName());
+        assertThat(updateRsp.getBirthday()).isEqualTo(updateReq.getBirthday());
+        assertThat(updateRsp.isSolar()).isEqualTo(updateReq.getSolar());
+        assertThat(updateRsp.isBirthdayOpen()).isEqualTo(updateReq.getBirthdayOpen());
+        assertThat(updateRsp.isPush()).isEqualTo(updateReq.getPush());
+    }
+
+    @Test
+    @Order(6)
     @DisplayName("사용자 목록 조회")
     @Transactional
     void findUsers() {
@@ -178,9 +245,7 @@ class UserServiceTest {
         assertThat(findUsersById1.getName()).isEqualTo(insertUniqueNameReq.getName());
         assertThat(findUsersById1.isSolar()).isEqualTo(insertUniqueNameReq.isSolar());
         assertThat(findUsersById1.isBirthdayOpen()).isEqualTo(insertUniqueNameReq.isBirthdayOpen());
-        assertThat(findUsersById1.getBirthday()).isEqualTo(
-                insertUniqueNameReq.isBirthdayOpen()? insertUniqueNameReq.getBirthday() : null
-        );
+        assertThat(findUsersById1.getBirthday()).isEqualTo(insertUniqueNameReq.getBirthday());
         assertThat(findUsersById1.getFriendStatus()).isNull();
 
         // 2) find by id : insertSameNameReq1
@@ -212,9 +277,7 @@ class UserServiceTest {
         assertThat(findUsersById3.getName()).isEqualTo(insertSameNameReq2.getName());
         assertThat(findUsersById3.isSolar()).isEqualTo(insertSameNameReq2.isSolar());
         assertThat(findUsersById3.isBirthdayOpen()).isEqualTo(insertSameNameReq2.isBirthdayOpen());
-        assertThat(findUsersById3.getBirthday()).isEqualTo(
-                insertSameNameReq2.isBirthdayOpen()? insertSameNameReq2.getBirthday() : null
-        );
+        assertThat(findUsersById3.getBirthday()).isEqualTo(insertSameNameReq2.getBirthday());
         assertThat(findUsersById3.getFriendStatus()).isNull();
 
         // 4) find by name : insertUniqueNameReq
@@ -229,9 +292,7 @@ class UserServiceTest {
         assertThat(findUsersByUniqueName.getName()).isEqualTo(insertUniqueNameReq.getName());
         assertThat(findUsersByUniqueName.isSolar()).isEqualTo(insertUniqueNameReq.isSolar());
         assertThat(findUsersByUniqueName.isBirthdayOpen()).isEqualTo(insertUniqueNameReq.isBirthdayOpen());
-        assertThat(findUsersByUniqueName.getBirthday()).isEqualTo(
-                insertUniqueNameReq.isBirthdayOpen()? insertUniqueNameReq.getBirthday() : null
-        );
+        assertThat(findUsersByUniqueName.getBirthday()).isEqualTo(insertUniqueNameReq.getBirthday());
         assertThat(findUsersByUniqueName.getFriendStatus()).isNull();
 
         // 5) find by name : insertSameNameReq1 or 2
@@ -241,9 +302,9 @@ class UserServiceTest {
         assertThat(findUsersBySameNameList.size()).isEqualTo(2);
         
         for (var findUsersBySameName : findUsersBySameNameList) {
-            var findUsersBySameNameReq = findUsersBySameName.getUserId() == insertSameNameRsp1.getUserId()?
+            var findUsersBySameNameReq = findUsersBySameName.getUserId().equals(insertSameNameRsp1.getUserId()) ?
                     insertSameNameReq1 : insertSameNameReq2;
-            var findUsersBySameNameId = findUsersBySameName.getUserId() == insertSameNameRsp1.getUserId() ?
+            var findUsersBySameNameId = findUsersBySameName.getUserId().equals(insertSameNameRsp1.getUserId()) ?
                     insertSameNameRsp1.getUserId() : insertSameNameRsp2.getUserId();
 
             assertThat(findUsersBySameName).isNotNull();
@@ -251,9 +312,7 @@ class UserServiceTest {
             assertThat(findUsersBySameName.getName()).isEqualTo(findUsersBySameNameReq.getName());
             assertThat(findUsersBySameName.isSolar()).isEqualTo(findUsersBySameNameReq.isSolar());
             assertThat(findUsersBySameName.isBirthdayOpen()).isEqualTo(findUsersBySameNameReq.isBirthdayOpen());
-            assertThat(findUsersBySameName.getBirthday()).isEqualTo(
-                    findUsersBySameNameReq.isBirthdayOpen()? findUsersBySameNameReq.getBirthday() : null
-            );
+            assertThat(findUsersBySameName.getBirthday()).isEqualTo(findUsersBySameNameReq.getBirthday());
             assertThat(findUsersBySameName.getFriendStatus()).isNull();
         }
 
@@ -323,7 +382,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(3)
+    @Order(7)
     @DisplayName("사용자 삭제-친구")
     @Transactional
     void deleteFriend() {
@@ -381,6 +440,7 @@ class UserServiceTest {
         /* 1. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
+        assertFalse(deleteUserRsp.isUsed());
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -398,7 +458,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(8)
     @DisplayName("사용자 삭제-개인방/일정")
     @Transactional
     void deletePrivateUser() {
@@ -452,6 +512,7 @@ class UserServiceTest {
         /* 1. Delete private room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
+        assertFalse(deleteUserRsp.isUsed());
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -497,7 +558,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(9)
     @DisplayName("사용자 삭제-방장 방/일정")
     @Transactional
     void deleteOwnerUser() {
@@ -552,6 +613,7 @@ class UserServiceTest {
         /* 1. Delete room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
+        assertFalse(deleteUserRsp.isUsed());
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -574,7 +636,7 @@ class UserServiceTest {
 
         var findRoomsByMember = roomService.findRooms(insertMemberRsp.getUserId(), null);
         assertThat(findRoomsByMember).isNotNull();
-        assertThat(findRoomsByMember.size()).isEqualTo(2);
+        assertThat(findRoomsByMember.size()).isEqualTo(1);
 
         var ownerRoomCnt = 0;
         for (FindRoomsDto.Response response : findRoomsByMember) {
@@ -599,7 +661,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(6)
+    @Order(10)
     @DisplayName("사용자 삭제-참여방/일정")
     @Transactional
     void deleteParticipantUser() {
@@ -663,6 +725,7 @@ class UserServiceTest {
         /* 1. Delete room participant */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
         assertThat(deleteUserRsp).isNotNull();
+        assertFalse(deleteUserRsp.isUsed());
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -685,7 +748,7 @@ class UserServiceTest {
 
         var findRoomsByMember = roomService.findRooms(insertMemberRsp.getUserId(), null);
         assertThat(findRoomsByMember).isNotNull();
-        assertThat(findRoomsByMember.size()).isEqualTo(2);
+        assertThat(findRoomsByMember.size()).isEqualTo(1);
         var ownerRoomCnt = 0;
         for (FindRoomsDto.Response response : findRoomsByMember) {
             if (response.getRoomId() == insertParticipantRoomRsp.getRoomId()) ownerRoomCnt++;
@@ -709,7 +772,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(7)
+    @Order(11)
     @DisplayName("로그인-사용자 삭제 후 재가입한 사용자")
     @Transactional
     void reSignUpSignIn() {
@@ -749,7 +812,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(8)
+    @Order(12)
     @DisplayName("프로필 사진 업로드/삭제")
     @Transactional
     void uploadDeleteProfileImage() throws IOException {
@@ -778,26 +841,22 @@ class UserServiceTest {
         /* 3. Upload profile image */
         var profileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
         assertThat(profileImageRsp).isNotNull();
-        assertThat(profileImageRsp.getUrl()).isNotNull();
+        assertThat(profileImageRsp.getProfileImageUrl()).isNotNull();
 
         /* 4. Find User after upload profile image */
         var afterFindUserRsp = userService.find(insertUserRsp.getUserId());
         assertThat(afterFindUserRsp).isNotNull();
-        assertThat(afterFindUserRsp.getProfileImageUrl()).isEqualTo(profileImageRsp.getUrl());
+        assertThat(afterFindUserRsp.getProfileImageUrl()).isEqualTo(profileImageRsp.getProfileImageUrl());
 
         /* 5. Re upload profile image */
         var reProfileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
         assertThat(reProfileImageRsp).isNotNull();
-        assertThat(reProfileImageRsp.getUrl()).isNotNull();
-        assertNotSame(reProfileImageRsp.getUrl(), profileImageRsp.getUrl());
+        assertThat(reProfileImageRsp.getProfileImageUrl()).isNotNull();
+        assertNotSame(reProfileImageRsp.getProfileImageUrl(), profileImageRsp.getProfileImageUrl());
 
         /* 6. Delete profile image */
         var deleteProfileImageRsp = userService.deleteProfileImage(insertUserRsp.getUserId());
         assertThat(deleteProfileImageRsp).isNotNull();
-
-        /* 7. Find User after delete profile image*/
-        var deleteAfterFindUserRsp = userService.find(insertUserRsp.getUserId());
-        assertThat(deleteAfterFindUserRsp).isNotNull();
-        assertNull(deleteAfterFindUserRsp.getProfileImageUrl());
+        assertNull(deleteProfileImageRsp.getProfileImageUrl());
     }
 }

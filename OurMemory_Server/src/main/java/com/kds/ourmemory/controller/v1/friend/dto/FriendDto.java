@@ -30,7 +30,7 @@ public class FriendDto {
     @ApiModelProperty(value = "친구 프로필사진 Url")
     private String profileImageUrl;
 
-    @ApiModelProperty(value = "친구 상태(WAIT|REQUESTED_BY|FRIEND|BLOCK)")
+    @ApiModelProperty(value = "친구 상태(요청 후 대기: WAIT, 요청받은 상태: REQUESTED_BY, 친구: FRIEND, 차단: BLOCK)")
     private FriendStatus friendStatus;
 
     public FriendDto(Friend friend) {

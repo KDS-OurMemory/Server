@@ -3,6 +3,7 @@ package com.kds.ourmemory.service.v1.todo;
 import com.kds.ourmemory.controller.v1.todo.dto.InsertTodoDto;
 import com.kds.ourmemory.controller.v1.todo.dto.UpdateTodoDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.user.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ class TodoServiceTest {
     private final UserService userService;  // The creation process from adding to the deletion of the todolist.
 
     // Base data for test memoryService
-    private InsertUserDto.Response insertWriterRsp;
+    private UserDto insertWriterRsp;
 
     @Autowired
     private TodoServiceTest(TodoService todoService, UserService userService) {

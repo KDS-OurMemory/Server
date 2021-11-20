@@ -5,6 +5,7 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotWriterException;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.room.RoomService;
@@ -44,9 +45,9 @@ class MemoryServiceTest {
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     // Base data for test memoryService
-    private InsertUserDto.Response insertWriterRsp;
+    private UserDto insertWriterRsp;
 
-    private InsertUserDto.Response insertMemberRsp;
+    private UserDto insertMemberRsp;
 
     private InsertRoomDto.Response insertRoomRsp;
 

@@ -41,10 +41,10 @@ class UserControllerTest {
     void uploadProfileImage() {
        var request = new UploadProfileImageDto.Request(file);
 
-        var uploadResponse = userController.uploadProfileImage(1588, request);
+        var uploadResponse = userController.uploadProfileImage(287, request);
         assertThat(uploadResponse.getResultCode()).isEqualTo(CommonResultCode.SUCCESS.getCode());
 
-        var deleteResponse = userController.deleteProfileImage(1588);
+        var deleteResponse = userController.deleteProfileImage(287);
         assertThat(deleteResponse.getResultCode()).isEqualTo(CommonResultCode.SUCCESS.getCode());
     }
 

@@ -18,11 +18,4 @@ public class UploadProfileImageDto {
         private MultipartFile profileImage;
     }
 
-    @ApiModel(value = "FindUser.Response", description = "nested class in FindUserDto")
-    @AllArgsConstructor
-    @Getter
-    public static class Response {
-        @ApiModelProperty(value = "이미지 URL")
-        private final String url;
-    }
 }
