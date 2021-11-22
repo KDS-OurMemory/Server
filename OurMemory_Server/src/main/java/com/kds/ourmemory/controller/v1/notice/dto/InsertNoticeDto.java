@@ -26,9 +26,4 @@ public class InsertNoticeDto {
         private String value;
     }
 
-    @ApiModel(value = "InsertNotice.Response", description = "nested class in InsertNoticeDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-    }
 }
