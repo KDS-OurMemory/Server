@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @ApiModel(value = "TodoRspDto", description = "Todo API Response Dto")
 @Getter
@@ -23,7 +23,7 @@ public class TodoRspDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value = "TODO 날짜(yyyy-MM-dd)", notes = "yyyy-MM-dd")
-    private final LocalDateTime todoDate;
+    private final LocalDate todoDate;
 
     @ApiModelProperty(value = "사용 여부", example = "true")
     private final boolean used;
@@ -32,7 +32,7 @@ public class TodoRspDto {
         this.todoId = todo.getId();
         this.writerId = todo.getWriter().getId();
         this.contents = todo.getContents();
-        this.todoDate = todo.getTodoDate();
+        this.todoDate = todo.getTodoDate().toLocalDate();
         this.used = todo.isUsed();
     }
 

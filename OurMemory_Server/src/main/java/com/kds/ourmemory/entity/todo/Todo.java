@@ -57,7 +57,7 @@ public class Todo extends BaseTimeEntity {
         return Optional.ofNullable(reqDto)
                 .map(req -> {
                     this.contents = StringUtils.isNoneBlank(req.getContents())? req.getContents() : this.contents;
-                    this.todoDate = req.getTodoDate() != null? req.getTodoDate() : this.todoDate;
+                    this.todoDate = req.getTodoDate() != null? req.getTodoDate().atStartOfDay() : this.todoDate;
 
                     return this;
                 });
