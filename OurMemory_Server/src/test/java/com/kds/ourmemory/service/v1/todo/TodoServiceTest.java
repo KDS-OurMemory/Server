@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -47,7 +47,7 @@ class TodoServiceTest {
         var todoReqDto = TodoReqDto.builder()
                 .writerId(insertWriterRsp.getUserId())
                 .contents("Test TODO contents")
-                .todoDate(LocalDateTime.now())
+                .todoDate(LocalDate.now())
                 .build();
 
         /* 1. Create todoData */
@@ -70,7 +70,7 @@ class TodoServiceTest {
         var todoReqDto = TodoReqDto.builder()
                 .writerId(insertWriterRsp.getUserId())
                 .contents("Test TODO contents")
-                .todoDate(LocalDateTime.now())
+                .todoDate(LocalDate.now())
                 .build();
 
         /* 1. Create todoData */
@@ -101,25 +101,25 @@ class TodoServiceTest {
         var todoReqDto1 = TodoReqDto.builder()
                 .writerId(insertWriterRsp.getUserId())
                 .contents("Test TODO contents1")
-                .todoDate(LocalDateTime.now().minusDays(1))
+                .todoDate(LocalDate.now().minusDays(1))
                 .build();
 
         var todoReqDto2 = TodoReqDto.builder()
                 .writerId(insertWriterRsp.getUserId())
                 .contents("Test TODO contents2")
-                .todoDate(LocalDateTime.now().plusDays(2))
+                .todoDate(LocalDate.now().plusDays(2))
                 .build();
 
         var todoReqDto3 = TodoReqDto.builder()
                 .writerId(insertWriterRsp.getUserId())
                 .contents("Test TODO contents3")
-                .todoDate(LocalDateTime.now())
+                .todoDate(LocalDate.now())
                 .build();
 
         var todoReqDto4 = TodoReqDto.builder()
                 .writerId(insertWriterRsp.getUserId())
                 .contents("Test TODO contents4")
-                .todoDate(LocalDateTime.now().plusDays(1))
+                .todoDate(LocalDate.now().plusDays(1))
                 .build();
 
         /* 1. Create todoData */
@@ -165,12 +165,12 @@ class TodoServiceTest {
         var todoReqDto = TodoReqDto.builder()
                 .writerId(insertWriterRsp.getUserId())
                 .contents("Test TODO contents")
-                .todoDate(LocalDateTime.now())
+                .todoDate(LocalDate.now())
                 .build();
 
         var updateTodoReq = TodoReqDto.builder()
                 .contents("Update TODO contents!")
-                .todoDate(LocalDateTime.now().plusDays(1))
+                .todoDate(LocalDate.now().plusDays(1))
                 .build();
 
         /* 1. Create todoData */
@@ -209,7 +209,7 @@ class TodoServiceTest {
         var todoReqDto = TodoReqDto.builder()
                 .writerId(insertWriterRsp.getUserId())
                 .contents("Test TODO contents")
-                .todoDate(LocalDateTime.now())
+                .todoDate(LocalDate.now())
                 .build();
 
         /* 1. Create todoData */

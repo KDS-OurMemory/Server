@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @ApiModel(value = "TodoReqDto", description = "Todo API Request Dto")
 @Getter
@@ -28,13 +28,13 @@ public class TodoReqDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value = "TODO 날짜(yyyy-MM-dd)", notes = "yyyy-MM-dd")
-    private final LocalDateTime todoDate;
+    private final LocalDate todoDate;
 
     public Todo toEntity(User writer) {
         return Todo.builder()
                 .writer(writer)
                 .contents(contents)
-                .todoDate(todoDate)
+                .todoDate(todoDate.atStartOfDay())
                 .used(true)
                 .build();
     }
