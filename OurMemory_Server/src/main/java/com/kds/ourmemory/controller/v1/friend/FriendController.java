@@ -20,6 +20,12 @@ import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 public class FriendController {
     private final FriendService friendService;
 
+    @ApiOperation(value = "사용자 검색", notes = "조건에 해당하는 사용자의 기본 정보와 친구 상태를 검색한다.")
+    @GetMapping(value = "/users/{userId}/search")
+    public ApiResult<List<FriendDto>> findUsers(@PathVariable long userId, @RequestBody FriendDto request) {
+        return ok(friendService.findUsers(userId, request));
+    }
+
     @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다. 차단한 상대에게는 요청이 전달되지 않는다.")
     @PostMapping(value = "/request")
     public ApiResult<FriendDto> requestFriend(@RequestBody RequestFriendDto.Request request) {

@@ -7,7 +7,6 @@ import com.kds.ourmemory.config.S3Uploader;
 import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
 import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.friend.Friend;
-import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.friend.FriendRepository;
 import com.kds.ourmemory.repository.user.UserRepository;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -84,31 +82,6 @@ public class UserService {
                             String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
-    }
-
-    public List<UserDto> findUsers(long userId, Long findId, String name, FriendStatus friendStatus) {
-        // Find by friendStatus
-        var responseList = findFriendsByUserId(userId)
-                .map(list -> list.stream().filter(friend -> friend.getStatus().equals(friendStatus))
-                        .map(friend -> new UserDto(friend.getFriendUser(), friend))
-                        .collect(Collectors.toList())
-                )
-                .orElseGet(ArrayList::new);
-
-        // Find by findId or name
-        responseList.addAll(
-                findUsersByIdOrName(findId, name)
-                        .map(users -> users.stream().map(user -> {
-                                            Friend friend = findFriend(userId, findId)
-                                                    .orElse(null);
-                                            return new UserDto(user, friend);
-                                        })
-                                        .collect(Collectors.toList())
-                        )
-                        .orElseGet(ArrayList::new)
-        );
-
-        return responseList.stream().distinct().collect(Collectors.toList());
     }
 
     @Transactional
@@ -260,28 +233,12 @@ public class UserService {
         );
     }
 
-    private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {
-        return Optional.ofNullable(userRepository.findAllByUsedAndIdOrName(true, userId, name))
-                .filter(users -> users.isPresent() && !users.get().isEmpty())
-                .orElseGet(Optional::empty);
-    }
-
     /**
      * Friend Repository
      *
      * When working with a service code, the service code is connected to each other 
      * and is caught in an infinite loop in the injection of dependencies.
      */
-    private Optional<Friend> findFriend(Long userId, Long friendId) {
-        return Optional.ofNullable(userId)
-                .flatMap(u -> friendRepository.findByUserIdAndFriendUserId(userId, friendId));
-    }
-
-    private Optional<List<Friend>> findFriendsByUserId(Long userId) {
-        return Optional.ofNullable(userId)
-                .flatMap(friendRepository::findAllByUserId);
-    }
-
     private Optional<List<Friend>> findFriendsByUserOrFriendUser(User user, User friendUser) {
         return Optional.ofNullable(user)
                 .flatMap(u -> friendRepository.findAllByUserOrFriendUser(user, friendUser));

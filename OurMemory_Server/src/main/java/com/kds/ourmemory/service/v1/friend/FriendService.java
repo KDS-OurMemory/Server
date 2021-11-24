@@ -55,6 +55,31 @@ public class FriendService {
 
     private static final String USER = "user";
 
+    public List<FriendDto> findUsers(long userId, FriendDto request) {
+        // Find by friendStatus
+        var responseList = findFriendsByUserId(userId)
+                .map(list -> list.stream().filter(friend -> friend.getStatus().equals(request.getFriendStatus()))
+                        .map(friend -> new FriendDto(friend.getFriendUser(), friend))
+                        .collect(Collectors.toList())
+                )
+                .orElseGet(ArrayList::new);
+
+        // Find by friendId or name
+        responseList.addAll(
+                findUsersByIdOrName(request.getFriendId(), request.getName())
+                        .map(users -> users.stream().map(user -> {
+                                            Friend friend = findFriend(userId, request.getFriendId())
+                                                    .orElse(null);
+                                            return new FriendDto(user, friend);
+                                        })
+                                        .collect(Collectors.toList())
+                        )
+                        .orElseGet(ArrayList::new)
+        );
+
+        return responseList.stream().distinct().collect(Collectors.toList());
+    }
+
     public FriendDto requestFriend(RequestFriendDto.Request request) {
         findFriend(request.getUserId(), request.getFriendUserId())
                 .ifPresent(friend -> {
@@ -330,6 +355,12 @@ public class FriendService {
      */
     private Optional<User> findUser(Long id) {
         return Optional.ofNullable(id).flatMap(userRepo::findById);
+    }
+
+    private Optional<List<User>> findUsersByIdOrName(Long userId, String name) {
+        return Optional.ofNullable(userRepo.findAllByUsedAndIdOrName(true, userId, name))
+                .filter(users -> users.isPresent() && !users.get().isEmpty())
+                .orElseGet(Optional::empty);
     }
 
     /**

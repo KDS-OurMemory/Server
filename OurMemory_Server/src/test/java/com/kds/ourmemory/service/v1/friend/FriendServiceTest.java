@@ -751,6 +751,207 @@ class FriendServiceTest {
         assertTrue(afterAcceptUserNotices.isEmpty());
     }
 
+    @Test
+    @Order(9)
+    @DisplayName("사용자 목록 조회")
+    @Transactional
+    void findUsers() {
+        /* 0. Create Request */
+        var insertUniqueNameReq = new InsertUserDto.Request(
+                1, "TESTS_SNS_ID", "before pushToken",
+                "테스트 유저", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+
+        var insertSameNameReq1 = new InsertUserDto.Request(
+                2, "TESTS_SNS_ID2", "before pushToken",
+                "동명이인", "0724", false,
+                true, DeviceOs.IOS
+        );
+
+        var insertSameNameReq2 = new InsertUserDto.Request(
+                3, "TESTS_SNS_ID3", "before pushToken",
+                "동명이인", "0720", true,
+                false, DeviceOs.ANDROID
+        );
+
+        /* 1. Insert */
+        var insertUniqueNameRsp = userService.signUp(insertUniqueNameReq);
+        assertThat(insertUniqueNameRsp).isNotNull();
+
+        var insertSameNameRsp1 = userService.signUp(insertSameNameReq1);
+        assertThat(insertSameNameRsp1).isNotNull();
+
+        var insertSameNameRsp2 = userService.signUp(insertSameNameReq2);
+        assertThat(insertSameNameRsp2).isNotNull();
+
+        /* 2. Find users before set friend */
+        // 1) find by id : insertUniqueNameReq
+        var findUsersByIdList1 = friendService.findUsers(
+                insertSameNameRsp1.getUserId(), FriendDto.builder().friendId(insertUniqueNameRsp.getUserId()).build()
+        );
+        assertThat(findUsersByIdList1).isNotNull();
+        assertThat(findUsersByIdList1.isEmpty()).isFalse();
+        assertThat(findUsersByIdList1.size()).isOne();
+
+        var findUsersById1 = findUsersByIdList1.get(0);
+        assertThat(findUsersById1).isNotNull();
+        assertThat(findUsersById1.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
+        assertThat(findUsersById1.getName()).isEqualTo(insertUniqueNameReq.getName());
+        assertThat(findUsersById1.isSolar()).isEqualTo(insertUniqueNameReq.isSolar());
+        assertThat(findUsersById1.isBirthdayOpen()).isEqualTo(insertUniqueNameReq.isBirthdayOpen());
+        assertThat(findUsersById1.getBirthday()).isEqualTo(insertUniqueNameReq.getBirthday());
+        assertThat(findUsersById1.getFriendStatus()).isNull();
+
+        // 2) find by id : insertSameNameReq1
+        var findUsersByIdList2 = friendService.findUsers(
+                insertUniqueNameRsp.getUserId(), FriendDto.builder().friendId(insertSameNameRsp1.getUserId()).build()
+        );
+        assertThat(findUsersByIdList2).isNotNull();
+        assertThat(findUsersByIdList2.isEmpty()).isFalse();
+        assertThat(findUsersByIdList2.size()).isOne();
+
+        var findUsersById2 = findUsersByIdList2.get(0);
+        assertThat(findUsersById2).isNotNull();
+        assertThat(findUsersById2.getFriendId()).isEqualTo(insertSameNameRsp1.getUserId());
+        assertThat(findUsersById2.getName()).isEqualTo(insertSameNameReq1.getName());
+        assertThat(findUsersById2.isSolar()).isEqualTo(insertSameNameReq1.isSolar());
+        assertThat(findUsersById2.isBirthdayOpen()).isEqualTo(insertSameNameReq1.isBirthdayOpen());
+        assertThat(findUsersById2.getBirthday()).isEqualTo(
+                insertSameNameReq1.isBirthdayOpen()? insertSameNameReq1.getBirthday() : null
+        );
+        assertThat(findUsersById2.getFriendStatus()).isNull();
+
+        // 3) find by id : insertSameNameReq2
+        var findUsersByIdList3 = friendService.findUsers(
+                insertSameNameRsp1.getUserId(), FriendDto.builder().friendId(insertSameNameRsp2.getUserId()).build()
+        );
+        assertThat(findUsersByIdList3).isNotNull();
+        assertThat(findUsersByIdList3.isEmpty()).isFalse();
+        assertThat(findUsersByIdList3.size()).isOne();
+
+        var findUsersById3 = findUsersByIdList3.get(0);
+        assertThat(findUsersById3).isNotNull();
+        assertThat(findUsersById3.getFriendId()).isEqualTo(insertSameNameRsp2.getUserId());
+        assertThat(findUsersById3.getName()).isEqualTo(insertSameNameReq2.getName());
+        assertThat(findUsersById3.isSolar()).isEqualTo(insertSameNameReq2.isSolar());
+        assertThat(findUsersById3.isBirthdayOpen()).isEqualTo(insertSameNameReq2.isBirthdayOpen());
+        assertThat(findUsersById3.getBirthday()).isEqualTo(insertSameNameReq2.getBirthday());
+        assertThat(findUsersById3.getFriendStatus()).isNull();
+
+        // 4) find by name : insertUniqueNameReq
+        var findUsersByUniqueNameList = friendService.findUsers(
+                insertSameNameRsp1.getUserId(), FriendDto.builder().name(insertUniqueNameReq.getName()).build()
+        );
+        assertThat(findUsersByUniqueNameList).isNotNull();
+        assertThat(findUsersByUniqueNameList.isEmpty()).isFalse();
+        assertThat(findUsersByUniqueNameList.size()).isOne();
+
+        var findUsersByUniqueName = findUsersByUniqueNameList.get(0);
+        assertThat(findUsersByUniqueName).isNotNull();
+        assertThat(findUsersByUniqueName.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
+        assertThat(findUsersByUniqueName.getName()).isEqualTo(insertUniqueNameReq.getName());
+        assertThat(findUsersByUniqueName.isSolar()).isEqualTo(insertUniqueNameReq.isSolar());
+        assertThat(findUsersByUniqueName.isBirthdayOpen()).isEqualTo(insertUniqueNameReq.isBirthdayOpen());
+        assertThat(findUsersByUniqueName.getBirthday()).isEqualTo(insertUniqueNameReq.getBirthday());
+        assertThat(findUsersByUniqueName.getFriendStatus()).isNull();
+
+        // 5) find by name : insertSameNameReq1 or 2
+        var findUsersBySameNameList = friendService.findUsers(
+                insertUniqueNameRsp.getUserId(), FriendDto.builder().name(insertSameNameReq1.getName()).build()
+        );
+        assertThat(findUsersBySameNameList).isNotNull();
+        assertThat(findUsersBySameNameList.isEmpty()).isFalse();
+        assertThat(findUsersBySameNameList.size()).isEqualTo(2);
+
+        for (var findUsersBySameName : findUsersBySameNameList) {
+            var findUsersBySameNameReq = findUsersBySameName.getFriendId().equals(insertSameNameRsp1.getUserId()) ?
+                    insertSameNameReq1 : insertSameNameReq2;
+            var findUsersBySameNameId = findUsersBySameName.getFriendId().equals(insertSameNameRsp1.getUserId()) ?
+                    insertSameNameRsp1.getUserId() : insertSameNameRsp2.getUserId();
+
+            assertThat(findUsersBySameName).isNotNull();
+            assertThat(findUsersBySameName.getFriendId()).isEqualTo(findUsersBySameNameId);
+            assertThat(findUsersBySameName.getName()).isEqualTo(findUsersBySameNameReq.getName());
+            assertThat(findUsersBySameName.isSolar()).isEqualTo(findUsersBySameNameReq.isSolar());
+            assertThat(findUsersBySameName.isBirthdayOpen()).isEqualTo(findUsersBySameNameReq.isBirthdayOpen());
+            assertThat(findUsersBySameName.getBirthday()).isEqualTo(findUsersBySameNameReq.getBirthday());
+            assertThat(findUsersBySameName.getFriendStatus()).isNull();
+        }
+
+        /* 3. Set Friend Status */
+        // 1) WAIT - uniqueName -> sameName1, REQUESTED_BY - sameName1 -> uniqueName
+        var waitRequestFriendRsp = friendService.requestFriend(
+                new RequestFriendDto.Request(insertUniqueNameRsp.getUserId(), insertSameNameRsp1.getUserId())
+        );
+        assertThat(waitRequestFriendRsp).isNotNull();
+
+        // 2) FRIEND - uniqueName -> sameName2, BLOCK - sameName2 -> uniqueName
+        var friendRequestFriendRsp = friendService.requestFriend(
+                new RequestFriendDto.Request(insertUniqueNameRsp.getUserId(), insertSameNameRsp2.getUserId())
+        );
+        assertThat(friendRequestFriendRsp).isNotNull();
+
+        var friendAcceptFriendRsp = friendService.acceptFriend(
+                new AcceptFriendDto.Request(insertSameNameRsp2.getUserId(), insertUniqueNameRsp.getUserId())
+        );
+        assertThat(friendAcceptFriendRsp).isNotNull();
+
+        var blockFriendRsp = friendService.patchFriendStatus(
+                new PatchFriendStatusDto.Request(insertSameNameRsp2.getUserId(), insertUniqueNameRsp.getUserId(), FriendStatus.BLOCK)
+        );
+        assertThat(blockFriendRsp).isNotNull();
+
+        /* 4. Find users after set friend */
+        // 1) WAIT
+        var findUsersByWaitList = friendService.findUsers(
+                insertUniqueNameRsp.getUserId(), FriendDto.builder().friendStatus(FriendStatus.WAIT).build()
+        );
+        assertThat(findUsersByWaitList).isNotNull();
+        assertThat(findUsersByWaitList.size()).isOne();
+
+        var findUsersByWaitRsp = findUsersByWaitList.get(0);
+        assertThat(findUsersByWaitRsp).isNotNull();
+        assertThat(findUsersByWaitRsp.getFriendId()).isEqualTo(insertSameNameRsp1.getUserId());
+        assertThat(findUsersByWaitRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
+
+        // 2) REQUESTED_BY
+        var findUsersByRequestedByList = friendService.findUsers(
+                insertSameNameRsp1.getUserId(), FriendDto.builder().friendStatus(FriendStatus.REQUESTED_BY).build()
+        );
+        assertThat(findUsersByRequestedByList).isNotNull();
+        assertThat(findUsersByRequestedByList.size()).isOne();
+
+        var findUsersByRequestedByRsp = findUsersByRequestedByList.get(0);
+        assertThat(findUsersByRequestedByRsp).isNotNull();
+        assertThat(findUsersByRequestedByRsp.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
+        assertThat(findUsersByRequestedByRsp.getFriendStatus()).isEqualTo(FriendStatus.REQUESTED_BY);
+
+        // 3) FRIEND
+        var findUsersByFriendList = friendService.findUsers(
+                insertUniqueNameRsp.getUserId(), FriendDto.builder().friendStatus(FriendStatus.FRIEND).build()
+        );
+        assertThat(findUsersByFriendList).isNotNull();
+        assertThat(findUsersByFriendList.size()).isOne();
+
+        var findUsersByFriendRsp = findUsersByFriendList.get(0);
+        assertThat(findUsersByFriendRsp).isNotNull();
+        assertThat(findUsersByFriendRsp.getFriendId()).isEqualTo(insertSameNameRsp2.getUserId());
+        assertThat(findUsersByFriendRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
+
+        // 4) BLOCK
+        var findUsersByBlockList = friendService.findUsers(
+                insertSameNameRsp2.getUserId(), FriendDto.builder().friendStatus(FriendStatus.BLOCK).build()
+                );
+        assertThat(findUsersByBlockList).isNotNull();
+        assertThat(findUsersByBlockList.size()).isOne();
+
+        var findUsersByBlockRsp = findUsersByBlockList.get(0);
+        assertThat(findUsersByBlockRsp).isNotNull();
+        assertThat(findUsersByBlockRsp.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
+        assertThat(findUsersByBlockRsp.getFriendStatus()).isEqualTo(FriendStatus.BLOCK);
+    }
+
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
@@ -764,7 +965,6 @@ class FriendServiceTest {
         requestUserRsp = userService.signUp(insertRequestUserReq);
         assertThat(requestUserRsp).isNotNull();
         assertThat(requestUserRsp.getUserId()).isNotNull();
-        assertThat(requestUserRsp.getPrivateRoomId()).isNotNull();
 
         var insertAcceptUserReq = new InsertUserDto.Request(
                 1, "accept_user_snsId", "accept user Token",
@@ -774,6 +974,5 @@ class FriendServiceTest {
         acceptUserRsp = userService.signUp(insertAcceptUserReq);
         assertThat(acceptUserRsp).isNotNull();
         assertThat(acceptUserRsp.getUserId()).isNotNull();
-        assertThat(acceptUserRsp.getPrivateRoomId()).isNotNull();
     }
 }

@@ -35,28 +35,28 @@ public class MemoryDto {
     private final String place;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "시작 시간", notes = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "시작 시간(yyyy-MM-dd HH:mm)", notes = "yyyy-MM-dd HH:mm")
     private final LocalDateTime startDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "종료 시간", notes = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "종료 시간(yyyy-MM-dd HH:mm)", notes = "yyyy-MM-dd HH:mm")
     private final LocalDateTime endDate;
 
-    @ApiModelProperty(value = "배경색", example = "#FFFFFF")
+    @ApiModelProperty(value = "배경색(16진 색상코드)", example = "#FFFFFF")
     private final String bgColor;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "첫 번째 알림 시간", notes = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "첫 번째 알림 시간(yyyy-MM-dd HH:mm)", notes = "yyyy-MM-dd HH:mm")
     private final LocalDateTime firstAlarm;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "두 번째 알림 시간", notes = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "두 번째 알림 시간(yyyy-MM-dd HH:mm)", notes = "yyyy-MM-dd HH:mm")
     private final LocalDateTime secondAlarm;
 
-    @ApiModelProperty(value = "일정 등록날짜", notes = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "일정 등록날짜(yyyy-MM-dd HH:mm:ss)", notes = "yyyy-MM-dd HH:mm:ss")
     private final String regDate;
 
-    @ApiModelProperty(value = "일정 수정날짜", notes = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "일정 수정날짜(yyyy-MM-dd HH:mm:ss)", notes = "yyyy-MM-dd HH:mm:ss")
     private final String modDate;
 
     @ApiModelProperty(value = "일정 공유방 목록", notes = "일정이 공유된 방 목록")
@@ -65,7 +65,7 @@ public class MemoryDto {
     @ApiModelProperty(value = "일정이 추가된 방", notes = "일정이 추가된 방 번호를 전달한다. 개인 일정인 경우 개인방 번호가 전달된다.")
     private Long addedRoomId;
 
-    @ApiModelProperty(value = "참석 여부 목록", notes = "일정을 조회한 방 인원에 대한 참석 여부 목록을 전달한다. 참석 여부를 설정하지 않은 경우 미정으로 취급한다.")
+    @ApiModelProperty(value = "참석 여부 목록(ABSENCE: 불참, ATTEND: 참석)", notes = "일정을 조회한 방 인원에 대한 참석 여부 목록을 전달한다. 참석 여부를 설정하지 않은 경우 미정으로 취급한다.")
     private List<UserAttendance> userAttendances;
 
     public MemoryDto(Memory memory) {
