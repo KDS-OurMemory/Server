@@ -41,36 +41,29 @@ public class TodoService {
 
     private static final String UPDATE = "update";
 
-    public InsertTodoDto.Response insert(InsertTodoDto.Request request) {
-        return findUser(request.getWriter())
-                .map(writer -> {
-                    var todolist = Todo.builder()
-                            .writer(writer)
-                            .contents(request.getContents())
-                            .todoDate(request.getTodoDate().atStartOfDay())
-                            .used(true)
-                            .build();
-
-                    return insertTodolist(todolist)
-                            .orElseThrow(() -> new TodoInternalServerException(
-                                    String.format(QUERY_FAILED_MESSAGE, TODO, INSERT, request.getContents())
-                            ));
-                })
-                .map(InsertTodoDto.Response::new)
+    public TodoRspDto insert(TodoReqDto reqDto) {
+        return findUser(reqDto.getWriterId())
+                .map(writer -> insertTodolist(reqDto.toEntity(writer))
+                        .orElseThrow(() -> new TodoInternalServerException(
+                                        String.format(QUERY_FAILED_MESSAGE, TODO, INSERT, reqDto.getContents())
+                                )
+                        )
+                )
+                .map(TodoRspDto::new)
                 .orElseThrow(() -> new UserNotFoundException(
-                        String.format(NOT_FOUND_MESSAGE, USER, request.getWriter())
+                        String.format(NOT_FOUND_MESSAGE, USER, reqDto.getWriterId())
                 ));
     }
 
-    public FindTodoDto.Response find(long todoId) {
+    public TodoRspDto find(long todoId) {
         return findTodo(todoId)
-                .map(FindTodoDto.Response::new)
+                .map(TodoRspDto::new)
                 .orElseThrow(() -> new TodoNotFoundException(
                         String.format(NOT_FOUND_MESSAGE, TODO, todoId)
                 ));
     }
 
-    public List<FindTodosDto.Response> findTodos(long userId) {
+    public List<TodoRspDto> findTodos(long userId) {
         List<Todo> findTodos = new ArrayList<>();
 
         findTodolistByWriterId(userId).ifPresent(findTodos::addAll);
@@ -85,19 +78,19 @@ public class TodoService {
                         Comparator.comparing(Todo::getTodoDate)
                                 .thenComparing(Todo::getRegDate)
                 )
-                .map(FindTodosDto.Response::new)
+                .map(TodoRspDto::new)
                 .collect(toList());
     }
 
     @Transactional
-    public UpdateTodoDto.Response update(long todoId, UpdateTodoDto.Request request) {
+    public TodoRspDto update(long todoId, TodoReqDto reqDto) {
         return findTodo(todoId)
                 .map(todo ->
-                    todo.updateTodo(request)
-                            .map(UpdateTodoDto.Response::new)
-                            .orElseThrow(() -> new TodoInternalServerException(
-                                    String.format(QUERY_FAILED_MESSAGE, TODO, UPDATE, request.getContents())
-                            ))
+                        todo.updateTodo(reqDto)
+                                .map(TodoRspDto::new)
+                                .orElseThrow(() -> new TodoInternalServerException(
+                                        String.format(QUERY_FAILED_MESSAGE, TODO, UPDATE, reqDto.getContents())
+                                ))
                 )
                 .orElseThrow(() -> new TodoNotFoundException(
                         String.format(NOT_FOUND_MESSAGE, TODO, todoId)
@@ -105,11 +98,11 @@ public class TodoService {
     }
 
     @Transactional
-    public DeleteTodoDto.Response delete(long todoId) {
+    public TodoRspDto delete(long todoId) {
         return findTodo(todoId)
                 .map(todo -> {
                     todo.deleteTodo();
-                    return new DeleteTodoDto.Response();
+                    return new TodoRspDto(todo);
                 })
                 .orElseThrow(() -> new TodoNotFoundException(
                         String.format(NOT_FOUND_MESSAGE, TODO, todoId)
@@ -133,7 +126,7 @@ public class TodoService {
 
     /**
      * User Repository
-     *
+     * <p>
      * When working with a service code, the service code is connected to each other
      * and is caught in an infinite loop in the injection of dependencies.
      */

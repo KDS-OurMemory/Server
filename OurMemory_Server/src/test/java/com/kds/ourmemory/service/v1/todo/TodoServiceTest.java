@@ -1,7 +1,6 @@
 package com.kds.ourmemory.service.v1.todo;
 
-import com.kds.ourmemory.controller.v1.todo.dto.InsertTodoDto;
-import com.kds.ourmemory.controller.v1.todo.dto.UpdateTodoDto;
+import com.kds.ourmemory.controller.v1.todo.dto.TodoReqDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -12,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Slf4j
 @SpringBootTest
@@ -45,18 +44,18 @@ class TodoServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertTodoReq = new InsertTodoDto.Request(
-                insertWriterRsp.getUserId(),
-                "Test TODO contents",
-                LocalDate.now()
-        );
+        var todoReqDto = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents")
+                .todoDate(LocalDateTime.now())
+                .build();
 
         /* 1. Create todoData */
-        var insertTodoRsp = todoService.insert(insertTodoReq);
+        var insertTodoRsp = todoService.insert(todoReqDto);
         assertThat(insertTodoRsp).isNotNull();
-        assertThat(insertTodoRsp.getWriterId()).isEqualTo(insertTodoReq.getWriter());
-        assertThat(insertTodoRsp.getContents()).isEqualTo(insertTodoReq.getContents());
-        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(insertTodoReq.getTodoDate().atStartOfDay());
+        assertThat(insertTodoRsp.getWriterId()).isEqualTo(todoReqDto.getWriterId());
+        assertThat(insertTodoRsp.getContents()).isEqualTo(todoReqDto.getContents());
+        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(todoReqDto.getTodoDate());
     }
 
     @Test
@@ -68,18 +67,18 @@ class TodoServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertTodoReq = new InsertTodoDto.Request(
-                insertWriterRsp.getUserId(),
-                "Test TODO contents",
-                LocalDate.now()
-        );
+        var todoReqDto = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents")
+                .todoDate(LocalDateTime.now())
+                .build();
 
         /* 1. Create todoData */
-        var insertTodoRsp = todoService.insert(insertTodoReq);
+        var insertTodoRsp = todoService.insert(todoReqDto);
         assertThat(insertTodoRsp).isNotNull();
-        assertThat(insertTodoRsp.getWriterId()).isEqualTo(insertTodoReq.getWriter());
-        assertThat(insertTodoRsp.getContents()).isEqualTo(insertTodoReq.getContents());
-        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(insertTodoReq.getTodoDate().atStartOfDay());
+        assertThat(insertTodoRsp.getWriterId()).isEqualTo(todoReqDto.getWriterId());
+        assertThat(insertTodoRsp.getContents()).isEqualTo(todoReqDto.getContents());
+        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(todoReqDto.getTodoDate());
 
         /* 2. Find todoData */
         var findTodoRsp = todoService.find(insertTodoRsp.getTodoId());
@@ -99,50 +98,50 @@ class TodoServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertTodoReq1 = new InsertTodoDto.Request(
-                insertWriterRsp.getUserId(),
-                "Test TODO contents",
-                LocalDate.now().minusDays(1)
-        );
+        var todoReqDto1 = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents1")
+                .todoDate(LocalDateTime.now().minusDays(1))
+                .build();
 
-        var insertTodoReq2 = new InsertTodoDto.Request(
-                insertWriterRsp.getUserId(),
-                "Test TODO contents",
-                LocalDate.now().plusDays(2)
-        );
+        var todoReqDto2 = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents2")
+                .todoDate(LocalDateTime.now().plusDays(2))
+                .build();
 
-        var insertTodoReq3 = new InsertTodoDto.Request(
-                insertWriterRsp.getUserId(),
-                "Test TODO contents",
-                LocalDate.now()
-        );
+        var todoReqDto3 = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents3")
+                .todoDate(LocalDateTime.now())
+                .build();
 
-        var insertTodoReq4 = new InsertTodoDto.Request(
-                insertWriterRsp.getUserId(),
-                "Test TODO contents",
-                LocalDate.now().plusDays(1)
-        );
+        var todoReqDto4 = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents4")
+                .todoDate(LocalDateTime.now().plusDays(1))
+                .build();
 
         /* 1. Create todoData */
-        var insertTodoRsp1 = todoService.insert(insertTodoReq1);
-        assertThat(insertTodoRsp1.getWriterId()).isEqualTo(insertTodoReq1.getWriter());
-        assertThat(insertTodoRsp1.getContents()).isEqualTo(insertTodoReq1.getContents());
-        assertThat(insertTodoRsp1.getTodoDate()).isEqualTo(insertTodoReq1.getTodoDate().atStartOfDay());
+        var insertTodoRsp1 = todoService.insert(todoReqDto1);
+        assertThat(insertTodoRsp1.getWriterId()).isEqualTo(todoReqDto1.getWriterId());
+        assertThat(insertTodoRsp1.getContents()).isEqualTo(todoReqDto1.getContents());
+        assertThat(insertTodoRsp1.getTodoDate()).isEqualTo(todoReqDto1.getTodoDate());
 
-        var insertTodoRsp2 = todoService.insert(insertTodoReq2);
-        assertThat(insertTodoRsp2.getWriterId()).isEqualTo(insertTodoReq2.getWriter());
-        assertThat(insertTodoRsp2.getContents()).isEqualTo(insertTodoReq2.getContents());
-        assertThat(insertTodoRsp2.getTodoDate()).isEqualTo(insertTodoReq2.getTodoDate().atStartOfDay());
+        var insertTodoRsp2 = todoService.insert(todoReqDto2);
+        assertThat(insertTodoRsp2.getWriterId()).isEqualTo(todoReqDto2.getWriterId());
+        assertThat(insertTodoRsp2.getContents()).isEqualTo(todoReqDto2.getContents());
+        assertThat(insertTodoRsp2.getTodoDate()).isEqualTo(todoReqDto2.getTodoDate());
 
-        var insertTodoRsp3 = todoService.insert(insertTodoReq3);
-        assertThat(insertTodoRsp3.getWriterId()).isEqualTo(insertTodoReq3.getWriter());
-        assertThat(insertTodoRsp3.getContents()).isEqualTo(insertTodoReq3.getContents());
-        assertThat(insertTodoRsp3.getTodoDate()).isEqualTo(insertTodoReq3.getTodoDate().atStartOfDay());
+        var insertTodoRsp3 = todoService.insert(todoReqDto3);
+        assertThat(insertTodoRsp3.getWriterId()).isEqualTo(todoReqDto3.getWriterId());
+        assertThat(insertTodoRsp3.getContents()).isEqualTo(todoReqDto3.getContents());
+        assertThat(insertTodoRsp3.getTodoDate()).isEqualTo(todoReqDto3.getTodoDate());
 
-        var insertTodoRsp4 = todoService.insert(insertTodoReq4);
-        assertThat(insertTodoRsp4.getWriterId()).isEqualTo(insertTodoReq4.getWriter());
-        assertThat(insertTodoRsp4.getContents()).isEqualTo(insertTodoReq4.getContents());
-        assertThat(insertTodoRsp4.getTodoDate()).isEqualTo(insertTodoReq4.getTodoDate().atStartOfDay());
+        var insertTodoRsp4 = todoService.insert(todoReqDto4);
+        assertThat(insertTodoRsp4.getWriterId()).isEqualTo(todoReqDto4.getWriterId());
+        assertThat(insertTodoRsp4.getContents()).isEqualTo(todoReqDto4.getContents());
+        assertThat(insertTodoRsp4.getTodoDate()).isEqualTo(todoReqDto4.getTodoDate());
 
         /* 2. Find todos */
         var findTodosList = todoService.findTodos(insertWriterRsp.getUserId());
@@ -163,21 +162,23 @@ class TodoServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertTodoReq = new InsertTodoDto.Request(
-                insertWriterRsp.getUserId(),
-                "Test TODO contents",
-                LocalDate.now()
-        );
-        var updateTodoReq = new UpdateTodoDto.Request(
-                "Update TODO contents!",
-                LocalDate.now().plusDays(1)
-        );
+        var todoReqDto = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents")
+                .todoDate(LocalDateTime.now())
+                .build();
+
+        var updateTodoReq = TodoReqDto.builder()
+                .contents("Update TODO contents!")
+                .todoDate(LocalDateTime.now().plusDays(1))
+                .build();
 
         /* 1. Create todoData */
-        var insertTodoRsp = todoService.insert(insertTodoReq);
-        assertThat(insertTodoRsp.getWriterId()).isEqualTo(insertTodoReq.getWriter());
-        assertThat(insertTodoRsp.getContents()).isEqualTo(insertTodoReq.getContents());
-        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(insertTodoReq.getTodoDate().atStartOfDay());
+        var insertTodoRsp = todoService.insert(todoReqDto);
+        assertThat(insertTodoRsp).isNotNull();
+        assertThat(insertTodoRsp.getWriterId()).isEqualTo(todoReqDto.getWriterId());
+        assertThat(insertTodoRsp.getContents()).isEqualTo(todoReqDto.getContents());
+        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(todoReqDto.getTodoDate());
 
         /* 2. Find todos before update */
         var beforeFindTodoRsp = todoService.find(insertTodoRsp.getTodoId());
@@ -193,7 +194,7 @@ class TodoServiceTest {
         var afterFindTodoRsp = todoService.find(insertTodoRsp.getTodoId());
         assertThat(afterFindTodoRsp.getTodoId()).isEqualTo(insertTodoRsp.getTodoId());
         assertThat(afterFindTodoRsp.getContents()).isEqualTo(updateTodoReq.getContents());
-        assertThat(afterFindTodoRsp.getTodoDate()).isEqualTo(updateTodoReq.getTodoDate().atStartOfDay());
+        assertThat(afterFindTodoRsp.getTodoDate()).isEqualTo(updateTodoReq.getTodoDate());
     }
 
     @Test
@@ -205,17 +206,18 @@ class TodoServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertTodoReq = new InsertTodoDto.Request(
-                insertWriterRsp.getUserId(),
-                "Test TODO contents",
-                LocalDate.now()
-        );
+        var todoReqDto = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents")
+                .todoDate(LocalDateTime.now())
+                .build();
 
         /* 1. Create todoData */
-        var insertTodoRsp = todoService.insert(insertTodoReq);
-        assertThat(insertTodoRsp.getWriterId()).isEqualTo(insertTodoReq.getWriter());
-        assertThat(insertTodoRsp.getContents()).isEqualTo(insertTodoReq.getContents());
-        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(insertTodoReq.getTodoDate().atStartOfDay());
+        var insertTodoRsp = todoService.insert(todoReqDto);
+        assertThat(insertTodoRsp).isNotNull();
+        assertThat(insertTodoRsp.getWriterId()).isEqualTo(todoReqDto.getWriterId());
+        assertThat(insertTodoRsp.getContents()).isEqualTo(todoReqDto.getContents());
+        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(todoReqDto.getTodoDate());
 
         /* 2. Find todos before delete */
         var beforeFindTodosList = todoService.findTodos(insertWriterRsp.getUserId());
@@ -227,10 +229,7 @@ class TodoServiceTest {
         /* 3. Delete todoData */
         var deleteTodoRsp = todoService.delete(insertTodoRsp.getTodoId());
         assertThat(deleteTodoRsp).isNotNull();
-
-        /* 2. Find todos after delete */
-        var afterFindTodosList = todoService.findTodos(insertWriterRsp.getUserId());
-        assertTrue(afterFindTodosList.isEmpty());
+        assertFalse(deleteTodoRsp.isUsed());
     }
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
@@ -245,6 +244,5 @@ class TodoServiceTest {
         insertWriterRsp = userService.signUp(insertWriterReq);
         assertThat(insertWriterRsp).isNotNull();
         assertThat(insertWriterRsp.getUserId()).isNotNull();
-        assertThat(insertWriterRsp.getPrivateRoomId()).isNotNull();
     }
 }
