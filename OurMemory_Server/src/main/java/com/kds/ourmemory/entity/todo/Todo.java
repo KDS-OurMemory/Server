@@ -1,6 +1,6 @@
 package com.kds.ourmemory.entity.todo;
 
-import com.kds.ourmemory.controller.v1.todo.dto.UpdateTodoDto;
+import com.kds.ourmemory.controller.v1.todo.dto.TodoReqDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.user.User;
 import lombok.AccessLevel;
@@ -53,11 +53,11 @@ public class Todo extends BaseTimeEntity {
         this.used = used;
     }
 
-    public Optional<Todo> updateTodo(UpdateTodoDto.Request request) {
-        return Optional.ofNullable(request)
+    public Optional<Todo> updateTodo(TodoReqDto reqDto) {
+        return Optional.ofNullable(reqDto)
                 .map(req -> {
                     this.contents = StringUtils.isNoneBlank(req.getContents())? req.getContents() : this.contents;
-                    this.todoDate = req.getTodoDate() != null? req.getTodoDate().atStartOfDay() : this.todoDate;
+                    this.todoDate = req.getTodoDate() != null? req.getTodoDate() : this.todoDate;
 
                     return this;
                 });
