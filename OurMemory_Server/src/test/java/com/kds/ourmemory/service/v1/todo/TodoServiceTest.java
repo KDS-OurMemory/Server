@@ -38,7 +38,7 @@ class TodoServiceTest {
 
     @Test
     @Order(1)
-    @DisplayName("TODO 항목 생성")
+    @DisplayName("TODO 추가")
     @Transactional
     void insert() {
         /* 0-1. Set base data */
@@ -92,7 +92,7 @@ class TodoServiceTest {
 
     @Test
     @Order(3)
-    @DisplayName("TODO 리스트 조회")
+    @DisplayName("TODO 목록 조회")
     @Transactional
     void findTodos() {
         /* 0-1. Set base data */

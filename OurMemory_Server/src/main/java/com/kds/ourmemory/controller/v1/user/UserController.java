@@ -2,8 +2,6 @@ package com.kds.ourmemory.controller.v1.user;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.user.dto.*;
-import com.kds.ourmemory.entity.friend.FriendStatus;
-import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.service.v1.user.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -11,8 +9,6 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.kds.ourmemory.controller.v1.ApiResult.ok;
 
@@ -44,17 +40,6 @@ public class UserController {
             @ApiParam(value = "userId", required = true) @PathVariable long userId
     ) {
         return ok(userService.find(userId));
-    }
-
-    @ApiOperation(value = "사용자 검색", notes = "조건에 해당하는 사용자를 검색한다. 또한 나와의 친구상태도 검색된다.")
-    @GetMapping(value = "/{userId}/search")
-    public ApiResult<List<UserDto>> findUsers(
-            @PathVariable long userId,
-            @ApiParam(value = "findId") @RequestParam(required = false) Long findId,
-            @ApiParam(value = "name") @RequestParam(required = false) String name,
-            @ApiParam(value = "friendStatus") @RequestParam(required = false) FriendStatus friendStatus
-    ) {
-        return ok(userService.findUsers(userId, findId, name, friendStatus));
     }
 
     @ApiOperation(value = "푸시 토큰 수정", notes = "사용자 번호로 사용자를 찾아 푸시토큰 값을 수정한다.")

@@ -68,9 +68,9 @@ public class MemoryController {
     @ApiOperation(value = "일정 공유",
             notes = """
                     사용자가 대상 목록에게 일정을 공유시킨다.\s
-                    1. 사용자 개별 공유: 각 사용자 별로 방 생성 뒤 일정 공유,\s
-                    2. 사용자 그룹 공유: 사용자들을 참여자로 방 생성 후 일정 공유,\s
-                    3. 기존 방에 공유: 전달받은 각각의 방에 일정 공유"""
+                    1. 사용자 개별 공유: 각 사용자 별로 방 생성 뒤 일정 공유(type=USERS, targetIds=사용자 번호 목록)\s
+                    2. 사용자 그룹 공유: 사용자들을 참여자로 방 생성 후 일정 공유(type=USER_GROUP, targetIds=사용자 번호 목록)\s
+                    3. 기존 방에 공유: 전달받은 각각의 방에 일정 공유(type=ROOMS, targetIds=방 번호 목록)"""
     )
     @PostMapping("/{memoryId}/share/{userId}")
     public ApiResult<MemoryDto> shareMemory(

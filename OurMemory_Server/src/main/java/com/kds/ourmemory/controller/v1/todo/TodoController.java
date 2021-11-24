@@ -31,7 +31,7 @@ public class TodoController {
         return ok(todoService.find(todoId));
     }
 
-    @ApiOperation(value = "TODO 리스트 조회", notes = "사용자가 작성한 TODO 리스트를 조회한다.")
+    @ApiOperation(value = "TODO 목록 조회", notes = "사용자가 작성한 TODO 목록을 조회한다.")
     @GetMapping("/user/{userId}")
     public ApiResult<List<FindTodosDto.Response>> findTodos(@PathVariable long userId) {
         return ok(todoService.findTodos(userId));
