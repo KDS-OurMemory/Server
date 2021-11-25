@@ -6,8 +6,8 @@ import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.friend.dto.AcceptFriendDto;
 import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
-import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
 import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
@@ -445,7 +445,7 @@ class UserServiceTest {
         assertThat(findRoomsByMember.size()).isEqualTo(1);
 
         var ownerRoomCnt = 0;
-        for (FindRoomsDto.Response response : findRoomsByMember) {
+        for (RoomRspDto response : findRoomsByMember) {
             if (response.getRoomId() == insertOwnerRoomRsp.getRoomId()) ownerRoomCnt++;
         }
         assertThat(ownerRoomCnt).isOne();
@@ -553,7 +553,7 @@ class UserServiceTest {
         assertThat(findRoomsByMember).isNotNull();
         assertThat(findRoomsByMember.size()).isEqualTo(1);
         var ownerRoomCnt = 0;
-        for (FindRoomsDto.Response response : findRoomsByMember) {
+        for (RoomRspDto response : findRoomsByMember) {
             if (response.getRoomId() == insertParticipantRoomRsp.getRoomId()) ownerRoomCnt++;
         }
         assertThat(ownerRoomCnt).isOne();

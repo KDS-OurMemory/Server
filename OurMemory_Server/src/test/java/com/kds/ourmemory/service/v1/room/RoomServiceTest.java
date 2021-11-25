@@ -26,8 +26,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -69,66 +68,29 @@ class RoomServiceTest {
 
     @Test
     @Order(1)
-    @DisplayName("생성-조회-수정-삭제")
+    @DisplayName("생성")
     @Transactional
-    void crud() {
+    void insert() {
         /* 0-1. Set base data */
         setBaseData();
 
         /* 0-2. Create request */
-        InsertRoomDto.Request insertRoomReq = new InsertRoomDto.Request(
+        var insertRoomReq = new InsertRoomDto.Request(
                 "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-        UpdateRoomDto.Request updateRoomReq = new UpdateRoomDto.Request("update room name", true);
-        DeleteRoomDto.Request deleteRoomReq = new DeleteRoomDto.Request(insertOwnerRsp.getUserId());
 
         /* 1. Insert */
-        InsertRoomDto.Response insertRoomRsp = roomService.insert(insertRoomReq);
+        var insertRoomRsp = roomService.insert(insertRoomReq);
         assertThat(insertRoomRsp).isNotNull();
         assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
         assertThat(insertRoomRsp.getMembers()).isNotNull();
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
-
-        /* 2. Find rooms */
-        List<FindRoomsDto.Response> findRooms = roomService.findRooms(insertOwnerRsp.getUserId(), null);
-        assertThat(findRooms).isNotNull();
-
-        findRooms = roomService.findRooms(null, "TestRoom");
-        assertThat(findRooms).isNotNull();
-        assertThat(findRooms.size()).isOne();
-
-        /* 3. Find before update */
-        FindRoomDto.Response beforeFindRsp = roomService.find(insertRoomRsp.getRoomId());
-        assertThat(beforeFindRsp).isNotNull();
-        assertThat(beforeFindRsp.getName()).isEqualTo(insertRoomReq.getName());
-        assertThat(beforeFindRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
-
-        /* 4. Update */
-        UpdateRoomDto.Response updateRsp = roomService.update(insertRoomRsp.getRoomId(), updateRoomReq);
-        assertThat(updateRsp).isNotNull();
-
-        /* 5. Find after update */
-        FindRoomDto.Response afterFindRsp = roomService.find(insertRoomRsp.getRoomId());
-        assertThat(afterFindRsp).isNotNull();
-        assertThat(afterFindRsp.getName()).isEqualTo(updateRoomReq.getName());
-        assertThat(afterFindRsp.isOpened()).isEqualTo(updateRoomReq.getOpened());
-        
-        /* 6. Delete */
-        DeleteRoomDto.Response deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
-        assertThat(deleteRsp).isNotNull();
-
-        /* 7. Find after delete */
-        Long roomId = insertRoomRsp.getRoomId();
-        assertThat(roomId).isNotNull();
-        assertThrows(
-                RoomNotFoundException.class, () -> roomService.find(roomId)
-        );
     }
 
     @Test
     @Order(2)
     @DisplayName("방 개별 조회")
     @Transactional
-    void findRoom() {
+    void find() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -210,13 +172,15 @@ class RoomServiceTest {
         /* 5. Find room */
         var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
         assertThat(findRoomRsp).isNotNull();
+        assertThat(findRoomRsp.getRoomId()).isEqualTo(insertRoomRsp.getRoomId());
+        assertThat(findRoomRsp.getName()).isEqualTo(insertRoomRsp.getName());
     }
 
     @Test
     @Order(3)
     @DisplayName("방 목록 조회")
     @Transactional
-    void findRooms() {
+    void finds() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -234,11 +198,214 @@ class RoomServiceTest {
         var findRoomsRsp = roomService.findRooms(insertOwnerRsp.getUserId(), null);
         assertThat(findRoomsRsp).isNotNull();
         assertThat(findRoomsRsp.size()).isOne();
-        assertThat(findRoomsRsp.get(0).getRoomId()).isEqualTo(insertRoomRsp.getRoomId());
+
+        var findRoomRsp = findRoomsRsp.get(0);
+        assertThat(findRoomRsp.getRoomId()).isEqualTo(insertRoomRsp.getRoomId());
+        assertThat(findRoomRsp.getName()).isEqualTo(insertRoomRsp.getName());
+        assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertRoomRsp.getOwnerId());
     }
 
     @Test
     @Order(4)
+    @DisplayName("방장 양도 - 정상")
+    @Transactional
+    void patchOwner() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        var insertExcludeMemberReq = new InsertUserDto.Request(
+                1, "excludeMember_snsId", "excludeMember Token",
+                "excludeMember", "1225", true,
+                false, DeviceOs.IOS
+        );
+        var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
+        assertThat(insertExcludeMemberRsp).isNotNull();
+        assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
+
+        /* 0-2. Create request */
+        var insertRoomReq = new InsertRoomDto.Request(
+                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp).isNotNull();
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getMembers()).isNotNull();
+        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
+
+        /* 2. Patch owner */
+        var patchOwnerRsp = roomService.patchOwner(insertRoomRsp.getRoomId(), insertMember1Rsp.getUserId());
+        assertThat(patchOwnerRsp).isNotNull();
+        assertThat(patchOwnerRsp.getOwnerId()).isEqualTo(insertMember1Rsp.getUserId());
+
+        /* 3. Patch owner not found room */
+        var wrongRoomId = insertRoomRsp.getRoomId() + 1;
+        var memberId = insertMember1Rsp.getUserId();
+        assertThrows(
+                RoomNotFoundException.class, () -> roomService.patchOwner(wrongRoomId, memberId)
+        );
+
+        /* 4. Patch owner not in room member */
+        var roomId = insertRoomRsp.getRoomId();
+        var excludeMemberId = insertExcludeMemberRsp.getUserId();
+        assertThrows(
+                RoomNotFoundMemberException.class, () -> roomService.patchOwner(roomId, excludeMemberId)
+        );
+
+        /* 5. Patch owner already owner */
+        var ownerId = patchOwnerRsp.getOwnerId();
+        assertThrows(
+                RoomAlreadyOwnerException.class, () -> roomService.patchOwner(roomId, ownerId)
+        );
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("방장 양도 - 방 번호에 맞는 방이 없는 경우")
+    @Transactional
+    void patchOwnerNotFoundRoom() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        var insertExcludeMemberReq = new InsertUserDto.Request(
+                1, "excludeMember_snsId", "excludeMember Token",
+                "excludeMember", "1225", true,
+                false, DeviceOs.IOS
+        );
+        var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
+        assertThat(insertExcludeMemberRsp).isNotNull();
+        assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
+
+        /* 0-2. Create request */
+        var insertRoomReq = new InsertRoomDto.Request(
+                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp).isNotNull();
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getMembers()).isNotNull();
+        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
+
+        /* 2. Patch owner not found room */
+        var wrongRoomId = insertRoomRsp.getRoomId() + 1;
+        var memberId = insertMember1Rsp.getUserId();
+        assertThrows(
+                RoomNotFoundException.class, () -> roomService.patchOwner(wrongRoomId, memberId)
+        );
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("방장 양도 - 양도할 사용자가 방에 없는 경우")
+    @Transactional
+    void patchOwnerNotInRoomMember() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        var insertExcludeMemberReq = new InsertUserDto.Request(
+                1, "excludeMember_snsId", "excludeMember Token",
+                "excludeMember", "1225", true,
+                false, DeviceOs.IOS
+        );
+        var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
+        assertThat(insertExcludeMemberRsp).isNotNull();
+        assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
+
+        /* 0-2. Create request */
+        var insertRoomReq = new InsertRoomDto.Request(
+                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp).isNotNull();
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getMembers()).isNotNull();
+        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
+
+        /* 2. Patch owner */
+        var patchOwnerRsp = roomService.patchOwner(insertRoomRsp.getRoomId(), insertMember1Rsp.getUserId());
+        assertThat(patchOwnerRsp).isNotNull();
+        assertThat(patchOwnerRsp.getOwnerId()).isEqualTo(insertMember1Rsp.getUserId());
+
+        /* 3. Patch owner not in room member */
+        var roomId = insertRoomRsp.getRoomId();
+        var excludeMemberId = insertExcludeMemberRsp.getUserId();
+        assertThrows(
+                RoomNotFoundMemberException.class, () -> roomService.patchOwner(roomId, excludeMemberId)
+        );
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("방장 양도 - 양도할 사용자가 이미 방장인 경우")
+    @Transactional
+    void patchOwnerAlreadyOwner() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        var insertExcludeMemberReq = new InsertUserDto.Request(
+                1, "excludeMember_snsId", "excludeMember Token",
+                "excludeMember", "1225", true,
+                false, DeviceOs.IOS
+        );
+        var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
+        assertThat(insertExcludeMemberRsp).isNotNull();
+        assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
+
+        /* 0-2. Create request */
+        var insertRoomReq = new InsertRoomDto.Request(
+                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp).isNotNull();
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getMembers()).isNotNull();
+        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
+
+        /* 2. Patch owner */
+        var patchOwnerRsp = roomService.patchOwner(insertRoomRsp.getRoomId(), insertMember1Rsp.getUserId());
+        assertThat(patchOwnerRsp).isNotNull();
+        assertThat(patchOwnerRsp.getOwnerId()).isEqualTo(insertMember1Rsp.getUserId());
+
+        /* 3. Patch owner already owner */
+        var roomId = insertRoomRsp.getRoomId();
+        var ownerId = patchOwnerRsp.getOwnerId();
+        assertThrows(
+                RoomAlreadyOwnerException.class, () -> roomService.patchOwner(roomId, ownerId)
+        );
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("수정")
+    @Transactional
+    void update() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = new InsertRoomDto.Request(
+                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var updateRoomReq = new UpdateRoomDto.Request("update room name", true);
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp).isNotNull();
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getMembers()).isNotNull();
+        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
+
+        /* 2. Update */
+        var updateRsp = roomService.update(insertRoomRsp.getRoomId(), updateRoomReq);
+        assertThat(updateRsp).isNotNull();
+        assertThat(updateRsp.getName()).isEqualTo(updateRoomReq.getName());
+        assertThat(updateRsp.isOpened()).isEqualTo(updateRoomReq.getOpened());
+    }
+
+    @Test
+    @Order(9)
     @DisplayName("방 삭제 -> 공유방")
     @Transactional
     void deleteShareRoom() {
@@ -246,18 +413,18 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        InsertRoomDto.Request insertRoomReq = new InsertRoomDto.Request(
+        var insertRoomReq = new InsertRoomDto.Request(
                 "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-        DeleteRoomDto.Request deleteRoomReq = new DeleteRoomDto.Request(insertOwnerRsp.getUserId());
+        var deleteRoomReq = new DeleteRoomDto.Request(insertOwnerRsp.getUserId());
 
         /* 1. Insert */
-        InsertRoomDto.Response insertRoomRsp = roomService.insert(insertRoomReq);
+        var insertRoomRsp = roomService.insert(insertRoomReq);
         assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
         assertThat(insertRoomRsp.getMembers()).isNotNull();
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
 
         /* 2. Insert Memories */
-        InsertMemoryDto.Request insertMemoryReqOwner = new InsertMemoryDto.Request(
+        var insertMemoryReqOwner = new InsertMemoryDto.Request(
                 insertOwnerRsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -274,7 +441,7 @@ class RoomServiceTest {
         assertThat(insertMemoryRspOwner.getWriterId()).isEqualTo(insertOwnerRsp.getUserId());
         assertThat(insertMemoryRspOwner.getAddedRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
 
-        InsertMemoryDto.Request insertMemoryReqMember1 = new InsertMemoryDto.Request(
+        var insertMemoryReqMember1 = new InsertMemoryDto.Request(
                 insertMember1Rsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -291,7 +458,7 @@ class RoomServiceTest {
         assertThat(insertMemoryRspMember1.getWriterId()).isEqualTo(insertMember1Rsp.getUserId());
         assertThat(insertMemoryRspMember1.getAddedRoomId()).isEqualTo(insertMemoryReqMember1.getRoomId());
 
-        InsertMemoryDto.Request insertMemoryReqMember2 = new InsertMemoryDto.Request(
+        var insertMemoryReqMember2 = new InsertMemoryDto.Request(
                 insertMember2Rsp.getUserId(),
                 insertRoomRsp.getRoomId(),
                 "Test Memory",
@@ -309,12 +476,12 @@ class RoomServiceTest {
         assertThat(insertMemoryRspMember2.getAddedRoomId()).isEqualTo(insertMemoryReqMember2.getRoomId());
 
         /* 3. Delete share room */
-        DeleteRoomDto.Response deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
+        var deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
         assertThat(deleteRsp).isNotNull();
+        assertFalse(deleteRsp.isUsed());
 
         /* 4. Find room and memories after delete */
-        Long roomId = insertRoomRsp.getRoomId();
-        assertThat(roomId).isNotNull();
+        var roomId = insertRoomRsp.getRoomId();
         assertThrows(
                 RoomNotFoundException.class, () -> roomService.find(roomId)
         );
@@ -374,7 +541,7 @@ class RoomServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(10)
     @DisplayName("방 삭제 -> 개인방")
     @Transactional
     void deletePrivateRoom() {
@@ -415,6 +582,7 @@ class RoomServiceTest {
         /* 3. Delete room */
         var deleteRsp = roomService.delete(insertOwnerRsp.getPrivateRoomId(), deleteRoomReq);
         assertThat(deleteRsp).isNotNull();
+        assertFalse(deleteRsp.isUsed());
 
         /* 4. Find room and memories after delete */
         Long privateRoomId = insertOwnerRsp.getPrivateRoomId();
@@ -433,69 +601,7 @@ class RoomServiceTest {
         );
     }
 
-    @Test
-    @Order(6)
-    @DisplayName("방장 양도")
-    @Transactional
-    void patchOwner() {
-        /* 0-1. Set base data */
-        setBaseData();
 
-        var insertExcludeMemberReq = new InsertUserDto.Request(
-                1, "excludeMember_snsId", "excludeMember Token",
-                "excludeMember", "1225", true,
-                false, DeviceOs.IOS
-        );
-        var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
-        assertThat(insertExcludeMemberRsp).isNotNull();
-        assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
-        assertThat(insertExcludeMemberRsp.getPrivateRoomId()).isNotNull();
-
-        /* 0-2. Create request */
-        InsertRoomDto.Request insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-
-        /* 1. Insert */
-        InsertRoomDto.Response insertRoomRsp = roomService.insert(insertRoomReq);
-        assertThat(insertRoomRsp).isNotNull();
-        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
-        assertThat(insertRoomRsp.getMembers()).isNotNull();
-        assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
-        
-        /* 2. Find before patch owner */
-        FindRoomDto.Response beforeFindRsp = roomService.find(insertRoomRsp.getRoomId());
-        assertThat(beforeFindRsp).isNotNull();
-        assertThat(beforeFindRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
-
-        /* 3. Patch owner */
-        PatchRoomOwnerDto.Response patchOwnerRsp = roomService.patchOwner(insertRoomRsp.getRoomId(), insertMember1Rsp.getUserId());
-        assertThat(patchOwnerRsp).isNotNull();
-
-        /* 4. Find after patch owner */
-        FindRoomDto.Response afterFindRsp = roomService.find(insertRoomRsp.getRoomId());
-        assertThat(afterFindRsp).isNotNull();
-        assertThat(afterFindRsp.getOwnerId()).isEqualTo(insertMember1Rsp.getUserId());
-
-        /* 5. Patch owner not found room */
-        var wrongRoomId = insertRoomRsp.getRoomId() + 1;
-        var memberId = insertMember1Rsp.getUserId();
-        assertThrows(
-                RoomNotFoundException.class, () -> roomService.patchOwner(wrongRoomId, memberId)
-        );
-
-        /* 6. Patch owner not in room member */
-        var roomId = insertRoomRsp.getRoomId();
-        var excludeMemberId = insertExcludeMemberRsp.getUserId();
-        assertThrows(
-                RoomNotFoundMemberException.class, () -> roomService.patchOwner(roomId, excludeMemberId)
-        );
-
-        /* 7. Patch owner already owner */
-        var ownerId = afterFindRsp.getOwnerId();
-        assertThrows(
-                RoomAlreadyOwnerException.class, () -> roomService.patchOwner(roomId, ownerId)
-        );
-    }
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
@@ -509,7 +615,6 @@ class RoomServiceTest {
         insertOwnerRsp = userService.signUp(insertOwnerReq);
         assertThat(insertOwnerRsp).isNotNull();
         assertThat(insertOwnerRsp.getUserId()).isNotNull();
-        assertThat(insertOwnerRsp.getPrivateRoomId()).isNotNull();
 
         var insertMember1Req = new InsertUserDto.Request(
                 1, "member1_snsId", "member1 Token",
@@ -519,7 +624,6 @@ class RoomServiceTest {
         insertMember1Rsp = userService.signUp(insertMember1Req);
         assertThat(insertMember1Rsp).isNotNull();
         assertThat(insertMember1Rsp.getUserId()).isNotNull();
-        assertThat(insertMember1Rsp.getPrivateRoomId()).isNotNull();
 
         var insertMember2Req = new InsertUserDto.Request(
                 1, "member2_snsId", "member2 Token",
@@ -529,7 +633,6 @@ class RoomServiceTest {
         insertMember2Rsp = userService.signUp(insertMember2Req);
         assertThat(insertMember2Rsp).isNotNull();
         assertThat(insertMember2Rsp.getUserId()).isNotNull();
-        assertThat(insertMember2Rsp.getPrivateRoomId()).isNotNull();
 
         roomMembers = new ArrayList<>();
         roomMembers.add(insertMember1Rsp.getUserId());

@@ -21,19 +21,19 @@ public class RoomController {
 
     @ApiOperation(value = "방 생성", notes = "앱에서 전달받은 데이터로 방 생성 및 사용자 추가")
     @PostMapping
-    public ApiResult<InsertRoomDto.Response> insert(@RequestBody InsertRoomDto.Request request) {
+    public ApiResult<RoomRspDto> insert(@RequestBody InsertRoomDto.Request request) {
         return ok(roomService.insert(request));
     }
 
-    @ApiOperation(value = "방 개별 조회")
+    @ApiOperation(value = "방 단일 조회")
     @GetMapping(value = "/{roomId}")
-    public ApiResult<FindRoomDto.Response> find(@PathVariable long roomId) {
+    public ApiResult<RoomRspDto> find(@PathVariable long roomId) {
         return ok(roomService.find(roomId));
     }
 
     @ApiOperation(value = "방 목록 조회", notes = "조건에 맞는 방 목록을 조회한다.")
     @GetMapping
-    public ApiResult<List<FindRoomsDto.Response>> findRooms(
+    public ApiResult<List<RoomRspDto>> findRooms(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String name
     ) {
@@ -42,7 +42,7 @@ public class RoomController {
 
     @ApiOperation(value = "방장 양도", notes = "방 참여자에게 방장을 양도한다.")
     @PatchMapping("/{roomId}/owner/{userId}")
-    public ApiResult<PatchRoomOwnerDto.Response> patchOwner(
+    public ApiResult<RoomRspDto> patchOwner(
             @PathVariable long roomId,
             @PathVariable long userId
     ) {
@@ -51,7 +51,7 @@ public class RoomController {
 
     @ApiOperation(value = "방 정보 수정", notes = "전달받은 값이 있는 경우 수정")
     @PutMapping("/{roomId}")
-    public ApiResult<UpdateRoomDto.Response> update(
+    public ApiResult<RoomRspDto> update(
         @PathVariable long roomId,
         @RequestParam UpdateRoomDto.Request request
     ) {
@@ -60,7 +60,7 @@ public class RoomController {
 
     @ApiOperation(value = "방 삭제", notes = "1. 개인방 -> 일정 삭제 후 방 삭제, 2. 공유방 -> 방만 삭제")
     @DeleteMapping(value = "/{roomId}")
-    public ApiResult<DeleteRoomDto.Response> delete(
+    public ApiResult<RoomRspDto> delete(
             @PathVariable long roomId,
             @RequestBody DeleteRoomDto.Request request
     ) {

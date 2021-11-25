@@ -19,9 +19,4 @@ public class DeleteRoomDto {
         private long userId;
     }
 
-    @ApiModel(value = "DeleteRoomDto.Response", description = "nested class in DeleteRoomDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-    }
 }

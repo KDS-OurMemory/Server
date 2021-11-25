@@ -2,6 +2,7 @@ package com.kds.ourmemory.advice.v1.common;
 
 import com.kds.ourmemory.advice.v1.RestControllerAdviceResponse;
 import com.kds.ourmemory.controller.v1.ApiResult;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -30,6 +31,11 @@ public class CommonControllerAdvice extends RestControllerAdviceResponse{
     public ResponseEntity<ApiResult<String>> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
         return response(INCORRECT_RESULT_SIZE, e);
     }
+
+	@ExceptionHandler(FileSizeLimitExceededException.class)
+	public ResponseEntity<ApiResult<String>> handleFileSizeLimitExceededException(FileSizeLimitExceededException e) {
+		return response(FILE_SIZE_OVERFLOW, e);
+	}
     
     
     /* Http Status Error */
@@ -47,7 +53,7 @@ public class CommonControllerAdvice extends RestControllerAdviceResponse{
 	public ResponseEntity<ApiResult<String>> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
 	    return response(UNSUPPORTED_MEDIA_TYPE, e);
 	}
-	
+
 	@ExceptionHandler({Exception.class, RuntimeException.class})
 	public ResponseEntity<ApiResult<String>> handleException(Exception e) {
 	    return response(INTERNAL_SERVER_ERROR, new Exception("Unexpected exception occurred: " + e.getMessage(), e)); 
