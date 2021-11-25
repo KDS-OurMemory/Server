@@ -22,9 +22,4 @@ public class UpdateRoomDto {
         private Boolean opened;
     }
 
-    @ApiModel(value = "UpdateRoomDto.Response", description = "nested class in UpdateRoomDto")
-    @Getter
-    @AllArgsConstructor
-    public static class Response {
-    }
 }

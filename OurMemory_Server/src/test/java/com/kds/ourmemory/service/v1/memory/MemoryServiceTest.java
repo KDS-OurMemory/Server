@@ -4,6 +4,7 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotWriterException;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
@@ -49,7 +50,7 @@ class MemoryServiceTest {
 
     private UserDto insertMemberRsp;
 
-    private InsertRoomDto.Response insertRoomRsp;
+    private RoomRspDto insertRoomRsp;
 
     @Autowired
     private MemoryServiceTest(
@@ -302,7 +303,6 @@ class MemoryServiceTest {
         var insertMemberRsp2 = userService.signUp(insertMember2Req);
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
-        assertThat(insertMemberRsp2.getPrivateRoomId()).isNotNull();
 
         var shareMemoryUsersReq = new ShareMemoryDto.Request(
                 ShareMemoryDto.ShareType.USERS,
@@ -390,7 +390,6 @@ class MemoryServiceTest {
         var insertMemberRsp2 = userService.signUp(insertMember2Req);
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
-        assertThat(insertMemberRsp2.getPrivateRoomId()).isNotNull();
 
         var shareMemoryUsersReq = new ShareMemoryDto.Request(
                 ShareMemoryDto.ShareType.USER_GROUP,
@@ -472,7 +471,7 @@ class MemoryServiceTest {
 
         var members2 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
         var insertRoomReq2 = new InsertRoomDto.Request("room name2", insertMemberRsp.getUserId(), false, members2);
-        InsertRoomDto.Response insertRoomRsp2 = roomService.insert(insertRoomReq2);
+        var insertRoomRsp2 = roomService.insert(insertRoomReq2);
         assertThat(insertRoomRsp2).isNotNull();
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
         assertThat(insertRoomRsp2.getMembers()).isNotNull();
@@ -480,7 +479,7 @@ class MemoryServiceTest {
 
         var members3 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
         var insertRoomReq3 = new InsertRoomDto.Request("room name3", insertMemberRsp.getUserId(), false, members3);
-        InsertRoomDto.Response insertRoomRsp3 = roomService.insert(insertRoomReq3);
+        var insertRoomRsp3 = roomService.insert(insertRoomReq3);
         assertThat(insertRoomRsp3).isNotNull();
         assertThat(insertRoomRsp3.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
         assertThat(insertRoomRsp3.getMembers()).isNotNull();
@@ -932,7 +931,6 @@ class MemoryServiceTest {
         insertWriterRsp = userService.signUp(insertWriterReq);
         assertThat(insertWriterRsp).isNotNull();
         assertThat(insertWriterRsp.getUserId()).isNotNull();
-        assertThat(insertWriterRsp.getPrivateRoomId()).isNotNull();
 
         var insertMemberReq = new InsertUserDto.Request(
                 1, "member1_snsId", "member1 Token",
@@ -942,7 +940,6 @@ class MemoryServiceTest {
         insertMemberRsp = userService.signUp(insertMemberReq);
         assertThat(insertMemberRsp).isNotNull();
         assertThat(insertMemberRsp.getUserId()).isNotNull();
-        assertThat(insertMemberRsp.getPrivateRoomId()).isNotNull();
 
         /* 2. Create room */
         var members = Stream.of(insertMemberRsp.getUserId()).collect(toList());

@@ -48,7 +48,7 @@ public class RoomService {
     private static final String MEMBER = "member";
 
     @Transactional
-    public InsertRoomDto.Response insert(InsertRoomDto.Request request) {
+    public RoomRspDto insert(InsertRoomDto.Request request) {
         return findUser(request.getOwner())
                 .map(owner -> {
                     var room = Room.builder()
@@ -69,7 +69,7 @@ public class RoomService {
                     // Relation room and members
                     return addMemberToRoom(room, request.getMember());
                 })
-                .map(InsertRoomDto.Response::new)
+                .map(RoomRspDto::new)
                 .orElseThrow(() -> new RoomNotFoundOwnerException(
                                 String.format(NOT_FOUND_MESSAGE, USER, request.getOwner())
                         )
@@ -79,24 +79,21 @@ public class RoomService {
     private Room addMemberToRoom(Room room, List<Long> members) {
         Optional.ofNullable(members)
                 .ifPresent(mem -> mem.forEach(id ->
-                                findUser(id).map(user -> {
-                                            user.addRoom(room);
-                                            room.addUser(user);
+                    findUser(id).map(user -> {
+                        user.addRoom(room);
+                        room.addUser(user);
 
-                                            fcmService.sendMessageTo(
-                                                    new FcmDto.Request(
-                                                            user.getPushToken(), user.getDeviceOs(),
-                                                            "OurMemory - 방 참여", String.format("'%s' 방에 초대되셨습니다.", room.getName())
-                                                    )
-                                            );
-                                            return user;
-                                        })
-                                        .orElseThrow(() -> new RoomNotFoundMemberException(
-                                                        String.format(NOT_FOUND_MESSAGE, MEMBER, id)
-                                                )
-                                        )
-                        )
-                );
+                        fcmService.sendMessageTo(
+                            new FcmDto.Request(
+                                    user.getPushToken(), user.getDeviceOs(),
+                                    "OurMemory - 방 참여", String.format("'%s' 방에 초대되셨습니다.", room.getName())
+                            )
+                        );
+                        return user;
+                    })
+                    .orElseThrow(() -> new RoomNotFoundMemberException(String.format(NOT_FOUND_MESSAGE, MEMBER, id)))
+                )
+        );
 
         return room;
     }
@@ -128,7 +125,7 @@ public class RoomService {
                 );
     }
 
-    public FindRoomDto.Response find(Long roomId) {
+    public RoomRspDto find(Long roomId) {
         var room = findRoom(roomId)
                 .filter(Room::isUsed)
                 .orElseThrow(() -> new RoomNotFoundException(
@@ -136,10 +133,10 @@ public class RoomService {
                         )
                 );
 
-        return new FindRoomDto.Response(room);
+        return new RoomRspDto(room);
     }
 
-    public List<FindRoomsDto.Response> findRooms(Long userId, String name) {
+    public List<RoomRspDto> findRooms(Long userId, String name) {
         List<Room> findRooms = new ArrayList<>();
 
         findUser(userId).ifPresent(
@@ -157,12 +154,12 @@ public class RoomService {
         return findRooms.stream()
                 .distinct()
                 .sorted(Comparator.comparing(Room::getRegDate).reversed())
-                .map(FindRoomsDto.Response::new)
+                .map(RoomRspDto::new)
                 .collect(toList());
     }
 
     @Transactional
-    public PatchRoomOwnerDto.Response patchOwner(long roomId, long userId) {
+    public RoomRspDto patchOwner(long roomId, long userId) {
         return findRoom(roomId)
                 .map(room -> {
                     long beforeOwnerId = room.getOwner().getId();
@@ -188,7 +185,7 @@ public class RoomService {
 
                     return room;
                 })
-                .map(room -> new PatchRoomOwnerDto.Response())
+                .map(RoomRspDto::new)
                 .orElseThrow(() -> new RoomNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
                         )
@@ -196,10 +193,10 @@ public class RoomService {
     }
 
     @Transactional
-    public UpdateRoomDto.Response update(long roomId, UpdateRoomDto.Request request) {
+    public RoomRspDto update(long roomId, UpdateRoomDto.Request request) {
         return findRoom(roomId).map(room ->
                         room.updateRoom(request)
-                                .map(r -> new UpdateRoomDto.Response())
+                                .map(RoomRspDto::new)
                                 .orElseThrow(() -> new RoomInternalServerException("Failed to update for room data."))
                 )
                 .orElseThrow(
@@ -208,7 +205,7 @@ public class RoomService {
     }
 
     @Transactional
-    public DeleteRoomDto.Response delete(long roomId, DeleteRoomDto.Request request) {
+    public RoomRspDto delete(long roomId, DeleteRoomDto.Request request) {
         var privateRoomId = findUser(request.getUserId())
                 .map(User::getPrivateRoomId)
                 .orElseThrow(() -> new UserNotFoundException(
@@ -224,7 +221,7 @@ public class RoomService {
                         room.getMemories().forEach(Memory::deleteMemory);
                     }
 
-                    return new DeleteRoomDto.Response();
+                    return new RoomRspDto(room);
                 })
                 .orElseThrow(() -> new RoomNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
@@ -256,4 +253,5 @@ public class RoomService {
     private Optional<User> findUser(Long id) {
         return Optional.ofNullable(id).flatMap(userId -> userRepo.findById(userId).filter(User::isUsed));
     }
+
 }

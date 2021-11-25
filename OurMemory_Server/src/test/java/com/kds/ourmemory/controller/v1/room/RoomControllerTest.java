@@ -3,7 +3,7 @@ package com.kds.ourmemory.controller.v1.room;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kds.ourmemory.controller.v1.ApiResult;
-import com.kds.ourmemory.controller.v1.room.dto.FindRoomsDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ class RoomControllerTest {
     @Transactional
     @Test
     void findRooms() throws JsonProcessingException {
-        ApiResult<List<FindRoomsDto.Response>> responseDto = roomController.findRooms(99L, null);
+        ApiResult<List<RoomRspDto>> responseDto = roomController.findRooms(99L, null);
 
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.getResultCode()).isEqualTo("00");
