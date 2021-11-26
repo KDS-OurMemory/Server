@@ -3,7 +3,7 @@ package com.kds.ourmemory.service.v1.friend;
 import com.kds.ourmemory.advice.v1.friend.exception.*;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.friend.dto.*;
-import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
+import com.kds.ourmemory.controller.v1.notice.dto.NoticeReqDto;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.notice.Notice;
@@ -123,7 +123,7 @@ public class FriendService {
                     var body = String.format("%s 이(가) 친구 요청하였습니다.", user.getName());
                     var friendToken = friend.getPushToken();
 
-                    var insertNoticeRequest = new InsertNoticeDto.Request(
+                    var insertNoticeRequest = new NoticeReqDto(
                             friend.getId(), NoticeType.FRIEND_REQUEST, Long.toString(reqDto.getUserId()));
                     noticeService.insert(insertNoticeRequest);
 

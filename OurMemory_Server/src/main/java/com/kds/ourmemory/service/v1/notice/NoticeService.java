@@ -3,8 +3,8 @@ package com.kds.ourmemory.service.v1.notice;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeInternalServerException;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundException;
 import com.kds.ourmemory.advice.v1.notice.exception.NoticeNotFoundUserException;
-import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
-import com.kds.ourmemory.controller.v1.notice.dto.NoticeDto;
+import com.kds.ourmemory.controller.v1.notice.dto.NoticeReqDto;
+import com.kds.ourmemory.controller.v1.notice.dto.NoticeRspDto;
 import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.entity.user.User;
 import com.kds.ourmemory.repository.notice.NoticeRepository;
@@ -29,36 +29,36 @@ public class NoticeService {
     private final UserRepository userRepo;
 
     @Transactional
-    public NoticeDto insert(InsertNoticeDto.Request request) {
-        checkNotNull(request.getUserId(), "알림 사용자 번호가 입력되지 않았습니다. 알림 대상 사용자의 번호를 입력해주세요.");
-        checkNotNull(request.getType(), "알림 종류가 입력되지 않았습니다. 알림 종류를 입력해주세요.");
-        checkNotNull(request.getValue(), "알림 문자열 값이 입력되지 않았습니다. 알림 문자열 값을 입력해주세요.");
+    public NoticeRspDto insert(NoticeReqDto reqDto) {
+        checkNotNull(reqDto.getUserId(), "알림 사용자 번호가 입력되지 않았습니다. 알림 대상 사용자의 번호를 입력해주세요.");
+        checkNotNull(reqDto.getType(), "알림 종류가 입력되지 않았습니다. 알림 종류를 입력해주세요.");
+        checkNotNull(reqDto.getValue(), "알림 문자열 값이 입력되지 않았습니다. 알림 문자열 값을 입력해주세요.");
 
-        return findUser(request.getUserId())
+        return findUser(reqDto.getUserId())
                 .map(user -> {
                     Notice notice = Notice.builder()
                             .user(user)
-                            .type(request.getType())
-                            .value(request.getValue())
+                            .type(reqDto.getType())
+                            .value(reqDto.getValue())
                             .build();
 
                     return insertNotice(notice)
-                            .map(NoticeDto::new)
+                            .map(NoticeRspDto::new)
                             .orElseThrow(() -> new NoticeInternalServerException(
                                     String.format("Notice [type: %s, value: %s] insert failed.",
-                                            request.getType(), request.getValue())
+                                            reqDto.getType(), reqDto.getValue())
                             ));
                 })
                 .orElseThrow(() -> new NoticeNotFoundUserException(
-                        "Not found user matched to userId: " + request.getUserId()));
+                        "Not found user matched to userId: " + reqDto.getUserId()));
     }
 
     @Transactional
-    public List<NoticeDto> findNotices(long userId, boolean isReadProcessing) {
+    public List<NoticeRspDto> findNotices(long userId, boolean isReadProcessing) {
         return findNoticesByUserId(userId)
                 .map(notices -> notices.stream().map(notice -> {
                     // new response before read processing
-                    var response = new NoticeDto(notice);
+                    var response = new NoticeRspDto(notice);
 
                     if (isReadProcessing) {
                         notice.readNotice();
@@ -69,11 +69,11 @@ public class NoticeService {
     }
 
     @Transactional
-    public NoticeDto deleteNotice(long id) {
+    public NoticeRspDto deleteNotice(long id) {
         return findNotice(id)
                 .map(notice -> {
                     notice.deleteNotice();
-                    return updateNotice(notice).map(NoticeDto::new)
+                    return updateNotice(notice).map(NoticeRspDto::new)
                             .orElseThrow(() ->
                                     new NoticeInternalServerException("Failed to update for notice used set false."));
                 })

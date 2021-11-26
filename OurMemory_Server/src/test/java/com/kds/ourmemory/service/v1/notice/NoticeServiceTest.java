@@ -1,7 +1,7 @@
 package com.kds.ourmemory.service.v1.notice;
 
-import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
-import com.kds.ourmemory.controller.v1.notice.dto.NoticeDto;
+import com.kds.ourmemory.controller.v1.notice.dto.NoticeReqDto;
+import com.kds.ourmemory.controller.v1.notice.dto.NoticeRspDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.notice.NoticeType;
@@ -47,10 +47,8 @@ class NoticeServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertReq1 = new InsertNoticeDto.Request(insertUserRsp.getUserId(),
-                NoticeType.FRIEND_REQUEST, "testValue1");
-        var insertReq2 = new InsertNoticeDto.Request(insertUserRsp.getUserId(),
-                NoticeType.FRIEND_REQUEST, "testValue2");
+        var insertReq1 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue1");
+        var insertReq2 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue2");
 
         /* 1. Add notice */
         var insertNoticeRsp1 = noticeService.insert(insertReq1);
@@ -75,10 +73,8 @@ class NoticeServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var request1 = new InsertNoticeDto.Request(insertUserRsp.getUserId(),
-                NoticeType.FRIEND_REQUEST, "testValue1");
-        var request2 = new InsertNoticeDto.Request(insertUserRsp.getUserId(),
-                NoticeType.FRIEND_REQUEST, "testValue2");
+        var request1 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue1");
+        var request2 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue2");
 
         /* 1. Add notice */
         var insertNoticeResponse1 = noticeService.insert(request1);
@@ -92,7 +88,7 @@ class NoticeServiceTest {
         assertThat(findNoticesList).isNotNull();
         assertThat(findNoticesList.size()).isEqualTo(2);
 
-        for (NoticeDto findNoticesRsp : findNoticesList) {
+        for (NoticeRspDto findNoticesRsp : findNoticesList) {
             assertThat(StringUtils.equals(findNoticesRsp.getValue(), "testValue1")
                     || StringUtils.equals(findNoticesRsp.getValue(), "testValue2")).isTrue();
             assertFalse(findNoticesRsp.isRead());
@@ -108,8 +104,7 @@ class NoticeServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var request1 = new InsertNoticeDto.Request(insertUserRsp.getUserId(),
-                NoticeType.FRIEND_REQUEST, "testValue1");
+        var request1 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue1");
 
         /* 1. Add notice */
         var insertNoticeResponse1 = noticeService.insert(request1);
@@ -129,10 +124,8 @@ class NoticeServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var request1 = new InsertNoticeDto.Request(insertUserRsp.getUserId(),
-                NoticeType.FRIEND_REQUEST, "testValue1");
-        var request2 = new InsertNoticeDto.Request(insertUserRsp.getUserId(),
-                NoticeType.FRIEND_REQUEST, "testValue2");
+        var request1 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue1");
+        var request2 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue2");
 
         /* 1. Add notice */
         var insertNoticeResponse1 = noticeService.insert(request1);
@@ -146,7 +139,7 @@ class NoticeServiceTest {
         assertThat(findNoticesList).isNotNull();
         assertThat(findNoticesList.size()).isEqualTo(2);
 
-        for (NoticeDto findNoticesRsp : findNoticesList) {
+        for (NoticeRspDto findNoticesRsp : findNoticesList) {
             assertFalse(findNoticesRsp.isRead());
         }
 
@@ -155,7 +148,7 @@ class NoticeServiceTest {
         assertThat(afterFindNoticesList).isNotNull();
         assertThat(afterFindNoticesList.size()).isEqualTo(2);
 
-        for (NoticeDto findNoticesRsp : afterFindNoticesList) {
+        for (NoticeRspDto findNoticesRsp : afterFindNoticesList) {
             assertTrue(findNoticesRsp.isRead());
         }
     }
@@ -172,7 +165,6 @@ class NoticeServiceTest {
         insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
         assertThat(insertUserRsp.getUserId()).isNotNull();
-        assertThat(insertUserRsp.getPrivateRoomId()).isNotNull();
     }
 
     boolean isNow(Object obj) {
