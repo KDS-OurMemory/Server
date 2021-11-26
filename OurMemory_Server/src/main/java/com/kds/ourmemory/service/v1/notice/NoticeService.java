@@ -31,14 +31,14 @@ public class NoticeService {
     @Transactional
     public NoticeRspDto insert(NoticeReqDto reqDto) {
         checkNotNull(reqDto.getUserId(), "알림 사용자 번호가 입력되지 않았습니다. 알림 대상 사용자의 번호를 입력해주세요.");
-        checkNotNull(reqDto.getType(), "알림 종류가 입력되지 않았습니다. 알림 종류를 입력해주세요.");
+        checkNotNull(reqDto.getNoticeType(), "알림 종류가 입력되지 않았습니다. 알림 종류를 입력해주세요.");
         checkNotNull(reqDto.getValue(), "알림 문자열 값이 입력되지 않았습니다. 알림 문자열 값을 입력해주세요.");
 
         return findUser(reqDto.getUserId())
                 .map(user -> {
                     Notice notice = Notice.builder()
                             .user(user)
-                            .type(reqDto.getType())
+                            .type(reqDto.getNoticeType())
                             .value(reqDto.getValue())
                             .build();
 
@@ -46,7 +46,7 @@ public class NoticeService {
                             .map(NoticeRspDto::new)
                             .orElseThrow(() -> new NoticeInternalServerException(
                                     String.format("Notice [type: %s, value: %s] insert failed.",
-                                            reqDto.getType(), reqDto.getValue())
+                                            reqDto.getNoticeType(), reqDto.getValue())
                             ));
                 })
                 .orElseThrow(() -> new NoticeNotFoundUserException(
