@@ -1,6 +1,6 @@
 package com.kds.ourmemory.controller.v1.room.dto;
 
-import com.kds.ourmemory.controller.v1.friend.dto.FriendDto;
+import com.kds.ourmemory.controller.v1.friend.dto.FriendRspDto;
 import com.kds.ourmemory.controller.v1.memory.dto.MemoryDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
@@ -33,7 +33,7 @@ public class RoomRspDto {
     private final boolean opened;
 
     @ApiModelProperty(value = "방 참여자")
-    private final List<FriendDto> members;
+    private final List<FriendRspDto> members;
 
     @ApiModelProperty(value = "방에 생성된 일정", example = "[{일정 제목, 시작시간, 종료시간}, ...]")
     private final List<MemoryDto> memories;
@@ -47,7 +47,7 @@ public class RoomRspDto {
         name = room.getName();
         regDate = room.formatRegDate();
         opened = room.isOpened();
-        members = room.getUsers().stream().map(user -> new FriendDto(user, null)).collect(toList());
+        members = room.getUsers().stream().map(user -> new FriendRspDto(user, null)).collect(toList());
         memories = room.getMemories().stream().filter(Memory::isUsed)
                 .filter(memory -> memory.getEndDate().isAfter(LocalDateTime.now()))
                 .map(memory-> {

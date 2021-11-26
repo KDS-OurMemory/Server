@@ -8,10 +8,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@ApiModel(value = "FriendDto", description = "Friend API Dto")
+@ApiModel(value = "FriendRspDto", description = "Friend API Response Dto")
 @Getter
 @NoArgsConstructor
-public class FriendDto {
+public class FriendRspDto {
 
     @ApiModelProperty(value = "친구 번호(친구 사용자 번호)", example = "99")
     private Long friendId;
@@ -34,7 +34,7 @@ public class FriendDto {
     @ApiModelProperty(value = "친구 상태(요청 후 대기: WAIT, 요청받은 상태: REQUESTED_BY, 친구: FRIEND, 차단: BLOCK)")
     private FriendStatus friendStatus;
 
-    public FriendDto(Friend friend) {
+    public FriendRspDto(Friend friend) {
         friendId = friend.getFriendUser().getId();
         name = friend.getFriendUser().getName();
         birthday = friend.getFriendUser().getBirthday();
@@ -45,7 +45,7 @@ public class FriendDto {
     }
 
     // used for findUsers API Response
-    public FriendDto(User user, Friend friend) {
+    public FriendRspDto(User user, Friend friend) {
         friendId = user.getId();
         name = user.getName();
         birthday = user.getBirthday();

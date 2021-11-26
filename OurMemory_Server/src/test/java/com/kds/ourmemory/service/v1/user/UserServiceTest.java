@@ -3,8 +3,7 @@ package com.kds.ourmemory.service.v1.user;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
-import com.kds.ourmemory.controller.v1.friend.dto.AcceptFriendDto;
-import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
+import com.kds.ourmemory.controller.v1.friend.dto.FriendReqDto;
 import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
@@ -222,12 +221,12 @@ class UserServiceTest {
 
         /* 0-2. Create friend */
         var requestFriendRsp = friendService.requestFriend(
-                new RequestFriendDto.Request(insertUserRsp.getUserId(), insertFriendUserRsp.getUserId())
+                new FriendReqDto(insertUserRsp.getUserId(), insertFriendUserRsp.getUserId())
         );
         assertThat(requestFriendRsp).isNotNull();
 
         var acceptFriendRsp = friendService.acceptFriend(
-                new AcceptFriendDto.Request(insertFriendUserRsp.getUserId(), insertUserRsp.getUserId())
+                new FriendReqDto(insertFriendUserRsp.getUserId(), insertUserRsp.getUserId())
         );
         assertThat(acceptFriendRsp).isNotNull();
 
