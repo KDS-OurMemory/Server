@@ -53,13 +53,13 @@ class NoticeServiceTest {
         /* 1. Add notice */
         var insertNoticeRsp1 = noticeService.insert(insertReq1);
         assertThat(insertNoticeRsp1).isNotNull();
-        assertThat(insertNoticeRsp1.getType()).isEqualTo(insertReq1.getType());
+        assertThat(insertNoticeRsp1.getType()).isEqualTo(insertReq1.getNoticeType());
         assertThat(insertNoticeRsp1.getValue()).isEqualTo(insertReq1.getValue());
         assertTrue(isNow(insertNoticeRsp1.getRegDate()));
 
         var insertNoticeRsp2 = noticeService.insert(insertReq2);
         assertThat(insertNoticeRsp2).isNotNull();
-        assertThat(insertNoticeRsp2.getType()).isEqualTo(insertReq2.getType());
+        assertThat(insertNoticeRsp2.getType()).isEqualTo(insertReq2.getNoticeType());
         assertThat(insertNoticeRsp2.getValue()).isEqualTo(insertReq2.getValue());
         assertTrue(isNow(insertNoticeRsp2.getRegDate()));
     }

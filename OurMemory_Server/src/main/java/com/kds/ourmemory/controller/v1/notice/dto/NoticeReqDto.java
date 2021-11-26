@@ -15,7 +15,7 @@ public class NoticeReqDto {
     private Long userId;
 
     @ApiModelProperty(value = "알림 종류", required = true)
-    private NoticeType type;
+    private NoticeType noticeType;
 
     @ApiModelProperty(value = "알림 문자열 값", required = true)
     private String value;
