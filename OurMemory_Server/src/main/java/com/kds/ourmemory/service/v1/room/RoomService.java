@@ -4,7 +4,8 @@ import com.kds.ourmemory.advice.v1.room.exception.*;
 import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
-import com.kds.ourmemory.controller.v1.room.dto.*;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
@@ -48,30 +49,23 @@ public class RoomService {
     private static final String MEMBER = "member";
 
     @Transactional
-    public RoomRspDto insert(InsertRoomDto.Request request) {
-        return findUser(request.getOwner())
-                .map(owner -> {
-                    var room = Room.builder()
-                            .owner(owner)
-                            .name(request.getName())
-                            .opened(request.isOpened())
-                            .used(true)
-                            .build();
-                    return insertRoom(room)
+    public RoomRspDto insert(RoomReqDto reqDto) {
+        return findUser(reqDto.getUserId())
+                .map(owner -> insertRoom(reqDto.toEntity(owner))
                             .orElseThrow(() -> new RoomInternalServerException(String.format(
-                                    "Insert room failed. [name: %s, owner: %s]", request.getName(), owner.getName())));
-                })
+                                    "Insert room failed. [name: %s, owner: %s]", reqDto.getName(), owner.getName())))
+                )
                 .map(room -> {
                     // Relation room and owner
                     room.getOwner().addRoom(room);
                     room.addUser(room.getOwner());
 
                     // Relation room and members
-                    return addMemberToRoom(room, request.getMember());
+                    return addMemberToRoom(room, reqDto.getMember());
                 })
                 .map(RoomRspDto::new)
                 .orElseThrow(() -> new RoomNotFoundOwnerException(
-                                String.format(NOT_FOUND_MESSAGE, USER, request.getOwner())
+                                String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId())
                         )
                 );
     }
@@ -106,7 +100,6 @@ public class RoomService {
                             .name(user.getName())
                             .opened(false)
                             .owner(user)
-                            .used(true)
                             .build();
                     return insertRoom(privateRoom)
                             .map(room -> {
@@ -193,9 +186,9 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomRspDto update(long roomId, UpdateRoomDto.Request request) {
+    public RoomRspDto update(long roomId, RoomReqDto reqDto) {
         return findRoom(roomId).map(room ->
-                        room.updateRoom(request)
+                        room.updateRoom(reqDto)
                                 .map(RoomRspDto::new)
                                 .orElseThrow(() -> new RoomInternalServerException("Failed to update for room data."))
                 )
@@ -205,14 +198,14 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomRspDto delete(long roomId, DeleteRoomDto.Request request) {
-        var privateRoomId = findUser(request.getUserId())
+    public RoomRspDto delete(long roomId, RoomReqDto reqDto) {
+        var privateRoomId = findUser(reqDto.getUserId())
                 .map(User::getPrivateRoomId)
                 .orElseThrow(() -> new UserNotFoundException(
-                        String.format(NOT_FOUND_MESSAGE, USER, request.getUserId())
+                        String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId())
                 ));
 
-        return findRoom(roomId)
+        findRoom(roomId)
                 // 1. delete room
                 .map(Room::deleteRoom)
                 .map(room -> {
@@ -221,12 +214,15 @@ public class RoomService {
                         room.getMemories().forEach(Memory::deleteMemory);
                     }
 
-                    return new RoomRspDto(room);
+                    return true;
                 })
                 .orElseThrow(() -> new RoomNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
                         )
                 );
+
+        // delete response is null -> client already have data, so don't need response data.
+        return null;
     }
 
     /**

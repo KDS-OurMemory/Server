@@ -3,15 +3,11 @@ package com.kds.ourmemory.service.v1.user;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
-import com.kds.ourmemory.controller.v1.friend.dto.AcceptFriendDto;
-import com.kds.ourmemory.controller.v1.friend.dto.RequestFriendDto;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.friend.dto.FriendReqDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
-import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.UploadProfileImageDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.friend.FriendService;
@@ -73,11 +69,17 @@ class UserServiceTest {
     @Transactional
     void signUp() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -91,11 +93,17 @@ class UserServiceTest {
     @Transactional
     void signIn() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -119,11 +127,17 @@ class UserServiceTest {
     @Transactional
     void find() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -138,8 +152,8 @@ class UserServiceTest {
         assertThat(findRsp.getSnsId()).isEqualTo(insertReq.getSnsId());
         assertThat(findRsp.getName()).isEqualTo(insertReq.getName());
         assertThat(findRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
-        assertThat(findRsp.isSolar()).isEqualTo(insertReq.isSolar());
-        assertThat(findRsp.isBirthdayOpen()).isEqualTo(insertReq.isBirthdayOpen());
+        assertThat(findRsp.isSolar()).isEqualTo(insertReq.getSolar());
+        assertThat(findRsp.isBirthdayOpen()).isEqualTo(insertReq.getBirthdayOpen());
         assertThat(findRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
     }
 
@@ -149,12 +163,20 @@ class UserServiceTest {
     @Transactional
     void patchToken() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
-        var patchReq = new PatchTokenDto.Request("patch token");
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var patchReq = UserReqDto.builder()
+                .pushToken("patch token")
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -174,12 +196,24 @@ class UserServiceTest {
     @Transactional
     void update() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
-        var updateReq = new UpdateUserDto.Request("update name", "0927", false, false, false);
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var updateReq = UserReqDto.builder()
+                .name("update name")
+                .birthday("0927")
+                .solar(false)
+                .birthdayOpen(false)
+                .push(false)
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -203,31 +237,43 @@ class UserServiceTest {
     void deleteFriend() {
         /* 0. Create users */
         // 1) user
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
         // 2) friendUser
-        var insertFriendUserReq = new InsertUserDto.Request(
-                2, "member1 sns id", "member1 pushToken",
-                "멤버1", "0101", true,
-                true, DeviceOs.ANDROID
-        );
+        var insertFriendUserReq = UserReqDto.builder()
+                .snsType(2)
+                .snsId("FRIEND_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("friendUser")
+                .birthday("0101")
+                .solar(true)
+                .birthdayOpen(true)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertFriendUserRsp = userService.signUp(insertFriendUserReq);
         assertThat(insertFriendUserRsp).isNotNull();
 
         /* 0-2. Create friend */
         var requestFriendRsp = friendService.requestFriend(
-                new RequestFriendDto.Request(insertUserRsp.getUserId(), insertFriendUserRsp.getUserId())
+                new FriendReqDto(insertUserRsp.getUserId(), insertFriendUserRsp.getUserId())
         );
         assertThat(requestFriendRsp).isNotNull();
 
         var acceptFriendRsp = friendService.acceptFriend(
-                new AcceptFriendDto.Request(insertFriendUserRsp.getUserId(), insertUserRsp.getUserId())
+                new FriendReqDto(insertFriendUserRsp.getUserId(), insertUserRsp.getUserId())
         );
         assertThat(acceptFriendRsp).isNotNull();
 
@@ -254,8 +300,7 @@ class UserServiceTest {
 
         /* 1. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
-        assertFalse(deleteUserRsp.isUsed());
+        assertNull(deleteUserRsp);
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -276,46 +321,49 @@ class UserServiceTest {
     void deletePrivateUser() {
         /* 0-1. Create user */
         // 1) user
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
         /* 0-2. Create private memories */
         // 1) not in room memory
-        var insertPrivateMemoryReq = new InsertMemoryDto.Request(
-                insertUserRsp.getUserId(),
-                null,
-                "개인 일정",
-                "방 밖에서 생성",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertPrivateMemoryReq = MemoryReqDto.builder()
+                .userId(insertUserRsp.getUserId())
+                .name("개인 일정")
+                .contents("방 밖에서 생성")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
         var insertPrivateMemoryRsp = memoryService.insert(insertPrivateMemoryReq);
         assertThat(insertPrivateMemoryRsp).isNotNull();
         assertThat(insertPrivateMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
         assertThat(insertPrivateMemoryRsp.getAddedRoomId()).isEqualTo(insertUserRsp.getPrivateRoomId());
 
         // 2) private room memory
-        var insertPrivateRoomMemoryReq = new InsertMemoryDto.Request(
-                insertUserRsp.getUserId(),
-                insertUserRsp.getPrivateRoomId(),
-                "개인 일정",
-                "방 안에서 생성",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertPrivateRoomMemoryReq = MemoryReqDto.builder()
+                .userId(insertUserRsp.getUserId())
+                .roomId(insertUserRsp.getPrivateRoomId())
+                .name("개인 일정")
+                .contents("방 안에서 생성")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
         var insertPrivateRoomMemoryRsp = memoryService.insert(insertPrivateRoomMemoryReq);
         assertThat(insertPrivateRoomMemoryRsp).isNotNull();
         assertThat(insertPrivateRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
@@ -323,8 +371,7 @@ class UserServiceTest {
 
         /* 1. Delete private room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
-        assertFalse(deleteUserRsp.isUsed());
+        assertNull(deleteUserRsp);
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -373,28 +420,43 @@ class UserServiceTest {
     void deleteOwnerUser() {
         /* 0. Create users */
         // 1) user
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
         // 2) member
-        var insertMemberReq = new InsertUserDto.Request(
-                2, "member1 sns id", "member1 pushToken",
-                "멤버1", "0101", true,
-                true, DeviceOs.ANDROID
-        );
+        var insertMemberReq = UserReqDto.builder()
+                .snsType(2)
+                .snsId("member1_sns_id")
+                .pushToken("member1 Token")
+                .push(true)
+                .name("member1")
+                .birthday("0101")
+                .solar(true)
+                .birthdayOpen(true)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertMemberRsp = userService.signUp(insertMemberReq);
         assertThat(insertMemberRsp).isNotNull();
 
         /* 0-2. Create owner room */
-        var insertOwnerRoomReq = new InsertRoomDto.Request(
-                "방장 방", insertUserRsp.getUserId(), false,
-                Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList())
-        );
+        var insertOwnerRoomReq = RoomReqDto.builder()
+                .name("방장 방")
+                .userId(insertUserRsp.getUserId())
+                .opened(false)
+                .member(Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList()))
+                .build();
+
         var insertOwnerRoomRsp = roomService.insert(insertOwnerRoomReq);
         assertThat(insertOwnerRoomRsp).isNotNull();
         assertThat(insertOwnerRoomRsp.getOwnerId()).isEqualTo(insertUserRsp.getUserId());
@@ -402,18 +464,17 @@ class UserServiceTest {
         assertThat(insertOwnerRoomRsp.getMembers().size()).isEqualTo(2);
 
         /* 0-3. Create owner room memory */
-        var insertOwnerRoomMemoryReq = new InsertMemoryDto.Request(
-                insertUserRsp.getUserId(),
-                insertOwnerRoomRsp.getRoomId(),
-                "방장 방의 공유 일정",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertOwnerRoomMemoryReq = MemoryReqDto.builder()
+                .userId(insertUserRsp.getUserId())
+                .roomId(insertOwnerRoomRsp.getRoomId())
+                .name("방장 방의 공유 일정")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
         var insertOwnerRoomMemoryRsp = memoryService.insert(insertOwnerRoomMemoryReq);
         assertThat(insertOwnerRoomMemoryRsp).isNotNull();
         assertThat(insertOwnerRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
@@ -421,8 +482,7 @@ class UserServiceTest {
 
         /* 1. Delete room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
-        assertFalse(deleteUserRsp.isUsed());
+        assertNull(deleteUserRsp);
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -473,37 +533,58 @@ class UserServiceTest {
     void deleteParticipantUser() {
         /* 0. Create users */
         // 1) user
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
         // 2) member1
-        var insertMemberReq = new InsertUserDto.Request(
-                2, "member1 sns id", "member1 pushToken",
-                "멤버1", "0101", true,
-                true, DeviceOs.ANDROID
-        );
+        var insertMemberReq = UserReqDto.builder()
+                .snsType(2)
+                .snsId("member1_sns_id")
+                .pushToken("member1 Token")
+                .push(true)
+                .name("member1")
+                .birthday("0101")
+                .solar(true)
+                .birthdayOpen(true)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertMemberRsp = userService.signUp(insertMemberReq);
         assertThat(insertMemberRsp).isNotNull();
 
         // 2) member2
-        var insertMember2Req = new InsertUserDto.Request(
-                3, "member2 sns id", "member2 pushToken",
-                "멤버2", "0201", false,
-                true, DeviceOs.IOS
-        );
+        var insertMember2Req = UserReqDto.builder()
+                .snsType(3)
+                .snsId("member2_sns_id")
+                .pushToken("member2 Token")
+                .push(true)
+                .name("member2")
+                .birthday("0501")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         var insertMember2Rsp = userService.signUp(insertMember2Req);
         assertThat(insertMember2Rsp).isNotNull();
 
         /* 0-2. Create participant room */
-        var insertParticipantRoomReq = new InsertRoomDto.Request(
-                "참여방", insertMemberRsp.getUserId(), false,
-                Stream.of(insertUserRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList())
-        );
+        var insertParticipantRoomReq = RoomReqDto.builder()
+                .name("참여방")
+                .userId(insertMemberRsp.getUserId())
+                .opened(false)
+                .member(Stream.of(insertUserRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList()))
+                .build();
+
         var insertParticipantRoomRsp = roomService.insert(insertParticipantRoomReq);
         assertThat(insertParticipantRoomRsp).isNotNull();
         assertThat(insertParticipantRoomRsp.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
@@ -511,18 +592,17 @@ class UserServiceTest {
         assertThat(insertParticipantRoomRsp.getMembers().size()).isEqualTo(3);
 
         /* 0-3. Create participant room memory */
-        var insertParticipantRoomMemoryReq = new InsertMemoryDto.Request(
-                insertUserRsp.getUserId(),
-                insertParticipantRoomRsp.getRoomId(),
-                "참여방 일정",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertParticipantRoomMemoryReq = MemoryReqDto.builder()
+                .userId(insertUserRsp.getUserId())
+                .roomId(insertParticipantRoomRsp.getRoomId())
+                .name("참여방 일정")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
         var insertParticipantRoomMemoryRsp = memoryService.insert(insertParticipantRoomMemoryReq);
         assertThat(insertParticipantRoomMemoryRsp).isNotNull();
         assertThat(insertParticipantRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
@@ -530,8 +610,7 @@ class UserServiceTest {
 
         /* 1. Delete room participant */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
-        assertFalse(deleteUserRsp.isUsed());
+        assertNull(deleteUserRsp);
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -580,11 +659,17 @@ class UserServiceTest {
     @Transactional
     void reSignUpSignIn() {
         /* 0. Create user */
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
@@ -595,7 +680,7 @@ class UserServiceTest {
 
         /* 0-2. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
+        assertNull(deleteUserRsp);
 
         /* 0-3. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -620,16 +705,22 @@ class UserServiceTest {
     @Transactional
     void uploadDeleteProfileImage() throws IOException {
         /* 0. Create Request */
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var file = new MockMultipartFile("image",
                 "CD 명함사이즈.jpg",
                 "image/jpg",
                 new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
-        var profileImageReq = new UploadProfileImageDto.Request(file);
+        var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
         var insertUserRsp = userService.signUp(insertUserReq);
@@ -662,4 +753,5 @@ class UserServiceTest {
         assertThat(deleteProfileImageRsp).isNotNull();
         assertNull(deleteProfileImageRsp.getProfileImageUrl());
     }
+
 }

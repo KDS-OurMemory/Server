@@ -17,9 +17,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class TodoReqDto {
 
-    @ApiModelProperty(value = "TODO 번호", example = "5")
-    private final Long todoId;
-
     @ApiModelProperty(value = "작성자 번호", example = "64")
     private final Long writerId;
 
@@ -35,7 +32,6 @@ public class TodoReqDto {
                 .writer(writer)
                 .contents(contents)
                 .todoDate(todoDate.atStartOfDay())
-                .used(true)
                 .build();
     }
 

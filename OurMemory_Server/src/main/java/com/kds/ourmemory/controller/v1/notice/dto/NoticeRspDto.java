@@ -6,9 +6,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 
-@ApiModel(value = "NoticeDto", description = "Notice API Dto")
+@ApiModel(value = "NoticeRspDto", description = "Notice API Response Dto")
 @Getter
-public class NoticeDto {
+public class NoticeRspDto {
 
     @ApiModelProperty(value = "알림 번호")
     private final long noticeId;
@@ -25,7 +25,7 @@ public class NoticeDto {
     @ApiModelProperty(value = "알림 생성 날짜(yyyy-MM-dd HH:mm:ss)", notes = "yyyy-MM-dd HH:mm:ss")
     private final String regDate;
 
-    public NoticeDto(Notice notice) {
+    public NoticeRspDto(Notice notice) {
         this.noticeId = notice.getId();
         this.type = notice.getType();
         this.value = notice.getValue();

@@ -3,7 +3,7 @@ package com.kds.ourmemory.service.v1.friend;
 import com.kds.ourmemory.advice.v1.friend.exception.*;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.friend.dto.*;
-import com.kds.ourmemory.controller.v1.notice.dto.InsertNoticeDto;
+import com.kds.ourmemory.controller.v1.notice.dto.NoticeReqDto;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.notice.Notice;
@@ -49,17 +49,17 @@ public class FriendService {
 
     private static final String STATUS_ERROR_MESSAGE = "Friend status must be '%s'. friendStatus: %s";
 
-    private static final String NOT_REQUESTED_ERROR = "Addition cannot be proceeded without a friend request.";
+    private static final String NOT_REQUESTED_ERROR = "Addition cannot be proceeded without a friend reqDto.";
 
-    private static final String USER_ALREADY_FRIEND = "User '%d' already friend. delete request plz.";
+    private static final String USER_ALREADY_FRIEND = "User '%d' already friend. delete reqDto plz.";
 
     private static final String USER = "user";
 
-    public List<FriendDto> findUsers(long userId, Long targetId, String name, FriendStatus friendStatus) {
+    public List<FriendRspDto> findUsers(long userId, Long targetId, String name, FriendStatus friendStatus) {
         // Find by friendStatus
         var responseList = findFriendsByUserId(userId)
                 .map(list -> list.stream().filter(friend -> friend.getStatus().equals(friendStatus))
-                        .map(friend -> new FriendDto(friend.getFriendUser(), friend))
+                        .map(friend -> new FriendRspDto(friend.getFriendUser(), friend))
                         .collect(Collectors.toList())
                 )
                 .orElseGet(ArrayList::new);
@@ -70,7 +70,7 @@ public class FriendService {
                         .map(users -> users.stream().map(user -> {
                                             Friend friend = findFriend(userId, targetId)
                                                     .orElse(null);
-                                            return new FriendDto(user, friend);
+                                            return new FriendRspDto(user, friend);
                                         })
                                         .collect(Collectors.toList())
                         )
@@ -80,8 +80,8 @@ public class FriendService {
         return responseList.stream().distinct().collect(Collectors.toList());
     }
 
-    public FriendDto requestFriend(RequestFriendDto.Request request) {
-        findFriend(request.getUserId(), request.getFriendUserId())
+    public FriendRspDto requestFriend(FriendReqDto reqDto) {
+        findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .ifPresent(friend -> {
                     checkArgument(!friend.getStatus().equals(FriendStatus.WAIT),
                             "이미 친구 요청한 사람입니다. 다른 사람의 회원 번호를 입력해주시기 바랍니다.");
@@ -93,14 +93,14 @@ public class FriendService {
                             "차단한 사람입니다. 다른 사람의 회원 번호를 입력해주시기 바랍니다.");
                 });
 
-        var user = findUser(request.getUserId()).orElseThrow(
+        var user = findUser(reqDto.getUserId()).orElseThrow(
                 () -> new FriendNotFoundUserException(
-                        String.format(NOT_FOUND_MESSAGE, USER, request.getUserId())
+                        String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId())
                 )
         );
-        var friend = findUser(request.getFriendUserId()).orElseThrow(
+        var friend = findUser(reqDto.getFriendUserId()).orElseThrow(
                 () -> new FriendNotFoundFriendException(
-                        String.format(NOT_FOUND_MESSAGE, USER, request.getFriendUserId())
+                        String.format(NOT_FOUND_MESSAGE, USER, reqDto.getFriendUserId())
                 )
         );
 
@@ -108,12 +108,12 @@ public class FriendService {
         var insertFriendMySideRsp = insertFriend(new Friend(user, friend, FriendStatus.WAIT));
 
         // Check Already friend
-        return findFriend(request.getFriendUserId(), request.getUserId())
+        return findFriend(reqDto.getFriendUserId(), reqDto.getUserId())
                 .map(friendSideFriend ->
                         Optional.of(friendSideFriend)
                                 .filter(f -> f.getStatus().equals(FriendStatus.BLOCK))
-                                .map(f -> new FriendDto(insertFriendMySideRsp))  // response by request result
-                                .orElseThrow(() -> new FriendAlreadyAcceptException("Already accepted a friend request.")))
+                                .map(f -> new FriendRspDto(insertFriendMySideRsp))  // response by reqDto result
+                                .orElseThrow(() -> new FriendAlreadyAcceptException("Already accepted a friend reqDto.")))
                 // Add friend side REQUESTED_BY status
                 .orElseGet(() -> {
                     insertFriend(new Friend(friend, user, FriendStatus.REQUESTED_BY));
@@ -123,29 +123,29 @@ public class FriendService {
                     var body = String.format("%s 이(가) 친구 요청하였습니다.", user.getName());
                     var friendToken = friend.getPushToken();
 
-                    var insertNoticeRequest = new InsertNoticeDto.Request(
-                            friend.getId(), NoticeType.FRIEND_REQUEST, Long.toString(request.getUserId()));
+                    var insertNoticeRequest = new NoticeReqDto(
+                            friend.getId(), NoticeType.FRIEND_REQUEST, Long.toString(reqDto.getUserId()));
                     noticeService.insert(insertNoticeRequest);
 
                     // SendMessage to fcm
                     fcmService.sendMessageTo(
                             new FcmDto.Request(friendToken, friend.getDeviceOs(), title, body,
                                     false, NoticeType.FRIEND_REQUEST.name(),
-                                    Long.toString(request.getUserId())));
+                                    Long.toString(reqDto.getUserId())));
 
-                    return new FriendDto(insertFriendMySideRsp); // response by request result
+                    return new FriendRspDto(insertFriendMySideRsp); // response by reqDto result
                 });
     }
 
     @Transactional
-    public FriendDto cancelFriend(CancelFriendDto.Request request) {
+    public FriendRspDto cancelFriend(FriendReqDto reqDto) {
         // Check my side
-        findFriend(request.getUserId(), request.getFriendUserId())
+        findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .map(friend -> {
                     FriendStatus status = friend.getStatus();
                     if (status.equals(FriendStatus.FRIEND) || status.equals(FriendStatus.BLOCK)) {
                         throw new FriendInternalServerException(
-                                String.format(USER_ALREADY_FRIEND, request.getFriendUserId())
+                                String.format(USER_ALREADY_FRIEND, reqDto.getFriendUserId())
                         );
                     } else if (!FriendStatus.WAIT.equals(status)) {
                         throw new FriendStatusException(
@@ -159,51 +159,54 @@ public class FriendService {
                 })
                 .orElseThrow(
                         () -> new FriendNotFoundException(
-                                String.format(NOT_FOUND_FRIEND_MESSAGE, request.getUserId(), request.getFriendUserId())
+                                String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getUserId(), reqDto.getFriendUserId())
                         )
                 );
 
         // Check friend side And delete
-        return findFriend(request.getFriendUserId(), request.getUserId())
+        findFriend(reqDto.getFriendUserId(), reqDto.getUserId())
                 .map(friend -> {
                     FriendStatus status = friend.getStatus();
                     switch (status) {
                         case REQUESTED_BY -> {
                             deleteFriend(friend);
 
-                            // Delete friend request notice from accepted user
+                            // Delete friend reqDto notice from accepted user
                             noticeService.findNotices(friend.getUser().getId(), false)
                                     .forEach(findNoticesRsp -> {
                                         if (NoticeType.FRIEND_REQUEST.equals(findNoticesRsp.getType())
                                                 && findNoticesRsp.getValue().equals(Long.toString(friend.getFriendUser().getId()))
                                         ) {
-                                            noticeService.deleteNotice(findNoticesRsp.getNoticeId());
+                                            noticeService.delete(findNoticesRsp.getNoticeId());
                                         }
                                     });
                         }
                         case BLOCK -> {
                         }
                         case FRIEND -> throw new FriendInternalServerException(
-                                String.format(USER_ALREADY_FRIEND, request.getUserId())
+                                String.format(USER_ALREADY_FRIEND, reqDto.getUserId())
                         );
                         default -> throw new FriendStatusException(
                                 String.format(STATUS_ERROR_MESSAGE, FriendStatus.REQUESTED_BY, status)
                         );
                     }
 
-                    return new FriendDto(); // TODO: 삭제 로직을 삭제 플래그로 수정 후 데이터 수정 예정
+                    return true;
                 })
                 .orElseThrow(
                         () -> new FriendNotFoundException(
-                                String.format(NOT_FOUND_FRIEND_MESSAGE, request.getFriendUserId(), request.getUserId())
+                                String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getFriendUserId(), reqDto.getUserId())
                         )
                 );
+
+        // not exists friend data(cancel -> delete friend data), so null response.
+        return null;
     }
 
     @Transactional
-    public FriendDto acceptFriend(AcceptFriendDto.Request request) {
+    public FriendRspDto acceptFriend(FriendReqDto reqDto) {
         // Check friend status on accept side
-        var acceptFriend = findFriend(request.getUserId(), request.getFriendUserId())
+        var acceptFriend = findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.REQUESTED_BY))
                         .orElseThrow(() -> new FriendStatusException(
                                 String.format(STATUS_ERROR_MESSAGE, FriendStatus.REQUESTED_BY.name(), fa.getStatus().name()))
@@ -211,8 +214,8 @@ public class FriendService {
                 )
                 .orElseThrow(() -> new FriendNotRequestedException(NOT_REQUESTED_ERROR));
 
-        // Check friend status on request side
-        var requestFriend = findFriend(request.getFriendUserId(), request.getUserId())
+        // Check friend status on reqDto side
+        var requestFriend = findFriend(reqDto.getFriendUserId(), reqDto.getUserId())
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.WAIT))
                         .orElseThrow(() -> new FriendStatusException(
                                         String.format(STATUS_ERROR_MESSAGE, FriendStatus.WAIT.name(), fa.getStatus().name())
@@ -221,29 +224,29 @@ public class FriendService {
                 )
                 .orElseThrow(() -> new FriendNotRequestedException(NOT_REQUESTED_ERROR));
 
-        // Accept request
+        // Accept reqDto
         acceptFriend.changeStatus(FriendStatus.FRIEND)
                 .orElseThrow(() -> new FriendInternalServerException("Failed to update for friend status data."));
         requestFriend.changeStatus(FriendStatus.FRIEND)
                 .orElseThrow(() -> new FriendInternalServerException("Failed to update for friend status data."));
 
         // Read related notice from accept user
-        findNoticesByUserId(request.getUserId())
+        findNoticesByUserId(reqDto.getUserId())
                 .ifPresent(notices -> notices.forEach(notice -> {
                             if (NoticeType.FRIEND_REQUEST.equals(notice.getType())
-                                    && notice.getValue().equals(Long.toString(request.getFriendUserId()))
+                                    && notice.getValue().equals(Long.toString(reqDto.getFriendUserId()))
                             ) {
                                 notice.readNotice();
                             }
                         })
                 );
 
-        return new FriendDto(acceptFriend);
+        return new FriendRspDto(acceptFriend);
     }
 
-    public FriendDto reAddFriend(ReAddFriendDto.Request request) {
+    public FriendRspDto reAddFriend(FriendReqDto reqDto) {
         // Check friend status on friend side
-        findFriend(request.getFriendUserId(), request.getUserId())
+        findFriend(reqDto.getFriendUserId(), reqDto.getUserId())
                 .map(ff -> {
                     if (ff.getStatus().equals(FriendStatus.BLOCK))
                         throw new FriendBlockedException("Blocked by friend.");
@@ -257,15 +260,15 @@ public class FriendService {
                 })
                 .orElseThrow(() -> new FriendInternalServerException(
                         String.format("Cannot add friend '%d' because friend side is not a friend to user '%d'",
-                                request.getFriendUserId(), request.getUserId())
+                                reqDto.getFriendUserId(), reqDto.getUserId())
                 ));
 
-        // Check friend status on request side, And add friend
-        return findFriend(request.getUserId(), request.getFriendUserId())
+        // Check friend status on reqDto side, And add friend
+        return findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.WAIT))
                         .map(f -> {
                             f.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
-                            return new FriendDto(f);
+                            return new FriendRspDto(f);
                         })
                         .orElseThrow(() -> new FriendStatusException(
                                 String.format(STATUS_ERROR_MESSAGE, FriendStatus.WAIT.name(), fa.getStatus().name()))
@@ -275,51 +278,54 @@ public class FriendService {
     }
 
     // Not found friend -> None Error, just empty -> return emptyList
-    public List<FriendDto> findFriends(long userId) {
+    public List<FriendRspDto> findFriends(long userId) {
         return findFriendsByUserId(userId)
                 .map(friends -> friends.stream()
-                        .map(FriendDto::new)
+                        .map(FriendRspDto::new)
                         .collect(Collectors.toList())
                 )
                 .orElseGet(ArrayList::new);
     }
 
-    public FriendDto patchFriendStatus(PatchFriendStatusDto.Request request) {
-        return findFriend(request.getUserId(), request.getFriendUserId())
+    public FriendRspDto patchFriendStatus(FriendReqDto reqDto) {
+        return findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .map(friend ->
-                        Optional.ofNullable(request.getStatus())
+                        Optional.ofNullable(reqDto.getFriendStatus())
                                 .filter(status -> !(status.equals(FriendStatus.WAIT) || status.equals(FriendStatus.REQUESTED_BY)))
                                 .map(status -> {
                                     friend.changeStatus(status);
                                     updateFriend(friend);
-                                    return new FriendDto(friend);
+                                    return new FriendRspDto(friend);
                                 })
                                 .orElseThrow(() -> new FriendStatusException(
                                         String.format("Friend status cannot be '%s' and '%s'", FriendStatus.WAIT, FriendStatus.REQUESTED_BY))
                                 )
                 )
                 .orElseThrow(() -> new FriendNotFoundFriendException(
-                                String.format(NOT_FOUND_FRIEND_MESSAGE, request.getUserId(), request.getFriendUserId())
+                                String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getUserId(), reqDto.getFriendUserId())
                         )
                 );
     }
 
-    public FriendDto deleteFriend(long userId, long friendUserId) {
-        return findFriend(userId, friendUserId)
+    public FriendRspDto deleteFriend(FriendReqDto reqDto) {
+        findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .map(friend -> {
                     if (friend.getStatus().equals(FriendStatus.WAIT) || friend.getStatus().equals(FriendStatus.REQUESTED_BY))
                         throw new FriendInternalServerException(
-                                String.format("User '%d' is not friend. cancel request plz.", friendUserId)
+                                String.format("User '%d' is not friend. cancel reqDto plz.", reqDto.getFriendUserId())
                         );
 
                     // Delete friend only my side. The other side does not delete.
                     deleteFriend(friend);
-                    return new FriendDto(); // TODO: 삭제 로직을 삭제 플래그로 수정 후 데이터 수정 예정
+                    return true;
                 })
                 .orElseThrow(() -> new FriendNotFoundFriendException(
-                                String.format(NOT_FOUND_FRIEND_MESSAGE, userId, friendUserId)
+                                String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getUserId(), reqDto.getFriendUserId())
                         )
                 );
+
+        // delete response is null -> client already have data, so don't need response data.
+        return null;
     }
 
     /**

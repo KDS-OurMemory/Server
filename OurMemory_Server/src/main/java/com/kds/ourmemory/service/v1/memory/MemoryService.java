@@ -5,10 +5,10 @@ import com.kds.ourmemory.advice.v1.relation.exception.UserMemoryInternalServerEx
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
-import com.kds.ourmemory.controller.v1.memory.dto.*;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryRspDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.entity.memory.Memory;
-import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.relation.UserMemory;
 import com.kds.ourmemory.entity.room.Room;
 import com.kds.ourmemory.entity.user.User;
@@ -60,40 +60,26 @@ public class MemoryService {
     private static final String ROOM = "room";
 
     @Transactional
-    public MemoryDto insert(InsertMemoryDto.Request request) {
-        if (isDeleteUser(request.getUserId()))
+    public MemoryRspDto insert(MemoryReqDto reqDto) {
+        if (isDeleteUser(reqDto.getUserId()))
             throw new MemoryNotFoundWriterException(
-                    String.format(NOT_FOUND_MESSAGE, "writer", request.getUserId())
+                    String.format(NOT_FOUND_MESSAGE, "writer", reqDto.getUserId())
             );
 
-        return findUser(request.getUserId())
-                .map(writer -> {
-                    var memory = Memory.builder()
-                            .writer(writer)
-                            .name(request.getName())
-                            .contents(request.getContents())
-                            .place(request.getPlace())
-                            .startDate(request.getStartDate())
-                            .endDate(request.getEndDate())
-                            .firstAlarm(request.getFirstAlarm())
-                            .secondAlarm(request.getSecondAlarm())
-                            .bgColor(request.getBgColor())
-                            .used(true)
-                            .build();
-
-                    return insertMemory(memory)
-                            .orElseThrow(() -> new MemoryInternalServerException(
-                                        String.format("Memory '%s' insert failed.", memory.getName())
-                                    )
-                            );
-                })
+        return findUser(reqDto.getUserId())
+                .map(writer -> insertMemory(reqDto.toEntity(writer))
+                        .orElseThrow(() -> new MemoryInternalServerException(
+                                        String.format("Memory '%s' insert failed.", reqDto.getName())
+                                )
+                        )
+                )
                 .map(memory -> {
                     // Relation memory and private room
                     var roomId = relationMemoryToPrivateRoom(memory, memory.getWriter().getPrivateRoomId());
 
                     // Share memory to room only not private room
-                    if (!memory.getWriter().getPrivateRoomId().equals(request.getRoomId())) {
-                        roomId = Optional.ofNullable(request.getRoomId())
+                    if (!memory.getWriter().getPrivateRoomId().equals(reqDto.getRoomId())) {
+                        roomId = Optional.ofNullable(reqDto.getRoomId())
                                 .map(shareRoomId -> {
                                     shareMemoryToRooms(memory, Stream.of(shareRoomId).collect(toList()));
                                     return shareRoomId;
@@ -101,10 +87,10 @@ public class MemoryService {
                                 .orElse(roomId);
                     }
 
-                    return new MemoryDto(memory, roomId);
+                    return new MemoryRspDto(memory, roomId);
                 })
                 .orElseThrow(() -> new MemoryNotFoundWriterException(
-                                String.format(NOT_FOUND_MESSAGE, "writer", request.getUserId())
+                                String.format(NOT_FOUND_MESSAGE, "writer", reqDto.getUserId())
                         )
                 );
     }
@@ -149,7 +135,7 @@ public class MemoryService {
         ));
     }
 
-    public MemoryDto find(long memoryId, long roomId) {
+    public MemoryRspDto find(long memoryId, long roomId) {
         return findMemory(memoryId)
                 .filter(Memory::isUsed)
                 .map(memory -> {
@@ -162,7 +148,7 @@ public class MemoryService {
                     var userMemories = findUserMemoryByMemoryAndUserIn(memory, roomMember)
                             .orElseGet(ArrayList::new);
 
-                    return new MemoryDto(memory, userMemories);
+                    return new MemoryRspDto(memory, userMemories);
                 })
                 .orElseThrow(() -> new MemoryNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId)
@@ -170,7 +156,7 @@ public class MemoryService {
                 );
     }
 
-    public List<MemoryDto> findMemories(Long writerId, String name) {
+    public List<MemoryRspDto> findMemories(Long writerId, String name) {
         List<Memory> findMemories = new ArrayList<>();
 
         findMemoriesByWriterId(writerId).ifPresent(findMemories::addAll);
@@ -185,12 +171,12 @@ public class MemoryService {
                         Comparator.comparing(Memory::getStartDate)  // first order
                                 .thenComparing(Memory::getRegDate)  // second order
                 )
-                .map(memory -> new MemoryDto(privateRoomId, memory))
+                .map(memory -> new MemoryRspDto(privateRoomId, memory))
                 .collect(toList());
     }
 
     @Transactional
-    public MemoryDto update(long memoryId, long userId, UpdateMemoryDto.Request request) {
+    public MemoryRspDto update(long memoryId, long userId, MemoryReqDto reqDto) {
         var memory = findMemory(memoryId)
                 .orElseThrow(
                         () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
@@ -202,17 +188,17 @@ public class MemoryService {
             );
         }
 
-        return memory.updateMemory(request)
-                .map(MemoryDto::new)
+        return memory.updateMemory(reqDto)
+                .map(MemoryRspDto::new)
                 .orElseThrow(() -> new MemoryInternalServerException("Failed to update for memory data"));
     }
 
     @Transactional
-    public MemoryDto setAttendanceStatus(long memoryId, long userId, AttendanceStatus status) {
-        var attendMemoryResponse = findUserMemoryByMemoryIdAndUserId(memoryId, userId)
+    public MemoryRspDto setAttendanceStatus(long memoryId, MemoryReqDto reqDto) {
+        var attendMemoryResponse = findUserMemoryByMemoryIdAndUserId(memoryId, reqDto.getUserId())
                 .map(userMemory -> {
-                    userMemory.updateAttendance(status);
-                    return new MemoryDto(userMemory);
+                    userMemory.updateAttendance(reqDto.getAttendanceStatus());
+                    return new MemoryRspDto(userMemory);
                 })
                 .orElse(null);
 
@@ -222,15 +208,15 @@ public class MemoryService {
 
         return findMemory(memoryId)
                 .map(memory -> {
-                    var user = findUser(userId)
+                    var user = findUser(reqDto.getUserId())
                             .orElseThrow(() -> new UserNotFoundException(
-                                    String.format(NOT_FOUND_MESSAGE, USER, userId)
+                                    String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId())
                             ));
 
                     var userMemory = UserMemory.builder()
                             .user(user)
                             .memory(memory)
-                            .status(status)
+                            .status(reqDto.getAttendanceStatus())
                             .build();
 
                     var insertedUserMemory = insertUserMemory(userMemory)
@@ -242,7 +228,7 @@ public class MemoryService {
                     user.addMemory(insertedUserMemory);
                     memory.addUser(insertedUserMemory);
 
-                    return new MemoryDto(userMemory);
+                    return new MemoryRspDto(userMemory);
                 })
                 .orElseThrow(
                         () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
@@ -250,9 +236,9 @@ public class MemoryService {
     }
 
     @Transactional
-    public MemoryDto shareMemory(long memoryId, long userId, ShareMemoryDto.Request request) {
-        checkNotNull(request.getTargetIds(), "공유 대상 목록이 없습니다. 공유 대상 목록을 입력해주세요.");
-        checkNotNull(request.getType(), "일정 공유 대상 종류값이 없습니다. 값을 입력해주세요.");
+    public MemoryRspDto shareMemory(long memoryId, long userId, MemoryReqDto reqDto) {
+        checkNotNull(reqDto.getShareIds(), "공유 대상 목록이 없습니다. 공유 대상 목록을 입력해주세요.");
+        checkNotNull(reqDto.getShareType(), "일정 공유 대상 종류값이 없습니다. 값을 입력해주세요.");
 
         var memory = findMemory(memoryId)
                 .orElseThrow(() -> new MemoryNotFoundException(
@@ -264,15 +250,16 @@ public class MemoryService {
                         String.format(NOT_FOUND_MESSAGE, USER, userId)
                 ));
 
-        switch (request.getType()) {
-            case USERS -> request.getTargetIds().forEach(id -> findUser(id)
+        switch (reqDto.getShareType()) {
+            case USERS -> reqDto.getShareIds().forEach(id -> findUser(id)
                     .map(target -> {
-                        var insertRoomReq = new InsertRoomDto.Request(
-                                user.getName() + ", " + target.getName(),
-                                userId,
-                                false,
-                                Stream.of(target.getId()).collect(toList())
-                        );
+                        var insertRoomReq = RoomReqDto.builder()
+                                .name(user.getName() + ", " + target.getName())
+                                .userId(userId)
+                                .opened(false)
+                                .member(Stream.of(target.getId()).collect(toList()))
+                                .build();
+
                         var insertRoomRsp = roomService.insert(insertRoomReq);
                         return findRoom(insertRoomRsp.getRoomId())
                                 .orElseThrow(() -> new RoomNotFoundException(
@@ -290,12 +277,12 @@ public class MemoryService {
                     )));
 
             case USER_GROUP -> {
-                var insertRoomReq = new InsertRoomDto.Request(
-                        "Share room from " + user.getName(),
-                        userId,
-                        false,
-                        request.getTargetIds()
-                );
+                var insertRoomReq = RoomReqDto.builder()
+                        .name("Share room from " + user.getName())
+                        .userId(userId)
+                        .opened(false)
+                        .member(reqDto.getShareIds())
+                        .build();
                 var insertRoomRsp = roomService.insert(insertRoomReq);
                 findRoom(insertRoomRsp.getRoomId())
                         .map(room -> {
@@ -308,7 +295,7 @@ public class MemoryService {
                                 String.format("Memory '%s' insert failed.", memory.getName())
                         ));
             }
-            case ROOMS -> request.getTargetIds().forEach(roomId ->
+            case ROOMS -> reqDto.getShareIds().forEach(roomId ->
                     findRoom(roomId)
                             .map(room -> {
                                 room.addMemory(memory);
@@ -322,36 +309,39 @@ public class MemoryService {
             );
         }
 
-        return new MemoryDto(user.getPrivateRoomId(), memory);
+        return new MemoryRspDto(user.getPrivateRoomId(), memory);
     }
 
     @Transactional
-    public MemoryDto delete(long memoryId, DeleteMemoryDto.Request request) {
+    public MemoryRspDto delete(long memoryId, MemoryReqDto reqDto) {
         var memory = findMemory(memoryId)
                 .orElseThrow(
                         () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
                 );
 
-        return findUser(request.getUserId())
+        findUser(reqDto.getUserId())
                 .map(user -> {
                     // 1. Delete memory from private room -> delete memory
-                    if (user.getPrivateRoomId() == request.getTargetRoomId()) {
+                    if (user.getPrivateRoomId() == reqDto.getTargetRoomId()) {
                         memory.deleteMemory();
                     }
                     // 2. Delete memory from share room -> delete room-memory relation
                     else {
-                        findRoom(request.getTargetRoomId())
+                        findRoom(reqDto.getTargetRoomId())
                                 .ifPresent(room -> {
                                     room.deleteMemory(memory);
                                     memory.deleteRoom(room);
                                 });
                     }
 
-                    return new MemoryDto(memory);
+                    return true;
                 })
                 .orElseThrow(
-                        () -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, request.getUserId()))
+                        () -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId()))
                 );
+
+        // delete response is null -> client already have data, so don't need response data.
+        return null;
     }
     
     /**

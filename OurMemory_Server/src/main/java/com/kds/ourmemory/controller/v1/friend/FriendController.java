@@ -1,7 +1,8 @@
 package com.kds.ourmemory.controller.v1.friend;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
-import com.kds.ourmemory.controller.v1.friend.dto.*;
+import com.kds.ourmemory.controller.v1.friend.dto.FriendReqDto;
+import com.kds.ourmemory.controller.v1.friend.dto.FriendRspDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.service.v1.friend.FriendService;
 import io.swagger.annotations.Api;
@@ -23,7 +24,7 @@ public class FriendController {
 
     @ApiOperation(value = "사용자 검색", notes = "조건에 해당하는 사용자의 기본 정보와 친구 상태를 검색한다.")
     @GetMapping(value = "/users/{userId}/search")
-    public ApiResult<List<FriendDto>> findUsers(
+    public ApiResult<List<FriendRspDto>> findUsers(
             @PathVariable long userId,
             @ApiParam(value = "대상 사용자 번호") @RequestParam(required = false) Long targetId,
             @ApiParam(value = "대상 사용자 이름") @RequestParam(required = false) String name,
@@ -33,50 +34,51 @@ public class FriendController {
     }
 
     @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다. 차단한 상대에게는 요청이 전달되지 않는다.")
-    @PostMapping(value = "/request")
-    public ApiResult<FriendDto> requestFriend(@RequestBody RequestFriendDto.Request request) {
-        return ok(friendService.requestFriend(request));
+    @PostMapping(value = "/reqDto")
+    public ApiResult<FriendRspDto> requestFriend(@RequestBody FriendReqDto reqDto) {
+        return ok(friendService.requestFriend(reqDto));
     }
 
-    @ApiOperation(value = "친구 요청 취소", notes = "친구 요청을 취소한 뒤, 요청보낸 사용자의 친구요청 알림을 삭제한다.")
+    @ApiOperation(value = "친구 요청 취소",
+            notes = "친구 요청을 취소한 뒤, 요청보낸 사용자의 친구요청 알림을 삭제한다. " +
+                    "성공한 경우, 실제 친구 데이터가 삭제되기 때문에 response=null 을 리턴한다.")
     @DeleteMapping(value = "/cancel")
-    public ApiResult<FriendDto> cancelFriend(@RequestBody CancelFriendDto.Request request) {
-        return ok(friendService.cancelFriend(request));
+    public ApiResult<FriendRspDto> cancelFriend(@RequestBody FriendReqDto reqDto) {
+        return ok(friendService.cancelFriend(reqDto));
     }
 
     @ApiOperation(value = "친구 수락",
             notes = "친구 요청을 수락하고 친구를 추가한다. 요청을 수락한 사용자 알림 중 친구 요청 알림을 읽음처리한다."
     )
     @PostMapping(value = "/accept")
-    public ApiResult<FriendDto> acceptFriend(@RequestBody AcceptFriendDto.Request request) {
-        return ok(friendService.acceptFriend(request));
+    public ApiResult<FriendRspDto> acceptFriend(@RequestBody FriendReqDto reqDto) {
+        return ok(friendService.acceptFriend(reqDto));
     }
 
     @ApiOperation(value = "친구 재 추가", notes = "친구 요청 후 상대방이 이미 친구인 경우, 내 쪽에서만 친구 추가를 진행한다.")
     @PostMapping(value = "/reAdd")
-    public ApiResult<FriendDto> reAddFriend(@RequestBody ReAddFriendDto.Request request) {
-        return ok(friendService.reAddFriend(request));
+    public ApiResult<FriendRspDto> reAddFriend(@RequestBody FriendReqDto reqDto) {
+        return ok(friendService.reAddFriend(reqDto));
     }
 
     @ApiOperation(value = "친구 목록 조회", notes = "사용자의 친구 목록을 조회한다.")
     @GetMapping(value = "/{userId}")
-    public ApiResult<List<FriendDto>> findFriends(
+    public ApiResult<List<FriendRspDto>> findFriends(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(friendService.findFriends(userId));
     }
 
     @ApiOperation(value = "친구 상태 변경", notes = "친구 상태를 변경한다. 요청(WAIT)/수락 대기(REQUESTED_BY) 상태로는 변경할 수 없다.")
     @PatchMapping(value = "/status")
-    public ApiResult<FriendDto> patchFriendStatus(@RequestBody PatchFriendStatusDto.Request request) {
-        return ok(friendService.patchFriendStatus(request));
+    public ApiResult<FriendRspDto> patchFriendStatus(@RequestBody FriendReqDto reqDto) {
+        return ok(friendService.patchFriendStatus(reqDto));
     }
 
-    @ApiOperation(value = "친구 삭제", notes = "친구를 삭제한다. 내 쪽에서만 친구 삭제 처리한다.")
-    @DeleteMapping(value = "/{userId}/{friendUserId}")
-    public ApiResult<FriendDto> deleteFriend(
-            @PathVariable long userId,
-            @PathVariable long friendUserId
-    ) {
-        return ok(friendService.deleteFriend(userId, friendUserId));
+    @ApiOperation(value = "친구 삭제", notes = """
+            친구를 삭제한다. 내 쪽에서만 친구 삭제 처리한다.\s
+            "성공한 경우, 실제 친구 데이터가 삭제되기 때문에 response=null 을 리턴한다.""")
+    @DeleteMapping
+    public ApiResult<FriendRspDto> deleteFriend(@RequestBody FriendReqDto reqDto) {
+        return ok(friendService.deleteFriend(reqDto));
     }
 }

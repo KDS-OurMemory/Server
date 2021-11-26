@@ -7,9 +7,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 
-@ApiModel(value = "UserDto", description = "사용자 API 응답 Dto")
+@ApiModel(value = "UserRspDto", description = "User API Response Dto")
 @Getter
-public class UserDto {
+public class UserRspDto {
     @ApiModelProperty(value = "사용자 번호")
     private final Long userId;
 
@@ -46,13 +46,10 @@ public class UserDto {
     @ApiModelProperty(value = "역할(USER:사용자, ADMIN:관리자)", example = "USER or ADMIN")
     private final UserRole role;
 
-    @ApiModelProperty(value = "사용기기 OS(ANDROID, IOS)", example = "ANDROID or IOS")
+    @ApiModelProperty(value = "사용기기 OS(AOS, IOS)", example = "AOS or IOS")
     private final DeviceOs deviceOs;
 
-    @ApiModelProperty(value = "계정 사용여부")
-    private final boolean used;
-
-    public UserDto(User user) {
+    public UserRspDto(User user) {
         this.userId = user.getId();
         this.name = user.getName();
         this.solar = user.isSolar();
@@ -66,7 +63,6 @@ public class UserDto {
         this.profileImageUrl = user.getProfileImageUrl();
         this.role = user.getRole();
         this.deviceOs = user.getDeviceOs();
-        this.used = user.isUsed();
     }
 
 }

@@ -1,6 +1,6 @@
 package com.kds.ourmemory.entity.room;
 
-import com.kds.ourmemory.controller.v1.room.dto.UpdateRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
@@ -58,15 +58,15 @@ public class Room extends BaseTimeEntity implements Serializable{
     private List<Memory> memories = new ArrayList<>();
 
 	@Builder
-	public Room(Long id, User owner, String name, boolean used, boolean opened) {
+	public Room(Long id, User owner, String name, boolean opened) {
         checkNotNull(owner, "사용자 번호에 맞는 방 생성자의 정보가 없습니다. 방 생성자의 번호를 확인해주세요.");
         checkNotNull(name, "방 이름이 입력되지 않았습니다. 방 이름을 입력해주세요.");
         
         this.id = id;
         this.owner = owner;
         this.name = name;
-        this.used = used;
         this.opened = opened;
+		this.used = true;
 	}
 	
 	public void addUser(User user) {
@@ -83,11 +83,11 @@ public class Room extends BaseTimeEntity implements Serializable{
 		this.owner = user;
 	}
 
-	public Optional<Room> updateRoom(UpdateRoomDto.Request request) {
-		return Optional.ofNullable(request)
+	public Optional<Room> updateRoom(RoomReqDto reqDto) {
+		return Optional.ofNullable(reqDto)
 				.map(req -> {
 					name = Objects.nonNull(req.getName()) ? req.getName() : name;
-					opened = Objects.nonNull(req.getOpened()) ? req.getOpened() : opened;
+					opened = Objects.nonNull(req.isOpened()) ? req.isOpened() : opened;
 
 					return this;
 				});

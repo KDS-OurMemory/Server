@@ -6,35 +6,35 @@ import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@ApiModel(value = "FriendDto", description = "Friend API Dto")
+import java.util.Objects;
+
+@ApiModel(value = "FriendRspDto", description = "Friend API Response Dto")
 @Getter
-@NoArgsConstructor
-public class FriendDto {
+public class FriendRspDto {
 
     @ApiModelProperty(value = "친구 번호(친구 사용자 번호)", example = "99")
-    private Long friendId;
+    private final Long friendId;
 
     @ApiModelProperty(value = "친구 이름", example = "김동영")
-    private String name;
+    private final String name;
 
     @ApiModelProperty(value = "친구 생일(MMdd)", example = "0724 | null")
-    private String birthday;
+    private final String birthday;
 
     @ApiModelProperty(value = "양력 여부", example = "true")
-    private boolean solar;
+    private final boolean solar;
 
     @ApiModelProperty(value = "생일 공개여부", example = "false")
-    private boolean birthdayOpen;
+    private final boolean birthdayOpen;
 
     @ApiModelProperty(value = "친구 프로필사진 Url")
-    private String profileImageUrl;
+    private final String profileImageUrl;
 
     @ApiModelProperty(value = "친구 상태(요청 후 대기: WAIT, 요청받은 상태: REQUESTED_BY, 친구: FRIEND, 차단: BLOCK)")
-    private FriendStatus friendStatus;
+    private final FriendStatus friendStatus;
 
-    public FriendDto(Friend friend) {
+    public FriendRspDto(Friend friend) {
         friendId = friend.getFriendUser().getId();
         name = friend.getFriendUser().getName();
         birthday = friend.getFriendUser().getBirthday();
@@ -45,14 +45,14 @@ public class FriendDto {
     }
 
     // used for findUsers API Response
-    public FriendDto(User user, Friend friend) {
+    public FriendRspDto(User user, Friend friend) {
         friendId = user.getId();
         name = user.getName();
         birthday = user.getBirthday();
         solar = user.isSolar();
         birthdayOpen = user.isBirthdayOpen();
         profileImageUrl = user.getProfileImageUrl();
-        friendStatus = friend != null ? friend.getStatus() : null;
+        friendStatus = Objects.nonNull(friend) ? friend.getStatus() : null;
     }
 
 }

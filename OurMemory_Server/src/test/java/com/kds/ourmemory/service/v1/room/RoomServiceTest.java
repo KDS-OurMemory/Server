@@ -4,11 +4,11 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomAlreadyOwnerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
-import com.kds.ourmemory.controller.v1.memory.dto.ShareMemoryDto;
-import com.kds.ourmemory.controller.v1.room.dto.*;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.UserDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
+import com.kds.ourmemory.controller.v1.memory.dto.ShareType;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserRspDto;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.memory.MemoryService;
@@ -40,17 +40,17 @@ class RoomServiceTest {
 
     /**
      * Assert time format -> delete sec
-     * 
+     * <p>
      * This is because time difference occurs after room creation due to relation table work.
      */
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     // Base data for test RoomService
-    private UserDto insertOwnerRsp;
+    private UserRspDto insertOwnerRsp;
 
-    private UserDto insertMember1Rsp;
-    
-    private UserDto insertMember2Rsp;
+    private UserRspDto insertMember1Rsp;
+
+    private UserRspDto insertMember2Rsp;
 
     private List<Long> roomMembers;
 
@@ -75,8 +75,12 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -95,15 +99,19 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false,
-                Stream.of(insertMember1Rsp.getUserId()).collect(toList())
-        );
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(Stream.of(insertMember1Rsp.getUserId()).collect(toList()))
+                .build();
 
-        var insertShareRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false,
-                Stream.of(insertMember2Rsp.getUserId()).collect(toList())
-        );
+        var insertShareRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(Stream.of(insertMember2Rsp.getUserId()).collect(toList()))
+                .build();
 
         /* 1. Insert room, share room */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -119,18 +127,16 @@ class RoomServiceTest {
         assertThat(insertShareRoomRsp.getMembers().size()).isEqualTo(2);
 
         /* 2. Insert memory */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertOwnerRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
@@ -140,32 +146,38 @@ class RoomServiceTest {
         /* 3. Share Memory */
         var shareMemoryRsp = memoryService.shareMemory(
                 insertMemoryRsp.getMemoryId(), insertOwnerRsp.getUserId(),
-                new ShareMemoryDto.Request(
-                        ShareMemoryDto.ShareType.ROOMS,
-                        Stream.of(insertShareRoomRsp.getRoomId()).collect(toList())
-                )
+                MemoryReqDto.builder()
+                        .shareType(ShareType.ROOMS)
+                        .shareIds(Stream.of(insertShareRoomRsp.getRoomId()).collect(toList()))
+                        .build()
         );
         assertThat(shareMemoryRsp).isNotNull();
 
         /* 4. Set attendance */
         var setAttendanceOwnerRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(),
-                insertOwnerRsp.getUserId(),
-                AttendanceStatus.ATTEND
+                MemoryReqDto.builder()
+                        .userId(insertOwnerRsp.getUserId())
+                        .attendanceStatus(AttendanceStatus.ATTEND)
+                        .build()
         );
         assertThat(setAttendanceOwnerRsp).isNotNull();
 
         var setAttendanceMember1Rsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(),
-                insertMember1Rsp.getUserId(),
-                AttendanceStatus.ABSENCE
+                MemoryReqDto.builder()
+                        .userId(insertMember1Rsp.getUserId())
+                        .attendanceStatus(AttendanceStatus.ABSENCE)
+                        .build()
         );
         assertThat(setAttendanceMember1Rsp).isNotNull();
 
         var setAttendanceMember2Rsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(),
-                insertMember2Rsp.getUserId(),
-                AttendanceStatus.ATTEND
+                MemoryReqDto.builder()
+                        .userId(insertMember2Rsp.getUserId())
+                        .attendanceStatus(AttendanceStatus.ATTEND)
+                        .build()
         );
         assertThat(setAttendanceMember2Rsp).isNotNull();
 
@@ -185,8 +197,12 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -213,18 +229,28 @@ class RoomServiceTest {
         /* 0-1. Set base data */
         setBaseData();
 
-        var insertExcludeMemberReq = new InsertUserDto.Request(
-                1, "excludeMember_snsId", "excludeMember Token",
-                "excludeMember", "1225", true,
-                false, DeviceOs.IOS
-        );
+        var insertExcludeMemberReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("excludeMember_snsId")
+                .pushToken("excludeMember Token")
+                .push(true)
+                .name("excludeMember")
+                .birthday("1225")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
         assertThat(insertExcludeMemberRsp).isNotNull();
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -267,18 +293,28 @@ class RoomServiceTest {
         /* 0-1. Set base data */
         setBaseData();
 
-        var insertExcludeMemberReq = new InsertUserDto.Request(
-                1, "excludeMember_snsId", "excludeMember Token",
-                "excludeMember", "1225", true,
-                false, DeviceOs.IOS
-        );
+        var insertExcludeMemberReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("excludeMember_snsId")
+                .pushToken("excludeMember Token")
+                .push(true)
+                .name("excludeMember")
+                .birthday("1225")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
         assertThat(insertExcludeMemberRsp).isNotNull();
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -303,18 +339,28 @@ class RoomServiceTest {
         /* 0-1. Set base data */
         setBaseData();
 
-        var insertExcludeMemberReq = new InsertUserDto.Request(
-                1, "excludeMember_snsId", "excludeMember Token",
-                "excludeMember", "1225", true,
-                false, DeviceOs.IOS
-        );
+        var insertExcludeMemberReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("excludeMember_snsId")
+                .pushToken("excludeMember Token")
+                .push(true)
+                .name("excludeMember")
+                .birthday("1225")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
         assertThat(insertExcludeMemberRsp).isNotNull();
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -344,18 +390,28 @@ class RoomServiceTest {
         /* 0-1. Set base data */
         setBaseData();
 
-        var insertExcludeMemberReq = new InsertUserDto.Request(
-                1, "excludeMember_snsId", "excludeMember Token",
-                "excludeMember", "1225", true,
-                false, DeviceOs.IOS
-        );
+        var insertExcludeMemberReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("excludeMember_snsId")
+                .pushToken("excludeMember Token")
+                .push(true)
+                .name("excludeMember")
+                .birthday("1225")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         var insertExcludeMemberRsp = userService.signUp(insertExcludeMemberReq);
         assertThat(insertExcludeMemberRsp).isNotNull();
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -386,9 +442,17 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-        var updateRoomReq = new UpdateRoomDto.Request("update room name", true);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        var updateRoomReq = RoomReqDto.builder()
+                .name("update room name")
+                .opened(false)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -401,7 +465,7 @@ class RoomServiceTest {
         var updateRsp = roomService.update(insertRoomRsp.getRoomId(), updateRoomReq);
         assertThat(updateRsp).isNotNull();
         assertThat(updateRsp.getName()).isEqualTo(updateRoomReq.getName());
-        assertThat(updateRsp.isOpened()).isEqualTo(updateRoomReq.getOpened());
+        assertThat(updateRsp.isOpened()).isEqualTo(updateRoomReq.isOpened());
     }
 
     @Test
@@ -413,9 +477,16 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-        var deleteRoomReq = new DeleteRoomDto.Request(insertOwnerRsp.getUserId());
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        var deleteRoomReq = RoomReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -424,52 +495,46 @@ class RoomServiceTest {
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
 
         /* 2. Insert Memories */
-        var insertMemoryReqOwner = new InsertMemoryDto.Request(
-                insertOwnerRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReqOwner = MemoryReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRspOwner = memoryService.insert(insertMemoryReqOwner);
         assertThat(insertMemoryRspOwner.getWriterId()).isEqualTo(insertOwnerRsp.getUserId());
         assertThat(insertMemoryRspOwner.getAddedRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
 
-        var insertMemoryReqMember1 = new InsertMemoryDto.Request(
-                insertMember1Rsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReqMember1 = MemoryReqDto.builder()
+                .userId(insertMember1Rsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRspMember1 = memoryService.insert(insertMemoryReqMember1);
         assertThat(insertMemoryRspMember1.getWriterId()).isEqualTo(insertMember1Rsp.getUserId());
         assertThat(insertMemoryRspMember1.getAddedRoomId()).isEqualTo(insertMemoryReqMember1.getRoomId());
 
-        var insertMemoryReqMember2 = new InsertMemoryDto.Request(
-                insertMember2Rsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReqMember2 = MemoryReqDto.builder()
+                .userId(insertMember2Rsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRspMember2 = memoryService.insert(insertMemoryReqMember2);
         assertThat(insertMemoryRspMember2.getWriterId()).isEqualTo(insertMember2Rsp.getUserId());
@@ -477,8 +542,7 @@ class RoomServiceTest {
 
         /* 3. Delete share room */
         var deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
-        assertThat(deleteRsp).isNotNull();
-        assertFalse(deleteRsp.isUsed());
+        assertNull(deleteRsp);
 
         /* 4. Find room and memories after delete */
         var roomId = insertRoomRsp.getRoomId();
@@ -549,9 +613,15 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-        var deleteRoomReq = new DeleteRoomDto.Request(insertOwnerRsp.getUserId());
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+        var deleteRoomReq = RoomReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -561,18 +631,16 @@ class RoomServiceTest {
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
 
         /* 2. Insert Memories */
-        var insertMemoryReqOwner = new InsertMemoryDto.Request(
-                insertOwnerRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReqOwner = MemoryReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRspOwner = memoryService.insert(insertMemoryReqOwner);
         assertThat(insertMemoryRspOwner).isNotNull();
@@ -581,8 +649,7 @@ class RoomServiceTest {
 
         /* 3. Delete room */
         var deleteRsp = roomService.delete(insertOwnerRsp.getPrivateRoomId(), deleteRoomReq);
-        assertThat(deleteRsp).isNotNull();
-        assertFalse(deleteRsp.isUsed());
+        assertNull(deleteRsp);
 
         /* 4. Find room and memories after delete */
         Long privateRoomId = insertOwnerRsp.getPrivateRoomId();
@@ -602,34 +669,51 @@ class RoomServiceTest {
     }
 
 
-
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
         /* 1. Create Owner, Member1, Member2 */
-        var insertOwnerReq = new InsertUserDto.Request(
-                1, "writer_snsId", "member Token",
-                "member", "0519", true,
-                false, DeviceOs.IOS
-        );
+        var insertOwnerReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("owner_snsId")
+                .pushToken("owner Token")
+                .push(true)
+                .name("owner")
+                .birthday("0519")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         insertOwnerRsp = userService.signUp(insertOwnerReq);
         assertThat(insertOwnerRsp).isNotNull();
         assertThat(insertOwnerRsp.getUserId()).isNotNull();
 
-        var insertMember1Req = new InsertUserDto.Request(
-                1, "member1_snsId", "member1 Token",
-                "member1", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertMember1Req = UserReqDto.builder()
+                .snsType(1)
+                .snsId("member1_snsId")
+                .pushToken("member1 Token")
+                .push(true)
+                .name("member1")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         insertMember1Rsp = userService.signUp(insertMember1Req);
         assertThat(insertMember1Rsp).isNotNull();
         assertThat(insertMember1Rsp.getUserId()).isNotNull();
 
-        var insertMember2Req = new InsertUserDto.Request(
-                1, "member2_snsId", "member2 Token",
-                "member2", "0827", true,
-                false, DeviceOs.IOS
-        );
+        var insertMember2Req = UserReqDto.builder()
+                .snsType(1)
+                .snsId("member2_snsId")
+                .pushToken("member2 Token")
+                .push(true)
+                .name("member2")
+                .birthday("0827")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         insertMember2Rsp = userService.signUp(insertMember2Req);
         assertThat(insertMember2Rsp).isNotNull();
         assertThat(insertMember2Rsp.getUserId()).isNotNull();

@@ -21,8 +21,8 @@ public class RoomController {
 
     @ApiOperation(value = "방 생성", notes = "앱에서 전달받은 데이터로 방 생성 및 사용자 추가")
     @PostMapping
-    public ApiResult<RoomRspDto> insert(@RequestBody InsertRoomDto.Request request) {
-        return ok(roomService.insert(request));
+    public ApiResult<RoomRspDto> insert(@RequestBody RoomReqDto reqDto) {
+        return ok(roomService.insert(reqDto));
     }
 
     @ApiOperation(value = "방 단일 조회")
@@ -53,17 +53,19 @@ public class RoomController {
     @PutMapping("/{roomId}")
     public ApiResult<RoomRspDto> update(
         @PathVariable long roomId,
-        @RequestParam UpdateRoomDto.Request request
+        @RequestParam RoomReqDto reqDto
     ) {
-        return ok(roomService.update(roomId, request));
+        return ok(roomService.update(roomId, reqDto));
     }
 
-    @ApiOperation(value = "방 삭제", notes = "1. 개인방 -> 일정 삭제 후 방 삭제, 2. 공유방 -> 방만 삭제")
+    @ApiOperation(value = "방 삭제", notes = """
+            1. 개인방 -> 일정 삭제 후 방 삭제, 2. 공유방 -> 방만 삭제\s
+            성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
     @DeleteMapping(value = "/{roomId}")
     public ApiResult<RoomRspDto> delete(
             @PathVariable long roomId,
-            @RequestBody DeleteRoomDto.Request request
+            @RequestBody RoomReqDto reqDto
     ) {
-        return ok(roomService.delete(roomId, request));
+        return ok(roomService.delete(roomId, reqDto));
     }
 }

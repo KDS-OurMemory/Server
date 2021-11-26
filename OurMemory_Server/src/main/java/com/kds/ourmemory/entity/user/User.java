@@ -1,6 +1,6 @@
 package com.kds.ourmemory.entity.user;
 
-import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.relation.UserMemory;
 import com.kds.ourmemory.entity.room.Room;
@@ -89,12 +89,13 @@ public class User extends BaseTimeEntity implements Serializable {
     private List<UserMemory> memories = new ArrayList<>();
 	
 	@Builder
-    public User(Long id, int snsType, String snsId, String pushToken, boolean push, String name, String birthday,
-            boolean solar, boolean birthdayOpen, UserRole role, DeviceOs deviceOs, boolean used) {
+    public User(Long id, int snsType, String snsId, String pushToken, Boolean push, String name, String birthday,
+            boolean solar, boolean birthdayOpen, UserRole role, DeviceOs deviceOs) {
 	    checkArgument(1 <= snsType && snsType <= 3, "지원하지 않는 SNS 인증방식입니다. 카카오(1), 구글(2), 네이버(3) 중에 입력해주시기 바랍니다.");
         checkArgument(StringUtils.isNoneBlank(snsId), "SNS ID 는 빈 값이 될 수 없습니다.");
         checkArgument(StringUtils.isNoneBlank(name), "이름이 입력되지 않았습니다. 이름을 입력해주세요.");
         checkNotNull(deviceOs, "기기 종류는 빈 값이 될 수 없습니다.");
+        checkNotNull(push, "푸시 사용여부는 빈 값이 될 수 없습니다.");
 
         this.id = id;
         this.snsType = snsType;
@@ -107,7 +108,7 @@ public class User extends BaseTimeEntity implements Serializable {
         this.birthdayOpen = birthdayOpen;
         this.role = role;
         this.deviceOs = deviceOs;
-        this.used = used;
+        this.used = true;
     }
 	
 	public void addRoom(Room room) {
@@ -138,7 +139,7 @@ public class User extends BaseTimeEntity implements Serializable {
                 });
     }
 
-    public Optional<User> updateUser(UpdateUserDto.Request request) {
+    public Optional<User> updateUser(UserReqDto request) {
         return Optional.ofNullable(request)
                 .map(req -> {
                     name = Objects.nonNull(req.getName()) ? req.getName() : name;
@@ -151,9 +152,8 @@ public class User extends BaseTimeEntity implements Serializable {
                 });
     }
 
-    public User deleteUser() {
+    public void deleteUser() {
 	    this.used = false;
-	    return this;
     }
 
     public void deleteRooms(List<Room> rooms) {

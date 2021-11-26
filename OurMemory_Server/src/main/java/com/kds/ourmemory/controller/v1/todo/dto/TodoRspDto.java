@@ -25,15 +25,11 @@ public class TodoRspDto {
     @ApiModelProperty(value = "TODO 날짜(yyyy-MM-dd)", notes = "yyyy-MM-dd")
     private final LocalDate todoDate;
 
-    @ApiModelProperty(value = "사용 여부", example = "true")
-    private final boolean used;
-
     public TodoRspDto(Todo todo) {
         this.todoId = todo.getId();
         this.writerId = todo.getWriter().getId();
         this.contents = todo.getContents();
         this.todoDate = todo.getTodoDate().toLocalDate();
-        this.used = todo.isUsed();
     }
 
 }
