@@ -6,9 +6,7 @@ import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +15,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemoryReqDto {
 
     @ApiModelProperty(value = "사용자 번호")
