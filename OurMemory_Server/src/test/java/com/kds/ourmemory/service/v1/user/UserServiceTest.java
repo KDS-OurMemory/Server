@@ -5,7 +5,7 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.friend.dto.FriendReqDto;
 import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
@@ -387,10 +387,13 @@ class UserServiceTest {
         assertThat(insertMemberRsp).isNotNull();
 
         /* 0-2. Create owner room */
-        var insertOwnerRoomReq = new InsertRoomDto.Request(
-                "방장 방", insertUserRsp.getUserId(), false,
-                Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList())
-        );
+        var insertOwnerRoomReq = RoomReqDto.builder()
+                .name("방장 방")
+                .userId(insertUserRsp.getUserId())
+                .opened(false)
+                .member(Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList()))
+                .build();
+
         var insertOwnerRoomRsp = roomService.insert(insertOwnerRoomReq);
         assertThat(insertOwnerRoomRsp).isNotNull();
         assertThat(insertOwnerRoomRsp.getOwnerId()).isEqualTo(insertUserRsp.getUserId());
@@ -495,10 +498,13 @@ class UserServiceTest {
         assertThat(insertMember2Rsp).isNotNull();
 
         /* 0-2. Create participant room */
-        var insertParticipantRoomReq = new InsertRoomDto.Request(
-                "참여방", insertMemberRsp.getUserId(), false,
-                Stream.of(insertUserRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList())
-        );
+        var insertParticipantRoomReq = RoomReqDto.builder()
+                .name("참여방")
+                .userId(insertMemberRsp.getUserId())
+                .opened(false)
+                .member(Stream.of(insertUserRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList()))
+                .build();
+
         var insertParticipantRoomRsp = roomService.insert(insertParticipantRoomReq);
         assertThat(insertParticipantRoomRsp).isNotNull();
         assertThat(insertParticipantRoomRsp.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());

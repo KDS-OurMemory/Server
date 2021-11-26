@@ -7,7 +7,7 @@ import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.firebase.dto.FcmDto;
 import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
 import com.kds.ourmemory.controller.v1.memory.dto.MemoryRspDto;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.relation.UserMemory;
 import com.kds.ourmemory.entity.room.Room;
@@ -256,12 +256,13 @@ public class MemoryService {
         switch (reqDto.getShareType()) {
             case USERS -> reqDto.getShareIds().forEach(id -> findUser(id)
                     .map(target -> {
-                        var insertRoomReq = new InsertRoomDto.Request(
-                                user.getName() + ", " + target.getName(),
-                                userId,
-                                false,
-                                Stream.of(target.getId()).collect(toList())
-                        );
+                        var insertRoomReq = RoomReqDto.builder()
+                                .name(user.getName() + ", " + target.getName())
+                                .userId(userId)
+                                .opened(false)
+                                .member(Stream.of(target.getId()).collect(toList()))
+                                .build();
+
                         var insertRoomRsp = roomService.insert(insertRoomReq);
                         return findRoom(insertRoomRsp.getRoomId())
                                 .orElseThrow(() -> new RoomNotFoundException(
@@ -279,12 +280,12 @@ public class MemoryService {
                     )));
 
             case USER_GROUP -> {
-                var insertRoomReq = new InsertRoomDto.Request(
-                        "Share room from " + user.getName(),
-                        userId,
-                        false,
-                        reqDto.getShareIds()
-                );
+                var insertRoomReq = RoomReqDto.builder()
+                        .name("Share room from " + user.getName())
+                        .userId(userId)
+                        .opened(false)
+                        .member(reqDto.getShareIds())
+                        .build();
                 var insertRoomRsp = roomService.insert(insertRoomReq);
                 findRoom(insertRoomRsp.getRoomId())
                         .map(room -> {

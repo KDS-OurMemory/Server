@@ -1,6 +1,6 @@
 package com.kds.ourmemory.entity.room;
 
-import com.kds.ourmemory.controller.v1.room.dto.UpdateRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.user.User;
@@ -83,11 +83,11 @@ public class Room extends BaseTimeEntity implements Serializable{
 		this.owner = user;
 	}
 
-	public Optional<Room> updateRoom(UpdateRoomDto.Request request) {
-		return Optional.ofNullable(request)
+	public Optional<Room> updateRoom(RoomReqDto reqDto) {
+		return Optional.ofNullable(reqDto)
 				.map(req -> {
 					name = Objects.nonNull(req.getName()) ? req.getName() : name;
-					opened = Objects.nonNull(req.getOpened()) ? req.getOpened() : opened;
+					opened = Objects.nonNull(req.isOpened()) ? req.isOpened() : opened;
 
 					return this;
 				});

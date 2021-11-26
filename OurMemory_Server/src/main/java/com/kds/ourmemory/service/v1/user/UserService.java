@@ -4,7 +4,7 @@ import com.kds.ourmemory.advice.v1.user.exception.UserInternalServerException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserProfileImageUploadException;
 import com.kds.ourmemory.config.S3Uploader;
-import com.kds.ourmemory.controller.v1.room.dto.DeleteRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.controller.v1.user.dto.*;
 import com.kds.ourmemory.entity.friend.Friend;
 import com.kds.ourmemory.entity.user.User;
@@ -189,7 +189,12 @@ public class UserService {
 
                         // Related rooms - 3)
                         if (room.getId().longValue() == user.getPrivateRoomId()) {
-                            roomService.delete(user.getPrivateRoomId(), new DeleteRoomDto.Request(user.getId()));
+                            roomService.delete(
+                                    user.getPrivateRoomId(),
+                                    RoomReqDto.builder()
+                                            .userId(user.getId())
+                                            .build()
+                            );
                         }
                     });
                     user.deleteRooms(user.getRooms());

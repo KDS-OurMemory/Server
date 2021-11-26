@@ -3,7 +3,7 @@ package com.kds.ourmemory.service.v1.memory;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotWriterException;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
-import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserDto;
@@ -471,7 +471,12 @@ class MemoryServiceTest {
                 .build();
 
         var members2 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
-        var insertRoomReq2 = new InsertRoomDto.Request("room name2", insertMemberRsp.getUserId(), false, members2);
+        var insertRoomReq2 = RoomReqDto.builder()
+                .name("room name2")
+                .userId(insertMemberRsp.getUserId())
+                .opened(false)
+                .member(members2)
+                .build();
         var insertRoomRsp2 = roomService.insert(insertRoomReq2);
         assertThat(insertRoomRsp2).isNotNull();
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
@@ -479,7 +484,12 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp2.getMembers().size()).isEqualTo(2);
 
         var members3 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
-        var insertRoomReq3 = new InsertRoomDto.Request("room name3", insertMemberRsp.getUserId(), false, members3);
+        var insertRoomReq3 = RoomReqDto.builder()
+                .name("room name3")
+                .userId(insertMemberRsp.getUserId())
+                .opened(false)
+                .member(members3)
+                .build();
         var insertRoomRsp3 = roomService.insert(insertRoomReq3);
         assertThat(insertRoomRsp3).isNotNull();
         assertThat(insertRoomRsp3.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
@@ -929,7 +939,12 @@ class MemoryServiceTest {
 
         /* 2. Create room */
         var members = Stream.of(insertMemberRsp.getUserId()).collect(toList());
-        var insertRoomReq = new InsertRoomDto.Request("room name", insertWriterRsp.getUserId(), false, members);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("room name")
+                .userId(insertWriterRsp.getUserId())
+                .opened(false)
+                .member(members)
+                .build();
         insertRoomRsp = roomService.insert(insertRoomReq);
         assertThat(insertRoomRsp).isNotNull();
         assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());

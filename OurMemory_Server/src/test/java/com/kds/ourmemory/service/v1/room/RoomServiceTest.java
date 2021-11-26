@@ -6,7 +6,7 @@ import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
 import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
 import com.kds.ourmemory.controller.v1.memory.dto.ShareType;
-import com.kds.ourmemory.controller.v1.room.dto.*;
+import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserDto;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
@@ -75,8 +75,12 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -95,15 +99,19 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false,
-                Stream.of(insertMember1Rsp.getUserId()).collect(toList())
-        );
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(Stream.of(insertMember1Rsp.getUserId()).collect(toList()))
+                .build();
 
-        var insertShareRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false,
-                Stream.of(insertMember2Rsp.getUserId()).collect(toList())
-        );
+        var insertShareRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(Stream.of(insertMember2Rsp.getUserId()).collect(toList()))
+                .build();
 
         /* 1. Insert room, share room */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -189,8 +197,12 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -227,8 +239,12 @@ class RoomServiceTest {
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -281,8 +297,12 @@ class RoomServiceTest {
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -317,8 +337,12 @@ class RoomServiceTest {
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -358,8 +382,12 @@ class RoomServiceTest {
         assertThat(insertExcludeMemberRsp.getUserId()).isNotNull();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -390,9 +418,17 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-        var updateRoomReq = new UpdateRoomDto.Request("update room name", true);
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        var updateRoomReq = RoomReqDto.builder()
+                .name("update room name")
+                .opened(false)
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -405,7 +441,7 @@ class RoomServiceTest {
         var updateRsp = roomService.update(insertRoomRsp.getRoomId(), updateRoomReq);
         assertThat(updateRsp).isNotNull();
         assertThat(updateRsp.getName()).isEqualTo(updateRoomReq.getName());
-        assertThat(updateRsp.isOpened()).isEqualTo(updateRoomReq.getOpened());
+        assertThat(updateRsp.isOpened()).isEqualTo(updateRoomReq.isOpened());
     }
 
     @Test
@@ -417,9 +453,16 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-        var deleteRoomReq = new DeleteRoomDto.Request(insertOwnerRsp.getUserId());
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        var deleteRoomReq = RoomReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -547,9 +590,15 @@ class RoomServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertRoomReq = new InsertRoomDto.Request(
-                "TestRoom", insertOwnerRsp.getUserId(), false, roomMembers);
-        var deleteRoomReq = new DeleteRoomDto.Request(insertOwnerRsp.getUserId());
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+        var deleteRoomReq = RoomReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
