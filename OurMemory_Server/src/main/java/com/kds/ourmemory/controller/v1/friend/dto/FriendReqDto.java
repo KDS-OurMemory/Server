@@ -21,7 +21,7 @@ public class FriendReqDto {
     private Long friendUserId;
 
     @ApiModelProperty(value = "상태")
-    private FriendStatus status;
+    private FriendStatus friendStatus;
 
     public FriendReqDto(Long userId, Long friendUserId) {
         this.userId = userId;

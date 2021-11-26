@@ -77,7 +77,7 @@ public class Memory extends BaseTimeEntity implements Serializable {
 	@Builder
     public Memory(Long id, User writer, String name, String contents, String place,
                   LocalDateTime startDate, LocalDateTime endDate, String bgColor,
-            LocalDateTime firstAlarm, LocalDateTime secondAlarm, boolean used
+            LocalDateTime firstAlarm, LocalDateTime secondAlarm
     ) {
 	    checkNotNull(writer, "사용자 번호에 맞는 일정 작성자 정보가 없습니다. 일정 작성자 번호를 확인해주세요.");
         checkNotNull(name, "일정 제목이 입력되지 않았습니다. 일정 제목을 입력해주세요.");
@@ -97,7 +97,7 @@ public class Memory extends BaseTimeEntity implements Serializable {
         this.bgColor = bgColor;
         this.firstAlarm = firstAlarm;
         this.secondAlarm = secondAlarm;
-        this.used = used;
+        this.used = true;
     }
     
     public void addRoom(Room room) {

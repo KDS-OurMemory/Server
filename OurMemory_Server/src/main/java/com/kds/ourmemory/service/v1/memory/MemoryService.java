@@ -67,15 +67,12 @@ public class MemoryService {
             );
 
         return findUser(reqDto.getUserId())
-                .map(writer -> {
-                    var memory = reqDto.toEntity(writer);
-
-                    return insertMemory(memory)
-                            .orElseThrow(() -> new MemoryInternalServerException(
-                                        String.format("Memory '%s' insert failed.", memory.getName())
-                                    )
-                            );
-                })
+                .map(writer -> insertMemory(reqDto.toEntity(writer))
+                        .orElseThrow(() -> new MemoryInternalServerException(
+                                        String.format("Memory '%s' insert failed.", reqDto.getName())
+                                )
+                        )
+                )
                 .map(memory -> {
                     // Relation memory and private room
                     var roomId = relationMemoryToPrivateRoom(memory, memory.getWriter().getPrivateRoomId());

@@ -7,9 +7,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 
-@ApiModel(value = "UserDto", description = "사용자 API 응답 Dto")
+@ApiModel(value = "UserRspDto", description = "User API Response Dto")
 @Getter
-public class UserDto {
+public class UserRspDto {
     @ApiModelProperty(value = "사용자 번호")
     private final Long userId;
 
@@ -52,7 +52,7 @@ public class UserDto {
     @ApiModelProperty(value = "계정 사용여부")
     private final boolean used;
 
-    public UserDto(User user) {
+    public UserRspDto(User user) {
         this.userId = user.getId();
         this.name = user.getName();
         this.solar = user.isSolar();

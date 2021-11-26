@@ -7,10 +7,7 @@ import com.kds.ourmemory.controller.v1.friend.dto.FriendReqDto;
 import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.PatchTokenDto;
-import com.kds.ourmemory.controller.v1.user.dto.UpdateUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.UploadProfileImageDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.friend.FriendService;
@@ -72,11 +69,16 @@ class UserServiceTest {
     @Transactional
     void signUp() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -90,11 +92,16 @@ class UserServiceTest {
     @Transactional
     void signIn() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -118,11 +125,16 @@ class UserServiceTest {
     @Transactional
     void find() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -137,8 +149,8 @@ class UserServiceTest {
         assertThat(findRsp.getSnsId()).isEqualTo(insertReq.getSnsId());
         assertThat(findRsp.getName()).isEqualTo(insertReq.getName());
         assertThat(findRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
-        assertThat(findRsp.isSolar()).isEqualTo(insertReq.isSolar());
-        assertThat(findRsp.isBirthdayOpen()).isEqualTo(insertReq.isBirthdayOpen());
+        assertThat(findRsp.isSolar()).isEqualTo(insertReq.getSolar());
+        assertThat(findRsp.isBirthdayOpen()).isEqualTo(insertReq.getBirthdayOpen());
         assertThat(findRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
     }
 
@@ -148,12 +160,19 @@ class UserServiceTest {
     @Transactional
     void patchToken() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
-        var patchReq = new PatchTokenDto.Request("patch token");
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var patchReq = UserReqDto.builder()
+                .pushToken("patch token")
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -173,12 +192,23 @@ class UserServiceTest {
     @Transactional
     void update() {
         /* 0. Create Request */
-        var insertReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
-        var updateReq = new UpdateUserDto.Request("update name", "0927", false, false, false);
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var updateReq = UserReqDto.builder()
+                .name("update name")
+                .birthday("0927")
+                .solar(false)
+                .birthdayOpen(false)
+                .push(false)
+                .build();
 
         /* 1. Insert */
         var insertRsp = userService.signUp(insertReq);
@@ -202,20 +232,30 @@ class UserServiceTest {
     void deleteFriend() {
         /* 0. Create users */
         // 1) user
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
         // 2) friendUser
-        var insertFriendUserReq = new InsertUserDto.Request(
-                2, "member1 sns id", "member1 pushToken",
-                "멤버1", "0101", true,
-                true, DeviceOs.ANDROID
-        );
+        var insertFriendUserReq = UserReqDto.builder()
+                .snsType(2)
+                .snsId("FRIEND_SNS_ID")
+                .pushToken("before Token")
+                .name("friendUser")
+                .birthday("0101")
+                .solar(true)
+                .birthdayOpen(true)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertFriendUserRsp = userService.signUp(insertFriendUserReq);
         assertThat(insertFriendUserRsp).isNotNull();
 
@@ -275,11 +315,16 @@ class UserServiceTest {
     void deletePrivateUser() {
         /* 0-1. Create user */
         // 1) user
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
@@ -369,20 +414,30 @@ class UserServiceTest {
     void deleteOwnerUser() {
         /* 0. Create users */
         // 1) user
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
         // 2) member
-        var insertMemberReq = new InsertUserDto.Request(
-                2, "member1 sns id", "member1 pushToken",
-                "멤버1", "0101", true,
-                true, DeviceOs.ANDROID
-        );
+        var insertMemberReq = UserReqDto.builder()
+                .snsType(2)
+                .snsId("member1_sns_id")
+                .pushToken("member1 Token")
+                .name("member1")
+                .birthday("0101")
+                .solar(true)
+                .birthdayOpen(true)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertMemberRsp = userService.signUp(insertMemberReq);
         assertThat(insertMemberRsp).isNotNull();
 
@@ -471,29 +526,44 @@ class UserServiceTest {
     void deleteParticipantUser() {
         /* 0. Create users */
         // 1) user
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
         // 2) member1
-        var insertMemberReq = new InsertUserDto.Request(
-                2, "member1 sns id", "member1 pushToken",
-                "멤버1", "0101", true,
-                true, DeviceOs.ANDROID
-        );
+        var insertMemberReq = UserReqDto.builder()
+                .snsType(2)
+                .snsId("member1_sns_id")
+                .pushToken("member1 Token")
+                .name("member1")
+                .birthday("0101")
+                .solar(true)
+                .birthdayOpen(true)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertMemberRsp = userService.signUp(insertMemberReq);
         assertThat(insertMemberRsp).isNotNull();
 
         // 2) member2
-        var insertMember2Req = new InsertUserDto.Request(
-                3, "member2 sns id", "member2 pushToken",
-                "멤버2", "0201", false,
-                true, DeviceOs.IOS
-        );
+        var insertMember2Req = UserReqDto.builder()
+                .snsType(3)
+                .snsId("member2_sns_id")
+                .pushToken("member2 Token")
+                .name("member2")
+                .birthday("0501")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         var insertMember2Rsp = userService.signUp(insertMember2Req);
         assertThat(insertMember2Rsp).isNotNull();
 
@@ -580,11 +650,16 @@ class UserServiceTest {
     @Transactional
     void reSignUpSignIn() {
         /* 0. Create user */
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
 
@@ -620,16 +695,21 @@ class UserServiceTest {
     @Transactional
     void uploadDeleteProfileImage() throws IOException {
         /* 0. Create Request */
-        var insertUserReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         var file = new MockMultipartFile("image",
                 "CD 명함사이즈.jpg",
                 "image/jpg",
                 new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
-        var profileImageReq = new UploadProfileImageDto.Request(file);
+        var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
         var insertUserRsp = userService.signUp(insertUserReq);
@@ -662,4 +742,5 @@ class UserServiceTest {
         assertThat(deleteProfileImageRsp).isNotNull();
         assertNull(deleteProfileImageRsp.getProfileImageUrl());
     }
+
 }

@@ -78,7 +78,6 @@ public class MemoryReqDto {
                 .firstAlarm(firstAlarm)
                 .secondAlarm(secondAlarm)
                 .bgColor(bgColor)
-                .used(true)
                 .build();
     }
 

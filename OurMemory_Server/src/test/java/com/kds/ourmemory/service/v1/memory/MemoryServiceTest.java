@@ -5,8 +5,8 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotWriterException;
 import com.kds.ourmemory.controller.v1.memory.dto.*;
 import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.UserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserRspDto;
 import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.room.RoomService;
@@ -46,9 +46,9 @@ class MemoryServiceTest {
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
 
     // Base data for test memoryService
-    private UserDto insertWriterRsp;
+    private UserRspDto insertWriterRsp;
 
-    private UserDto insertMemberRsp;
+    private UserRspDto insertMemberRsp;
 
     private RoomRspDto insertRoomRsp;
 
@@ -298,11 +298,16 @@ class MemoryServiceTest {
                 .bgColor("#FFFFFF")
                 .build();
 
-        var insertMember2Req = new InsertUserDto.Request(
-                2, "member2_snsId", "member2 Token",
-                "member2", "0527", true,
-                false, DeviceOs.IOS
-        );
+        var insertMember2Req = UserReqDto.builder()
+                .snsType(2)
+                .snsId("member2_snsId")
+                .pushToken("member2 Token")
+                .name("member2")
+                .birthday("0527")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         var insertMemberRsp2 = userService.signUp(insertMember2Req);
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
@@ -384,11 +389,16 @@ class MemoryServiceTest {
                 .bgColor("#FFFFFF")
                 .build();
 
-        var insertMember2Req = new InsertUserDto.Request(
-                2, "member2_snsId", "member2 Token",
-                "member2", "0527", true,
-                false, DeviceOs.IOS
-        );
+        var insertMember2Req = UserReqDto.builder()
+                .snsType(2)
+                .snsId("member2_snsId")
+                .pushToken("member2 Token")
+                .name("member2")
+                .birthday("0527")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         var insertMemberRsp2 = userService.signUp(insertMember2Req);
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
@@ -919,20 +929,30 @@ class MemoryServiceTest {
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
         /* 1. Create Writer, Member */
-        var insertWriterReq = new InsertUserDto.Request(
-                1, "writer_snsId", "member Token",
-                "member", "0519", true,
-                false, DeviceOs.IOS
-        );
+        var insertWriterReq = UserReqDto.builder()
+                .snsType(2)
+                .snsId("writer_snsId")
+                .pushToken("member Token")
+                .name("member")
+                .birthday("0519")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         insertWriterRsp = userService.signUp(insertWriterReq);
         assertThat(insertWriterRsp).isNotNull();
         assertThat(insertWriterRsp.getUserId()).isNotNull();
 
-        var insertMemberReq = new InsertUserDto.Request(
-                1, "member1_snsId", "member1 Token",
-                "member1", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertMemberReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("member1_snsId")
+                .pushToken("member1 Token")
+                .name("member1")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         insertMemberRsp = userService.signUp(insertMemberReq);
         assertThat(insertMemberRsp).isNotNull();
         assertThat(insertMemberRsp.getUserId()).isNotNull();

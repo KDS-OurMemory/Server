@@ -1,5 +1,7 @@
 package com.kds.ourmemory.controller.v1.room.dto;
 
+import com.kds.ourmemory.entity.room.Room;
+import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -24,5 +26,13 @@ public class RoomReqDto {
 
     @ApiModelProperty(value = "초대할 멤버", example = "[2,4]")
     private List<Long> member;
+
+    public Room toEntity(User owner) {
+        return Room.builder()
+                .name(name)
+                .owner(owner)
+                .opened(opened)
+                .build();
+    }
 
 }

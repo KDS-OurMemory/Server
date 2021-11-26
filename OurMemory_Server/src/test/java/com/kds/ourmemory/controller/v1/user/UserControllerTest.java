@@ -1,7 +1,7 @@
 package com.kds.ourmemory.controller.v1.user;
 
 import com.kds.ourmemory.advice.v1.common.CommonResultCode;
-import com.kds.ourmemory.controller.v1.user.dto.UploadProfileImageDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +39,9 @@ class UserControllerTest {
     @Test
     @DisplayName("프로필사진 업로드/삭제")
     void uploadProfileImage() {
-       var request = new UploadProfileImageDto.Request(file);
+       var request = UserReqDto.builder()
+               .profileImage(file)
+               .build();
 
         var uploadResponse = userController.uploadProfileImage(287, request);
         assertThat(uploadResponse.getResultCode()).isEqualTo(CommonResultCode.SUCCESS.getCode());

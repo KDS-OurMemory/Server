@@ -51,17 +51,10 @@ public class RoomService {
     @Transactional
     public RoomRspDto insert(RoomReqDto reqDto) {
         return findUser(reqDto.getUserId())
-                .map(owner -> {
-                    var room = Room.builder()
-                            .owner(owner)
-                            .name(reqDto.getName())
-                            .opened(reqDto.isOpened())
-                            .used(true)
-                            .build();
-                    return insertRoom(room)
+                .map(owner -> insertRoom(reqDto.toEntity(owner))
                             .orElseThrow(() -> new RoomInternalServerException(String.format(
-                                    "Insert room failed. [name: %s, owner: %s]", reqDto.getName(), owner.getName())));
-                })
+                                    "Insert room failed. [name: %s, owner: %s]", reqDto.getName(), owner.getName())))
+                )
                 .map(room -> {
                     // Relation room and owner
                     room.getOwner().addRoom(room);
@@ -107,7 +100,6 @@ public class RoomService {
                             .name(user.getName())
                             .opened(false)
                             .owner(user)
-                            .used(true)
                             .build();
                     return insertRoom(privateRoom)
                             .map(room -> {

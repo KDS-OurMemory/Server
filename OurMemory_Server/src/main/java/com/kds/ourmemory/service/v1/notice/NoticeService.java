@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
@@ -30,25 +29,14 @@ public class NoticeService {
 
     @Transactional
     public NoticeRspDto insert(NoticeReqDto reqDto) {
-        checkNotNull(reqDto.getUserId(), "알림 사용자 번호가 입력되지 않았습니다. 알림 대상 사용자의 번호를 입력해주세요.");
-        checkNotNull(reqDto.getNoticeType(), "알림 종류가 입력되지 않았습니다. 알림 종류를 입력해주세요.");
-        checkNotNull(reqDto.getValue(), "알림 문자열 값이 입력되지 않았습니다. 알림 문자열 값을 입력해주세요.");
-
         return findUser(reqDto.getUserId())
-                .map(user -> {
-                    Notice notice = Notice.builder()
-                            .user(user)
-                            .type(reqDto.getNoticeType())
-                            .value(reqDto.getValue())
-                            .build();
-
-                    return insertNotice(notice)
-                            .map(NoticeRspDto::new)
-                            .orElseThrow(() -> new NoticeInternalServerException(
-                                    String.format("Notice [type: %s, value: %s] insert failed.",
-                                            reqDto.getNoticeType(), reqDto.getValue())
-                            ));
-                })
+                .map(user -> insertNotice(reqDto.toEntity(user))
+                        .map(NoticeRspDto::new)
+                        .orElseThrow(() -> new NoticeInternalServerException(
+                                String.format("Notice [type: %s, value: %s] insert failed.",
+                                        reqDto.getNoticeType(), reqDto.getNoticeValue())
+                        ))
+                )
                 .orElseThrow(() -> new NoticeNotFoundUserException(
                         "Not found user matched to userId: " + reqDto.getUserId()));
     }

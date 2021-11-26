@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum DeviceOs {
-    ANDROID("Android"),
+    AOS("Android"),
     IOS("iOS");
 
     private final String type;

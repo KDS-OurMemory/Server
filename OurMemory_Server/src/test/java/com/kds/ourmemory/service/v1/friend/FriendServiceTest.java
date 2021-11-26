@@ -3,8 +3,8 @@ package com.kds.ourmemory.service.v1.friend;
 import com.kds.ourmemory.advice.v1.friend.exception.*;
 import com.kds.ourmemory.controller.v1.friend.dto.FriendReqDto;
 import com.kds.ourmemory.controller.v1.friend.dto.FriendRspDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.UserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserRspDto;
 import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.DeviceOs;
@@ -31,9 +31,9 @@ class FriendServiceTest {
     private final NoticeService noticeService;  // The creation process from adding to the deletion of the notice.
 
     // Base data for test NoticeService
-    private UserDto requestUserRsp;
+    private UserRspDto requestUserRsp;
 
-    private UserDto acceptUserRsp;
+    private UserRspDto acceptUserRsp;
 
     /**
      * Test case
@@ -781,23 +781,38 @@ class FriendServiceTest {
     @Transactional
     void findUsers() {
         /* 0. Create Request */
-        var insertUniqueNameReq = new InsertUserDto.Request(
-                1, "TESTS_SNS_ID", "before pushToken",
-                "테스트 유저", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertUniqueNameReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before pushToken")
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
 
-        var insertSameNameReq1 = new InsertUserDto.Request(
-                2, "TESTS_SNS_ID2", "before pushToken",
-                "동명이인", "0724", false,
-                true, DeviceOs.IOS
-        );
+        var insertSameNameReq1 = UserReqDto.builder()
+                .snsType(2)
+                .snsId("TESTS_SNS_ID2")
+                .pushToken("before pushToken")
+                .name("둥명이인")
+                .birthday("0724")
+                .solar(false)
+                .birthdayOpen(true)
+                .deviceOs(DeviceOs.IOS)
+                .build();
 
-        var insertSameNameReq2 = new InsertUserDto.Request(
-                3, "TESTS_SNS_ID3", "before pushToken",
-                "동명이인", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertSameNameReq2 = UserReqDto.builder()
+                .snsType(3)
+                .snsId("TESTS_SNS_ID3")
+                .pushToken("before pushToken")
+                .name("둥명이인")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(true)
+                .deviceOs(DeviceOs.AOS)
+                .build();
 
         /* 1. Insert */
         var insertUniqueNameRsp = userService.signUp(insertUniqueNameReq);
@@ -822,8 +837,8 @@ class FriendServiceTest {
         assertThat(findUsersById1).isNotNull();
         assertThat(findUsersById1.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
         assertThat(findUsersById1.getName()).isEqualTo(insertUniqueNameReq.getName());
-        assertThat(findUsersById1.isSolar()).isEqualTo(insertUniqueNameReq.isSolar());
-        assertThat(findUsersById1.isBirthdayOpen()).isEqualTo(insertUniqueNameReq.isBirthdayOpen());
+        assertThat(findUsersById1.isSolar()).isEqualTo(insertUniqueNameReq.getSolar());
+        assertThat(findUsersById1.isBirthdayOpen()).isEqualTo(insertUniqueNameReq.getBirthdayOpen());
         assertThat(findUsersById1.getBirthday()).isEqualTo(insertUniqueNameReq.getBirthday());
         assertThat(findUsersById1.getFriendStatus()).isNull();
 
@@ -839,10 +854,10 @@ class FriendServiceTest {
         assertThat(findUsersById2).isNotNull();
         assertThat(findUsersById2.getFriendId()).isEqualTo(insertSameNameRsp1.getUserId());
         assertThat(findUsersById2.getName()).isEqualTo(insertSameNameReq1.getName());
-        assertThat(findUsersById2.isSolar()).isEqualTo(insertSameNameReq1.isSolar());
-        assertThat(findUsersById2.isBirthdayOpen()).isEqualTo(insertSameNameReq1.isBirthdayOpen());
+        assertThat(findUsersById2.isSolar()).isEqualTo(insertSameNameReq1.getSolar());
+        assertThat(findUsersById2.isBirthdayOpen()).isEqualTo(insertSameNameReq1.getBirthdayOpen());
         assertThat(findUsersById2.getBirthday()).isEqualTo(
-                insertSameNameReq1.isBirthdayOpen()? insertSameNameReq1.getBirthday() : null
+                insertSameNameReq1.getBirthdayOpen()? insertSameNameReq1.getBirthday() : null
         );
         assertThat(findUsersById2.getFriendStatus()).isNull();
 
@@ -858,8 +873,8 @@ class FriendServiceTest {
         assertThat(findUsersById3).isNotNull();
         assertThat(findUsersById3.getFriendId()).isEqualTo(insertSameNameRsp2.getUserId());
         assertThat(findUsersById3.getName()).isEqualTo(insertSameNameReq2.getName());
-        assertThat(findUsersById3.isSolar()).isEqualTo(insertSameNameReq2.isSolar());
-        assertThat(findUsersById3.isBirthdayOpen()).isEqualTo(insertSameNameReq2.isBirthdayOpen());
+        assertThat(findUsersById3.isSolar()).isEqualTo(insertSameNameReq2.getSolar());
+        assertThat(findUsersById3.isBirthdayOpen()).isEqualTo(insertSameNameReq2.getBirthdayOpen());
         assertThat(findUsersById3.getBirthday()).isEqualTo(insertSameNameReq2.getBirthday());
         assertThat(findUsersById3.getFriendStatus()).isNull();
 
@@ -875,8 +890,8 @@ class FriendServiceTest {
         assertThat(findUsersByUniqueName).isNotNull();
         assertThat(findUsersByUniqueName.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
         assertThat(findUsersByUniqueName.getName()).isEqualTo(insertUniqueNameReq.getName());
-        assertThat(findUsersByUniqueName.isSolar()).isEqualTo(insertUniqueNameReq.isSolar());
-        assertThat(findUsersByUniqueName.isBirthdayOpen()).isEqualTo(insertUniqueNameReq.isBirthdayOpen());
+        assertThat(findUsersByUniqueName.isSolar()).isEqualTo(insertUniqueNameReq.getSolar());
+        assertThat(findUsersByUniqueName.isBirthdayOpen()).isEqualTo(insertUniqueNameReq.getBirthdayOpen());
         assertThat(findUsersByUniqueName.getBirthday()).isEqualTo(insertUniqueNameReq.getBirthday());
         assertThat(findUsersByUniqueName.getFriendStatus()).isNull();
 
@@ -897,8 +912,8 @@ class FriendServiceTest {
             assertThat(findUsersBySameName).isNotNull();
             assertThat(findUsersBySameName.getFriendId()).isEqualTo(findUsersBySameNameId);
             assertThat(findUsersBySameName.getName()).isEqualTo(findUsersBySameNameReq.getName());
-            assertThat(findUsersBySameName.isSolar()).isEqualTo(findUsersBySameNameReq.isSolar());
-            assertThat(findUsersBySameName.isBirthdayOpen()).isEqualTo(findUsersBySameNameReq.isBirthdayOpen());
+            assertThat(findUsersBySameName.isSolar()).isEqualTo(findUsersBySameNameReq.getSolar());
+            assertThat(findUsersBySameName.isBirthdayOpen()).isEqualTo(findUsersBySameNameReq.getBirthdayOpen());
             assertThat(findUsersBySameName.getBirthday()).isEqualTo(findUsersBySameNameReq.getBirthday());
             assertThat(findUsersBySameName.getFriendStatus()).isNull();
         }
@@ -981,20 +996,30 @@ class FriendServiceTest {
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
         /* 1. Create RequestUser, AcceptUser */
-        var insertRequestUserReq = new InsertUserDto.Request(
-                1, "request_snsId", "request user Token",
-                "requestUser", "0519", true,
-                false, DeviceOs.IOS
-        );
+        var insertRequestUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("request_snsId")
+                .pushToken("request user Token")
+                .name("requestUser")
+                .birthday("0519")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         requestUserRsp = userService.signUp(insertRequestUserReq);
         assertThat(requestUserRsp).isNotNull();
         assertThat(requestUserRsp.getUserId()).isNotNull();
 
-        var insertAcceptUserReq = new InsertUserDto.Request(
-                1, "accept_user_snsId", "accept user Token",
-                "acceptUser", "0720", true,
-                false, DeviceOs.ANDROID
-        );
+        var insertAcceptUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("accept_user_snsId")
+                .pushToken("accept user Token")
+                .name("acceptUser")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
         acceptUserRsp = userService.signUp(insertAcceptUserReq);
         assertThat(acceptUserRsp).isNotNull();
         assertThat(acceptUserRsp.getUserId()).isNotNull();

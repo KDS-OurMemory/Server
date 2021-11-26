@@ -1,8 +1,8 @@
 package com.kds.ourmemory.service.v1.todo;
 
 import com.kds.ourmemory.controller.v1.todo.dto.TodoReqDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.UserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserRspDto;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.user.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +24,11 @@ class TodoServiceTest {
 
     private final TodoService todoService;
 
-    private final UserService userService;  // The creation process from adding to the deletion of the todolist.
+    // The creation process from adding to the deletion of the todolist.
+    private final UserService userService;
 
     // Base data for test memoryService
-    private UserDto insertWriterRsp;
+    private UserRspDto insertWriterRsp;
 
     @Autowired
     private TodoServiceTest(TodoService todoService, UserService userService) {
@@ -236,11 +237,16 @@ class TodoServiceTest {
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
         /* 1. Create Writer */
-        var insertWriterReq = new InsertUserDto.Request(
-                1, "writer_snsId", "member Token",
-                "member", "0519", true,
-                false, DeviceOs.IOS
-        );
+        var insertWriterReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("writer_snsId")
+                .pushToken("writer Token")
+                .name("writer")
+                .birthday("0519")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         insertWriterRsp = userService.signUp(insertWriterReq);
         assertThat(insertWriterRsp).isNotNull();
         assertThat(insertWriterRsp.getUserId()).isNotNull();

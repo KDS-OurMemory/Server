@@ -58,15 +58,15 @@ public class Room extends BaseTimeEntity implements Serializable{
     private List<Memory> memories = new ArrayList<>();
 
 	@Builder
-	public Room(Long id, User owner, String name, boolean used, boolean opened) {
+	public Room(Long id, User owner, String name, boolean opened) {
         checkNotNull(owner, "사용자 번호에 맞는 방 생성자의 정보가 없습니다. 방 생성자의 번호를 확인해주세요.");
         checkNotNull(name, "방 이름이 입력되지 않았습니다. 방 이름을 입력해주세요.");
         
         this.id = id;
         this.owner = owner;
         this.name = name;
-        this.used = used;
         this.opened = opened;
+		this.used = true;
 	}
 	
 	public void addUser(User user) {

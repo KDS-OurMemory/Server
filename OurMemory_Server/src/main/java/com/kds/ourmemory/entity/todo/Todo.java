@@ -41,7 +41,7 @@ public class Todo extends BaseTimeEntity {
     private boolean used;
 
     @Builder
-    public Todo(Long id, User writer, String contents, LocalDateTime todoDate, boolean used) {
+    public Todo(Long id, User writer, String contents, LocalDateTime todoDate) {
         checkNotNull(writer, "사용자 번호에 맞는 TODO 작성자 정보가 없습니다. 작성자 번호를 확인해주세요.");
         checkNotNull(contents, "TODO 내용이 없습니다. 내용을 입력해주세요.");
         checkNotNull(todoDate, "TODO 목표 날짜가 없습니다. 날짜를 입력해주세요.");
@@ -50,7 +50,7 @@ public class Todo extends BaseTimeEntity {
         this.writer = writer;
         this.contents = contents;
         this.todoDate = todoDate;
-        this.used = used;
+        this.used = true;
     }
 
     public Optional<Todo> updateTodo(TodoReqDto reqDto) {

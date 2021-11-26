@@ -1,6 +1,8 @@
 package com.kds.ourmemory.controller.v1.notice.dto;
 
+import com.kds.ourmemory.entity.notice.Notice;
 import com.kds.ourmemory.entity.notice.NoticeType;
+import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -21,6 +23,14 @@ public class NoticeReqDto {
     private NoticeType noticeType;
 
     @ApiModelProperty(value = "알림 문자열 값", required = true)
-    private String value;
+    private String noticeValue;
+
+    public Notice toEntity(User user) {
+        return Notice.builder()
+                .user(user)
+                .type(noticeType)
+                .value(noticeValue)
+                .build();
+    }
 
 }

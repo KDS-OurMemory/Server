@@ -2,8 +2,8 @@ package com.kds.ourmemory.service.v1.notice;
 
 import com.kds.ourmemory.controller.v1.notice.dto.NoticeReqDto;
 import com.kds.ourmemory.controller.v1.notice.dto.NoticeRspDto;
-import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
-import com.kds.ourmemory.controller.v1.user.dto.UserDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
+import com.kds.ourmemory.controller.v1.user.dto.UserRspDto;
 import com.kds.ourmemory.entity.notice.NoticeType;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.user.UserService;
@@ -29,7 +29,7 @@ class NoticeServiceTest {
     private final UserService userService;  // The creation process from adding to the deletion of the user.
 
     // Base data for test NoticeService
-    private UserDto insertUserRsp;
+    private UserRspDto insertUserRsp;
 
 
     @Autowired
@@ -54,13 +54,13 @@ class NoticeServiceTest {
         var insertNoticeRsp1 = noticeService.insert(insertReq1);
         assertThat(insertNoticeRsp1).isNotNull();
         assertThat(insertNoticeRsp1.getType()).isEqualTo(insertReq1.getNoticeType());
-        assertThat(insertNoticeRsp1.getValue()).isEqualTo(insertReq1.getValue());
+        assertThat(insertNoticeRsp1.getValue()).isEqualTo(insertReq1.getNoticeValue());
         assertTrue(isNow(insertNoticeRsp1.getRegDate()));
 
         var insertNoticeRsp2 = noticeService.insert(insertReq2);
         assertThat(insertNoticeRsp2).isNotNull();
         assertThat(insertNoticeRsp2.getType()).isEqualTo(insertReq2.getNoticeType());
-        assertThat(insertNoticeRsp2.getValue()).isEqualTo(insertReq2.getValue());
+        assertThat(insertNoticeRsp2.getValue()).isEqualTo(insertReq2.getNoticeValue());
         assertTrue(isNow(insertNoticeRsp2.getRegDate()));
     }
 
@@ -157,11 +157,16 @@ class NoticeServiceTest {
     // Call function in @Test function => maintained @Transactional
     void setBaseData() {
         /* 1. Create User */
-        var insertUserReq = new InsertUserDto.Request(
-                1, "user_snsId", "user Token",
-                "user", "0519", true,
-                false, DeviceOs.IOS
-        );
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("user_snsId")
+                .pushToken("user Token")
+                .name("user")
+                .birthday("0519")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.IOS)
+                .build();
         insertUserRsp = userService.signUp(insertUserReq);
         assertThat(insertUserRsp).isNotNull();
         assertThat(insertUserRsp.getUserId()).isNotNull();

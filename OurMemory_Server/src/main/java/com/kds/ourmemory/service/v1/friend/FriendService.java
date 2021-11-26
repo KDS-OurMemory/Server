@@ -287,7 +287,7 @@ public class FriendService {
     public FriendRspDto patchFriendStatus(FriendReqDto reqDto) {
         return findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .map(friend ->
-                        Optional.ofNullable(reqDto.getStatus())
+                        Optional.ofNullable(reqDto.getFriendStatus())
                                 .filter(status -> !(status.equals(FriendStatus.WAIT) || status.equals(FriendStatus.REQUESTED_BY)))
                                 .map(status -> {
                                     friend.changeStatus(status);
