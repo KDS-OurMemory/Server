@@ -2,6 +2,7 @@ package com.kds.ourmemory.controller.v1.friend;
 
 import com.kds.ourmemory.controller.v1.ApiResult;
 import com.kds.ourmemory.controller.v1.friend.dto.*;
+import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.service.v1.friend.FriendService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,8 +23,13 @@ public class FriendController {
 
     @ApiOperation(value = "사용자 검색", notes = "조건에 해당하는 사용자의 기본 정보와 친구 상태를 검색한다.")
     @GetMapping(value = "/users/{userId}/search")
-    public ApiResult<List<FriendDto>> findUsers(@PathVariable long userId, @RequestBody FriendDto request) {
-        return ok(friendService.findUsers(userId, request));
+    public ApiResult<List<FriendDto>> findUsers(
+            @PathVariable long userId,
+            @ApiParam(value = "대상 사용자 번호") @RequestParam(required = false) Long targetId,
+            @ApiParam(value = "대상 사용자 이름") @RequestParam(required = false) String name,
+            @ApiParam(value = "검색 사용자 기준 대상 사용자의 친구상태") @RequestParam(required = false) FriendStatus friendStatus
+    ) {
+        return ok(friendService.findUsers(userId, targetId, name, friendStatus));
     }
 
     @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다. 차단한 상대에게는 요청이 전달되지 않는다.")

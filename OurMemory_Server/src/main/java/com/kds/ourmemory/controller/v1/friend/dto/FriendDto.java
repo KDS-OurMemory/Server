@@ -5,14 +5,10 @@ import com.kds.ourmemory.entity.friend.FriendStatus;
 import com.kds.ourmemory.entity.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @ApiModel(value = "FriendDto", description = "Friend API Dto")
-@Builder
-@AllArgsConstructor
 @Getter
 @NoArgsConstructor
 public class FriendDto {

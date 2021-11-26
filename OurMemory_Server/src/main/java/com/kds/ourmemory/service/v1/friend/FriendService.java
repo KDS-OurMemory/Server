@@ -55,10 +55,10 @@ public class FriendService {
 
     private static final String USER = "user";
 
-    public List<FriendDto> findUsers(long userId, FriendDto request) {
+    public List<FriendDto> findUsers(long userId, Long targetId, String name, FriendStatus friendStatus) {
         // Find by friendStatus
         var responseList = findFriendsByUserId(userId)
-                .map(list -> list.stream().filter(friend -> friend.getStatus().equals(request.getFriendStatus()))
+                .map(list -> list.stream().filter(friend -> friend.getStatus().equals(friendStatus))
                         .map(friend -> new FriendDto(friend.getFriendUser(), friend))
                         .collect(Collectors.toList())
                 )
@@ -66,9 +66,9 @@ public class FriendService {
 
         // Find by friendId or name
         responseList.addAll(
-                findUsersByIdOrName(request.getFriendId(), request.getName())
+                findUsersByIdOrName(targetId, name)
                         .map(users -> users.stream().map(user -> {
-                                            Friend friend = findFriend(userId, request.getFriendId())
+                                            Friend friend = findFriend(userId, targetId)
                                                     .orElse(null);
                                             return new FriendDto(user, friend);
                                         })
