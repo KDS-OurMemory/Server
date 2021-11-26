@@ -319,7 +319,7 @@ public class MemoryService {
                         () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
                 );
 
-        return findUser(reqDto.getUserId())
+        findUser(reqDto.getUserId())
                 .map(user -> {
                     // 1. Delete memory from private room -> delete memory
                     if (user.getPrivateRoomId() == reqDto.getTargetRoomId()) {
@@ -334,11 +334,14 @@ public class MemoryService {
                                 });
                     }
 
-                    return new MemoryRspDto(memory);
+                    return true;
                 })
                 .orElseThrow(
                         () -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId()))
                 );
+
+        // delete response is null -> client already have data, so don't need response data.
+        return null;
     }
     
     /**

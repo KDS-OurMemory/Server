@@ -27,10 +27,12 @@ public class NoticeController {
         return ok(noticeService.findNotices(userId, true));
     }
 
-    @ApiOperation(value = "알림 삭제", notes = "전달받은 알림을 삭제 처리한다.")
+    @ApiOperation(value = "알림 삭제", notes = """
+            전달받은 알림을 삭제 처리한다.\s
+            "성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
     @DeleteMapping("/{noticeId}")
     public ApiResult<NoticeRspDto> delete(
             @ApiParam(value = "noticeId", required = true) @PathVariable long noticeId) {
-        return ok(noticeService.deleteNotice(noticeId));
+        return ok(noticeService.delete(noticeId));
     }
 }

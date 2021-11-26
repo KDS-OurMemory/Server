@@ -76,7 +76,9 @@ public class UserController {
         return ok(userService.deleteProfileImage(userId));
     }
 
-    @ApiOperation(value = "사용자 삭제", notes = "사용자 삭제 처리, 일정은 유지, 관계된 방에서 사용자 삭제/방장인 경우 방장 양도 후 삭제")
+    @ApiOperation(value = "사용자 삭제", notes = """
+        사용자 삭제 처리, 일정은 유지, 관계된 방에서 사용자 삭제/방장인 경우 방장 양도 후 삭제\s
+        성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
     @DeleteMapping(value = "/{userId}")
     public ApiResult<UserRspDto> delete(
             @ApiParam(value = "사용자 번호", required = true) @PathVariable long userId

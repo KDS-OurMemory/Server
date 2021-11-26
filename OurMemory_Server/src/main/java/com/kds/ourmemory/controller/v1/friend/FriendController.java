@@ -39,7 +39,9 @@ public class FriendController {
         return ok(friendService.requestFriend(reqDto));
     }
 
-    @ApiOperation(value = "친구 요청 취소", notes = "친구 요청을 취소한 뒤, 요청보낸 사용자의 친구요청 알림을 삭제한다.")
+    @ApiOperation(value = "친구 요청 취소",
+            notes = "친구 요청을 취소한 뒤, 요청보낸 사용자의 친구요청 알림을 삭제한다. " +
+                    "성공한 경우, 실제 친구 데이터가 삭제되기 때문에 response=null 을 리턴한다.")
     @DeleteMapping(value = "/cancel")
     public ApiResult<FriendRspDto> cancelFriend(@RequestBody FriendReqDto reqDto) {
         return ok(friendService.cancelFriend(reqDto));
@@ -72,7 +74,9 @@ public class FriendController {
         return ok(friendService.patchFriendStatus(reqDto));
     }
 
-    @ApiOperation(value = "친구 삭제", notes = "친구를 삭제한다. 내 쪽에서만 친구 삭제 처리한다.")
+    @ApiOperation(value = "친구 삭제", notes = """
+            친구를 삭제한다. 내 쪽에서만 친구 삭제 처리한다.\s
+            "성공한 경우, 실제 친구 데이터가 삭제되기 때문에 response=null 을 리턴한다.""")
     @DeleteMapping
     public ApiResult<FriendRspDto> deleteFriend(@RequestBody FriendReqDto reqDto) {
         return ok(friendService.deleteFriend(reqDto));

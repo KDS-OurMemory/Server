@@ -57,15 +57,18 @@ public class NoticeService {
     }
 
     @Transactional
-    public NoticeRspDto deleteNotice(long id) {
-        return findNotice(id)
+    public NoticeRspDto delete(long id) {
+        findNotice(id)
                 .map(notice -> {
                     notice.deleteNotice();
-                    return updateNotice(notice).map(NoticeRspDto::new)
+                    return updateNotice(notice).map(n -> true)
                             .orElseThrow(() ->
                                     new NoticeInternalServerException("Failed to update for notice used set false."));
                 })
                 .orElseThrow(() -> new NoticeNotFoundException("Not found notice matched to noticeId: " + id));
+
+        // delete response is null -> client already have data, so don't need response data.
+        return null;
     }
 
     /**

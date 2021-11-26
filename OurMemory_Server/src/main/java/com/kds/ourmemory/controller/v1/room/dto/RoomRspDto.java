@@ -38,9 +38,6 @@ public class RoomRspDto {
     @ApiModelProperty(value = "방에 생성된 일정", example = "[{일정 제목, 시작시간, 종료시간}, ...]")
     private final List<MemoryRspDto> memories;
 
-    @ApiModelProperty(value = "사용 여부", example = "true")
-    private final boolean used;
-
     public RoomRspDto(Room room) {
         roomId = room.getId();
         ownerId = room.getOwner().getId();
@@ -59,7 +56,6 @@ public class RoomRspDto {
                     return new MemoryRspDto(memory, userMemories);
                 })
                 .collect(toList());
-        used = room.isUsed();
     }
 
 }

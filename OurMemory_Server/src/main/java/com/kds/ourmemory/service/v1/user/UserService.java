@@ -165,7 +165,7 @@ public class UserService {
      */
     @Transactional
     public UserRspDto delete(long userId) {
-        return findUser(userId)
+        findUser(userId)
                 .map(user -> {
                     findFriendsByUserOrFriendUser(user, user)
                             .ifPresent(friends -> friends.forEach(this::deleteFriend));
@@ -199,17 +199,17 @@ public class UserService {
                     });
                     user.deleteRooms(user.getRooms());
 
-                    return user;
-                })
-                // Delete the user after all job.
-                .map(user -> {
+                    // Delete the user after all job.
                     user.deleteUser();
-                    return new UserRspDto(user);
+
+                    return true;
                 })
                 .orElseThrow(() -> new UserNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, USER, userId)
                         )
                 );
+
+        return null;
     }
 
     private void transferOwner(long roomId, long ownerId, List<User> users) {

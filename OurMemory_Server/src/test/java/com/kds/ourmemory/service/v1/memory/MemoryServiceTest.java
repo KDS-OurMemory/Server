@@ -2,7 +2,9 @@ package com.kds.ourmemory.service.v1.memory;
 
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotWriterException;
-import com.kds.ourmemory.controller.v1.memory.dto.*;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryRspDto;
+import com.kds.ourmemory.controller.v1.memory.dto.ShareType;
 import com.kds.ourmemory.controller.v1.room.dto.RoomReqDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserReqDto;
@@ -11,7 +13,6 @@ import com.kds.ourmemory.entity.relation.AttendanceStatus;
 import com.kds.ourmemory.entity.user.DeviceOs;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import com.kds.ourmemory.service.v1.user.UserService;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@Slf4j
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -302,6 +302,7 @@ class MemoryServiceTest {
                 .snsType(2)
                 .snsId("member2_snsId")
                 .pushToken("member2 Token")
+                .push(true)
                 .name("member2")
                 .birthday("0527")
                 .solar(true)
@@ -393,6 +394,7 @@ class MemoryServiceTest {
                 .snsType(2)
                 .snsId("member2_snsId")
                 .pushToken("member2 Token")
+                .push(true)
                 .name("member2")
                 .birthday("0527")
                 .solar(true)
@@ -581,8 +583,7 @@ class MemoryServiceTest {
 
         /* 3. Delete memory from share room */
         var deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
-        assertThat(deleteRsp).isNotNull();
-        assertTrue(deleteRsp.isUsed()); // Memory is not delete. Only delete memory-room relationship.
+        assertNull(deleteRsp);
 
         /* 4. Find memory after delete */
         var findMemoryRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
@@ -645,8 +646,7 @@ class MemoryServiceTest {
 
         /* 3. Delete memory from private room */
         var deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
-        assertThat(deleteRsp).isNotNull();
-        assertFalse(deleteRsp.isUsed());
+        assertNull(deleteRsp);
 
         /* 4. Find memory after delete */
         var memoryId = insertMemoryRsp.getMemoryId();
@@ -933,6 +933,7 @@ class MemoryServiceTest {
                 .snsType(2)
                 .snsId("writer_snsId")
                 .pushToken("member Token")
+                .push(true)
                 .name("member")
                 .birthday("0519")
                 .solar(true)
@@ -947,6 +948,7 @@ class MemoryServiceTest {
                 .snsType(1)
                 .snsId("member1_snsId")
                 .pushToken("member1 Token")
+                .push(true)
                 .name("member1")
                 .birthday("0720")
                 .solar(true)

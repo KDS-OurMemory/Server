@@ -99,14 +99,17 @@ public class TodoService {
 
     @Transactional
     public TodoRspDto delete(long todoId) {
-        return findTodo(todoId)
+        findTodo(todoId)
                 .map(todo -> {
                     todo.deleteTodo();
-                    return new TodoRspDto(todo);
+                    return true;
                 })
                 .orElseThrow(() -> new TodoNotFoundException(
                         String.format(NOT_FOUND_MESSAGE, TODO, todoId)
                 ));
+
+        // delete response is null -> client already have data, so don't need response data.
+        return null;
     }
 
     /**

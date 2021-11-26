@@ -73,6 +73,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("테스트 유저")
                 .birthday("0720")
                 .solar(true)
@@ -96,6 +97,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("테스트 유저")
                 .birthday("0720")
                 .solar(true)
@@ -129,6 +131,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("테스트 유저")
                 .birthday("0720")
                 .solar(true)
@@ -164,6 +167,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("테스트 유저")
                 .birthday("0720")
                 .solar(true)
@@ -196,6 +200,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("테스트 유저")
                 .birthday("0720")
                 .solar(true)
@@ -236,6 +241,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("user")
                 .birthday("0720")
                 .solar(true)
@@ -250,6 +256,7 @@ class UserServiceTest {
                 .snsType(2)
                 .snsId("FRIEND_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("friendUser")
                 .birthday("0101")
                 .solar(true)
@@ -293,8 +300,7 @@ class UserServiceTest {
 
         /* 1. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
-        assertFalse(deleteUserRsp.isUsed());
+        assertNull(deleteUserRsp);
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -319,6 +325,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("user")
                 .birthday("0720")
                 .solar(true)
@@ -364,8 +371,7 @@ class UserServiceTest {
 
         /* 1. Delete private room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
-        assertFalse(deleteUserRsp.isUsed());
+        assertNull(deleteUserRsp);
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -418,6 +424,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("user")
                 .birthday("0720")
                 .solar(true)
@@ -432,6 +439,7 @@ class UserServiceTest {
                 .snsType(2)
                 .snsId("member1_sns_id")
                 .pushToken("member1 Token")
+                .push(true)
                 .name("member1")
                 .birthday("0101")
                 .solar(true)
@@ -474,8 +482,7 @@ class UserServiceTest {
 
         /* 1. Delete room owner */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
-        assertFalse(deleteUserRsp.isUsed());
+        assertNull(deleteUserRsp);
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -530,6 +537,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("user")
                 .birthday("0720")
                 .solar(true)
@@ -544,6 +552,7 @@ class UserServiceTest {
                 .snsType(2)
                 .snsId("member1_sns_id")
                 .pushToken("member1 Token")
+                .push(true)
                 .name("member1")
                 .birthday("0101")
                 .solar(true)
@@ -558,6 +567,7 @@ class UserServiceTest {
                 .snsType(3)
                 .snsId("member2_sns_id")
                 .pushToken("member2 Token")
+                .push(true)
                 .name("member2")
                 .birthday("0501")
                 .solar(true)
@@ -600,8 +610,7 @@ class UserServiceTest {
 
         /* 1. Delete room participant */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
-        assertFalse(deleteUserRsp.isUsed());
+        assertNull(deleteUserRsp);
 
         /* 2. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -654,6 +663,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("user")
                 .birthday("0720")
                 .solar(true)
@@ -670,7 +680,7 @@ class UserServiceTest {
 
         /* 0-2. Delete user */
         var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
-        assertThat(deleteUserRsp).isNotNull();
+        assertNull(deleteUserRsp);
 
         /* 0-3. Check delete user */
         var userId = insertUserRsp.getUserId();
@@ -699,6 +709,7 @@ class UserServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before Token")
+                .push(true)
                 .name("user")
                 .birthday("0720")
                 .solar(true)

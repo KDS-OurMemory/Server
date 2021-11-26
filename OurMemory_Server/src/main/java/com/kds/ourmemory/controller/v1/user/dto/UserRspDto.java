@@ -46,11 +46,8 @@ public class UserRspDto {
     @ApiModelProperty(value = "역할(USER:사용자, ADMIN:관리자)", example = "USER or ADMIN")
     private final UserRole role;
 
-    @ApiModelProperty(value = "사용기기 OS(ANDROID, IOS)", example = "ANDROID or IOS")
+    @ApiModelProperty(value = "사용기기 OS(AOS, IOS)", example = "AOS or IOS")
     private final DeviceOs deviceOs;
-
-    @ApiModelProperty(value = "계정 사용여부")
-    private final boolean used;
 
     public UserRspDto(User user) {
         this.userId = user.getId();
@@ -66,7 +63,6 @@ public class UserRspDto {
         this.profileImageUrl = user.getProfileImageUrl();
         this.role = user.getRole();
         this.deviceOs = user.getDeviceOs();
-        this.used = user.isUsed();
     }
 
 }

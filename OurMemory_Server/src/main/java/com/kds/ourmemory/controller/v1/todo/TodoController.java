@@ -47,7 +47,7 @@ public class TodoController {
         return ok(todoService.update(todoId, reqDto));
     }
 
-    @ApiOperation(value = "TODO 삭제", notes = "TODO 삭제처리한다. used=false 처리")
+    @ApiOperation(value = "TODO 삭제", notes = "성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.")
     @DeleteMapping("/{todoId}")
     public ApiResult<TodoRspDto> delete(@PathVariable long todoId) {
         return ok(todoService.delete(todoId));

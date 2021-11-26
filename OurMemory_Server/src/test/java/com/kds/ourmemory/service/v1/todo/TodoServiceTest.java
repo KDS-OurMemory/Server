@@ -15,6 +15,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Slf4j
 @SpringBootTest
@@ -229,8 +230,7 @@ class TodoServiceTest {
 
         /* 3. Delete todoData */
         var deleteTodoRsp = todoService.delete(insertTodoRsp.getTodoId());
-        assertThat(deleteTodoRsp).isNotNull();
-        assertFalse(deleteTodoRsp.isUsed());
+        assertNull(deleteTodoRsp);
     }
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
@@ -241,6 +241,7 @@ class TodoServiceTest {
                 .snsType(1)
                 .snsId("writer_snsId")
                 .pushToken("writer Token")
+                .push(true)
                 .name("writer")
                 .birthday("0519")
                 .solar(true)

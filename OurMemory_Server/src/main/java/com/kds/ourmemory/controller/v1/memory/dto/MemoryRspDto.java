@@ -59,9 +59,6 @@ public class MemoryRspDto {
     @ApiModelProperty(value = "일정 수정날짜(yyyy-MM-dd HH:mm:ss)", notes = "yyyy-MM-dd HH:mm:ss")
     private final String modDate;
 
-    @ApiModelProperty(value = "사용 여부", example = "true")
-    private final boolean used;
-
     @ApiModelProperty(value = "일정 공유방 목록", notes = "일정이 공유된 방 목록")
     private List<MemoryRspDto.ShareRoom> shareRooms;
 
@@ -84,7 +81,6 @@ public class MemoryRspDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
-        used = memory.isUsed();
     }
 
     public MemoryRspDto(UserMemory userMemory) {
@@ -100,7 +96,6 @@ public class MemoryRspDto {
         secondAlarm = userMemory.getMemory().getSecondAlarm();
         regDate = userMemory.getMemory().formatRegDate();
         modDate = userMemory.getMemory().formatModDate();
-        used = userMemory.getMemory().isUsed();
         userAttendances = Stream.of(new UserAttendance(userMemory)).collect(toList());
     }
 
@@ -117,7 +112,6 @@ public class MemoryRspDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
-        used = memory.isUsed();
         shareRooms = memory.getRooms().stream()
                 .filter(room -> room.isUsed() && !room.getId().equals(privateRoomId))
                 .map(MemoryRspDto.ShareRoom::new)
@@ -137,7 +131,6 @@ public class MemoryRspDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
-        used = memory.isUsed();
 
         this.addedRoomId = addedRoomId;
     }
@@ -155,7 +148,6 @@ public class MemoryRspDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
-        used = memory.isUsed();
 
         this.userAttendances = userMemories.stream().map(MemoryRspDto.UserAttendance::new).collect(toList());
     }

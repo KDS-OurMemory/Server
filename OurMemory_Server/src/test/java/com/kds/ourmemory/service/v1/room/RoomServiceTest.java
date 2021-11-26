@@ -233,6 +233,7 @@ class RoomServiceTest {
                 .snsType(1)
                 .snsId("excludeMember_snsId")
                 .pushToken("excludeMember Token")
+                .push(true)
                 .name("excludeMember")
                 .birthday("1225")
                 .solar(true)
@@ -296,6 +297,7 @@ class RoomServiceTest {
                 .snsType(1)
                 .snsId("excludeMember_snsId")
                 .pushToken("excludeMember Token")
+                .push(true)
                 .name("excludeMember")
                 .birthday("1225")
                 .solar(true)
@@ -341,6 +343,7 @@ class RoomServiceTest {
                 .snsType(1)
                 .snsId("excludeMember_snsId")
                 .pushToken("excludeMember Token")
+                .push(true)
                 .name("excludeMember")
                 .birthday("1225")
                 .solar(true)
@@ -391,6 +394,7 @@ class RoomServiceTest {
                 .snsType(1)
                 .snsId("excludeMember_snsId")
                 .pushToken("excludeMember Token")
+                .push(true)
                 .name("excludeMember")
                 .birthday("1225")
                 .solar(true)
@@ -538,8 +542,7 @@ class RoomServiceTest {
 
         /* 3. Delete share room */
         var deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
-        assertThat(deleteRsp).isNotNull();
-        assertFalse(deleteRsp.isUsed());
+        assertNull(deleteRsp);
 
         /* 4. Find room and memories after delete */
         var roomId = insertRoomRsp.getRoomId();
@@ -646,8 +649,7 @@ class RoomServiceTest {
 
         /* 3. Delete room */
         var deleteRsp = roomService.delete(insertOwnerRsp.getPrivateRoomId(), deleteRoomReq);
-        assertThat(deleteRsp).isNotNull();
-        assertFalse(deleteRsp.isUsed());
+        assertNull(deleteRsp);
 
         /* 4. Find room and memories after delete */
         Long privateRoomId = insertOwnerRsp.getPrivateRoomId();
@@ -675,6 +677,7 @@ class RoomServiceTest {
                 .snsType(1)
                 .snsId("owner_snsId")
                 .pushToken("owner Token")
+                .push(true)
                 .name("owner")
                 .birthday("0519")
                 .solar(true)
@@ -689,6 +692,7 @@ class RoomServiceTest {
                 .snsType(1)
                 .snsId("member1_snsId")
                 .pushToken("member1 Token")
+                .push(true)
                 .name("member1")
                 .birthday("0720")
                 .solar(true)
@@ -703,6 +707,7 @@ class RoomServiceTest {
                 .snsType(1)
                 .snsId("member2_snsId")
                 .pushToken("member2 Token")
+                .push(true)
                 .name("member2")
                 .birthday("0827")
                 .solar(true)

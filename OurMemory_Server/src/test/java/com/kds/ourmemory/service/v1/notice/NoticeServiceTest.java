@@ -17,8 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -111,8 +110,8 @@ class NoticeServiceTest {
         assertThat(insertNoticeResponse1).isNotNull();
 
         /* 2. Delete notice */
-        var deleteNoticeRsp = noticeService.deleteNotice(insertNoticeResponse1.getNoticeId());
-        assertThat(deleteNoticeRsp).isNotNull();
+        var deleteNoticeRsp = noticeService.delete(insertNoticeResponse1.getNoticeId());
+        assertNull(deleteNoticeRsp);
     }
 
     @Test
@@ -161,6 +160,7 @@ class NoticeServiceTest {
                 .snsType(1)
                 .snsId("user_snsId")
                 .pushToken("user Token")
+                .push(true)
                 .name("user")
                 .birthday("0519")
                 .solar(true)

@@ -58,7 +58,9 @@ public class RoomController {
         return ok(roomService.update(roomId, reqDto));
     }
 
-    @ApiOperation(value = "방 삭제", notes = "1. 개인방 -> 일정 삭제 후 방 삭제, 2. 공유방 -> 방만 삭제")
+    @ApiOperation(value = "방 삭제", notes = """
+            1. 개인방 -> 일정 삭제 후 방 삭제, 2. 공유방 -> 방만 삭제\s
+            성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
     @DeleteMapping(value = "/{roomId}")
     public ApiResult<RoomRspDto> delete(
             @PathVariable long roomId,

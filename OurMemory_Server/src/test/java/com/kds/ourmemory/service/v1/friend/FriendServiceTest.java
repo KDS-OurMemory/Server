@@ -106,7 +106,7 @@ class FriendServiceTest {
         var mySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId())
         );
-        assertThat(mySideDeleteRsp).isNotNull();
+        assertNull(mySideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -125,7 +125,7 @@ class FriendServiceTest {
         var friendSideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(acceptUserRsp.getUserId(), requestUserRsp.getUserId())
         );
-        assertThat(friendSideDeleteRsp).isNotNull();
+        assertNull(friendSideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -166,7 +166,7 @@ class FriendServiceTest {
         var beforeMySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId())
         );
-        assertThat(beforeMySideDeleteRsp).isNotNull();
+        assertNull(beforeMySideDeleteRsp);
 
         // My side
         List<FriendRspDto> beforeMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -224,7 +224,7 @@ class FriendServiceTest {
         var mySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId())
         );
-        assertThat(mySideDeleteRsp).isNotNull();
+        assertNull(mySideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -243,7 +243,7 @@ class FriendServiceTest {
         var friendSideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(acceptUserRsp.getUserId(), requestUserRsp.getUserId())
         );
-        assertThat(friendSideDeleteRsp).isNotNull();
+        assertNull(friendSideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -286,7 +286,7 @@ class FriendServiceTest {
         var beforeMySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId())
         );
-        assertThat(beforeMySideDeleteRsp).isNotNull();
+        assertNull(beforeMySideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> beforeMySideFriends = friendService.findFriends(requestUserRsp.getUserId());
@@ -354,7 +354,7 @@ class FriendServiceTest {
 
         // Cancel friend request
         var cancelRsp = friendService.cancelFriend(cancelReq);
-        assertThat(cancelRsp).isNotNull();
+        assertNull(cancelRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -373,7 +373,7 @@ class FriendServiceTest {
         var friendSideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(acceptUserRsp.getUserId(), requestUserRsp.getUserId())
         );
-        assertThat(friendSideDeleteRsp).isNotNull();
+        assertNull(friendSideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -414,7 +414,7 @@ class FriendServiceTest {
         var beforeMySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(acceptUserRsp.getUserId(), requestUserRsp.getUserId())
         );
-        assertThat(beforeMySideDeleteRsp).isNotNull();
+        assertNull(beforeMySideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> beforeMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -466,7 +466,7 @@ class FriendServiceTest {
         var mySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId())
         );
-        assertThat(mySideDeleteRsp).isNotNull();
+        assertNull(mySideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -522,7 +522,7 @@ class FriendServiceTest {
         var beforeMySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(acceptUserRsp.getUserId(), requestUserRsp.getUserId())
         );
-        assertThat(beforeMySideDeleteRsp).isNotNull();
+        assertNull(beforeMySideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> beforeMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -580,7 +580,7 @@ class FriendServiceTest {
         var mySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId())
         );
-        assertThat(mySideDeleteRsp).isNotNull();
+        assertNull(mySideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -666,7 +666,7 @@ class FriendServiceTest {
         var mySideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId())
         );
-        assertThat(mySideDeleteRsp).isNotNull();
+        assertNull(mySideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromMySideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -685,7 +685,7 @@ class FriendServiceTest {
         var friendSideDeleteRsp = friendService.deleteFriend(
                 new FriendReqDto(acceptUserRsp.getUserId(), requestUserRsp.getUserId())
         );
-        assertThat(friendSideDeleteRsp).isNotNull();
+        assertNull(friendSideDeleteRsp);
 
         // Check my side
         List<FriendRspDto> deleteFromFriendSideMySideList = friendService.findFriends(requestUserRsp.getUserId());
@@ -768,7 +768,7 @@ class FriendServiceTest {
 
         /* 3. Cancel friend request */
         var cancelFriendRsp = friendService.cancelFriend(cancelReq);
-        assertThat(cancelFriendRsp).isNotNull();
+        assertNull(cancelFriendRsp);
 
         /* 4. Check notice after cancel */
         var afterAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
@@ -785,6 +785,7 @@ class FriendServiceTest {
                 .snsType(1)
                 .snsId("TESTS_SNS_ID")
                 .pushToken("before pushToken")
+                .push(true)
                 .name("테스트 유저")
                 .birthday("0720")
                 .solar(true)
@@ -796,10 +797,12 @@ class FriendServiceTest {
                 .snsType(2)
                 .snsId("TESTS_SNS_ID2")
                 .pushToken("before pushToken")
+                .push(true)
                 .name("둥명이인")
                 .birthday("0724")
                 .solar(false)
                 .birthdayOpen(true)
+
                 .deviceOs(DeviceOs.IOS)
                 .build();
 
@@ -807,6 +810,7 @@ class FriendServiceTest {
                 .snsType(3)
                 .snsId("TESTS_SNS_ID3")
                 .pushToken("before pushToken")
+                .push(true)
                 .name("둥명이인")
                 .birthday("0720")
                 .solar(true)
@@ -1000,6 +1004,7 @@ class FriendServiceTest {
                 .snsType(1)
                 .snsId("request_snsId")
                 .pushToken("request user Token")
+                .push(true)
                 .name("requestUser")
                 .birthday("0519")
                 .solar(true)
@@ -1014,6 +1019,7 @@ class FriendServiceTest {
                 .snsType(1)
                 .snsId("accept_user_snsId")
                 .pushToken("accept user Token")
+                .push(true)
                 .name("acceptUser")
                 .birthday("0720")
                 .solar(true)

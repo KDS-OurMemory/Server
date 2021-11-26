@@ -205,7 +205,7 @@ public class RoomService {
                         String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId())
                 ));
 
-        return findRoom(roomId)
+        findRoom(roomId)
                 // 1. delete room
                 .map(Room::deleteRoom)
                 .map(room -> {
@@ -214,12 +214,15 @@ public class RoomService {
                         room.getMemories().forEach(Memory::deleteMemory);
                     }
 
-                    return new RoomRspDto(room);
+                    return true;
                 })
                 .orElseThrow(() -> new RoomNotFoundException(
                                 String.format(NOT_FOUND_MESSAGE, ROOM, roomId)
                         )
                 );
+
+        // delete response is null -> client already have data, so don't need response data.
+        return null;
     }
 
     /**

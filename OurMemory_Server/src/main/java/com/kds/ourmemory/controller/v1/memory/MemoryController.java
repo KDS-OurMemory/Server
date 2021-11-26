@@ -80,7 +80,8 @@ public class MemoryController {
     @ApiOperation(value = "일정 삭제", notes = """
             일정을 방에서 삭제처리한다. 아래의 경우에 따라 처리 방식이 나뉜다.\s
             1. 공유방에서 삭제 -> 일정-방 관계 삭제\s
-            2. 개인방에서 삭제 -> 일정 삭제 처리""")
+            2. 개인방에서 삭제 -> 일정 삭제 처리\s
+            성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
     @DeleteMapping("/{memoryId}")
     public ApiResult<MemoryRspDto> delete(
             @PathVariable long memoryId,

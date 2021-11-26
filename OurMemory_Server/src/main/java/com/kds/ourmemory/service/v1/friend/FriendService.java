@@ -164,7 +164,7 @@ public class FriendService {
                 );
 
         // Check friend side And delete
-        return findFriend(reqDto.getFriendUserId(), reqDto.getUserId())
+        findFriend(reqDto.getFriendUserId(), reqDto.getUserId())
                 .map(friend -> {
                     FriendStatus status = friend.getStatus();
                     switch (status) {
@@ -177,7 +177,7 @@ public class FriendService {
                                         if (NoticeType.FRIEND_REQUEST.equals(findNoticesRsp.getType())
                                                 && findNoticesRsp.getValue().equals(Long.toString(friend.getFriendUser().getId()))
                                         ) {
-                                            noticeService.deleteNotice(findNoticesRsp.getNoticeId());
+                                            noticeService.delete(findNoticesRsp.getNoticeId());
                                         }
                                     });
                         }
@@ -191,13 +191,16 @@ public class FriendService {
                         );
                     }
 
-                    return new FriendRspDto(); // TODO: 삭제 로직을 삭제 플래그로 수정 후 데이터 수정 예정
+                    return true;
                 })
                 .orElseThrow(
                         () -> new FriendNotFoundException(
                                 String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getFriendUserId(), reqDto.getUserId())
                         )
                 );
+
+        // not exists friend data(cancel -> delete friend data), so null response.
+        return null;
     }
 
     @Transactional
@@ -305,7 +308,7 @@ public class FriendService {
     }
 
     public FriendRspDto deleteFriend(FriendReqDto reqDto) {
-        return findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
+        findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .map(friend -> {
                     if (friend.getStatus().equals(FriendStatus.WAIT) || friend.getStatus().equals(FriendStatus.REQUESTED_BY))
                         throw new FriendInternalServerException(
@@ -314,12 +317,15 @@ public class FriendService {
 
                     // Delete friend only my side. The other side does not delete.
                     deleteFriend(friend);
-                    return new FriendRspDto(); // TODO: 삭제 로직을 삭제 플래그로 수정 후 데이터 수정 예정
+                    return true;
                 })
                 .orElseThrow(() -> new FriendNotFoundFriendException(
                                 String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getUserId(), reqDto.getFriendUserId())
                         )
                 );
+
+        // delete response is null -> client already have data, so don't need response data.
+        return null;
     }
 
     /**
