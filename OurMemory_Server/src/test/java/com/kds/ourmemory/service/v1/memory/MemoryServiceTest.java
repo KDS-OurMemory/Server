@@ -75,18 +75,17 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -95,7 +94,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -117,18 +116,16 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                null,
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -137,7 +134,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertWriterRsp.getPrivateRoomId());
 
         /* 2. Find memories */
-        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -159,18 +156,17 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertWriterRsp.getPrivateRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertWriterRsp.getPrivateRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         /* 1. Make memory to private room */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -188,18 +184,17 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -215,7 +210,12 @@ class MemoryServiceTest {
 
         /* 3. Attend memory of member */
         var attendRsp = memoryService.setAttendanceStatus(
-                insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ATTEND);
+                insertMemoryRsp.getMemoryId(),
+                MemoryReqDto.builder()
+                        .userId(insertMemberRsp.getUserId())
+                        .attendanceStatus(AttendanceStatus.ATTEND)
+                        .build()
+        );
         assertThat(attendRsp).isNotNull();
         assertThat(attendRsp.getUserAttendances().size()).isOne();
 
@@ -235,18 +235,17 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -262,7 +261,12 @@ class MemoryServiceTest {
 
         /* 3. Absence memory of member */
         var attendRsp = memoryService.setAttendanceStatus(
-                insertMemoryRsp.getMemoryId(), insertMemberRsp.getUserId(), AttendanceStatus.ABSENCE);
+                insertMemoryRsp.getMemoryId(),
+                MemoryReqDto.builder()
+                        .userId(insertMemberRsp.getUserId())
+                        .attendanceStatus(AttendanceStatus.ABSENCE)
+                        .build()
+        );
         assertThat(attendRsp).isNotNull();
         assertThat(attendRsp.getUserAttendances().size()).isOne();
 
@@ -282,18 +286,17 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMember2Req = new InsertUserDto.Request(
                 2, "member2_snsId", "member2 Token",
@@ -304,10 +307,10 @@ class MemoryServiceTest {
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
 
-        var shareMemoryUsersReq = new ShareMemoryDto.Request(
-                ShareMemoryDto.ShareType.USERS,
-                Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList())
-        );
+        var shareMemoryUsersReq = MemoryReqDto.builder()
+                .shareType(ShareType.USERS)
+                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList()))
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -369,18 +372,17 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMember2Req = new InsertUserDto.Request(
                 2, "member2_snsId", "member2 Token",
@@ -391,10 +393,10 @@ class MemoryServiceTest {
         assertThat(insertMemberRsp2).isNotNull();
         assertThat(insertMemberRsp2.getUserId()).isNotNull();
 
-        var shareMemoryUsersReq = new ShareMemoryDto.Request(
-                ShareMemoryDto.ShareType.USER_GROUP,
-                Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList())
-        );
+        var shareMemoryUsersReq = MemoryReqDto.builder()
+                .shareType(ShareType.USER_GROUP)
+                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList()))
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -456,18 +458,17 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         var members2 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
         var insertRoomReq2 = new InsertRoomDto.Request("room name2", insertMemberRsp.getUserId(), false, members2);
@@ -485,10 +486,10 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp3.getMembers()).isNotNull();
         assertThat(insertRoomRsp3.getMembers().size()).isEqualTo(2);
 
-        var shareMemoryUsersReq = new ShareMemoryDto.Request(
-                ShareMemoryDto.ShareType.ROOMS,
-                Stream.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()).collect(toList())
-        );
+        var shareMemoryUsersReq = MemoryReqDto.builder()
+                .shareType(ShareType.ROOMS)
+                .shareIds(Stream.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()).collect(toList()))
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -522,23 +523,22 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var deleteMemoryReq = new DeleteMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId()
-        );
+        var deleteMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .targetRoomId(insertRoomRsp.getRoomId())
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -547,7 +547,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -562,6 +562,7 @@ class MemoryServiceTest {
         /* 3. Delete memory from share room */
         var deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
         assertThat(deleteRsp).isNotNull();
+        assertTrue(deleteRsp.isUsed()); // Memory is not delete. Only delete memory-room relationship.
 
         /* 4. Find memory after delete */
         var findMemoryRsp = memoryService.find(insertMemoryRsp.getMemoryId(), insertRoomRsp.getRoomId());
@@ -586,23 +587,22 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var deleteMemoryReq = new DeleteMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertWriterRsp.getPrivateRoomId()
-        );
+        var deleteMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .targetRoomId(insertWriterRsp.getPrivateRoomId())
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -611,7 +611,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -626,6 +626,7 @@ class MemoryServiceTest {
         /* 3. Delete memory from private room */
         var deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
         assertThat(deleteRsp).isNotNull();
+        assertFalse(deleteRsp.isUsed());
 
         /* 4. Find memory after delete */
         var memoryId = insertMemoryRsp.getMemoryId();
@@ -652,29 +653,25 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var updateReq = new UpdateMemoryDto.Request(
-                "Update memory name",
-                "Update contents",
-                "Update place",
-                LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat),
-                LocalDateTime.parse("2021-07-09 17:00", alertTimeFormat),
-                null,
-                null,
-                null
-        );
+        var updateReq = MemoryReqDto.builder()
+                .name("Update memory name")
+                .contents("Update contents")
+                .place("Update place")
+                .startDate(LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat))
+                .endDate(LocalDateTime.parse("2021-07-09 17:00", alertTimeFormat))
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -683,7 +680,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -719,29 +716,25 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var updateReq = new UpdateMemoryDto.Request(
-                "Update memory name",
-                "Update contents",
-                "Update place",
-                LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat),
-                LocalDateTime.parse("2021-07-09 17:00", alertTimeFormat),
-                null,
-                null,
-                null
-        );
+        var updateReq = MemoryReqDto.builder()
+                .name("Update memory name")
+                .contents("Update contents")
+                .place("Update place")
+                .startDate(LocalDateTime.parse("2021-07-08 17:00", alertTimeFormat))
+                .endDate(LocalDateTime.parse("2021-07-09 17:00", alertTimeFormat))
+                .build();
 
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
@@ -750,7 +743,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp.getAddedRoomId()).isEqualTo(insertMemoryReq.getRoomId());
 
         /* 2. Find memories */
-        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
+        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq.getUserId(), null);
         assertThat(findMemoriesList).isNotNull();
 
         findMemoriesList = memoryService.findMemories(null, "Test Memory");
@@ -779,96 +772,89 @@ class MemoryServiceTest {
         setBaseData();
 
         /* 0-2. Create request */
-        var insertMemoryReq1 = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory1",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-25 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq1 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory1")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-25 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var insertMemoryReq2 = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory2",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-23 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq2 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory2")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-23 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var insertMemoryReq3 = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory3",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-23 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-19 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq3 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory3")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-23 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-19 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var insertMemoryReq4 = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory4",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-24 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq4 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory4")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-24 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var insertMemoryReq5 = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory5",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-22 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-19 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq5 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory1")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-22 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-22 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-19 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var insertMemoryReq6 = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory6",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-25 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-21 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq6 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory6")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-24 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-25 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-21 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
-        var insertMemoryReq7 = new InsertMemoryDto.Request(
-                insertWriterRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory7",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-27 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-27 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-20 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq7 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory7")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-27 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-27 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-20 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
 
         /* 1. Make memories */
         var insertMemoryRsp1 = memoryService.insert(insertMemoryReq1);
@@ -893,7 +879,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp7).isNotNull();
 
         /* 2. Find memories */
-        List<MemoryDto> findMemoriesList = memoryService.findMemories(insertMemoryReq1.getUserId(), null);
+        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq1.getUserId(), null);
         assertThat(findMemoriesList.size()).isEqualTo(7);
 
         // expected order: 3 5 2 4 6 1 7

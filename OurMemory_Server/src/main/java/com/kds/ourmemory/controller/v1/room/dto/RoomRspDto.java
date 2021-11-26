@@ -1,7 +1,7 @@
 package com.kds.ourmemory.controller.v1.room.dto;
 
 import com.kds.ourmemory.controller.v1.friend.dto.FriendRspDto;
-import com.kds.ourmemory.controller.v1.memory.dto.MemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryRspDto;
 import com.kds.ourmemory.entity.memory.Memory;
 import com.kds.ourmemory.entity.room.Room;
 import io.swagger.annotations.ApiModel;
@@ -36,7 +36,7 @@ public class RoomRspDto {
     private final List<FriendRspDto> members;
 
     @ApiModelProperty(value = "방에 생성된 일정", example = "[{일정 제목, 시작시간, 종료시간}, ...]")
-    private final List<MemoryDto> memories;
+    private final List<MemoryRspDto> memories;
 
     @ApiModelProperty(value = "사용 여부", example = "true")
     private final boolean used;
@@ -56,7 +56,7 @@ public class RoomRspDto {
                             .filter(userMemory -> room.getUsers().contains(userMemory.getUser()))
                             .collect(toList());
 
-                    return new MemoryDto(memory, userMemories);
+                    return new MemoryRspDto(memory, userMemories);
                 })
                 .collect(toList());
         used = room.isUsed();

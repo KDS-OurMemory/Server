@@ -1,6 +1,6 @@
 package com.kds.ourmemory.entity.memory;
 
-import com.kds.ourmemory.controller.v1.memory.dto.UpdateMemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
 import com.kds.ourmemory.entity.BaseTimeEntity;
 import com.kds.ourmemory.entity.relation.UserMemory;
 import com.kds.ourmemory.entity.room.Room;
@@ -109,8 +109,8 @@ public class Memory extends BaseTimeEntity implements Serializable {
 	    this.users.add(userMemory);
     }
 
-    public Optional<Memory> updateMemory(UpdateMemoryDto.Request request) {
-        return Optional.ofNullable(request)
+    public Optional<Memory> updateMemory(MemoryReqDto reqDto) {
+        return Optional.ofNullable(reqDto)
                 .map(req -> {
                     Optional.ofNullable(req.getName()).ifPresent(reqName -> this.name = reqName);
                     Optional.ofNullable(req.getContents()).ifPresent(reqContents -> this.contents = reqContents);

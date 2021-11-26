@@ -16,9 +16,9 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
-@ApiModel(value = "MemoryDto", description = "Memory API Dto")
+@ApiModel(value = "MemoryRspDto", description = "Memory API Response Dto")
 @Getter
-public class MemoryDto {
+public class MemoryRspDto {
     @ApiModelProperty(value = "일정 번호", example = "5")
     private final Long memoryId;
 
@@ -59,8 +59,11 @@ public class MemoryDto {
     @ApiModelProperty(value = "일정 수정날짜(yyyy-MM-dd HH:mm:ss)", notes = "yyyy-MM-dd HH:mm:ss")
     private final String modDate;
 
+    @ApiModelProperty(value = "사용 여부", example = "true")
+    private final boolean used;
+
     @ApiModelProperty(value = "일정 공유방 목록", notes = "일정이 공유된 방 목록")
-    private List<MemoryDto.ShareRoom> shareRooms;
+    private List<MemoryRspDto.ShareRoom> shareRooms;
 
     @ApiModelProperty(value = "일정이 추가된 방", notes = "일정이 추가된 방 번호를 전달한다. 개인 일정인 경우 개인방 번호가 전달된다.")
     private Long addedRoomId;
@@ -68,7 +71,7 @@ public class MemoryDto {
     @ApiModelProperty(value = "참석 여부 목록(ABSENCE: 불참, ATTEND: 참석)", notes = "일정을 조회한 방 인원에 대한 참석 여부 목록을 전달한다. 참석 여부를 설정하지 않은 경우 미정으로 취급한다.")
     private List<UserAttendance> userAttendances;
 
-    public MemoryDto(Memory memory) {
+    public MemoryRspDto(Memory memory) {
         memoryId = memory.getId();
         writerId = memory.getWriter().getId();
         name = memory.getName();
@@ -81,9 +84,10 @@ public class MemoryDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
+        used = memory.isUsed();
     }
 
-    public MemoryDto(UserMemory userMemory) {
+    public MemoryRspDto(UserMemory userMemory) {
         memoryId = userMemory.getMemory().getId();
         writerId = userMemory.getMemory().getWriter().getId();
         name = userMemory.getMemory().getName();
@@ -96,10 +100,11 @@ public class MemoryDto {
         secondAlarm = userMemory.getMemory().getSecondAlarm();
         regDate = userMemory.getMemory().formatRegDate();
         modDate = userMemory.getMemory().formatModDate();
+        used = userMemory.getMemory().isUsed();
         userAttendances = Stream.of(new UserAttendance(userMemory)).collect(toList());
     }
 
-    public MemoryDto(Long privateRoomId, Memory memory) {
+    public MemoryRspDto(Long privateRoomId, Memory memory) {
         memoryId = memory.getId();
         writerId = memory.getWriter().getId();
         name = memory.getName();
@@ -112,13 +117,14 @@ public class MemoryDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
+        used = memory.isUsed();
         shareRooms = memory.getRooms().stream()
                 .filter(room -> room.isUsed() && !room.getId().equals(privateRoomId))
-                .map(MemoryDto.ShareRoom::new)
+                .map(MemoryRspDto.ShareRoom::new)
                 .collect(Collectors.toList());
     }
 
-    public MemoryDto(Memory memory, Long addedRoomId) {
+    public MemoryRspDto(Memory memory, Long addedRoomId) {
         memoryId = memory.getId();
         writerId = memory.getWriter().getId();
         name = memory.getName();
@@ -131,11 +137,12 @@ public class MemoryDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
+        used = memory.isUsed();
 
         this.addedRoomId = addedRoomId;
     }
 
-    public MemoryDto(Memory memory, List<UserMemory> userMemories) {
+    public MemoryRspDto(Memory memory, List<UserMemory> userMemories) {
         memoryId = memory.getId();
         writerId = memory.getWriter().getId();
         name = memory.getName();
@@ -148,8 +155,9 @@ public class MemoryDto {
         secondAlarm = memory.getSecondAlarm();
         regDate = memory.formatRegDate();
         modDate = memory.formatModDate();
+        used = memory.isUsed();
 
-        this.userAttendances = userMemories.stream().map(MemoryDto.UserAttendance::new).collect(toList());
+        this.userAttendances = userMemories.stream().map(MemoryRspDto.UserAttendance::new).collect(toList());
     }
 
     /**

@@ -4,7 +4,7 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.user.exception.UserNotFoundException;
 import com.kds.ourmemory.controller.v1.friend.dto.FriendReqDto;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
 import com.kds.ourmemory.controller.v1.room.dto.InsertRoomDto;
 import com.kds.ourmemory.controller.v1.room.dto.RoomRspDto;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
@@ -285,36 +285,33 @@ class UserServiceTest {
 
         /* 0-2. Create private memories */
         // 1) not in room memory
-        var insertPrivateMemoryReq = new InsertMemoryDto.Request(
-                insertUserRsp.getUserId(),
-                null,
-                "개인 일정",
-                "방 밖에서 생성",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertPrivateMemoryReq = MemoryReqDto.builder()
+                .userId(insertUserRsp.getUserId())
+                .name("개인 일정")
+                .contents("방 밖에서 생성")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
         var insertPrivateMemoryRsp = memoryService.insert(insertPrivateMemoryReq);
         assertThat(insertPrivateMemoryRsp).isNotNull();
         assertThat(insertPrivateMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
         assertThat(insertPrivateMemoryRsp.getAddedRoomId()).isEqualTo(insertUserRsp.getPrivateRoomId());
 
         // 2) private room memory
-        var insertPrivateRoomMemoryReq = new InsertMemoryDto.Request(
-                insertUserRsp.getUserId(),
-                insertUserRsp.getPrivateRoomId(),
-                "개인 일정",
-                "방 안에서 생성",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertPrivateRoomMemoryReq = MemoryReqDto.builder()
+                .userId(insertUserRsp.getUserId())
+                .roomId(insertUserRsp.getPrivateRoomId())
+                .name("개인 일정")
+                .contents("방 안에서 생성")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
         var insertPrivateRoomMemoryRsp = memoryService.insert(insertPrivateRoomMemoryReq);
         assertThat(insertPrivateRoomMemoryRsp).isNotNull();
         assertThat(insertPrivateRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
@@ -401,18 +398,17 @@ class UserServiceTest {
         assertThat(insertOwnerRoomRsp.getMembers().size()).isEqualTo(2);
 
         /* 0-3. Create owner room memory */
-        var insertOwnerRoomMemoryReq = new InsertMemoryDto.Request(
-                insertUserRsp.getUserId(),
-                insertOwnerRoomRsp.getRoomId(),
-                "방장 방의 공유 일정",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertOwnerRoomMemoryReq = MemoryReqDto.builder()
+                .userId(insertUserRsp.getUserId())
+                .roomId(insertOwnerRoomRsp.getRoomId())
+                .name("방장 방의 공유 일정")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
         var insertOwnerRoomMemoryRsp = memoryService.insert(insertOwnerRoomMemoryReq);
         assertThat(insertOwnerRoomMemoryRsp).isNotNull();
         assertThat(insertOwnerRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());
@@ -510,18 +506,17 @@ class UserServiceTest {
         assertThat(insertParticipantRoomRsp.getMembers().size()).isEqualTo(3);
 
         /* 0-3. Create participant room memory */
-        var insertParticipantRoomMemoryReq = new InsertMemoryDto.Request(
-                insertUserRsp.getUserId(),
-                insertParticipantRoomRsp.getRoomId(),
-                "참여방 일정",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat), // 첫 번째 알림
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertParticipantRoomMemoryReq = MemoryReqDto.builder()
+                .userId(insertUserRsp.getUserId())
+                .roomId(insertParticipantRoomRsp.getRoomId())
+                .name("참여방 일정")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .firstAlarm(LocalDateTime.parse("2022-03-25 17:00", alertTimeFormat)) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
         var insertParticipantRoomMemoryRsp = memoryService.insert(insertParticipantRoomMemoryReq);
         assertThat(insertParticipantRoomMemoryRsp).isNotNull();
         assertThat(insertParticipantRoomMemoryRsp.getWriterId()).isEqualTo(insertUserRsp.getUserId());

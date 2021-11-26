@@ -4,8 +4,8 @@ import com.kds.ourmemory.advice.v1.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomAlreadyOwnerException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.advice.v1.room.exception.RoomNotFoundMemberException;
-import com.kds.ourmemory.controller.v1.memory.dto.InsertMemoryDto;
-import com.kds.ourmemory.controller.v1.memory.dto.ShareMemoryDto;
+import com.kds.ourmemory.controller.v1.memory.dto.MemoryReqDto;
+import com.kds.ourmemory.controller.v1.memory.dto.ShareType;
 import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.controller.v1.user.dto.InsertUserDto;
 import com.kds.ourmemory.controller.v1.user.dto.UserDto;
@@ -40,7 +40,7 @@ class RoomServiceTest {
 
     /**
      * Assert time format -> delete sec
-     * 
+     * <p>
      * This is because time difference occurs after room creation due to relation table work.
      */
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
@@ -49,7 +49,7 @@ class RoomServiceTest {
     private UserDto insertOwnerRsp;
 
     private UserDto insertMember1Rsp;
-    
+
     private UserDto insertMember2Rsp;
 
     private List<Long> roomMembers;
@@ -119,18 +119,16 @@ class RoomServiceTest {
         assertThat(insertShareRoomRsp.getMembers().size()).isEqualTo(2);
 
         /* 2. Insert memory */
-        var insertMemoryReq = new InsertMemoryDto.Request(
-                insertOwnerRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReq = MemoryReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
@@ -140,32 +138,38 @@ class RoomServiceTest {
         /* 3. Share Memory */
         var shareMemoryRsp = memoryService.shareMemory(
                 insertMemoryRsp.getMemoryId(), insertOwnerRsp.getUserId(),
-                new ShareMemoryDto.Request(
-                        ShareMemoryDto.ShareType.ROOMS,
-                        Stream.of(insertShareRoomRsp.getRoomId()).collect(toList())
-                )
+                MemoryReqDto.builder()
+                        .shareType(ShareType.ROOMS)
+                        .shareIds(Stream.of(insertShareRoomRsp.getRoomId()).collect(toList()))
+                        .build()
         );
         assertThat(shareMemoryRsp).isNotNull();
 
         /* 4. Set attendance */
         var setAttendanceOwnerRsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(),
-                insertOwnerRsp.getUserId(),
-                AttendanceStatus.ATTEND
+                MemoryReqDto.builder()
+                        .userId(insertOwnerRsp.getUserId())
+                        .attendanceStatus(AttendanceStatus.ATTEND)
+                        .build()
         );
         assertThat(setAttendanceOwnerRsp).isNotNull();
 
         var setAttendanceMember1Rsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(),
-                insertMember1Rsp.getUserId(),
-                AttendanceStatus.ABSENCE
+                MemoryReqDto.builder()
+                        .userId(insertMember1Rsp.getUserId())
+                        .attendanceStatus(AttendanceStatus.ABSENCE)
+                        .build()
         );
         assertThat(setAttendanceMember1Rsp).isNotNull();
 
         var setAttendanceMember2Rsp = memoryService.setAttendanceStatus(
                 insertMemoryRsp.getMemoryId(),
-                insertMember2Rsp.getUserId(),
-                AttendanceStatus.ATTEND
+                MemoryReqDto.builder()
+                        .userId(insertMember2Rsp.getUserId())
+                        .attendanceStatus(AttendanceStatus.ATTEND)
+                        .build()
         );
         assertThat(setAttendanceMember2Rsp).isNotNull();
 
@@ -424,52 +428,46 @@ class RoomServiceTest {
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
 
         /* 2. Insert Memories */
-        var insertMemoryReqOwner = new InsertMemoryDto.Request(
-                insertOwnerRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReqOwner = MemoryReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRspOwner = memoryService.insert(insertMemoryReqOwner);
         assertThat(insertMemoryRspOwner.getWriterId()).isEqualTo(insertOwnerRsp.getUserId());
         assertThat(insertMemoryRspOwner.getAddedRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
 
-        var insertMemoryReqMember1 = new InsertMemoryDto.Request(
-                insertMember1Rsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReqMember1 = MemoryReqDto.builder()
+                .userId(insertMember1Rsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRspMember1 = memoryService.insert(insertMemoryReqMember1);
         assertThat(insertMemoryRspMember1.getWriterId()).isEqualTo(insertMember1Rsp.getUserId());
         assertThat(insertMemoryRspMember1.getAddedRoomId()).isEqualTo(insertMemoryReqMember1.getRoomId());
 
-        var insertMemoryReqMember2 = new InsertMemoryDto.Request(
-                insertMember2Rsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,   // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReqMember2 = MemoryReqDto.builder()
+                .userId(insertMember2Rsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRspMember2 = memoryService.insert(insertMemoryReqMember2);
         assertThat(insertMemoryRspMember2.getWriterId()).isEqualTo(insertMember2Rsp.getUserId());
@@ -561,18 +559,16 @@ class RoomServiceTest {
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(3);
 
         /* 2. Insert Memories */
-        var insertMemoryReqOwner = new InsertMemoryDto.Request(
-                insertOwnerRsp.getUserId(),
-                insertRoomRsp.getRoomId(),
-                "Test Memory",
-                "Test Contents",
-                "Test Place",
-                LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat), // 시작 시간
-                LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat), // 종료 시간
-                null,
-                null,       // 두 번째 알림
-                "#FFFFFF"  // 배경색
-        );
+        var insertMemoryReqOwner = MemoryReqDto.builder()
+                .userId(insertOwnerRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse("2022-03-26 17:00", alertTimeFormat)) // 시작시간
+                .endDate(LocalDateTime.parse("2022-03-26 18:00", alertTimeFormat)) // 종료시간
+                .bgColor("#FFFFFF")
+                .build();
 
         var insertMemoryRspOwner = memoryService.insert(insertMemoryReqOwner);
         assertThat(insertMemoryRspOwner).isNotNull();
@@ -600,7 +596,6 @@ class RoomServiceTest {
                 MemoryNotFoundException.class, () -> memoryService.find(memoryOwner, roomIdOwner)
         );
     }
-
 
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional
