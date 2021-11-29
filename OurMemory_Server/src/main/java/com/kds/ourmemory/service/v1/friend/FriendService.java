@@ -138,14 +138,14 @@ public class FriendService {
     }
 
     @Transactional
-    public FriendRspDto cancelFriend(FriendReqDto reqDto) {
+    public FriendRspDto cancelFriend(long userId, long friendUserId) {
         // Check my side
-        findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
+        findFriend(userId, friendUserId)
                 .map(friend -> {
                     FriendStatus status = friend.getStatus();
                     if (status.equals(FriendStatus.FRIEND) || status.equals(FriendStatus.BLOCK)) {
                         throw new FriendInternalServerException(
-                                String.format(USER_ALREADY_FRIEND, reqDto.getFriendUserId())
+                                String.format(USER_ALREADY_FRIEND, friendUserId)
                         );
                     } else if (!FriendStatus.WAIT.equals(status)) {
                         throw new FriendStatusException(
@@ -159,12 +159,12 @@ public class FriendService {
                 })
                 .orElseThrow(
                         () -> new FriendNotFoundException(
-                                String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getUserId(), reqDto.getFriendUserId())
+                                String.format(NOT_FOUND_FRIEND_MESSAGE, userId, friendUserId)
                         )
                 );
 
         // Check friend side And delete
-        findFriend(reqDto.getFriendUserId(), reqDto.getUserId())
+        findFriend(friendUserId, userId)
                 .map(friend -> {
                     FriendStatus status = friend.getStatus();
                     switch (status) {
@@ -184,7 +184,7 @@ public class FriendService {
                         case BLOCK -> {
                         }
                         case FRIEND -> throw new FriendInternalServerException(
-                                String.format(USER_ALREADY_FRIEND, reqDto.getUserId())
+                                String.format(USER_ALREADY_FRIEND, userId)
                         );
                         default -> throw new FriendStatusException(
                                 String.format(STATUS_ERROR_MESSAGE, FriendStatus.REQUESTED_BY, status)
@@ -195,7 +195,7 @@ public class FriendService {
                 })
                 .orElseThrow(
                         () -> new FriendNotFoundException(
-                                String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getFriendUserId(), reqDto.getUserId())
+                                String.format(NOT_FOUND_FRIEND_MESSAGE, friendUserId, userId)
                         )
                 );
 
@@ -307,12 +307,12 @@ public class FriendService {
                 );
     }
 
-    public FriendRspDto deleteFriend(FriendReqDto reqDto) {
-        findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
+    public FriendRspDto deleteFriend(long userId, long friendUserId) {
+        findFriend(userId, friendUserId)
                 .map(friend -> {
                     if (friend.getStatus().equals(FriendStatus.WAIT) || friend.getStatus().equals(FriendStatus.REQUESTED_BY))
                         throw new FriendInternalServerException(
-                                String.format("User '%d' is not friend. cancel reqDto plz.", reqDto.getFriendUserId())
+                                String.format("User '%d' is not friend. cancel reqDto plz.", friendUserId)
                         );
 
                     // Delete friend only my side. The other side does not delete.
@@ -320,7 +320,7 @@ public class FriendService {
                     return true;
                 })
                 .orElseThrow(() -> new FriendNotFoundFriendException(
-                                String.format(NOT_FOUND_FRIEND_MESSAGE, reqDto.getUserId(), reqDto.getFriendUserId())
+                                String.format(NOT_FOUND_FRIEND_MESSAGE, userId, friendUserId)
                         )
                 );
 
