@@ -63,10 +63,6 @@ public class MemoryReqDto {
     @ApiModelProperty(value = "[일정 공유용] 대상 목록(공유 종류(ShareType) 에 맞춰 일정을 공유한다.)")
     private List<Long> shareIds;
 
-    /* Used only deleteMemory */
-    @ApiModelProperty(value = "[일정 삭제용] 일정을 삭제할 방 번호(일정이 여러방에 공유되기 때문에 삭제할 방 번호가 필요함.)")
-    private long targetRoomId;
-
     public Memory toEntity(User writer) {
         return Memory.builder()
                 .writer(writer)

@@ -53,7 +53,7 @@ public class RoomController {
     @PutMapping("/{roomId}")
     public ApiResult<RoomRspDto> update(
         @PathVariable long roomId,
-        @RequestParam RoomReqDto reqDto
+        @RequestBody RoomReqDto reqDto
     ) {
         return ok(roomService.update(roomId, reqDto));
     }
