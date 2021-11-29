@@ -5,6 +5,7 @@ import com.kds.ourmemory.controller.v1.room.dto.*;
 import com.kds.ourmemory.service.v1.room.RoomService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class RoomController {
     }
 
     @ApiOperation(value = "방 단일 조회")
-    @GetMapping(value = "/{roomId}")
+    @GetMapping("/{roomId}")
     public ApiResult<RoomRspDto> find(@PathVariable long roomId) {
         return ok(roomService.find(roomId));
     }
@@ -61,11 +62,11 @@ public class RoomController {
     @ApiOperation(value = "방 삭제", notes = """
             1. 개인방 -> 일정 삭제 후 방 삭제, 2. 공유방 -> 방만 삭제\s
             성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
-    @DeleteMapping(value = "/{roomId}")
+    @DeleteMapping("/{roomId}/users/{userId}")
     public ApiResult<RoomRspDto> delete(
             @PathVariable long roomId,
-            @RequestBody RoomReqDto reqDto
+            @ApiParam(value = "방 삭제할 사용자 번호") @PathVariable long userId
     ) {
-        return ok(roomService.delete(roomId, reqDto));
+        return ok(roomService.delete(roomId, userId));
     }
 }

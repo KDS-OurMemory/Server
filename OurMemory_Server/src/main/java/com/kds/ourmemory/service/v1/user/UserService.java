@@ -189,12 +189,7 @@ public class UserService {
 
                         // Related rooms - 3)
                         if (room.getId().longValue() == user.getPrivateRoomId()) {
-                            roomService.delete(
-                                    user.getPrivateRoomId(),
-                                    RoomReqDto.builder()
-                                            .userId(user.getId())
-                                            .build()
-                            );
+                            roomService.delete(user.getPrivateRoomId(), user.getId());
                         }
                     });
                     user.deleteRooms(user.getRooms());

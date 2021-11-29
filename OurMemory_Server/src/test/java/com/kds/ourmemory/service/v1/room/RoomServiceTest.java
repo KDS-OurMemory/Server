@@ -484,10 +484,6 @@ class RoomServiceTest {
                 .member(roomMembers)
                 .build();
 
-        var deleteRoomReq = RoomReqDto.builder()
-                .userId(insertOwnerRsp.getUserId())
-                .build();
-
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
         assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
@@ -541,7 +537,7 @@ class RoomServiceTest {
         assertThat(insertMemoryRspMember2.getAddedRoomId()).isEqualTo(insertMemoryReqMember2.getRoomId());
 
         /* 3. Delete share room */
-        var deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), deleteRoomReq);
+        var deleteRsp = roomService.delete(insertRoomRsp.getRoomId(), insertOwnerRsp.getUserId());
         assertNull(deleteRsp);
 
         /* 4. Find room and memories after delete */
@@ -619,9 +615,6 @@ class RoomServiceTest {
                 .opened(false)
                 .member(roomMembers)
                 .build();
-        var deleteRoomReq = RoomReqDto.builder()
-                .userId(insertOwnerRsp.getUserId())
-                .build();
 
         /* 1. Insert */
         var insertRoomRsp = roomService.insert(insertRoomReq);
@@ -648,7 +641,7 @@ class RoomServiceTest {
         assertThat(insertMemoryRspOwner.getAddedRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
 
         /* 3. Delete room */
-        var deleteRsp = roomService.delete(insertOwnerRsp.getPrivateRoomId(), deleteRoomReq);
+        var deleteRsp = roomService.delete(insertOwnerRsp.getPrivateRoomId(), insertOwnerRsp.getUserId());
         assertNull(deleteRsp);
 
         /* 4. Find room and memories after delete */

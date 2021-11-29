@@ -198,11 +198,11 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomRspDto delete(long roomId, RoomReqDto reqDto) {
-        var privateRoomId = findUser(reqDto.getUserId())
+    public RoomRspDto delete(long roomId, long userId) {
+        var privateRoomId = findUser(userId)
                 .map(User::getPrivateRoomId)
                 .orElseThrow(() -> new UserNotFoundException(
-                        String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId())
+                        String.format(NOT_FOUND_MESSAGE, USER, userId)
                 ));
 
         findRoom(roomId)
