@@ -82,10 +82,11 @@ public class MemoryController {
             1. 공유방에서 삭제 -> 일정-방 관계 삭제\s
             2. 개인방에서 삭제 -> 일정 삭제 처리\s
             성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
-    @DeleteMapping("/{memoryId}")
+    @DeleteMapping("/{memoryId}/users/{userId}/rooms/{roomId}")
     public ApiResult<MemoryRspDto> delete(
-            @PathVariable long memoryId,
-            @RequestBody MemoryReqDto reqDto) {
-        return ok(memoryService.delete(memoryId, reqDto));
+            @ApiParam(value = "일정 번호") @PathVariable long memoryId,
+            @ApiParam(value = "일정을 삭제하려는 사용자 번호(개인방에서 삭제하는지 확인하기 위해 필요함.)") @PathVariable long userId,
+            @ApiParam(value = "일정이 삭제될 방 번호") @PathVariable long roomId) {
+        return ok(memoryService.delete(memoryId, userId, roomId));
     }
 }

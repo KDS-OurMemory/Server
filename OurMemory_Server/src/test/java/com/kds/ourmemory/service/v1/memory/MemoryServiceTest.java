@@ -557,11 +557,6 @@ class MemoryServiceTest {
                 .bgColor("#FFFFFF")
                 .build();
 
-        var deleteMemoryReq = MemoryReqDto.builder()
-                .userId(insertWriterRsp.getUserId())
-                .targetRoomId(insertRoomRsp.getRoomId())
-                .build();
-
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
@@ -582,7 +577,9 @@ class MemoryServiceTest {
         assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
 
         /* 3. Delete memory from share room */
-        var deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
+        var deleteRsp = memoryService.delete(
+                insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), insertRoomRsp.getRoomId()
+        );
         assertNull(deleteRsp);
 
         /* 4. Find memory after delete */
@@ -620,11 +617,6 @@ class MemoryServiceTest {
                 .bgColor("#FFFFFF")
                 .build();
 
-        var deleteMemoryReq = MemoryReqDto.builder()
-                .userId(insertWriterRsp.getUserId())
-                .targetRoomId(insertWriterRsp.getPrivateRoomId())
-                .build();
-
         /* 1. Make memory */
         var insertMemoryRsp = memoryService.insert(insertMemoryReq);
         assertThat(insertMemoryRsp).isNotNull();
@@ -645,7 +637,9 @@ class MemoryServiceTest {
         assertThat(findMemoriesRsp.getShareRooms().size()).isEqualTo(2);
 
         /* 3. Delete memory from private room */
-        var deleteRsp = memoryService.delete(insertMemoryRsp.getMemoryId(), deleteMemoryReq);
+        var deleteRsp = memoryService.delete(
+                insertMemoryRsp.getMemoryId(), insertWriterRsp.getUserId(), insertWriterRsp.getPrivateRoomId()
+        );
         assertNull(deleteRsp);
 
         /* 4. Find memory after delete */

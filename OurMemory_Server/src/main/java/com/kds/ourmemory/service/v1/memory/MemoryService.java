@@ -313,21 +313,21 @@ public class MemoryService {
     }
 
     @Transactional
-    public MemoryRspDto delete(long memoryId, MemoryReqDto reqDto) {
+    public MemoryRspDto delete(long memoryId, long userId, long roomId) {
         var memory = findMemory(memoryId)
                 .orElseThrow(
                         () -> new MemoryNotFoundException(String.format(NOT_FOUND_MESSAGE, MEMORY, memoryId))
                 );
 
-        findUser(reqDto.getUserId())
+        findUser(userId)
                 .map(user -> {
                     // 1. Delete memory from private room -> delete memory
-                    if (user.getPrivateRoomId() == reqDto.getTargetRoomId()) {
+                    if (user.getPrivateRoomId().equals(roomId)) {
                         memory.deleteMemory();
                     }
                     // 2. Delete memory from share room -> delete room-memory relation
                     else {
-                        findRoom(reqDto.getTargetRoomId())
+                        findRoom(roomId)
                                 .ifPresent(room -> {
                                     room.deleteMemory(memory);
                                     memory.deleteRoom(room);
@@ -337,7 +337,7 @@ public class MemoryService {
                     return true;
                 })
                 .orElseThrow(
-                        () -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, reqDto.getUserId()))
+                        () -> new UserNotFoundException(String.format(NOT_FOUND_MESSAGE, USER, userId))
                 );
 
         // delete response is null -> client already have data, so don't need response data.
