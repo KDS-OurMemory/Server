@@ -10,7 +10,7 @@
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/server.log</file>
-        <filter class="com.kds.ourmemory.config.LogbackFilter" />
+        <filter class="com.kds.ourmemory.v1.config.LogbackFilter" />
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>logs/server-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>

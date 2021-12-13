@@ -1,0 +1,41 @@
+package com.kds.ourmemory.v1.controller.memory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kds.ourmemory.v1.controller.ApiResult;
+import com.kds.ourmemory.v1.controller.memory.dto.MemoryRspDto;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.transaction.Transactional;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@Slf4j
+@SpringBootTest
+class MemoryControllerTest {
+
+    private final MemoryController memoryController;
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    private MemoryControllerTest(MemoryController memoryController) {
+        this.memoryController = memoryController;
+    }
+    
+    @Transactional
+    @Test
+    void findMemories() throws JsonProcessingException{
+        ApiResult<List<MemoryRspDto>> responseDto = memoryController.findMemories(99L, null);
+        
+        assertThat(responseDto).isNotNull();
+        assertThat(responseDto.getResultCode()).isEqualTo("00");
+        assertThat(responseDto.getResponse()).isNotNull();
+
+        log.debug(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseDto));
+    }
+    
+}

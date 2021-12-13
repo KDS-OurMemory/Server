@@ -1,0 +1,136 @@
+user:
+  profileUploadError:
+    code: "U001"
+    msg: "프로필 이미지 업로드에 실패했습니다."
+  badRequest:
+    code: "U400"
+    msg: "사용자 기능과 관련된 요청 변수 값 {0}이 잘못되었습니다. API 요청 프로토콜을 확인하시기 바랍니다."
+  notFound:
+    code: "U404"
+    msg: "사용자 번호 {0} 에 맞는 사용자를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
+  internalServer:
+    code: "U500"
+    msg: "회원에 대한 작업 중 알 수 없는 오류가 발생하였습니다."
+
+friend:
+  badRequest:
+    code: "F400"
+    msg: "친구 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+    notFound:
+      code: "F404"
+      msg: "사용자 번호 {0}, 친구 사용자 번호 {1} 에 맞는 친구를 찾을 수 없습니다."
+  internalServer:
+    code: "F500"
+    msg: "친구에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
+  notFoundUser:
+    code: "F001"
+    msg: "사용자 번호 {0} 에 맞는 사용자를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
+  notFoundFriend:
+    code: "F002"
+    msg: "사용자 번호 {0} 에 맞는 친구 사용자를 찾을 수 없습니다. 친구의 사용자 번호를 확인해주시기 바랍니다."
+  alreadyAccept:
+    code: "F003"
+    msg: "이미 친구 요청을 수락한 사람입니다. 친구 추가를 진행해주시기 바랍니다."
+  blockedFromFriend:
+    code: "F004"
+    msg: "상대방이 차단했기 때문에 친구 추가를 진행할 수 없습니다."
+  notRequested:
+    code: "F005"
+    msg: "친구 요청없이 친구 추가할 수 없습니다. 친구 요청 먼저 진행해주시기 바랍니다."
+  statusError:
+    code: "F006"
+    msg: "친구 상태값은 {0} 가 아니어야 합니다. 현재 상태값은 {1} 입니다."
+  alreadyFriend:
+    code: "F007"
+    msg: "이미 친구인 사용자는 친구 요청취소할 수 없습니다. 친구 삭제를 진행해주시기 바랍니다."
+
+memory:
+  badRequest:
+    code: "M400"
+    msg: "일정 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+  notFound:
+    code: "M404"
+    msg: "일정 번호 {0} 에 맞는 일정을 찾을 수 없습니다."
+  internalServer:
+    code: "F500"
+    msg: "일정에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
+  notFoundWriter:
+    code: "M001"
+    msg: "사용자 번호 {0} 에 맞는 일정 생성자를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
+  notFoundShareMember:
+    code: "M002"
+    msg: "일정을 공유할 사용자를 찾을 수 없습니다. 사용자의 회원 번호를 확인해주시기 바랍니다."
+  notFoundRoom:
+    code: "M003"
+    msg: "일정을 등록시킬 방을 찾을 수 없습니다. 방 번호를 확인해주시기 바랍니다."
+  notWriter:
+    code: "M004"
+    msg: "일정은 작성자만 수정할 수 있습니다."
+
+room:
+  badRequest:
+    code: "R400"
+    msg: "방 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+  notFound:
+    code: "R404"
+    msg: "입력한 값 {0}에 해당하는 방을 찾을 수 없습니다."
+  internalServer:
+    code: "R500"
+    msg: "방에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
+  notFoundOwner:
+    code: "R001"
+    msg: "사용자 번호 {0} 에 맞는 방 생성자를 찾을 수 없습니다. 생성자의 회원 번호를 확인해주시기 바랍니다."
+  notFoundMember:
+    code: "R002"
+    msg: "사용자 번호 {0} 에 맞는 방 참여자를 찾을 수 없습니다. 참여자의 회원 번호를 확인해주시기 바랍니다."
+  alreadyOwner:
+    code: "R003"
+    msg: "사용자 번호 {0} 에 맞는 사용자는 이미 방장입니다. 양도할 다른 참여자를 선택해주시기 바랍니다."
+
+notice:
+  badRequest:
+    code: "N400"
+    msg: "알림 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+  notFound:
+    code: "N404"
+    msg: "알림 번호 {0} 에 맞는 일정을 찾을 수 없습니다."
+  internalServer:
+    code: "N500"
+    msg: "알림에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
+  notFoundUser:
+    code: "N001"
+    msg: "알림 사용자(번호 {0})를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
+
+todo:
+  badRequest:
+    code: "T400"
+    msg: "TODO 리스트 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+  notFound:
+    code: "T404"
+    msg: "입력한 값 {0} 에 해당하는 TODO 리스트를 찾을 수 없습니다."
+  internalServer:
+    code: "T500"
+    msg: "TODO 리스트에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
+
+relation:
+  userMemory:
+    internalServer:
+      code: "UM500"
+      msg: "사용자-일정 관계테이블 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
+
+common:
+  incorrectResultSize:
+    code: "C001"
+    msg: "DB로부터 조회된 데이터 갯수가 잘못되었습니다."
+  badRequest:
+    code: "C400"
+    msg: "요청 변수 값이 잘못되었습니다. API 요청 프로토콜을 확인하시기 바랍니다."
+  notFound:
+    code: "C404"
+    msg: "URL이 잘못되었습니다."
+  unsupportedMediaType:
+    code: "C415"
+    msg: "지원하지 않는 미디어타입입니다. contentType 을 applicaion/json 으로 설정하고 다시 시도해주십시오."
+  internalServer:
+    code: "C500"
+    msg: "알 수 없는 오류가 발생하였습니다."
