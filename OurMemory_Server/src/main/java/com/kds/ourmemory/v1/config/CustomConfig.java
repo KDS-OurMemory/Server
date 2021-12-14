@@ -10,5 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "custom")
 public class CustomConfig {
+
     private String fcmKey;
+
 }
