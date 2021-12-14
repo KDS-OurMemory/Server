@@ -1,4 +1,4 @@
-package com.kds.ourmemory.v1.config;
+package com.kds.ourmemory.v1.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class S3UploaderTest {
                 "image/jpg",
                 new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
 
-        var uploadUrl = s3Uploader.upload(file, "uploadTestDir");
+        var uploadUrl = s3Uploader.upload(file);
         assertThat(uploadUrl).isNotNull();
 
         var deleteFile = s3Uploader.delete(uploadUrl);

@@ -1,13 +1,13 @@
-package com.kds.ourmemory.v1.config;
+package com.kds.ourmemory.v1.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.kds.ourmemory.v1.advice.user.exception.UserProfileImageUploadException;
+import com.kds.ourmemory.v1.config.S3Config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,14 +27,13 @@ public class S3Uploader {
 
     private final AmazonS3Client amazonS3Client;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;   // S3 버킷 이름
+    private final S3Config s3Config;
 
-    public String upload(MultipartFile multipartFile, String dirName) {
+    public String upload(MultipartFile multipartFile) {
         File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
                 .orElseThrow(() -> new UserProfileImageUploadException("Failed to convert multipartFile to file"));
 
-        return upload(uploadFile, dirName);
+        return upload(uploadFile, s3Config.getProfileImageDir());
     }
 
     public Optional<Boolean> delete(String url) {
@@ -51,7 +50,7 @@ public class S3Uploader {
     }
 
     private void deleteFromS3(String key) {
-        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, key);
+        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(s3Config.getBucket(), key);
         amazonS3Client.deleteObject(deleteObjectRequest);
     }
 
@@ -65,8 +64,8 @@ public class S3Uploader {
 
     // S3로 업로드
     private String putS3(File uploadFile, String fileName) {
-        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+        amazonS3Client.putObject(new PutObjectRequest(s3Config.getBucket(), fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
+        return amazonS3Client.getUrl(s3Config.getBucket(), fileName).toString();
     }
 
     // 로컬에 저장된 이미지 지우기
