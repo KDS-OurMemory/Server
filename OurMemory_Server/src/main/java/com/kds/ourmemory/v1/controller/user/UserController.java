@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "로그인", notes = "sns 종류와 SNS Id 로 사용자 정보 조회 및 리턴")
-    @GetMapping("signIn")
+    @GetMapping
     public ApiResult<UserRspDto> signIn(
             @ApiParam(value = "sns 종류", required = true) @RequestParam int snsType,
             @ApiParam(value = "snsId", required = true) @RequestParam String snsId
