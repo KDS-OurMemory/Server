@@ -3,7 +3,7 @@ package com.kds.ourmemory.v1.service.user;
 import com.kds.ourmemory.v1.advice.user.exception.UserInternalServerException;
 import com.kds.ourmemory.v1.advice.user.exception.UserNotFoundException;
 import com.kds.ourmemory.v1.advice.user.exception.UserProfileImageUploadException;
-import com.kds.ourmemory.v1.config.S3Uploader;
+import com.kds.ourmemory.v1.util.S3Uploader;
 import com.kds.ourmemory.v1.controller.user.dto.UserReqDto;
 import com.kds.ourmemory.v1.controller.user.dto.UserRspDto;
 import com.kds.ourmemory.v1.entity.friend.Friend;
@@ -36,10 +36,10 @@ public class UserService {
     // When searching for a user, add to pass the friend status
     private final FriendRepository friendRepository;
 
-    private static final String PROFILE_IMAGE_DIR = "profileImages";
-
     @Transactional
     public UserRspDto signUp(UserReqDto reqDto) {
+        checkNotNull(reqDto, "가입할 사용자 정보가 입력되지 않았습니다.");
+
         return insertUser(reqDto.toEntity())
                 .map(user -> {
                     var privateRoomId = roomService.insertPrivateRoom(user.getId());
@@ -77,9 +77,9 @@ public class UserService {
     @Transactional
     public UserRspDto update(long userId, UserReqDto reqDto) {
         return findUser(userId).map(user ->
-                user.updateUser(reqDto)
-                        .map(UserRspDto::new)
-                        .orElseThrow(UserInternalServerException::new)
+                        user.updateUser(reqDto)
+                                .map(UserRspDto::new)
+                                .orElseThrow(UserInternalServerException::new)
                 )
                 .orElseThrow(UserNotFoundException::new);
     }
@@ -87,7 +87,7 @@ public class UserService {
     @Transactional
     public UserRspDto uploadProfileImage(long userId, UserReqDto reqDto) {
         // 1. Check image
-        checkNotNull(reqDto.getProfileImage(), "ProfileImage is Null.");
+        checkNotNull(reqDto.getProfileImage(), "업로드할 프로필이미지가 없습니다.");
 
         // 2. Get user
         var user = findUser(userId)
@@ -99,7 +99,7 @@ public class UserService {
         }
 
         // 4. Upload image
-        return Optional.ofNullable(s3Uploader.upload(reqDto.getProfileImage(), PROFILE_IMAGE_DIR))
+        return Optional.ofNullable(s3Uploader.upload(reqDto.getProfileImage()))
                 .map(url -> {
                     user.updateProfileImageUrl(url);
                     return new UserRspDto(user);
@@ -110,11 +110,12 @@ public class UserService {
     @Transactional
     public UserRspDto deleteProfileImage(long userId) {
         return findUser(userId)
-                .map(user -> {
-                    s3Uploader.delete(user.getProfileImageUrl());
-                    user.updateProfileImageUrl(null);
-                    return new UserRspDto(user);
-                })
+                .map(user ->
+                    s3Uploader.delete(user.getProfileImageUrl())
+                            .map(result -> user.updateProfileImageUrl(null))
+                            .map(UserRspDto::new)
+                            .orElseThrow(UserProfileImageUploadException::new)
+                )
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
@@ -136,12 +137,14 @@ public class UserService {
     @Transactional
     public UserRspDto delete(long userId) {
         findUser(userId)
+                // 1. Delete related friends
                 .map(user -> {
                     findFriendsByUserOrFriendUser(user, user)
                             .ifPresent(friends -> friends.forEach(this::deleteFriend));
 
                     return user;
                 })
+                // 2. Delete related room
                 .map(user -> {
                     user.getRooms().forEach(room -> {
                         var members = room.getUsers();
@@ -153,20 +156,22 @@ public class UserService {
                                 transferOwner(room.getId(), owner.getId(), members);
                             }
 
-                            // Related rooms - 1) 2)
+                            // Related rooms - 1) owner room, 2) participant room
                             room.deleteUser(user);
                         }
 
-                        // Related rooms - 3)
+                        // Related rooms - 3) private room
                         if (room.getId().longValue() == user.getPrivateRoomId()) {
                             roomService.delete(user.getPrivateRoomId(), user.getId());
                         }
                     });
                     user.deleteRooms(user.getRooms());
 
-                    // Delete the user after all job.
+                    return user;
+                })
+                // Delete user after all job executed.
+                .map(user -> {
                     user.deleteUser();
-
                     return true;
                 })
                 .orElseThrow(() -> new UserNotFoundException(userId));

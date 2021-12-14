@@ -64,10 +64,9 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(1)
-    @DisplayName("회원가입")
+    @DisplayName("회원가입 | 성공")
     @Transactional
-    void signUp() {
+    void signUpSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
@@ -85,13 +84,26 @@ class UserServiceTest {
         var insertRsp = userService.signUp(insertReq);
         assertThat(insertRsp).isNotNull();
         assertThat(insertRsp.getUserId()).isNotNull();
+        assertThat(insertRsp.getName()).isEqualTo(insertReq.getName());
+        assertThat(insertRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
+        assertThat(insertRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
+        assertThat(insertRsp.isPush()).isEqualTo(insertReq.getPush());
     }
 
     @Test
-    @Order(2)
-    @DisplayName("로그인")
+    @DisplayName("회원가입 | 실패 | 요청 Dto 없음.")
     @Transactional
-    void signIn() {
+    void signUpFailToRequestNull() {
+        /* 1. Insert */
+        assertThrows(
+                NullPointerException.class, () -> userService.signUp(null)
+        );
+    }
+
+    @Test
+    @DisplayName("로그인 | 성공")
+    @Transactional
+    void signInSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
@@ -106,26 +118,85 @@ class UserServiceTest {
                 .build();
 
         /* 1. Insert */
-        var insertRsp = userService.signUp(insertReq);
-        assertThat(insertRsp).isNotNull();
-        assertThat(insertRsp.getUserId()).isNotNull();
+        var signUpRsp = userService.signUp(insertReq);
+        assertThat(signUpRsp).isNotNull();
+        assertThat(signUpRsp.getUserId()).isNotNull();
 
         /* 2. Sign in */
         var signInRsp = userService.signIn(insertReq.getSnsType(), insertReq.getSnsId());
         assertThat(signInRsp).isNotNull();
-        assertThat(signInRsp.getUserId()).isEqualTo(insertRsp.getUserId());
+        assertThat(signInRsp.getUserId()).isEqualTo(signUpRsp.getUserId());
         assertThat(signInRsp.getName()).isEqualTo(insertReq.getName());
         assertThat(signInRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
         assertThat(signInRsp.getBirthday()).isEqualTo(insertReq.getBirthday());
         assertTrue(signInRsp.isPush());
-        assertThat(signInRsp.getPrivateRoomId()).isEqualTo(insertRsp.getPrivateRoomId());
+        assertThat(signInRsp.getPrivateRoomId()).isEqualTo(signUpRsp.getPrivateRoomId());
     }
 
     @Test
-    @Order(3)
-    @DisplayName("단일조회")
+    @DisplayName("로그인 | 실패 | snsType 다름")
     @Transactional
-    void find() {
+    void signInFailedToWrongSnsType() {
+        /* 0. Create Request */
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+
+        /* 1. Insert */
+        var signUpRsp = userService.signUp(insertReq);
+        assertThat(signUpRsp).isNotNull();
+        assertThat(signUpRsp.getUserId()).isNotNull();
+
+        /* 2. Sign in */
+        var wrongSnsType = (insertReq.getSnsType() + 1) % 3;
+        var snsId = insertReq.getSnsId();
+        assertThrows(
+                UserNotFoundException.class, () -> userService.signIn(wrongSnsType, snsId)
+        );
+    }
+
+    @Test
+    @DisplayName("로그인 | 실패 | snsId 다름")
+    @Transactional
+    void signInFailedToWrongSnsId() {
+        /* 0. Create Request */
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+
+        /* 1. Insert */
+        var signUpRsp = userService.signUp(insertReq);
+        assertThat(signUpRsp).isNotNull();
+        assertThat(signUpRsp.getUserId()).isNotNull();
+
+        /* 2. Sign in */
+        var snsType = insertReq.getSnsType();
+        var wrongSnsId = insertReq.getSnsId() + "wrong!";
+        assertThrows(
+                UserNotFoundException.class, () -> userService.signIn(snsType, wrongSnsId)
+        );
+    }
+
+    @Test
+    @DisplayName("내 정보 조회 | 성공")
+    @Transactional
+    void findSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
@@ -158,10 +229,38 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(4)
-    @DisplayName("토큰변경")
+    @DisplayName("내 정보 조회 | 실패 | 사용자번호 다름")
     @Transactional
-    void patchToken() {
+    void findFailToWrongUserId() {
+        /* 0. Create Request */
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+
+        /* 2. Find */
+        var wrongUserId = insertRsp.getUserId() + 1;
+        assertThrows(
+                UserNotFoundException.class, () -> userService.find(wrongUserId)
+        );
+    }
+
+    @Test
+    @DisplayName("토큰변경 | 성공")
+    @Transactional
+    void patchTokenSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
@@ -191,10 +290,74 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(5)
-    @DisplayName("업데이트")
+    @DisplayName("토큰변경 | 실패 | 사용자번호 다름")
     @Transactional
-    void update() {
+    void patchTokenFailToWrongUserId() {
+        /* 0. Create Request */
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var patchReq = UserReqDto.builder()
+                .pushToken("patch token")
+                .build();
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+        assertThat(insertRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
+
+        /* 2. Patch token */
+        var wrongUserId = insertRsp.getUserId() + 1;
+        assertThrows(
+                UserNotFoundException.class, () -> userService.patchToken(wrongUserId, patchReq)
+        );
+    }
+
+    @Test
+    @DisplayName("토큰변경 | 실패 | 토큰값 없음")
+    @Transactional
+    void patchTokenFailToTokenNull() {
+        /* 0. Create Request */
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var wrongPatchReq = UserReqDto.builder()
+                .build();
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+        assertThat(insertRsp.getPushToken()).isEqualTo(insertReq.getPushToken());
+
+        /* 2. Patch token */
+        var userId = insertRsp.getUserId();
+        assertThrows(
+                IllegalArgumentException.class, () -> userService.patchToken(userId, wrongPatchReq)
+        );
+    }
+
+    @Test
+    @DisplayName("업데이트 | 성공")
+    @Transactional
+    void updateSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
@@ -231,10 +394,132 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(7)
-    @DisplayName("사용자 삭제-친구")
+    @DisplayName("업데이트 | 실패 | 사용자번호 다름")
     @Transactional
-    void deleteFriend() {
+    void updateFailToWrongUserId() {
+        /* 0. Create Request */
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var updateReq = UserReqDto.builder()
+                .name("update name")
+                .birthday("0927")
+                .solar(false)
+                .birthdayOpen(false)
+                .push(false)
+                .build();
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+
+        /* 2. Update */
+        var wrongUserId = insertRsp.getUserId() + 1;
+        assertThrows(
+                UserNotFoundException.class, () -> userService.update(wrongUserId, updateReq)
+        );
+    }
+
+    @Test
+    @DisplayName("업데이트 | 실패 | 요청 Dto 없음")
+    @Transactional
+    void updateFailToRequestNull() {
+        /* 0. Create Request */
+        var insertReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("테스트 유저")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+
+        /* 1. Insert */
+        var insertRsp = userService.signUp(insertReq);
+        assertThat(insertRsp).isNotNull();
+        assertThat(insertRsp.getUserId()).isNotNull();
+
+        /* 2. Update */
+        var userId = insertRsp.getUserId();
+        assertThrows(
+                NullPointerException.class, () -> userService.update(userId, null)
+        );
+    }
+
+    @Test
+    @DisplayName("사용자 삭제 | 성공")
+    @Transactional
+    void deleteSuccess() {
+        /* 0. Create users */
+        // 1) user
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+
+        /* 1. Delete user */
+        var wrongUserId = insertUserRsp.getUserId() + 1;
+        assertThrows(
+                UserNotFoundException.class, () -> userService.find(wrongUserId)
+        );
+    }
+
+    @Test
+    @DisplayName("사용자 삭제 | 실패 | 사용자번호 다름")
+    @Transactional
+    void deleteFailToWrongUserId() {
+        /* 0. Create users */
+        // 1) user
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+
+        /* 1. Delete user */
+        var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
+        assertNull(deleteUserRsp);
+
+        /* 2. Check delete user */
+        var userId = insertUserRsp.getUserId();
+        assertThrows(
+                UserNotFoundException.class, () -> userService.find(userId)
+        );
+    }
+
+    @Test
+    @DisplayName("사용자 삭제-친구 처리 | 성공")
+    @Transactional
+    void deleteFriendSuccess() {
         /* 0. Create users */
         // 1) user
         var insertUserReq = UserReqDto.builder()
@@ -315,10 +600,9 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(8)
-    @DisplayName("사용자 삭제-개인방/일정")
+    @DisplayName("사용자 삭제-개인방/일정 처리 | 성공")
     @Transactional
-    void deletePrivateUser() {
+    void deletePrivateUserSuccess() {
         /* 0-1. Create user */
         // 1) user
         var insertUserReq = UserReqDto.builder()
@@ -414,8 +698,7 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(9)
-    @DisplayName("사용자 삭제-방장 방/일정")
+    @DisplayName("사용자 삭제-방장 방/일정-방장 처리 | 성공")
     @Transactional
     void deleteOwnerUser() {
         /* 0. Create users */
@@ -527,10 +810,9 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(10)
-    @DisplayName("사용자 삭제-참여방/일정")
+    @DisplayName("사용자 삭제-참여방/일정 처리 | 성공")
     @Transactional
-    void deleteParticipantUser() {
+    void deleteParticipantUserSuccess() {
         /* 0. Create users */
         // 1) user
         var insertUserReq = UserReqDto.builder()
@@ -654,10 +936,9 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(11)
-    @DisplayName("로그인-사용자 삭제 후 재가입한 사용자")
+    @DisplayName("로그인-사용자 삭제 후 재가입한 사용자 | 성공")
     @Transactional
-    void reSignUpSignIn() {
+    void reSignUpSignInSuccess() {
         /* 0. Create user */
         var insertUserReq = UserReqDto.builder()
                 .snsType(1)
@@ -700,10 +981,203 @@ class UserServiceTest {
     }
 
     @Test
-    @Order(12)
-    @DisplayName("프로필 사진 업로드/삭제")
+    @DisplayName("프로필 사진 업로드 | 성공")
     @Transactional
-    void uploadDeleteProfileImage() throws IOException {
+    void uploadProfileImageSuccess() throws IOException {
+        /* 0. Create Request */
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var file = new MockMultipartFile("image",
+                "CD 명함사이즈.jpg",
+                "image/jpg",
+                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var profileImageReq = UserReqDto.builder().profileImage(file).build();
+
+        /* 1. Insert */
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+        assertThat(insertUserRsp.getUserId()).isNotNull();
+        assertThat(insertUserRsp.getName()).isEqualTo(insertUserReq.getName());
+        assertThat(insertUserRsp.getPushToken()).isEqualTo(insertUserReq.getPushToken());
+        assertThat(insertUserRsp.getBirthday()).isEqualTo(insertUserReq.getBirthday());
+        assertThat(insertUserRsp.isPush()).isEqualTo(insertUserReq.getPush());
+
+        /* 2. Upload profile image */
+        var profileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
+        assertThat(profileImageRsp).isNotNull();
+        assertThat(profileImageRsp.getProfileImageUrl()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("프로필 사진 업로드 | 실패 | 사용자번호 다름")
+    @Transactional
+    void uploadProfileImageFailToWrongUserId() throws IOException {
+        /* 0. Create Request */
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var file = new MockMultipartFile("image",
+                "CD 명함사이즈.jpg",
+                "image/jpg",
+                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var profileImageReq = UserReqDto.builder().profileImage(file).build();
+
+        /* 1. Insert */
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+        assertThat(insertUserRsp.getUserId()).isNotNull();
+        assertThat(insertUserRsp.getName()).isEqualTo(insertUserReq.getName());
+        assertThat(insertUserRsp.getPushToken()).isEqualTo(insertUserReq.getPushToken());
+        assertThat(insertUserRsp.getBirthday()).isEqualTo(insertUserReq.getBirthday());
+        assertThat(insertUserRsp.isPush()).isEqualTo(insertUserReq.getPush());
+
+        /* 2. Upload profile image */
+        var wrongUserId = insertUserRsp.getUserId() + 1;
+        assertThrows(
+                UserNotFoundException.class, () -> userService.uploadProfileImage(wrongUserId, profileImageReq)
+        );
+    }
+
+    @Test
+    @DisplayName("프로필 사진 업로드 | 실패 | 사진없음")
+    @Transactional
+    void uploadProfileImageFailToProfileImageNull() {
+        /* 0. Create Request */
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var profileImageReq = UserReqDto.builder().build();
+
+        /* 1. Insert */
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+        assertThat(insertUserRsp.getUserId()).isNotNull();
+        assertThat(insertUserRsp.getName()).isEqualTo(insertUserReq.getName());
+        assertThat(insertUserRsp.getPushToken()).isEqualTo(insertUserReq.getPushToken());
+        assertThat(insertUserRsp.getBirthday()).isEqualTo(insertUserReq.getBirthday());
+        assertThat(insertUserRsp.isPush()).isEqualTo(insertUserReq.getPush());
+
+        /* 2. Upload profile image */
+        var userId = insertUserRsp.getUserId();
+        assertThrows(
+                NullPointerException.class, () -> userService.uploadProfileImage(userId, profileImageReq)
+        );
+    }
+
+    @Test
+    @DisplayName("프로필 사진 삭제 | 성공")
+    @Transactional
+    void deleteProfileImageSuccess() throws IOException {
+        /* 0. Create Request */
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var file = new MockMultipartFile("image",
+                "CD 명함사이즈.jpg",
+                "image/jpg",
+                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var profileImageReq = UserReqDto.builder().profileImage(file).build();
+
+        /* 1. Insert */
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+        assertThat(insertUserRsp.getUserId()).isNotNull();
+        assertThat(insertUserRsp.getName()).isEqualTo(insertUserReq.getName());
+        assertThat(insertUserRsp.getPushToken()).isEqualTo(insertUserReq.getPushToken());
+        assertThat(insertUserRsp.getBirthday()).isEqualTo(insertUserReq.getBirthday());
+        assertThat(insertUserRsp.isPush()).isEqualTo(insertUserReq.getPush());
+
+        /* 2. Upload profile image */
+        var profileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
+        assertThat(profileImageRsp).isNotNull();
+        assertThat(profileImageRsp.getProfileImageUrl()).isNotNull();
+
+        /* 3. Delete profile image */
+        var deleteProfileImageRsp = userService.deleteProfileImage(insertUserRsp.getUserId());
+        assertThat(deleteProfileImageRsp).isNotNull();
+        assertNull(deleteProfileImageRsp.getProfileImageUrl());
+    }
+
+    @Test
+    @DisplayName("프로필 사진 삭제 | 실패 | 사용자번호 다름")
+    @Transactional
+    void deleteProfileImageFailToWrongUserId() throws IOException {
+        /* 0. Create Request */
+        var insertUserReq = UserReqDto.builder()
+                .snsType(1)
+                .snsId("TESTS_SNS_ID")
+                .pushToken("before Token")
+                .push(true)
+                .name("user")
+                .birthday("0720")
+                .solar(true)
+                .birthdayOpen(false)
+                .deviceOs(DeviceOs.AOS)
+                .build();
+        var file = new MockMultipartFile("image",
+                "CD 명함사이즈.jpg",
+                "image/jpg",
+                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var profileImageReq = UserReqDto.builder().profileImage(file).build();
+
+        /* 1. Insert */
+        var insertUserRsp = userService.signUp(insertUserReq);
+        assertThat(insertUserRsp).isNotNull();
+        assertThat(insertUserRsp.getUserId()).isNotNull();
+        assertThat(insertUserRsp.getName()).isEqualTo(insertUserReq.getName());
+        assertThat(insertUserRsp.getPushToken()).isEqualTo(insertUserReq.getPushToken());
+        assertThat(insertUserRsp.getBirthday()).isEqualTo(insertUserReq.getBirthday());
+        assertThat(insertUserRsp.isPush()).isEqualTo(insertUserReq.getPush());
+
+        /* 2. Upload profile image */
+        var profileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
+        assertThat(profileImageRsp).isNotNull();
+        assertThat(profileImageRsp.getProfileImageUrl()).isNotNull();
+
+        /* 3. Delete profile image */
+        var wrongUserId = insertUserRsp.getUserId() + 1;
+        assertThrows(
+                UserNotFoundException.class, () -> userService.deleteProfileImage(wrongUserId)
+        );
+    }
+
+    @Test
+    @DisplayName("프로필 사진 재업로드 | 성공")
+    @Transactional
+    void reUploadProfileImageSuccess() throws IOException {
         /* 0. Create Request */
         var insertUserReq = UserReqDto.builder()
                 .snsType(1)
@@ -737,21 +1211,11 @@ class UserServiceTest {
         assertThat(profileImageRsp).isNotNull();
         assertThat(profileImageRsp.getProfileImageUrl()).isNotNull();
 
-        /* 4. Find User after upload profile image */
-        var afterFindUserRsp = userService.find(insertUserRsp.getUserId());
-        assertThat(afterFindUserRsp).isNotNull();
-        assertThat(afterFindUserRsp.getProfileImageUrl()).isEqualTo(profileImageRsp.getProfileImageUrl());
-
-        /* 5. Re upload profile image */
+        /* 4. Re upload profile image */
         var reProfileImageRsp = userService.uploadProfileImage(insertUserRsp.getUserId(), profileImageReq);
         assertThat(reProfileImageRsp).isNotNull();
         assertThat(reProfileImageRsp.getProfileImageUrl()).isNotNull();
         assertNotSame(reProfileImageRsp.getProfileImageUrl(), profileImageRsp.getProfileImageUrl());
-
-        /* 6. Delete profile image */
-        var deleteProfileImageRsp = userService.deleteProfileImage(insertUserRsp.getUserId());
-        assertThat(deleteProfileImageRsp).isNotNull();
-        assertNull(deleteProfileImageRsp.getProfileImageUrl());
     }
 
 }

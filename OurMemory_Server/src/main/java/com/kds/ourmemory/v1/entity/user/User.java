@@ -124,12 +124,12 @@ public class User extends BaseTimeEntity implements Serializable {
 	    this.privateRoomId = privateRoomId;
     }
 
-    public void updateProfileImageUrl(String profileImageUrl) {
+    public User updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+        return this;
     }
     
     public Optional<User> changePushToken(String pushToken) {
-        checkNotNull(pushToken, "토큰 값이 입력되지 않았습니다. 토큰 값을 입력해주세요.");
         checkArgument(StringUtils.isNoneBlank(pushToken), "토큰 값은 빈 값이 될 수 없습니다.");
 
         return Optional.of(pushToken)
@@ -140,7 +140,8 @@ public class User extends BaseTimeEntity implements Serializable {
     }
 
     public Optional<User> updateUser(UserReqDto request) {
-        return Optional.ofNullable(request)
+        checkNotNull(request, "업데이트할 값이 입력되지 않았습니다.");
+        return Optional.of(request)
                 .map(req -> {
                     name = Objects.nonNull(req.getName()) ? req.getName() : name;
                     birthday = Objects.nonNull(req.getBirthday()) ? req.getBirthday() : birthday;
