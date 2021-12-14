@@ -23,6 +23,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class FcmService {
+
 	private final ObjectMapper objectMapper;
 	private final CustomConfig customConfig;
 
@@ -77,4 +78,5 @@ public class FcmService {
 		
 		return googleCredentials.getAccessToken().getTokenValue();
 	}
+
 }
