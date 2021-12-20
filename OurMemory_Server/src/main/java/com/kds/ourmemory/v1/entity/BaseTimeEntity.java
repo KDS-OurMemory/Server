@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -16,22 +17,26 @@ import java.util.Objects;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
-    public static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Transient
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    @Transient
+    private final DateTimeFormatter missFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     
     @CreatedDate
     @Column(name = "reg_date", updatable = false)
     private LocalDateTime regDate;
 
     @LastModifiedDate
-    @Column(name = "mod_date", nullable = true)
+    @Column(name = "mod_date")
     private LocalDateTime modDate;
     
     public LocalDateTime getRegDate() {
-        return Objects.nonNull(regDate)? LocalDateTime.parse(regDate.format(format), format) : null;
+        return Objects.nonNull(regDate)? LocalDateTime.parse(regDate.format(missFormat), missFormat) : null;
     }
     
     public LocalDateTime getModDate() {
-        return Objects.nonNull(modDate)? LocalDateTime.parse(modDate.format(format), format) : null;
+        return Objects.nonNull(modDate)? LocalDateTime.parse(modDate.format(missFormat), missFormat) : null;
     }
     
     public String formatRegDate() {
