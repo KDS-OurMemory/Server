@@ -41,10 +41,10 @@
 https://www.erdcloud.com/d/eKXiLkBGXpt5pm4Fo
 ![ERD](https://user-images.githubusercontent.com/43669379/139289642-b6817fe1-616d-4cfe-9fc0-4fa50331f822.png)
 
-## 5. CI&CD(서버 만료, 재구축 예정)
- * Jenkins http://34.64.158.97/
+## 5. CI&CD
+ * Jenkins http://34.64.136.1:8181/
  * id/pwd : Guest/Guest
- * 프로젝트 : KDS-OurMemory-Server
+ * 프로젝트 : OurMemory_Server_gradle
 
 ## 6. 프로젝트 문서
   * Notion  https://www.notion.so/App-Server-22cd97ca1d92443298ca67b8a8c18f8c
