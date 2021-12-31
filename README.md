@@ -10,7 +10,7 @@
 6. [프로젝트 문서](#6-프로젝트-문서)
 
 ## 1. 환경
-  * JDK : 1.15
+  * JDK : 15
   * Spring Boot 2.4.2 / gradle
   * DB : MySQL8 / Spring data JPA
 
