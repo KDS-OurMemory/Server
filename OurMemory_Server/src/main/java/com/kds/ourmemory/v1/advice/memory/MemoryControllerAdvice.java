@@ -25,6 +25,28 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse {
         super(messageSource);
     }
 
+
+    /* HTTP Status Error */
+    @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
+        return response("memory.badRequest", e);
+    }
+
+    @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
+    public ResponseEntity<ApiResult<String>> handleCustomBadRequestException(Exception e) {
+        return response("memory.badRequest", e);
+    }
+
+    @ExceptionHandler(MemoryNotFoundException.class)
+    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundException(MemoryNotFoundException e) {
+        return response("memory.notFound", e);
+    }
+
+    @ExceptionHandler(MemoryInternalServerException.class)
+    public ResponseEntity<ApiResult<String>> handleMemoryInternalServerException(MemoryInternalServerException e) {
+        return response("memory.internalServer", e);
+    }
+
     /* Custom Error */
     @ExceptionHandler(MemoryNotFoundWriterException.class)
     public ResponseEntity<ApiResult<String>> handleMemoryNotFoundWriterException(MemoryNotFoundWriterException e) {
@@ -34,6 +56,11 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse {
     @ExceptionHandler(MemoryNotFoundShareMemberException.class)
     public ResponseEntity<ApiResult<String>> handleMemoryNotFoundMemberException(MemoryNotFoundShareMemberException e) {
         return response("memory.notFoundShareMember", e);
+    }
+
+    @ExceptionHandler(MemoryNotFoundShareRoomException.class)
+    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundShareRoomException(MemoryNotFoundShareRoomException e) {
+        return response("memory.notFoundShareRoom", e);
     }
     
     @ExceptionHandler(MemoryNotFoundRoomException.class)
@@ -45,27 +72,15 @@ public class MemoryControllerAdvice extends RestControllerAdviceResponse {
     public ResponseEntity<ApiResult<String>> handleMemoryNotWriterException(MemoryNotWriterException e) {
         return response("memory.NotWriter", e);
     }
-    
-    
-    /* HTTP Status Error */
-    @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
-    public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
-        return response("memory.badRequest", e);
+
+    @ExceptionHandler(MemoryDeactivateWriterException.class)
+    public ResponseEntity<ApiResult<String>> handleMemoryDeactivateWriterException(MemoryDeactivateWriterException e) {
+        return response("memory.deactivateWriter", e);
     }
-    
-    @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
-    public ResponseEntity<ApiResult<String>> handleCustomBadRequestException(Exception e) {
-        return response("memory.badRequest", e);
-    }
-    
-    @ExceptionHandler(MemoryNotFoundException.class)
-    public ResponseEntity<ApiResult<String>> handleMemoryNotFoundException(MemoryNotFoundException e) {
-        return response("memory.notFound", e);
-    }
-    
-    @ExceptionHandler(MemoryInternalServerException.class)
-    public ResponseEntity<ApiResult<String>> handleMemoryInternalServerException(MemoryInternalServerException e) {
-        return response("memory.internalServer", e);
+
+    @ExceptionHandler(MemoryNotIncludeRoomException.class)
+    public ResponseEntity<ApiResult<String>> handleMemoryNotIncludeRoomException(MemoryNotIncludeRoomException e) {
+        return response("memory.notIncludeRoom", e);
     }
 
 }
