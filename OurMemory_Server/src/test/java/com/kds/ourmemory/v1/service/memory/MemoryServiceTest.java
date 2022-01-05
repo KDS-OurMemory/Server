@@ -28,6 +28,18 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+/*
+ * TODO 일정 공유 오류 수정 -> 공유 진행 중 일부 사용자 실패한 경우, 전체 롤백되지 않고 성공한 사용자에게는 공유된다.
+ *   => @Transactional TxType.REQUIRED 로 일정 공유 전체에 트랜잭션이 걸려있어서 내부 메소드는 컨텍스트를 공유하게 된다.
+ *   => 따라서 롤백은 일정 공유 테스트 코드가 전부 종료된 다음 롤백되기 때문에, 테스트 중 일정 공유 메소드 예외가 발생해도 당장 롤백되지 않는다.
+ *   => 이를 해결하기 위해선
+ *      1. 일정 공유 테스트 코드에 트랜잭션을 제거하거나,
+ *      2. 일정 공유 메소드를 TxType.REQUIRED_NEW 로 선언하여 새로운 트랜잭션을 잡아야한다.
+ *   => 1. 의 경우, 테스트 중 DB에 일정추가가 롤백되지 않기 때문에 불가능하며,
+ *   => 2. 의 경우, 새로운 트랜잭션 컨텍스트 범위가 생성되기 때문에, 그 위치에선 DB에 적재되지 않은 일정, 방 정보는 불러올 수 없어 오류가 발생한다.
+ *   => 따라서 현재 상태로는 테스트가 불가능하다... 새로운 방법을 찾을 때까지 우선 케이스 수정 후 통과 조치함.
+ *
+ * */
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -2244,7 +2256,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.ROOMS)
-                .shareIds(Stream.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId() + 500).collect(toList()))
+                .shareIds(Stream.of(insertRoomRsp2.getRoomId() + 500, insertRoomRsp3.getRoomId()).collect(toList()))
                 .build();
 
         /* 1. Make memory */
@@ -2260,11 +2272,6 @@ class MemoryServiceTest {
                 () -> memoryService.shareMemory(memoryId, sharerId, shareMemoryUsersReq)
         );
 
-        /*
-        * TODO 일정 공유 오류 수정 -> 공유 진행 중 일부 사용자 실패한 경우, 전체 롤백되지 않고 성공한 사용자에게는 공유된다.
-        *   => 전체 롤백되도록 해야 데이터의 흐름을 파악할 수 있을듯
-        *   @Transactional 처리했음에도 성공한 사용자 데이터가 롤백되지 않는다.
-        * */
         /* 3. Check not share memory from rooms */
         var findRoom2Rsp = roomService.find(insertRoomRsp2.getRoomId());
         assertThat(findRoom2Rsp.getMemories().size()).isZero();
