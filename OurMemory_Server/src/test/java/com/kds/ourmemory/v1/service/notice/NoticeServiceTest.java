@@ -1,5 +1,7 @@
 package com.kds.ourmemory.v1.service.notice;
 
+import com.kds.ourmemory.v1.advice.notice.exception.NoticeNotFoundException;
+import com.kds.ourmemory.v1.advice.notice.exception.NoticeNotFoundUserException;
 import com.kds.ourmemory.v1.controller.notice.dto.NoticeReqDto;
 import com.kds.ourmemory.v1.controller.notice.dto.NoticeRspDto;
 import com.kds.ourmemory.v1.controller.user.dto.UserReqDto;
@@ -38,10 +40,9 @@ class NoticeServiceTest {
     }
 
     @Test
-    @Order(1)
-    @DisplayName("알림 생성")
+    @DisplayName("알림 생성 | 성공")
     @Transactional
-    void insert() {
+    void insertSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -64,10 +65,27 @@ class NoticeServiceTest {
     }
 
     @Test
-    @Order(2)
-    @DisplayName("알림 목록 조회")
+    @DisplayName("알림 생성 | 실패 | 잘못된 사용자번호")
     @Transactional
-    void finds() {
+    void insertFailToWrongUserId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertReq1 = new NoticeReqDto(
+                insertUserRsp.getUserId() + 5000, NoticeType.FRIEND_REQUEST, "testValue1"
+        );
+
+        /* 1. Add notice */
+        assertThrows(
+                NoticeNotFoundUserException.class, () -> noticeService.insert(insertReq1)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 조회 -> 읽음처리 X | 성공")
+    @Transactional
+    void findsSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -92,33 +110,22 @@ class NoticeServiceTest {
                     || StringUtils.equals(findNoticesRsp.getValue(), "testValue2")).isTrue();
             assertFalse(findNoticesRsp.isRead());
         }
+
+        /* 3. Check not read after find notices */
+        var afterFindNoticesList = noticeService.findNotices(insertUserRsp.getUserId(), true);
+        assertThat(afterFindNoticesList).isNotNull();
+        assertThat(afterFindNoticesList.size()).isEqualTo(2);
+
+        for (NoticeRspDto findNoticesRsp : afterFindNoticesList) {
+            assertFalse(findNoticesRsp.isRead());
+        }
     }
 
-    @Test
-    @Order(3)
-    @DisplayName("알림 삭제")
-    @Transactional
-    void delete() {
-        /* 0-1. Set base data */
-        setBaseData();
-
-        /* 0-2. Create request */
-        var request1 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue1");
-
-        /* 1. Add notice */
-        var insertNoticeResponse1 = noticeService.insert(request1);
-        assertThat(insertNoticeResponse1).isNotNull();
-
-        /* 2. Delete notice */
-        var deleteNoticeRsp = noticeService.delete(insertNoticeResponse1.getNoticeId());
-        assertNull(deleteNoticeRsp);
-    }
 
     @Test
-    @Order(4)
-    @DisplayName("조회된 알림 읽음 여부 확인")
+    @DisplayName("알림 목록 조회 -> 읽음처리 O | 성공")
     @Transactional
-    void checkReadAfterFindNotices() {
+    void checkReadAfterFindNoticesSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -143,13 +150,43 @@ class NoticeServiceTest {
         }
 
         /* 3. Check read after find notices */
-        var afterFindNoticesList = noticeService.findNotices(insertUserRsp.getUserId(), true);
+        var afterFindNoticesList = noticeService.findNotices(insertUserRsp.getUserId(), false);
         assertThat(afterFindNoticesList).isNotNull();
         assertThat(afterFindNoticesList.size()).isEqualTo(2);
 
         for (NoticeRspDto findNoticesRsp : afterFindNoticesList) {
             assertTrue(findNoticesRsp.isRead());
         }
+    }
+
+
+    @Test
+    @DisplayName("알림 삭제 | 성공")
+    @Transactional
+    void deleteSuccess() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var request1 = new NoticeReqDto(insertUserRsp.getUserId(), NoticeType.FRIEND_REQUEST, "testValue1");
+
+        /* 1. Add notice */
+        var insertNoticeResponse1 = noticeService.insert(request1);
+        assertThat(insertNoticeResponse1).isNotNull();
+
+        /* 2. Delete notice */
+        var deleteNoticeRsp = noticeService.delete(insertNoticeResponse1.getNoticeId());
+        assertNull(deleteNoticeRsp);
+    }
+
+    @Test
+    @DisplayName("알림 삭제 | 실패 | 잘못된 알림번호")
+    @Transactional
+    void deleteFailToWrongNoticeId() {
+        /* 1. Delete notice */
+        assertThrows(
+                NoticeNotFoundException.class, () -> noticeService.delete(-5000L)
+        );
     }
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional

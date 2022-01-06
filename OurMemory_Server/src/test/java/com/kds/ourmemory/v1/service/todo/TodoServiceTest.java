@@ -1,5 +1,7 @@
 package com.kds.ourmemory.v1.service.todo;
 
+import com.kds.ourmemory.v1.advice.todo.exception.TodoNotFoundException;
+import com.kds.ourmemory.v1.advice.user.exception.UserNotFoundException;
 import com.kds.ourmemory.v1.controller.todo.dto.TodoReqDto;
 import com.kds.ourmemory.v1.controller.user.dto.UserReqDto;
 import com.kds.ourmemory.v1.controller.user.dto.UserRspDto;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 @SpringBootTest
@@ -37,10 +40,9 @@ class TodoServiceTest {
     }
 
     @Test
-    @Order(1)
-    @DisplayName("TODO 추가")
+    @DisplayName("TODO 추가 | 성공")
     @Transactional
-    void insert() {
+    void insertSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -60,10 +62,26 @@ class TodoServiceTest {
     }
 
     @Test
-    @Order(2)
-    @DisplayName("TODO 단일 조회")
+    @DisplayName("TODO 추가 | 실패 | 잘못된 사용자번호")
     @Transactional
-    void findTodo() {
+    void insertFailToWrongUserId() {
+        /* 1. Create request */
+        var todoReqDto = TodoReqDto.builder()
+                .writerId(-5000L)
+                .contents("Test WrongUser TODO contents")
+                .todoDate(LocalDate.now())
+                .build();
+
+        /* 2. Create todoData */
+        assertThrows(
+                UserNotFoundException.class, () -> todoService.insert(todoReqDto)
+        );
+    }
+
+    @Test
+    @DisplayName("TODO 단일 조회 | 성공")
+    @Transactional
+    void findTodoSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -91,10 +109,51 @@ class TodoServiceTest {
     }
 
     @Test
-    @Order(3)
-    @DisplayName("TODO 목록 조회")
+    @DisplayName("TODO 단일 조회 | 실패 | 잘못된 TODO 번호")
     @Transactional
-    void findTodos() {
+    void findTodoFailToWrongTodoId() {
+        /* 1. Find todoData */
+        assertThrows(
+                TodoNotFoundException.class, () -> todoService.find(-5000L)
+        );
+    }
+
+    @Test
+    @DisplayName("TODO 단일 조회 | 실패 | 삭제된 TODO 번호")
+    @Transactional
+    void findTodoFailToDeletedTodoId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var todoReqDto = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents")
+                .todoDate(LocalDate.now())
+                .build();
+
+        /* 1. Create todoData */
+        var insertTodoRsp = todoService.insert(todoReqDto);
+        assertThat(insertTodoRsp).isNotNull();
+        assertThat(insertTodoRsp.getWriterId()).isEqualTo(todoReqDto.getWriterId());
+        assertThat(insertTodoRsp.getContents()).isEqualTo(todoReqDto.getContents());
+        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(todoReqDto.getTodoDate());
+
+        /* 2. Delete todoData */
+        var deleteTodoRsp = todoService.delete(insertTodoRsp.getTodoId());
+        assertNull(deleteTodoRsp);
+
+        /* 2. Find todoData */
+        var deletedTodId = insertTodoRsp.getTodoId();
+        assertThrows(
+                TodoNotFoundException.class, () -> todoService.find(deletedTodId)
+        );
+    }
+
+    @Test
+    @DisplayName("TODO 목록 조회 | 성공")
+    @Transactional
+    void findTodosSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -155,10 +214,9 @@ class TodoServiceTest {
     }
 
     @Test
-    @Order(4)
-    @DisplayName("TODO 수정")
+    @DisplayName("TODO 수정 | 성공")
     @Transactional
-    void update() {
+    void updateSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -199,10 +257,62 @@ class TodoServiceTest {
     }
 
     @Test
-    @Order(5)
-    @DisplayName("TODO 삭제")
+    @DisplayName("TODO 수정 | 실패 | 잘못된 TODO 번호")
     @Transactional
-    void delete() {
+    void updateFailToWrongTodoId() {
+        /* 1. Create request */
+        var updateTodoReq = TodoReqDto.builder()
+                .contents("Update TODO contents!")
+                .todoDate(LocalDate.now().plusDays(1))
+                .build();
+
+        /* 2. update todoData */
+        assertThrows(
+                TodoNotFoundException.class, () -> todoService.update(-5000, updateTodoReq)
+        );
+    }
+
+    @Test
+    @DisplayName("TODO 수정 | 실패 | 삭제된 TODO 번호")
+    @Transactional
+    void updateFailToDeletedTodoId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var todoReqDto = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents")
+                .todoDate(LocalDate.now())
+                .build();
+
+        var updateTodoReq = TodoReqDto.builder()
+                .contents("Update TODO contents!")
+                .todoDate(LocalDate.now().plusDays(1))
+                .build();
+
+        /* 1. Create todoData */
+        var insertTodoRsp = todoService.insert(todoReqDto);
+        assertThat(insertTodoRsp).isNotNull();
+        assertThat(insertTodoRsp.getWriterId()).isEqualTo(todoReqDto.getWriterId());
+        assertThat(insertTodoRsp.getContents()).isEqualTo(todoReqDto.getContents());
+        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(todoReqDto.getTodoDate());
+
+        /* 2. Delete todoData */
+        var deleteTodoRsp = todoService.delete(insertTodoRsp.getTodoId());
+        assertNull(deleteTodoRsp);
+
+        /* 3. update todoData */
+        var deletedTodoId = insertTodoRsp.getTodoId();
+        assertThrows(
+                TodoNotFoundException.class, () -> todoService.update(deletedTodoId, updateTodoReq)
+        );
+    }
+
+    @Test
+    @DisplayName("TODO 삭제 | 성공")
+    @Transactional
+    void deleteSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -230,6 +340,47 @@ class TodoServiceTest {
         /* 3. Delete todoData */
         var deleteTodoRsp = todoService.delete(insertTodoRsp.getTodoId());
         assertNull(deleteTodoRsp);
+    }
+
+    @Test
+    @DisplayName("TODO 삭제 | 실패 | 잘못된 TODO 번호")
+    @Transactional
+    void deleteFailToWrongTodoId() {
+        /* 1. Delete todoData */
+        assertThrows(
+                TodoNotFoundException.class, () -> todoService.delete(-5000)
+        );
+    }
+
+    @Test
+    @DisplayName("TODO 삭제 | 실패 | 삭제된 TODO 번호")
+    @Transactional
+    void deleteFailToDeletedTodoId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var todoReqDto = TodoReqDto.builder()
+                .writerId(insertWriterRsp.getUserId())
+                .contents("Test TODO contents")
+                .todoDate(LocalDate.now())
+                .build();
+
+        /* 1. Create todoData */
+        var insertTodoRsp = todoService.insert(todoReqDto);
+        assertThat(insertTodoRsp).isNotNull();
+        assertThat(insertTodoRsp.getWriterId()).isEqualTo(todoReqDto.getWriterId());
+        assertThat(insertTodoRsp.getContents()).isEqualTo(todoReqDto.getContents());
+        assertThat(insertTodoRsp.getTodoDate()).isEqualTo(todoReqDto.getTodoDate());
+
+        /* 2. Delete todoData */
+        var deleteTodoRsp = todoService.delete(insertTodoRsp.getTodoId());
+        assertNull(deleteTodoRsp);
+
+        /* 3. Delete already deleted todoData */
+        assertThrows(
+                TodoNotFoundException.class, () -> todoService.delete(-5000)
+        );
     }
 
     // life cycle: @Before -> @Test => separate => Not maintained @Transactional

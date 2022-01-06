@@ -70,34 +70,28 @@ class FriendServiceTest {
 
         /* 1. Request friend */
         var requestRsp = friendService.requestFriend(requestReq);
-        assertThat(requestRsp).isNotNull();
         assertThat(requestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(requestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
         /* 2. Accept friend */
-        var insertRsp = friendService.acceptFriend(acceptReq);
-        assertThat(insertRsp).isNotNull();
-        assertThat(insertRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
-        assertThat(insertRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
+        var acceptRsp = friendService.acceptFriend(acceptReq);
+        assertThat(acceptRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
+        assertThat(acceptRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 2. Find friends */
         // My side
         List<FriendRspDto> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
-        assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         var mySideFindRsp = mySideFindList.get(0);
-        assertThat(mySideFindRsp).isNotNull();
         assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Friend side
         List<FriendRspDto> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
-        assertThat(friendSideFindList).isNotNull();
         assertFalse(friendSideFindList.isEmpty());
 
         var friendSideFindRsp = friendSideFindList.get(0);
-        assertThat(friendSideFindRsp).isNotNull();
         assertThat(friendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(friendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -117,7 +111,6 @@ class FriendServiceTest {
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         var deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
-        assertThat(deleteFriendSideFindRsp).isNotNull();
         assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(deleteFriendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -151,13 +144,11 @@ class FriendServiceTest {
 
         /* 0-3. Request friend for other side friend */
         var beforeRequestRsp = friendService.requestFriend(requestReq);
-        assertThat(beforeRequestRsp).isNotNull();
         assertThat(beforeRequestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeRequestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
         /* 0-4. Accept friend for other side friend */
         var beforeInsertRsp = friendService.acceptFriend(acceptReq);
-        assertThat(beforeInsertRsp).isNotNull();
         assertThat(beforeInsertRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeInsertRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -177,7 +168,6 @@ class FriendServiceTest {
         assertThat(beforeFriendSideList.size()).isOne();
 
         var beforeFriendSideFindRsp = beforeFriendSideList.get(0);
-        assertThat(beforeFriendSideFindRsp).isNotNull();
         assertThat(beforeFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeFriendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -194,28 +184,23 @@ class FriendServiceTest {
 
         /* 3. Add friend */
         var reAddRsp_MySideX_FriendSideO_Block = friendService.reAddFriend(addReq);
-        assertThat(reAddRsp_MySideX_FriendSideO_Block).isNotNull();
         assertThat(reAddRsp_MySideX_FriendSideO_Block.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(reAddRsp_MySideX_FriendSideO_Block.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 4. Find friends */
         // My side
         List<FriendRspDto> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
-        assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         var mySideFindRsp = mySideFindList.get(0);
-        assertThat(mySideFindRsp).isNotNull();
         assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Friend side
         List<FriendRspDto> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
-        assertThat(friendSideFindList).isNotNull();
         assertFalse(friendSideFindList.isEmpty());
 
         var friendSideFindRsp = friendSideFindList.get(0);
-        assertThat(friendSideFindRsp).isNotNull();
         assertThat(friendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(friendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -235,7 +220,6 @@ class FriendServiceTest {
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         var deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
-        assertThat(deleteFriendSideFindRsp).isNotNull();
         assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(deleteFriendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -270,13 +254,11 @@ class FriendServiceTest {
 
         /* 0-3. Request friend for other side friend */
         var beforeRequestRsp = friendService.requestFriend(requestReq);
-        assertThat(beforeRequestRsp).isNotNull();
         assertThat(beforeRequestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeRequestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
         /* 0-4. Accept friend for other side friend */
         var beforeInsertRsp = friendService.acceptFriend(acceptReq);
-        assertThat(beforeInsertRsp).isNotNull();
         assertThat(beforeInsertRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeInsertRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -296,20 +278,17 @@ class FriendServiceTest {
         assertThat(beforeFriendSideList.size()).isOne();
 
         var beforeFriendSideFindRsp = beforeFriendSideList.get(0);
-        assertThat(beforeFriendSideFindRsp).isNotNull();
         assertThat(beforeFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeFriendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 0-6. Block from friend side */
         var beforeFriendSideBlockRsp = friendService.patchFriendStatus(blockReq);
-        assertThat(beforeFriendSideBlockRsp).isNotNull();
         assertThat(beforeFriendSideBlockRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeFriendSideBlockRsp.getFriendStatus()).isEqualTo(FriendStatus.BLOCK);
 
 
         /* 1. Request friend */
         var requestRsp = friendService.requestFriend(requestReq);
-        assertThat(requestRsp).isNotNull();
         assertThat(requestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(requestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
@@ -326,21 +305,17 @@ class FriendServiceTest {
         /* 4. Find friends */
         // My side
         List<FriendRspDto> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
-        assertThat(mySideFindList).isNotNull();
         assertThat(mySideFindList.size()).isOne();
 
         var mySideFindRsp = mySideFindList.get(0);
-        assertThat(mySideFindRsp).isNotNull();
         assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
         // Friend side
         List<FriendRspDto> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
-        assertThat(friendSideFindList).isNotNull();
         assertFalse(friendSideFindList.isEmpty());
 
         var friendSideFindRsp = friendSideFindList.get(0);
-        assertThat(friendSideFindRsp).isNotNull();
         assertThat(friendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(friendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.BLOCK);
 
@@ -365,7 +340,6 @@ class FriendServiceTest {
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         var deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
-        assertThat(deleteFriendSideFindRsp).isNotNull();
         assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(deleteFriendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.BLOCK);
 
@@ -399,13 +373,11 @@ class FriendServiceTest {
 
         /* 0-3. Request friend for my side friend */
         var beforeRequestRsp = friendService.requestFriend(requestReq);
-        assertThat(beforeRequestRsp).isNotNull();
         assertThat(beforeRequestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeRequestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
         /* 0-4. Add friend for my side friend */
         var beforeInsertRsp = friendService.acceptFriend(acceptReq);
-        assertThat(beforeInsertRsp).isNotNull();
         assertThat(beforeInsertRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeInsertRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -421,7 +393,6 @@ class FriendServiceTest {
         assertThat(beforeMySideList.size()).isOne();
 
         var beforeMySideFindRsp = beforeMySideList.get(0);
-        assertThat(beforeMySideFindRsp).isNotNull();
         assertThat(beforeMySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeMySideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -448,17 +419,14 @@ class FriendServiceTest {
         /* 4. Find friend */
         // My side
         List<FriendRspDto> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
-        assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         var mySideFindRsp = mySideFindList.get(0);
-        assertThat(mySideFindRsp).isNotNull();
         assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Friend side
         List<FriendRspDto> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
-        assertThat(friendSideFindList).isNotNull();
         assertTrue(friendSideFindList.isEmpty());
 
         /* 5. Delete friend */
@@ -509,13 +477,11 @@ class FriendServiceTest {
 
         /* 0-3. Request friend for my side friend */
         var beforeRequestRsp = friendService.requestFriend(requestReq);
-        assertThat(beforeRequestRsp).isNotNull();
         assertThat(beforeRequestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeRequestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
         /* 0-4. Add friend for my side friend */
         var beforeInsertRsp = friendService.acceptFriend(acceptReq);
-        assertThat(beforeInsertRsp).isNotNull();
         assertThat(beforeInsertRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeInsertRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -531,7 +497,6 @@ class FriendServiceTest {
         assertThat(beforeMySideList.size()).isOne();
 
         var beforeMySideFindRsp = beforeMySideList.get(0);
-        assertThat(beforeMySideFindRsp).isNotNull();
         assertThat(beforeMySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeMySideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -541,7 +506,6 @@ class FriendServiceTest {
 
         /* 0-6. Block from my side */
         var beforeMySideBlockRsp = friendService.patchFriendStatus(blockReq);
-        assertThat(beforeMySideBlockRsp).isNotNull();
         assertThat(beforeMySideBlockRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeMySideBlockRsp.getFriendStatus()).isEqualTo(FriendStatus.BLOCK);
 
@@ -564,17 +528,14 @@ class FriendServiceTest {
         /* 4. Find friend */
         // My side
         List<FriendRspDto> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
-        assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         var mySideFindRsp = mySideFindList.get(0);
-        assertThat(mySideFindRsp).isNotNull();
         assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.BLOCK);
 
         // Friend side
         List<FriendRspDto> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
-        assertThat(friendSideFindList).isNotNull();
         assertThat(friendSideFindList.size()).isZero();
 
         /* 4. Delete friend */
@@ -623,13 +584,11 @@ class FriendServiceTest {
 
         /* 0-3. Request friend for my side friend */
         var beforeRequestRsp = friendService.requestFriend(requestReq);
-        assertThat(beforeRequestRsp).isNotNull();
         assertThat(beforeRequestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(beforeRequestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
         /* 0-4. Add friend for both side friend */
         var beforeInsertRsp = friendService.acceptFriend(acceptReq);
-        assertThat(beforeInsertRsp).isNotNull();
         assertThat(beforeInsertRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(beforeInsertRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -647,21 +606,17 @@ class FriendServiceTest {
         /* 3. Find friend */
         // My side
         List<FriendRspDto> mySideFindList = friendService.findFriends(requestUserRsp.getUserId());
-        assertThat(mySideFindList).isNotNull();
         assertFalse(mySideFindList.isEmpty());
 
         var mySideFindRsp = mySideFindList.get(0);
-        assertThat(mySideFindRsp).isNotNull();
         assertThat(mySideFindRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(mySideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         // Friend side
         List<FriendRspDto> friendSideFindList = friendService.findFriends(acceptUserRsp.getUserId());
-        assertThat(friendSideFindList).isNotNull();
         assertThat(friendSideFindList.size()).isOne();
 
         var friendSideFindRsp = friendSideFindList.get(0);
-        assertThat(friendSideFindRsp).isNotNull();
         assertThat(friendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(friendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -681,7 +636,6 @@ class FriendServiceTest {
         assertThat(deleteFromMySideFriendSideList.size()).isOne();
 
         var deleteFriendSideFindRsp = deleteFromMySideFriendSideList.get(0);
-        assertThat(deleteFriendSideFindRsp).isNotNull();
         assertThat(deleteFriendSideFindRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(deleteFriendSideFindRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -714,7 +668,6 @@ class FriendServiceTest {
 
         /* 1. Request friend */
         var requestRsp = friendService.requestFriend(requestReq);
-        assertThat(requestRsp).isNotNull();
         assertThat(requestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(requestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
@@ -729,7 +682,6 @@ class FriendServiceTest {
 
         /* 3. Accept friend */
         var insertRsp = friendService.acceptFriend(acceptReq);
-        assertThat(insertRsp).isNotNull();
         assertThat(insertRsp.getFriendId()).isEqualTo(requestUserRsp.getUserId());
         assertThat(insertRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -756,7 +708,6 @@ class FriendServiceTest {
 
         /* 1. Request friend */
         var requestRsp = friendService.requestFriend(requestReq);
-        assertThat(requestRsp).isNotNull();
         assertThat(requestRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
         assertThat(requestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
@@ -836,12 +787,10 @@ class FriendServiceTest {
         var findUsersByIdList1 = friendService.findUsers(
                 insertSameNameRsp1.getUserId(), insertUniqueNameRsp.getUserId(), null, null
         );
-        assertThat(findUsersByIdList1).isNotNull();
         assertThat(findUsersByIdList1.isEmpty()).isFalse();
         assertThat(findUsersByIdList1.size()).isOne();
 
         var findUsersById1 = findUsersByIdList1.get(0);
-        assertThat(findUsersById1).isNotNull();
         assertThat(findUsersById1.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
         assertThat(findUsersById1.getName()).isEqualTo(insertUniqueNameReq.getName());
         assertThat(findUsersById1.isSolar()).isEqualTo(insertUniqueNameReq.getSolar());
@@ -853,12 +802,10 @@ class FriendServiceTest {
         var findUsersByIdList2 = friendService.findUsers(
                 insertUniqueNameRsp.getUserId(), insertSameNameRsp1.getUserId(), null, null
         );
-        assertThat(findUsersByIdList2).isNotNull();
         assertThat(findUsersByIdList2.isEmpty()).isFalse();
         assertThat(findUsersByIdList2.size()).isOne();
 
         var findUsersById2 = findUsersByIdList2.get(0);
-        assertThat(findUsersById2).isNotNull();
         assertThat(findUsersById2.getFriendId()).isEqualTo(insertSameNameRsp1.getUserId());
         assertThat(findUsersById2.getName()).isEqualTo(insertSameNameReq1.getName());
         assertThat(findUsersById2.isSolar()).isEqualTo(insertSameNameReq1.getSolar());
@@ -872,12 +819,10 @@ class FriendServiceTest {
         var findUsersByIdList3 = friendService.findUsers(
                 insertSameNameRsp1.getUserId(), insertSameNameRsp2.getUserId(), null, null
         );
-        assertThat(findUsersByIdList3).isNotNull();
         assertThat(findUsersByIdList3.isEmpty()).isFalse();
         assertThat(findUsersByIdList3.size()).isOne();
 
         var findUsersById3 = findUsersByIdList3.get(0);
-        assertThat(findUsersById3).isNotNull();
         assertThat(findUsersById3.getFriendId()).isEqualTo(insertSameNameRsp2.getUserId());
         assertThat(findUsersById3.getName()).isEqualTo(insertSameNameReq2.getName());
         assertThat(findUsersById3.isSolar()).isEqualTo(insertSameNameReq2.getSolar());
@@ -889,12 +834,10 @@ class FriendServiceTest {
         var findUsersByUniqueNameList = friendService.findUsers(
                 insertSameNameRsp1.getUserId(), null, insertUniqueNameReq.getName(), null
         );
-        assertThat(findUsersByUniqueNameList).isNotNull();
         assertThat(findUsersByUniqueNameList.isEmpty()).isFalse();
         assertThat(findUsersByUniqueNameList.size()).isOne();
 
         var findUsersByUniqueName = findUsersByUniqueNameList.get(0);
-        assertThat(findUsersByUniqueName).isNotNull();
         assertThat(findUsersByUniqueName.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
         assertThat(findUsersByUniqueName.getName()).isEqualTo(insertUniqueNameReq.getName());
         assertThat(findUsersByUniqueName.isSolar()).isEqualTo(insertUniqueNameReq.getSolar());
@@ -906,7 +849,6 @@ class FriendServiceTest {
         var findUsersBySameNameList = friendService.findUsers(
                 insertUniqueNameRsp.getUserId(), null, insertSameNameReq1.getName(), null
         );
-        assertThat(findUsersBySameNameList).isNotNull();
         assertThat(findUsersBySameNameList.isEmpty()).isFalse();
         assertThat(findUsersBySameNameList.size()).isEqualTo(2);
 
@@ -916,7 +858,6 @@ class FriendServiceTest {
             var findUsersBySameNameId = findUsersBySameName.getFriendId().equals(insertSameNameRsp1.getUserId()) ?
                     insertSameNameRsp1.getUserId() : insertSameNameRsp2.getUserId();
 
-            assertThat(findUsersBySameName).isNotNull();
             assertThat(findUsersBySameName.getFriendId()).isEqualTo(findUsersBySameNameId);
             assertThat(findUsersBySameName.getName()).isEqualTo(findUsersBySameNameReq.getName());
             assertThat(findUsersBySameName.isSolar()).isEqualTo(findUsersBySameNameReq.getSolar());
@@ -953,11 +894,9 @@ class FriendServiceTest {
         var findUsersByWaitList = friendService.findUsers(
                 insertUniqueNameRsp.getUserId(), null, null, FriendStatus.WAIT
         );
-        assertThat(findUsersByWaitList).isNotNull();
         assertThat(findUsersByWaitList.size()).isOne();
 
         var findUsersByWaitRsp = findUsersByWaitList.get(0);
-        assertThat(findUsersByWaitRsp).isNotNull();
         assertThat(findUsersByWaitRsp.getFriendId()).isEqualTo(insertSameNameRsp1.getUserId());
         assertThat(findUsersByWaitRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
@@ -965,11 +904,9 @@ class FriendServiceTest {
         var findUsersByRequestedByList = friendService.findUsers(
                 insertSameNameRsp1.getUserId(), null, null, FriendStatus.REQUESTED_BY
         );
-        assertThat(findUsersByRequestedByList).isNotNull();
         assertThat(findUsersByRequestedByList.size()).isOne();
 
         var findUsersByRequestedByRsp = findUsersByRequestedByList.get(0);
-        assertThat(findUsersByRequestedByRsp).isNotNull();
         assertThat(findUsersByRequestedByRsp.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
         assertThat(findUsersByRequestedByRsp.getFriendStatus()).isEqualTo(FriendStatus.REQUESTED_BY);
 
@@ -977,11 +914,9 @@ class FriendServiceTest {
         var findUsersByFriendList = friendService.findUsers(
                 insertUniqueNameRsp.getUserId(), null, null, FriendStatus.FRIEND
         );
-        assertThat(findUsersByFriendList).isNotNull();
         assertThat(findUsersByFriendList.size()).isOne();
 
         var findUsersByFriendRsp = findUsersByFriendList.get(0);
-        assertThat(findUsersByFriendRsp).isNotNull();
         assertThat(findUsersByFriendRsp.getFriendId()).isEqualTo(insertSameNameRsp2.getUserId());
         assertThat(findUsersByFriendRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
@@ -989,11 +924,9 @@ class FriendServiceTest {
         var findUsersByBlockList = friendService.findUsers(
                 insertSameNameRsp2.getUserId(), null, null, FriendStatus.BLOCK
                 );
-        assertThat(findUsersByBlockList).isNotNull();
         assertThat(findUsersByBlockList.size()).isOne();
 
         var findUsersByBlockRsp = findUsersByBlockList.get(0);
-        assertThat(findUsersByBlockRsp).isNotNull();
         assertThat(findUsersByBlockRsp.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
         assertThat(findUsersByBlockRsp.getFriendStatus()).isEqualTo(FriendStatus.BLOCK);
     }
