@@ -173,18 +173,20 @@ public class RoomService {
                 .map(User::getPrivateRoomId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        findRoom(roomId)
-                // 1. delete room
-                .map(Room::deleteRoom)
-                .map(room -> {
-                    // 2. delete memories -> private room only
-                    if (room.getId().longValue() == privateRoomId) {
-                        room.getMemories().forEach(Memory::deleteMemory);
-                    }
-
-                    return true;
-                })
+        var room = findRoom(roomId)
                 .orElseThrow(() -> new RoomNotFoundException(roomId));
+
+        if (room.getOwner().getId() != userId) {
+            throw new RoomNotOwnerException(userId, roomId);
+        }
+
+        // 1. delete room
+        room.deleteRoom();
+
+        // 2. delete memories -> private room only
+        if (room.getId().longValue() == privateRoomId) {
+            room.getMemories().forEach(Memory::deleteMemory);
+        }
 
         // delete response is null -> client already have data, so don't need response data.
         return null;

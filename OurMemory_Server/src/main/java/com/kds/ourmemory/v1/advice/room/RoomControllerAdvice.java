@@ -25,7 +25,26 @@ public class RoomControllerAdvice extends RestControllerAdviceResponse {
         super(messageSource);
     }
 
-    /* Custom Error */
+    @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
+        return response("room.badRequest", e);
+    }
+
+    @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
+    public ResponseEntity<ApiResult<String>> handleCustomBadRequestException(Exception e) {
+        return response("room.badRequest", e);
+    }
+
+    @ExceptionHandler(RoomNotFoundException.class)
+    public ResponseEntity<ApiResult<String>> handleRoomNotFoundException(RoomNotFoundException e) {
+        return response("room.notFound", e);
+    }
+
+    @ExceptionHandler(RoomInternalServerException.class)
+    public ResponseEntity<ApiResult<String>> handleRoomInternalServerException(RoomInternalServerException e) {
+        return response("room.internalServer", e);
+    }
+
     @ExceptionHandler(RoomNotFoundOwnerException.class)
     public ResponseEntity<ApiResult<String>> handleRoomNotFoundOwnerException(RoomNotFoundOwnerException e) {
         return response("room.notFoundOwner", e);
@@ -38,28 +57,12 @@ public class RoomControllerAdvice extends RestControllerAdviceResponse {
 
     @ExceptionHandler(RoomAlreadyOwnerException.class)
     public ResponseEntity<ApiResult<String>> handleRoomAlreadyOwnerException (RoomAlreadyOwnerException e) {
-        return response("room.AlreadyOwner", e);
+        return response("room.alreadyOwner", e);
     }
 
-    
-    /* Http Status Error */
-    @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
-    public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
-        return response("room.badRequest", e);
+    @ExceptionHandler(RoomNotOwnerException.class)
+    public ResponseEntity<ApiResult<String>> handleRoomNotOwnerException (RoomNotOwnerException e) {
+        return response("room.notOwner", e);
     }
-    
-    @ExceptionHandler({ NullPointerException.class, IllegalArgumentException.class })
-    public ResponseEntity<ApiResult<String>> handleCustomBadRequestException(Exception e) {
-        return response("room.badRequest", e);
-    }
-    
-    @ExceptionHandler(RoomNotFoundException.class)
-    public ResponseEntity<ApiResult<String>> handleRoomNotFoundException(RoomNotFoundException e) {
-        return response("room.notFound", e);
-    }
-    
-    @ExceptionHandler(RoomInternalServerException.class)
-    public ResponseEntity<ApiResult<String>> handleRoomInternalServerException(RoomInternalServerException e) {
-        return response("room.internalServer", e);
-    }
+
 }

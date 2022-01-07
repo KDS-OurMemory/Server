@@ -96,6 +96,9 @@ room:
   alreadyOwner:
     code: "R006"
     msg: "사용자 번호 {0} 에 맞는 사용자는 이미 방장입니다. 양도할 다른 참여자를 선택해주시기 바랍니다."
+  notOwner:
+    code: "R007"
+    msg: "사용자(번호: {0}) 는 방(번호: {1}) 의 방장이 아닙니다."
 
 notice:
   badRequest:
