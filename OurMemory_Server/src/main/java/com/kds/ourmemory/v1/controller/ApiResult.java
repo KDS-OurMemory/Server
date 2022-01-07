@@ -25,7 +25,7 @@ public class ApiResult<T> {
 
     public static <T> ApiResult<T> ok(T data) {
         return new ApiResult<>(
-                "00",
+                "S00",
                 "성공",
                 BaseTimeEntity.formatNow(),
                 data

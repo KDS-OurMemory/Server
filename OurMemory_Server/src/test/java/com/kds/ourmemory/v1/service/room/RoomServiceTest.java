@@ -1,10 +1,7 @@
 package com.kds.ourmemory.v1.service.room;
 
 import com.kds.ourmemory.v1.advice.memory.exception.MemoryNotFoundException;
-import com.kds.ourmemory.v1.advice.room.exception.RoomAlreadyOwnerException;
-import com.kds.ourmemory.v1.advice.room.exception.RoomNotFoundException;
-import com.kds.ourmemory.v1.advice.room.exception.RoomNotFoundMemberException;
-import com.kds.ourmemory.v1.advice.room.exception.RoomNotFoundOwnerException;
+import com.kds.ourmemory.v1.advice.room.exception.*;
 import com.kds.ourmemory.v1.advice.user.exception.UserNotFoundException;
 import com.kds.ourmemory.v1.controller.memory.dto.MemoryReqDto;
 import com.kds.ourmemory.v1.controller.room.dto.RoomReqDto;
@@ -955,7 +952,11 @@ class RoomServiceTest {
         assertThat(insertMemoryRspOwner.getAddedRoomId()).isEqualTo(insertMemoryReqOwner.getRoomId());
 
         /* 3. Delete room */
-        // TODO implement check owner logic first.
+        var roomId = insertRoomRsp.getRoomId();
+        var notOwnerUserId = insertMember2Rsp.getUserId();
+        assertThrows(
+                RoomNotOwnerException.class, () -> roomService.delete(roomId, notOwnerUserId)
+        );
     }
 
 

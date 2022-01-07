@@ -61,12 +61,13 @@ public class RoomController {
     }
 
     @ApiOperation(value = "방 삭제", notes = """
-            1. 개인방 -> 일정 삭제 후 방 삭제, 2. 공유방 -> 방만 삭제\s
+            1. 개인방 -> 일정 삭제 후 방 삭제
+            2. 공유방 -> 방만 삭제
             성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
     @DeleteMapping("/{roomId}/users/{userId}")
     public ApiResult<RoomRspDto> delete(
             @PathVariable long roomId,
-            @ApiParam(value = "방 삭제할 사용자 번호") @PathVariable long userId
+            @ApiParam(value = "방장 번호") @PathVariable long userId
     ) {
         return ok(roomService.delete(roomId, userId));
     }
