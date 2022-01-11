@@ -23,8 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -737,7 +736,7 @@ class UserServiceTest {
                 .name("방장 방")
                 .userId(insertUserRsp.getUserId())
                 .opened(false)
-                .member(Stream.of(insertMemberRsp.getUserId()).collect(Collectors.toList()))
+                .member(List.of(insertMemberRsp.getUserId()))
                 .build();
 
         var insertOwnerRoomRsp = roomService.insert(insertOwnerRoomReq);
@@ -864,7 +863,7 @@ class UserServiceTest {
                 .name("참여방")
                 .userId(insertMemberRsp.getUserId())
                 .opened(false)
-                .member(Stream.of(insertUserRsp.getUserId(), insertMember2Rsp.getUserId()).collect(Collectors.toList()))
+                .member(List.of(insertUserRsp.getUserId(), insertMember2Rsp.getUserId()))
                 .build();
 
         var insertParticipantRoomRsp = roomService.insert(insertParticipantRoomReq);

@@ -185,7 +185,7 @@ public class UserService {
         Optional.of(transferIds)
                 .filter(ids -> !ids.isEmpty())
                 .map(ids -> ids.get(0))
-                .ifPresent(id -> roomService.patchOwner(roomId, id));
+                .ifPresent(id -> roomService.recommendOwner(roomId, id));
     }
 
     /**

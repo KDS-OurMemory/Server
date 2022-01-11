@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
@@ -69,7 +68,7 @@ public class MemoryService {
                     if (!memory.getWriter().getPrivateRoomId().equals(reqDto.getRoomId())) {
                         roomId = Optional.ofNullable(reqDto.getRoomId())
                                 .map(shareRoomId -> {
-                                    shareMemoryToRooms(memory, Stream.of(shareRoomId).collect(toList()));
+                                    shareMemoryToRooms(memory, List.of(shareRoomId));
                                     return shareRoomId;
                                 })
                                 .orElse(roomId);
@@ -234,7 +233,7 @@ public class MemoryService {
                                 .name(user.getName() + ", " + target.getName())
                                 .userId(userId)
                                 .opened(false)
-                                .member(Stream.of(target.getId()).collect(toList()))
+                                .member(List.of(target.getId()))
                                 .build();
 
                         var insertRoomRsp = roomService.insert(insertRoomReq);

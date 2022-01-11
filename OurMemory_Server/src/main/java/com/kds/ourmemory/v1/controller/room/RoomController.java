@@ -44,11 +44,11 @@ public class RoomController {
 
     @ApiOperation(value = "방장 양도", notes = "방 참여자에게 방장을 양도한다.")
     @PatchMapping("/{roomId}/owner/{userId}")
-    public ApiResult<RoomRspDto> patchOwner(
+    public ApiResult<RoomRspDto> recommendOwner(
             @PathVariable long roomId,
             @PathVariable long userId
     ) {
-        return ok(roomService.patchOwner(roomId, userId));
+        return ok(roomService.recommendOwner(roomId, userId));
     }
 
     @ApiOperation(value = "방 정보 수정", notes = "전달받은 값이 있는 경우 수정")
@@ -61,9 +61,12 @@ public class RoomController {
     }
 
     @ApiOperation(value = "방 삭제", notes = """
-            1. 개인방 -> 일정 삭제 후 방 삭제
-            2. 공유방 -> 방만 삭제
-            성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
+            1. 개인방
+                1) 일정 삭제 후 방 삭제
+            2. 공유방
+                1) 방만 삭제
+
+            * 성공한 경우, 삭제 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
     @DeleteMapping("/{roomId}/users/{userId}")
     public ApiResult<RoomRspDto> delete(
             @PathVariable long roomId,
@@ -71,4 +74,21 @@ public class RoomController {
     ) {
         return ok(roomService.delete(roomId, userId));
     }
+
+    @ApiOperation(value = "방 나가기", notes = """
+            1. 개인방
+                1) 공유된 일정 삭제 후 방 삭제
+            2. 공유방
+                1) 방장인 경우 -> 전달받은 사용자에게 위임 후 나가기(없는 경우, 임의로 위임됨.)
+                2) 참여자인 경우 -> 방 나가기
+            성공 여부를 resultCode 로 전달하기 때문에 response=null 을 리턴한다.""")
+    @DeleteMapping("/{roomId}/exit/{userId}")
+    public ApiResult<RoomRspDto> exit(
+            @ApiParam(value = "방 번호") @PathVariable long roomId,
+            @ApiParam(value = "사용자 번호") @PathVariable long userId,
+            @ApiParam(value = "방장을 위임할 사용자 번호") @RequestParam Long delegateUserId
+    ) {
+        return ok(roomService.exit(roomId, userId, delegateUserId));
+    }
+
 }
