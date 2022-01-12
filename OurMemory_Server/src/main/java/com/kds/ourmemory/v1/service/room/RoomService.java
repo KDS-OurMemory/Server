@@ -137,7 +137,7 @@ public class RoomService {
                                     if (room.getOwner().equals(owner)) {
                                         throw new RoomAlreadyOwnerException(userId, roomId);
                                     }
-                                    room.patchOwner(owner);
+                                    room.recommendOwner(owner);
                                 });
                     }
                     long afterOwnerId = room.getOwner().getId();
@@ -207,27 +207,46 @@ public class RoomService {
         var user = findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        User recommendUser = null;
-        if (recommendUserId != null) {
-            recommendUser = findUser(recommendUserId)
-                    .orElseThrow(() -> new RoomNotFoundRecommendUserException(recommendUserId));
-
-            if (Objects.equals(recommendUser.getId(), room.getOwner().getId())) {
-                throw new RoomAlreadyOwnerException(recommendUserId, roomId);
-            }
-
-            if (!room.getUsers().contains(recommendUser)) {
-                throw new RoomNotParticipantException(recommendUserId, roomId);
-            }
-        }
-        // Not present recommendUserId -> random recommend(only exists participants)
-        else if (room.getUsers().size() > 1){
-            recommendUser = room.getUsers().stream().filter(u -> u.getId() != userId).collect(toList()).get(0);
+        if (!room.getUsers().contains(user)) {
+            throw new RoomNotParticipantException(userId, roomId);
         }
 
-        /* 1. Personal room (Not privateRoom, only member 1) */
-        if (room.getUsers().size() == 1) {
-            // 1. delete room-memory relation
+        /* 1. share room's participant */
+        if (!Objects.equals(room.getOwner(), user)) {
+            // 1-1. exit room(delete room-user relation)
+            room.deleteUser(user);
+            user.deleteRooms(List.of(room));
+        }
+        /* 2. room's owner */
+        // 2-1. share room
+        else if (room.getUsers().size() > 1) {
+            // 1) recommend owner when exit owner
+            User recommendUser;
+            if (recommendUserId != null) {
+                recommendUser = findUser(recommendUserId)
+                        .orElseThrow(() -> new RoomNotFoundRecommendUserException(recommendUserId));
+
+                if (Objects.equals(recommendUser.getId(), room.getOwner().getId())) {
+                    throw new RoomAlreadyOwnerException(recommendUserId, roomId);
+                }
+
+                if (!room.getUsers().contains(recommendUser)) {
+                    throw new RoomNotParticipantException(recommendUserId, roomId);
+                }
+            }
+            // info) Not present recommendUserId -> random recommend(only exists participants)
+            else {
+                recommendUser = room.getUsers().stream().filter(u -> u.getId() != userId).collect(toList()).get(0);
+            }
+            room.recommendOwner(recommendUser);
+
+            // 2) exit room(delete room-user relation)
+            room.deleteUser(user);
+            user.deleteRooms(List.of(room));
+        }
+        // 2-2. personal room (Not privateRoom, only member 1)
+        else {
+            // 1) delete room-memory relation
             for (var memory : room.getMemories()) {
                 memory.deleteRoom(room);
             }
@@ -237,22 +256,15 @@ public class RoomService {
                 room.deleteMemory(memory);
             }
 
-            // 2. delete room
-            room.deleteRoom();
-        }
-        /* 2. Share room */
-        else {
-            // 1. exit room(delete room-user relation)
+            // 2) exit room(delete room-user relation)
             room.deleteUser(user);
             user.deleteRooms(List.of(room));
 
-            // 2. recommend owner when exit user equals owner
-            if (Objects.equals(user.getId(), room.getOwner().getId())) {
-                room.patchOwner(recommendUser);
-            }
+            // 3) delete room
+            room.deleteRoom();
         }
 
-        // exit response is null -> client already have data, so don't need response data.
+        // info) exit response is null -> client already have data, so don't need response data.
         return null;
     }
 

@@ -960,7 +960,7 @@ class RoomServiceTest {
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 성공 | 방장 지정")
     @Transactional
-    void exitShareRoomRecommendUserSuccess() {
+    void exitShareRoomOwnerSuccessToRecommendUser() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -1000,9 +1000,40 @@ class RoomServiceTest {
     }
 
     @Test
+    @DisplayName("방 나가기 -> 공유방 방장인 경우 | 성공 | 임의 위임")
+    @Transactional
+    void exitShareRoomOwnerSuccessToRandomRecommendUser() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
+        assertThat(insertRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
+        assertMembers(insertRoomRsp, insertRoomReq);
+
+        /* 2. Exit room */
+        var exitRoomRsp = roomService.exit(insertRoomRsp.getRoomId(), insertRoomRsp.getOwnerId(), null);
+        assertNull(exitRoomRsp);
+
+        /* 3. Check recommend owner */
+        var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertNotEquals(findRoomRsp.getOwnerId(), insertRoomRsp.getOwnerId());
+    }
+
+    @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 잘못된 방번호")
     @Transactional
-    void exitShareRoomRecommendUserFailToWrongRoomId() {
+    void exitShareRoomOwnerFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -1018,7 +1049,7 @@ class RoomServiceTest {
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 잘못된 사용자번호")
     @Transactional
-    void exitShareRoomRecommendUserFailToWrongUserId() {
+    void exitShareRoomOwnerFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -1047,9 +1078,41 @@ class RoomServiceTest {
     }
 
     @Test
+    @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 참여자가 아닌 사용자번호")
+    @Transactional
+    void exitShareRoomOwnerFailToNotParticipantUserId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(List.of(insertMember1Rsp.getUserId()))
+                .build();
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
+        assertThat(insertRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
+        assertMembers(insertRoomRsp, insertRoomReq);
+
+        /* 2. Exit room */
+        var roomId = insertRoomRsp.getRoomId();
+        var NotParticipantOwnerId = insertMember2Rsp.getUserId();
+        var recommendUserId = insertMember1Rsp.getUserId();
+        assertThrows(
+                RoomNotParticipantException.class,
+                () -> roomService.exit(roomId, NotParticipantOwnerId, recommendUserId)
+        );
+    }
+
+    @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 잘못된 위임자번호")
     @Transactional
-    void exitShareRoomRecommendUserFailToWrongRecommendUserId() {
+    void exitShareRoomOwnerFailToWrongRecommendUserId() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -1080,7 +1143,7 @@ class RoomServiceTest {
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 참여자가 아닌 위임자번호")
     @Transactional
-    void exitShareRoomRecommendUserFailToNotParticipantRecommendUserId() {
+    void exitShareRoomOwnerFailToNotParticipantRecommendUserId() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -1112,7 +1175,7 @@ class RoomServiceTest {
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 위임자가 이미 방장인 경우")
     @Transactional
-    void exitShareRoomRecommendUserFailToAlreadyOwner() {
+    void exitShareRoomOwnerFailToRecommendUserAlreadyOwner() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -1139,9 +1202,9 @@ class RoomServiceTest {
     }
 
     @Test
-    @DisplayName("방 나가기 -> 공유방 방장인 경우 | 성공 | 임의 위임")
+    @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공 | 방장 위임")
     @Transactional
-    void exitShareRoomRandomRecommendUserSuccess() {
+    void exitShareRoomParticipantSuccessToRecommendUser() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -1161,18 +1224,53 @@ class RoomServiceTest {
         assertMembers(insertRoomRsp, insertRoomReq);
 
         /* 2. Exit room */
-        var exitRoomRsp = roomService.exit(insertRoomRsp.getRoomId(), insertRoomRsp.getOwnerId(), null);
+        var exitRoomRsp = roomService.exit(
+                insertRoomRsp.getRoomId(), insertMember1Rsp.getUserId(), insertMember2Rsp.getUserId()
+        );
         assertNull(exitRoomRsp);
 
-        /* 3. Check recommend owner */
+        /* 3. Check same owner */
         var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
-        assertNotEquals(findRoomRsp.getOwnerId(), insertRoomRsp.getOwnerId());
+        assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
     }
 
     @Test
-    @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공")
+    @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공 | 잘못된 위임자번호")
     @Transactional
-    void exitShareRoomParticipantSuccess() {
+    void exitShareRoomParticipantSuccessToWrongRecommendUserId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
+        assertThat(insertRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
+        assertMembers(insertRoomRsp, insertRoomReq);
+
+        /* 2. Exit room */
+        var exitRoomRsp = roomService.exit(
+                insertRoomRsp.getRoomId(), insertMember1Rsp.getUserId(), -5000L
+        );
+        assertNull(exitRoomRsp);
+
+        /* 3. Check same owner */
+        var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+    }
+
+    @Test
+    @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공 | 위임자가 이미 방장인 경우")
+    @Transactional
+    void exitShareRoomParticipantSuccessToRecommendUserAlreadyOwner() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -1200,6 +1298,141 @@ class RoomServiceTest {
         /* 3. Check same owner */
         var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
         assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+    }
+
+    @Test
+    @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공 | 임의위임")
+    @Transactional
+    void exitShareRoomParticipantSuccessToRandomRecommendUser() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
+        assertThat(insertRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
+        assertMembers(insertRoomRsp, insertRoomReq);
+
+        /* 2. Exit room */
+        var exitRoomRsp = roomService.exit(
+                insertRoomRsp.getRoomId(), insertMember1Rsp.getUserId(), null
+        );
+        assertNull(exitRoomRsp);
+
+        /* 3. Check same owner */
+        var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+    }
+
+    @Test
+    @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 실패 | 잘못된 방번호")
+    @Transactional
+    void exitShareRoomParticipantFailToWrongRoomId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
+        assertThat(insertRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
+        assertMembers(insertRoomRsp, insertRoomReq);
+
+        /* 2. Exit room */
+        var wrongRoomId = -5000L;
+        var userId = insertMember1Rsp.getUserId();
+        var recommendUserId = insertOwnerRsp.getUserId();
+        assertThrows(
+                RoomNotFoundException.class, () -> roomService.exit(wrongRoomId , userId, recommendUserId)
+        );
+
+        /* 3. Check same owner */
+        var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+    }
+
+    @Test
+    @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 실패 | 잘못된 사용자번호")
+    @Transactional
+    void exitShareRoomParticipantFailToWrongUserId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(roomMembers)
+                .build();
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
+        assertThat(insertRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
+        assertMembers(insertRoomRsp, insertRoomReq);
+
+        /* 2. Exit room */
+        var roomId = insertRoomRsp.getRoomId();
+        var wrongUserId = -5000L;
+        var recommendUserId = insertOwnerRsp.getUserId();
+        assertThrows(
+                UserNotFoundException.class, () -> roomService.exit(roomId , wrongUserId, recommendUserId)
+        );
+
+        /* 3. Check same owner */
+        var findRoomRsp = roomService.find(insertRoomRsp.getRoomId());
+        assertThat(findRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+    }
+
+    @Test
+    @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 실패 | 참여자가 아닌 사용자번호")
+    @Transactional
+    void exitShareRoomParticipantFailToNotParticipantUserId() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var insertRoomReq = RoomReqDto.builder()
+                .name("TestRoom")
+                .userId(insertOwnerRsp.getUserId())
+                .opened(false)
+                .member(List.of(insertMember1Rsp.getUserId()))
+                .build();
+
+        /* 1. Insert */
+        var insertRoomRsp = roomService.insert(insertRoomReq);
+        assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertOwnerRsp.getUserId());
+        assertThat(insertRoomRsp.getName()).isEqualTo(insertRoomReq.getName());
+        assertThat(insertRoomRsp.isOpened()).isEqualTo(insertRoomReq.isOpened());
+        assertMembers(insertRoomRsp, insertRoomReq);
+
+        /* 2. Exit room */
+        var roomId = insertRoomRsp.getRoomId();
+        var NotParticipantUserId = insertMember2Rsp.getUserId();
+        var recommendUserId = insertMember1Rsp.getUserId();
+        assertThrows(
+                RoomNotParticipantException.class,
+                () -> roomService.exit(roomId, NotParticipantUserId, recommendUserId)
+        );
     }
 
 
