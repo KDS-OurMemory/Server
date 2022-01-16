@@ -65,4 +65,16 @@ public class RoomControllerAdvice extends RestControllerAdviceResponse {
         return response("room.notOwner", e);
     }
 
+    @ExceptionHandler(RoomNotFoundRecommendUserException.class)
+    public ResponseEntity<ApiResult<String>> handleRoomNotFoundDelegateUserException(
+            RoomNotFoundRecommendUserException e)
+    {
+        return response("room.notFoundRecommendUser", e);
+    }
+
+    @ExceptionHandler(RoomNotParticipantException.class)
+    public ResponseEntity<ApiResult<String>> handleRoomNotParticipantException(RoomNotParticipantException e){
+        return response("room.notParticipant", e);
+    }
+
 }

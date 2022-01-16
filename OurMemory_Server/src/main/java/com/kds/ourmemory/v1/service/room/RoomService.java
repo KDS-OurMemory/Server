@@ -16,10 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -129,7 +126,7 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomRspDto patchOwner(long roomId, long userId) {
+    public RoomRspDto recommendOwner(long roomId, long userId) {
         return findRoom(roomId)
                 .map(room -> {
                     long beforeOwnerId = room.getOwner().getId();
@@ -138,9 +135,9 @@ public class RoomService {
                         Optional.of(member).filter(m -> m.getId() == userId)
                                 .ifPresent(owner -> {
                                     if (room.getOwner().equals(owner)) {
-                                        throw new RoomAlreadyOwnerException(userId);
+                                        throw new RoomAlreadyOwnerException(userId, roomId);
                                     }
-                                    room.patchOwner(owner);
+                                    room.recommendOwner(owner);
                                 });
                     }
                     long afterOwnerId = room.getOwner().getId();
@@ -180,15 +177,94 @@ public class RoomService {
             throw new RoomNotOwnerException(userId, roomId);
         }
 
-        // 1. delete room
-        room.deleteRoom();
-
-        // 2. delete memories -> private room only
+        // 1. delete memories -> private room only
         if (room.getId().longValue() == privateRoomId) {
             room.getMemories().forEach(Memory::deleteMemory);
         }
 
+        // 2. delete room-memory relation
+        for (var memory : room.getMemories()) {
+            memory.deleteRoom(room);
+        }
+
+        var deleteList = List.copyOf(room.getMemories());
+        for (var memory : deleteList) {
+            room.deleteMemory(memory);
+        }
+
+        // 3. delete room
+        room.deleteRoom();
+
         // delete response is null -> client already have data, so don't need response data.
+        return null;
+    }
+
+    @Transactional
+    public RoomRspDto exit(long roomId, long userId, Long recommendUserId) {
+        var room = findRoom(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
+
+        var user = findUser(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (!room.getUsers().contains(user)) {
+            throw new RoomNotParticipantException(userId, roomId);
+        }
+
+        /* 1. share room's participant */
+        if (!Objects.equals(room.getOwner(), user)) {
+            // 1-1. exit room(delete room-user relation)
+            room.deleteUser(user);
+            user.deleteRooms(List.of(room));
+        }
+        /* 2. room's owner */
+        // 2-1. share room
+        else if (room.getUsers().size() > 1) {
+            // 1) recommend owner when exit owner
+            User recommendUser;
+            if (recommendUserId != null) {
+                recommendUser = findUser(recommendUserId)
+                        .orElseThrow(() -> new RoomNotFoundRecommendUserException(recommendUserId));
+
+                if (Objects.equals(recommendUser.getId(), room.getOwner().getId())) {
+                    throw new RoomAlreadyOwnerException(recommendUserId, roomId);
+                }
+
+                if (!room.getUsers().contains(recommendUser)) {
+                    throw new RoomNotParticipantException(recommendUserId, roomId);
+                }
+            }
+            // info) Not present recommendUserId -> random recommend(only exists participants)
+            else {
+                recommendUser = room.getUsers().stream().filter(u -> u.getId() != userId).collect(toList()).get(0);
+            }
+            room.recommendOwner(recommendUser);
+
+            // 2) exit room(delete room-user relation)
+            room.deleteUser(user);
+            user.deleteRooms(List.of(room));
+        }
+        // 2-2. personal room (Not privateRoom, only member 1)
+        else {
+            // 1) delete room-memory relation
+            for (var memory : room.getMemories()) {
+                memory.deleteRoom(room);
+            }
+
+            var deleteList = List.copyOf(room.getMemories());
+            for (var memory : deleteList) {
+                room.deleteMemory(memory);
+            }
+
+            // 2) exit room(delete room-user relation)
+            room.deleteUser(user);
+            user.deleteRooms(List.of(room));
+
+            // 3) delete room
+            room.deleteRoom();
+        }
+
+        // info) exit response is null -> client already have data, so don't need response data.
         return null;
     }
 

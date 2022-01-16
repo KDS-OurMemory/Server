@@ -12,7 +12,6 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -98,7 +97,7 @@ public class MemoryRspDto {
         modDate = userMemory.getMemory().formatModDate();
 
         // Optional return
-        userAttendances = Stream.of(new UserAttendance(userMemory)).collect(toList());
+        userAttendances = List.of(new UserAttendance(userMemory));
     }
 
     public MemoryRspDto(Long privateRoomId, Memory memory) {

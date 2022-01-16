@@ -79,7 +79,7 @@ public class Room extends BaseTimeEntity implements Serializable{
         this.memories.add(memory);
     }
 
-    public void patchOwner(User user) {
+    public void recommendOwner(User user) {
 		this.owner = user;
 	}
 

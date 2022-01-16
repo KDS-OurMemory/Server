@@ -22,9 +22,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -775,7 +773,7 @@ class MemoryServiceTest {
                 .name("room name2")
                 .userId(insertWriterRsp.getUserId())
                 .opened(false)
-                .member(Stream.of(insertMemberRsp.getUserId()).collect(toList()))
+                .member(List.of(insertMemberRsp.getUserId()))
                 .build();
         var insertRoomRsp2 = roomService.insert(insertRoomReq2);
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
@@ -1073,7 +1071,7 @@ class MemoryServiceTest {
                 .name("room name2")
                 .userId(insertWriterRsp.getUserId())
                 .opened(false)
-                .member(Stream.of(insertMemberRsp.getUserId()).collect(toList()))
+                .member(List.of(insertMemberRsp.getUserId()))
                 .build();
         var insertRoomRsp2 = roomService.insert(insertRoomReq2);
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
@@ -1473,7 +1471,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.USERS)
-                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList()))
+                .shareIds(List.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()))
                 .build();
 
         /* 1. Make memory */
@@ -1566,7 +1564,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.USERS)
-                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList()))
+                .shareIds(List.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()))
                 .build();
 
         /* 1. Make memory */
@@ -1627,7 +1625,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.USERS)
-                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList()))
+                .shareIds(List.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()))
                 .build();
 
         /* 1. Make memory */
@@ -1688,7 +1686,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.USERS)
-                .shareIds(Stream.of(insertMemberRsp.getUserId() + 5000, insertMemberRsp2.getUserId()).collect(toList()))
+                .shareIds(List.of(insertMemberRsp.getUserId() + 5000, insertMemberRsp2.getUserId()))
                 .build();
 
         /* 1. Make memory */
@@ -1750,7 +1748,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.USER_GROUP)
-                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList()))
+                .shareIds(List.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()))
                 .build();
 
         /* 1. Make memory */
@@ -1841,7 +1839,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.USER_GROUP)
-                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList()))
+                .shareIds(List.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()))
                 .build();
 
         /* 1. Make memory */
@@ -1903,7 +1901,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.USER_GROUP)
-                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()).collect(toList()))
+                .shareIds(List.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId()))
                 .build();
 
         /* 1. Make memory */
@@ -1965,7 +1963,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.USER_GROUP)
-                .shareIds(Stream.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId() + 500).collect(toList()))
+                .shareIds(List.of(insertMemberRsp.getUserId(), insertMemberRsp2.getUserId() + 500))
                 .build();
 
         /* 1. Make memory */
@@ -2010,7 +2008,7 @@ class MemoryServiceTest {
                 .bgColor("#FFFFFF")
                 .build();
 
-        var members2 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var members2 = List.of(insertWriterRsp.getUserId());
         var insertRoomReq2 = RoomReqDto.builder()
                 .name("room name2")
                 .userId(insertMemberRsp.getUserId())
@@ -2021,7 +2019,7 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
         assertThat(insertRoomRsp2.getMembers().size()).isEqualTo(2);
 
-        var members3 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var members3 = List.of(insertWriterRsp.getUserId());
         var insertRoomReq3 = RoomReqDto.builder()
                 .name("room name3")
                 .userId(insertMemberRsp.getUserId())
@@ -2034,7 +2032,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.ROOMS)
-                .shareIds(Stream.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()).collect(toList()))
+                .shareIds(List.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()))
                 .build();
 
         /* 1. Make memory */
@@ -2084,7 +2082,7 @@ class MemoryServiceTest {
                 .bgColor("#FFFFFF")
                 .build();
 
-        var members2 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var members2 = List.of(insertWriterRsp.getUserId());
         var insertRoomReq2 = RoomReqDto.builder()
                 .name("room name2")
                 .userId(insertMemberRsp.getUserId())
@@ -2095,7 +2093,7 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
         assertThat(insertRoomRsp2.getMembers().size()).isEqualTo(2);
 
-        var members3 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var members3 = List.of(insertWriterRsp.getUserId());
         var insertRoomReq3 = RoomReqDto.builder()
                 .name("room name3")
                 .userId(insertMemberRsp.getUserId())
@@ -2108,7 +2106,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.ROOMS)
-                .shareIds(Stream.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()).collect(toList()))
+                .shareIds(List.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()))
                 .build();
 
         /* 1. Make memory */
@@ -2158,7 +2156,7 @@ class MemoryServiceTest {
                 .bgColor("#FFFFFF")
                 .build();
 
-        var members2 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var members2 = List.of(insertWriterRsp.getUserId());
         var insertRoomReq2 = RoomReqDto.builder()
                 .name("room name2")
                 .userId(insertMemberRsp.getUserId())
@@ -2169,7 +2167,7 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
         assertThat(insertRoomRsp2.getMembers().size()).isEqualTo(2);
 
-        var members3 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var members3 = List.of(insertWriterRsp.getUserId());
         var insertRoomReq3 = RoomReqDto.builder()
                 .name("room name3")
                 .userId(insertMemberRsp.getUserId())
@@ -2182,7 +2180,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.ROOMS)
-                .shareIds(Stream.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()).collect(toList()))
+                .shareIds(List.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId()))
                 .build();
 
         /* 1. Make memory */
@@ -2232,7 +2230,7 @@ class MemoryServiceTest {
                 .bgColor("#FFFFFF")
                 .build();
 
-        var members2 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var members2 = List.of(insertWriterRsp.getUserId());
         var insertRoomReq2 = RoomReqDto.builder()
                 .name("room name2")
                 .userId(insertMemberRsp.getUserId())
@@ -2243,7 +2241,7 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertMemberRsp.getUserId());
         assertThat(insertRoomRsp2.getMembers().size()).isEqualTo(2);
 
-        var members3 = Stream.of(insertWriterRsp.getUserId()).collect(toList());
+        var members3 = List.of(insertWriterRsp.getUserId());
         var insertRoomReq3 = RoomReqDto.builder()
                 .name("room name3")
                 .userId(insertMemberRsp.getUserId())
@@ -2256,7 +2254,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.ROOMS)
-                .shareIds(Stream.of(insertRoomRsp2.getRoomId() + 500, insertRoomRsp3.getRoomId()).collect(toList()))
+                .shareIds(List.of(insertRoomRsp2.getRoomId() + 500, insertRoomRsp3.getRoomId()))
                 .build();
 
         /* 1. Make memory */
@@ -2549,7 +2547,7 @@ class MemoryServiceTest {
                 .name("room name2")
                 .userId(insertWriterRsp.getUserId())
                 .opened(false)
-                .member(Stream.of(insertMemberRsp.getUserId()).collect(toList()))
+                .member(List.of(insertMemberRsp.getUserId()))
                 .build();
         var insertRoomRsp2 = roomService.insert(insertRoomReq2);
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
@@ -2853,7 +2851,7 @@ class MemoryServiceTest {
                 .name("room name2")
                 .userId(insertWriterRsp.getUserId())
                 .opened(false)
-                .member(Stream.of(insertMemberRsp.getUserId()).collect(toList()))
+                .member(List.of(insertMemberRsp.getUserId()))
                 .build();
         var insertRoomRsp2 = roomService.insert(insertRoomReq2);
         assertThat(insertRoomRsp2.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
@@ -3628,7 +3626,7 @@ class MemoryServiceTest {
         assertThat(insertMemberRsp.getUserId()).isNotNull();
 
         /* 2. Create room */
-        var members = Stream.of(insertMemberRsp.getUserId()).collect(toList());
+        var members = List.of(insertMemberRsp.getUserId());
         var insertRoomReq = RoomReqDto.builder()
                 .name("room name")
                 .userId(insertWriterRsp.getUserId())
