@@ -28,13 +28,6 @@ public class UserControllerAdvice extends RestControllerAdviceResponse {
         super(messageSource);
     }
 
-    /* Custom Error */
-    @ExceptionHandler(UserProfileImageUploadException.class)
-    public ResponseEntity<ApiResult<String>> handleUserProfileImageUploadException(UserProfileImageUploadException e) {
-        return response("user.profileUploadError", e);
-    }
-
-    /* Http Status Error */
     @ExceptionHandler({ MissingServletRequestParameterException.class, HttpMessageNotReadableException.class,
             MethodArgumentTypeMismatchException.class, IllegalStateException.class })
     public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
@@ -54,6 +47,11 @@ public class UserControllerAdvice extends RestControllerAdviceResponse {
     @ExceptionHandler(UserInternalServerException.class)
     public ResponseEntity<ApiResult<String>> handleUserInternalServerException(UserInternalServerException e) {
         return response("user.internalServerError", e);
+    }
+
+    @ExceptionHandler(UserProfileImageUploadException.class)
+    public ResponseEntity<ApiResult<String>> handleUserProfileImageUploadException(UserProfileImageUploadException e) {
+        return response("user.profileUploadError", e);
     }
 
 }

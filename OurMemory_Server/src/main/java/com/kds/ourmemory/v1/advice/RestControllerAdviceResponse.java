@@ -18,21 +18,31 @@ public class RestControllerAdviceResponse {
     private final MessageSource messageSource;
 
     protected ResponseEntity<ApiResult<String>> response(String resultCode, ArgsRuntimeException e) {
-        return response(getMessage(resultCode + ".code"), getMessage(resultCode + ".msg", e.getArgs()));
+        return response(
+                getMessage(resultCode + ".code"),
+                getMessage(resultCode + ".resultMessage"),
+                getMessage(resultCode + ".detailMessage", e.getArgs())
+        );
     }
 
     protected ResponseEntity<ApiResult<String>> response(String resultCode, Exception e) {
-        return response(getMessage(resultCode + ".code"), getMessage(resultCode + ".msg", e.getMessage()));
+        return response(
+                getMessage(resultCode + ".code"),
+                getMessage(resultCode + ".resultMessage"),
+                getMessage(resultCode + ".detailMessage", e.getMessage())
+        );
     }
 
-    private ResponseEntity<ApiResult<String>> response(String code, String msg) {
-        log.warn("================================================================");
-        log.warn("resultCode: {}, msg: {}", code, msg);
-        log.warn("================================================================");
+    private ResponseEntity<ApiResult<String>> response(String code, String resultMessage, String detailMessage) {
+        log.error("================================================================");
+        log.error("resultCode: {}", code);
+        log.error("resultMessage: {}", resultMessage);
+        log.error("detailMessage: {}", detailMessage);
+        log.error("================================================================");
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-        return new ResponseEntity<>(error(code, msg), headers, HttpStatus.OK);
+        return new ResponseEntity<>(error(code, resultMessage, detailMessage), headers, HttpStatus.OK);
     }
 
     private String getMessage(String code, Object... args) {
