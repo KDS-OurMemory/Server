@@ -10,6 +10,7 @@ import com.kds.ourmemory.v1.entity.notice.NoticeType;
 import com.kds.ourmemory.v1.entity.user.DeviceOs;
 import com.kds.ourmemory.v1.service.notice.NoticeService;
 import com.kds.ourmemory.v1.service.user.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +21,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -173,8 +175,12 @@ class FriendServiceTest {
 
 
         /* 1. Request friend */
-        assertThrows(FriendAlreadyAcceptException.class, () ->
+        var friendAlreadyAcceptException = assertThrows(FriendAlreadyAcceptException.class, () ->
                 friendService.requestFriend(requestReq)
+        );
+        log.debug(
+                "Expected exception occurred during request friend. {}:{}",
+                friendAlreadyAcceptException.getClass(), friendAlreadyAcceptException.getMessage()
         );
 
         /* 2. Accept friend */
