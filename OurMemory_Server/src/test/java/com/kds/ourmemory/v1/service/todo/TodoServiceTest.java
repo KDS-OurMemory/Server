@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 추가 | 성공")
-    @Transactional
     void insertSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -65,7 +63,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 추가 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void insertFailToWrongUserId() {
         /* 1. Create request */
         var todoReqDto = TodoReqDto.builder()
@@ -82,7 +79,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 단일 조회 | 성공")
-    @Transactional
     void findTodoSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -112,7 +108,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 단일 조회 | 실패 | 잘못된 TODO 번호")
-    @Transactional
     void findTodoFailToWrongTodoId() {
         /* 1. Find todoData */
         assertThrows(
@@ -122,7 +117,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 단일 조회 | 실패 | 삭제된 TODO 번호")
-    @Transactional
     void findTodoFailToDeletedTodoId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -154,7 +148,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 목록 조회 | 성공")
-    @Transactional
     void findTodosSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -217,7 +210,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 수정 | 성공")
-    @Transactional
     void updateSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -260,7 +252,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 수정 | 실패 | 잘못된 TODO 번호")
-    @Transactional
     void updateFailToWrongTodoId() {
         /* 1. Create request */
         var updateTodoReq = TodoReqDto.builder()
@@ -276,7 +267,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 수정 | 실패 | 삭제된 TODO 번호")
-    @Transactional
     void updateFailToDeletedTodoId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -313,7 +303,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 삭제 | 성공")
-    @Transactional
     void deleteSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -346,7 +335,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 삭제 | 실패 | 잘못된 TODO 번호")
-    @Transactional
     void deleteFailToWrongTodoId() {
         /* 1. Delete todoData */
         assertThrows(
@@ -356,7 +344,6 @@ class TodoServiceTest {
 
     @Test
     @DisplayName("TODO 삭제 | 실패 | 삭제된 TODO 번호")
-    @Transactional
     void deleteFailToDeletedTodoId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -385,8 +372,8 @@ class TodoServiceTest {
         );
     }
 
-    // life cycle: @Before -> @Test => separate => Not maintained @Transactional
-    // Call function in @Test function => maintained @Transactional
+    // life cycle: @Before -> @Test => separate => Not maintained 
+    // Call function in @Test function => maintained 
     void setBaseData() {
         /* 1. Create Writer */
         var insertWriterReq = UserReqDto.builder()

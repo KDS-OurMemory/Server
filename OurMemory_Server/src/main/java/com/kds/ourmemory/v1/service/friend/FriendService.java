@@ -46,6 +46,7 @@ public class FriendService {
     // Add to Notice
     private final NoticeService noticeService;
 
+    @Transactional
     public List<FriendRspDto> findUsers(long userId, Long targetId, String name, FriendStatus friendStatus) {
         var user = findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -74,6 +75,7 @@ public class FriendService {
         return responseList.stream().distinct().collect(Collectors.toList());
     }
 
+    @Transactional
     public FriendRspDto requestFriend(FriendReqDto reqDto) {
         findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .ifPresent(friend -> {
@@ -221,6 +223,7 @@ public class FriendService {
         return new FriendRspDto(acceptFriend);
     }
 
+    @Transactional
     public FriendRspDto reAddFriend(FriendReqDto reqDto) {
         // Check friend status on friend side
         findFriend(reqDto.getFriendUserId(), reqDto.getUserId())
@@ -251,6 +254,7 @@ public class FriendService {
     }
 
     // Not found friend -> None Error, just empty -> return emptyList
+    @Transactional
     public List<FriendRspDto> findFriends(long userId) {
         return findFriendsByUserId(userId)
                 .map(friends -> friends.stream()
@@ -260,6 +264,7 @@ public class FriendService {
                 .orElseGet(ArrayList::new);
     }
 
+    @Transactional
     public FriendRspDto patchFriendStatus(FriendReqDto reqDto) {
         return findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
                 .map(friend ->
@@ -280,12 +285,18 @@ public class FriendService {
                 );
     }
 
+    @Transactional
     public FriendRspDto deleteFriend(long userId, long friendUserId) {
         findFriend(userId, friendUserId)
                 .map(friend -> {
                     if (friend.getStatus().equals(FriendStatus.WAIT) || friend.getStatus().equals(FriendStatus.REQUESTED_BY))
-                        throw new FriendInternalServerException(
-                                String.format("User '%d' is not friend. cancel reqDto plz.", friendUserId)
+                        throw new FriendStatusException(
+                                String.format(
+                                        "'%s' 또는 '%s'",
+                                        FriendStatus.WAIT.getDesc(),
+                                        FriendStatus.REQUESTED_BY.getDesc()
+                                ),
+                                String.format("'%s'", friend.getStatus().getDesc())
                         );
 
                     // Delete friend only my side. The other side does not delete.

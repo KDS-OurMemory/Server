@@ -30,6 +30,7 @@ public class TodoService {
     // Add to work in todolist and user relationship tables
     private final UserRepository userRepo;
 
+    @Transactional
     public TodoRspDto insert(TodoReqDto reqDto) {
         return findUser(reqDto.getWriterId())
                 .map(writer -> insertTodolist(reqDto.toEntity(writer))
@@ -39,12 +40,14 @@ public class TodoService {
                 .orElseThrow(() -> new UserNotFoundException(reqDto.getWriterId()));
     }
 
+    @Transactional
     public TodoRspDto find(long todoId) {
         return findTodo(todoId)
                 .map(TodoRspDto::new)
                 .orElseThrow(() -> new TodoNotFoundException(todoId));
     }
 
+    @Transactional
     public List<TodoRspDto> findTodos(long userId) {
         List<Todo> findTodos = new ArrayList<>();
 

@@ -116,6 +116,7 @@ public class MemoryService {
                 ));
     }
 
+    @Transactional
     public MemoryRspDto find(long memoryId, long roomId) {
         return findMemory(memoryId)
                 .filter(Memory::isUsed)
@@ -141,6 +142,7 @@ public class MemoryService {
                 );
     }
 
+    @Transactional
     public List<MemoryRspDto> findMemories(Long writerId, String name) {
         List<Memory> findMemories = new ArrayList<>();
 

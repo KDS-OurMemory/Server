@@ -50,6 +50,7 @@ public class UserService {
                 .orElseThrow(UserInternalServerException::new);
     }
 
+    @Transactional
     public UserRspDto signIn(int snsType, String snsId) {
         return findUser(snsType, snsId).map(UserRspDto::new)
                 .orElseThrow(() -> new UserNotFoundException(
@@ -58,6 +59,7 @@ public class UserService {
                 );
     }
 
+    @Transactional
     public UserRspDto find(long userId) {
         return findUser(userId)
                 .map(UserRspDto::new)

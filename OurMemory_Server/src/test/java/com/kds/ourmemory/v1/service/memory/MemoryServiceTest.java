@@ -19,26 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-
-/*
- * TODO 일정 공유 오류 수정 -> 공유 진행 중 일부 사용자 실패한 경우, 전체 롤백되지 않고 성공한 사용자에게는 공유된다.
- *   => @Transactional TxType.REQUIRED 로 일정 공유 전체에 트랜잭션이 걸려있어서 내부 메소드는 컨텍스트를 공유하게 된다.
- *   => 따라서 롤백은 일정 공유 테스트 코드가 전부 종료된 다음 롤백되기 때문에, 테스트 중 일정 공유 메소드 예외가 발생해도 당장 롤백되지 않는다.
- *   => 이를 해결하기 위해선
- *      1. 일정 공유 테스트 코드에 트랜잭션을 제거하거나,
- *      2. 일정 공유 메소드를 TxType.REQUIRED_NEW 로 선언하여 새로운 트랜잭션을 잡아야한다.
- *   => 1. 의 경우, 테스트 중 DB에 일정추가가 롤백되지 않기 때문에 불가능하며,
- *   => 2. 의 경우, 새로운 트랜잭션 컨텍스트 범위가 생성되기 때문에, 그 위치에선 DB에 적재되지 않은 일정, 방 정보는 불러올 수 없어 오류가 발생한다.
- *   => 따라서 현재 상태로는 테스트가 불가능하다... 새로운 방법을 찾을 때까지 우선 케이스 수정 후 통과 조치함.
- *
- * */
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -53,7 +39,7 @@ class MemoryServiceTest {
 
     /**
      * Assert time format -> delete sec
-     * 
+     * <p>
      * This is because time difference occurs after room creation due to relation table work.
      */
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
@@ -81,7 +67,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 방 안(공유 일정 취급) | 성공")
-    @Transactional
     void insertMemoryInRoomSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -94,7 +79,7 @@ class MemoryServiceTest {
                 .contents("Test Contents")
                 .place("Test Place")
                 .startDate(LocalDateTime.parse(
-                                LocalDateTime.now().plusDays(2).format(alertTimeFormat), alertTimeFormat)
+                        LocalDateTime.now().plusDays(2).format(alertTimeFormat), alertTimeFormat)
                 ) // 시작시간
                 .endDate(LocalDateTime.parse(
                         LocalDateTime.now().plusDays(3).format(alertTimeFormat), alertTimeFormat)
@@ -121,7 +106,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 방 안(공유 일정 취급) | 실패 | 사용자번호 다름")
-    @Transactional
     void insertMemoryInRoomFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -134,7 +118,7 @@ class MemoryServiceTest {
                 .contents("Test Contents")
                 .place("Test Place")
                 .startDate(LocalDateTime.parse(
-                                LocalDateTime.now().plusDays(2).format(alertTimeFormat), alertTimeFormat)
+                        LocalDateTime.now().plusDays(2).format(alertTimeFormat), alertTimeFormat)
                 ) // 시작시간
                 .endDate(LocalDateTime.parse(
                         LocalDateTime.now().plusDays(3).format(alertTimeFormat), alertTimeFormat)
@@ -153,7 +137,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 방 안(공유 일정 취급) | 실패 | 탈퇴한 일정 작성자번호")
-    @Transactional
     void insertMemoryInRoomFailToDeactivateUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -184,7 +167,7 @@ class MemoryServiceTest {
                 .contents("Test Contents")
                 .place("Test Place")
                 .startDate(LocalDateTime.parse(
-                                LocalDateTime.now().plusDays(2).format(alertTimeFormat), alertTimeFormat)
+                        LocalDateTime.now().plusDays(2).format(alertTimeFormat), alertTimeFormat)
                 ) // 시작시간
                 .endDate(LocalDateTime.parse(
                         LocalDateTime.now().plusDays(3).format(alertTimeFormat), alertTimeFormat)
@@ -203,7 +186,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 방 안(공유 일정 취급) | 실패 | 잘못된 방 번호")
-    @Transactional
     void insertMemoryInRoomFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -216,7 +198,7 @@ class MemoryServiceTest {
                 .contents("Test Contents")
                 .place("Test Place")
                 .startDate(LocalDateTime.parse(
-                                LocalDateTime.now().plusDays(2).format(alertTimeFormat), alertTimeFormat)
+                        LocalDateTime.now().plusDays(2).format(alertTimeFormat), alertTimeFormat)
                 ) // 시작시간
                 .endDate(LocalDateTime.parse(
                         LocalDateTime.now().plusDays(3).format(alertTimeFormat), alertTimeFormat)
@@ -235,7 +217,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 방 밖(개인 일정 취급) | 성공")
-    @Transactional
     void insertMemoryOutRoomSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -274,7 +255,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 방 밖(개인 일정 취급) | 실패 | 잘못된 사용자번호")
-    @Transactional
     void insertMemoryOutRoomFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -305,7 +285,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 방 밖(개인 일정 취급) | 실패 | 탈퇴한 일정 작성자번호")
-    @Transactional
     void insertMemoryOutRoomFailToDeactivateUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -354,7 +333,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 개인방 | 성공")
-    @Transactional
     void insertMemoryInPrivateRoomSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -387,7 +365,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 개인방 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void insertMemoryInPrivateRoomFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -419,7 +396,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 개인방 | 실패 | 탈퇴한 일정 작성자번호")
-    @Transactional
     void insertMemoryInPrivateRoomFailToDeactivateUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -469,7 +445,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 추가 -> 개인방 | 실패 | 잘못된 방번호")
-    @Transactional
     void insertMemoryInPrivateRoomFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -501,7 +476,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 공유방 일정 | 성공")
-    @Transactional
     void findShareMemorySuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -547,7 +521,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 공유방 일정 | 실패 | 잘못된 일정번호")
-    @Transactional
     void findShareMemoryFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -594,7 +567,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 공유방 일정 | 실패 | 삭제된 일정번호")
-    @Transactional
     void findShareMemoryFailToDeletedMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -647,7 +619,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 공유방 일정 | 실패 | 잘못된 방번호")
-    @Transactional
     void findShareMemoryFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -694,7 +665,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 공유방 일정 | 실패 | 삭제된 방번호")
-    @Transactional
     void findShareMemoryFailToDeletedRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -747,7 +717,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 공유방 일정 | 실패 | 방에 포함되지 않은 일정")
-    @Transactional
     void findShareMemoryFailToNotIncludeRoom() {
         /* 0-1. Set base data */
         setBaseData();
@@ -805,7 +774,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 개인방 일정 | 성공")
-    @Transactional
     void findPrivateMemorySuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -850,7 +818,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 개인방 일정 | 실패 | 잘못된 일정번호")
-    @Transactional
     void findPrivateMemoryFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -896,7 +863,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 개인방 일정 | 실패 | 삭제된 일정번호")
-    @Transactional
     void findPrivateMemoryFailToDeletedMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -948,7 +914,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 개인방 일정 | 실패 | 잘못된 방번호")
-    @Transactional
     void findPrivateMemoryFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -994,7 +959,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 개인방 일정 | 실패 | 삭제된 방번호")
-    @Transactional
     void findPrivateMemoryFailToDeletedRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1046,7 +1010,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 개별 조회 -> 개인방 일정 | 실패 | 방에 포함되지 않은 일정")
-    @Transactional
     void findPrivateMemoryFailToNotIncludeRoom() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1103,7 +1066,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 참석 | 성공")
-    @Transactional
     void attendMemorySuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1152,7 +1114,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 참석 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void attendMemoryFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1208,7 +1169,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 참석 | 실패 | 잘못된 일정번호")
-    @Transactional
     void attendMemoryFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1264,7 +1224,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 불참 | 성공")
-    @Transactional
     void absentMemorySuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1320,7 +1279,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 불참 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void absentMemoryFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1376,7 +1334,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 불참 | 실패 | 잘못된 일정번호")
-    @Transactional
     void absentMemoryFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1432,7 +1389,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 개별 사용자 목록 | 성공")
-    @Transactional
     void shareMemoryForUsersSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1497,7 +1453,7 @@ class MemoryServiceTest {
         var isValidMember = false;
         Long memberRoomId = null;
         for (var findMemberRoomRsp : findMemberRooms) {
-            if (findMemberRoomRsp.getRoomId() == insertRoomRsp.getRoomId() 
+            if (findMemberRoomRsp.getRoomId() == insertRoomRsp.getRoomId()
                     || findMemberRoomRsp.getRoomId() == insertMemberRsp.getPrivateRoomId()
             ) {
                 continue;
@@ -1525,7 +1481,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 개별 사용자 목록 | 실패 | 잘못된 공유자번호")
-    @Transactional
     void shareMemoryForUsersFailToWrongSharerId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1586,7 +1541,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 개별 사용자 목록 | 실패 | 잘못된 일정번호")
-    @Transactional
     void shareMemoryForUsersFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1647,7 +1601,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 개별 사용자 목록 | 실패 | 잘못된 공유대상 사용자번호")
-    @Transactional
     void shareMemoryForUsersFailToWrongTargetUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1707,14 +1660,12 @@ class MemoryServiceTest {
         );
 
         /* 3. Check rollback share memory from targets */
-        // TODO: 최상단 트랜잭션 오류로 인해 현재 환경에선 롤백되지 않아 테스트 불가능. -> 주석처리함.
-//        var findRooms = roomService.findRooms(insertMemberRsp.getUserId(), null);
-//        assertThat(findRooms.size()).isOne();
+        var findRooms = roomService.findRooms(insertMemberRsp.getUserId(), null);
+        assertThat(findRooms.size()).isOne();
     }
 
     @Test
     @DisplayName("일정 공유 -> 사용자 그룹 | 성공")
-    @Transactional
     void shareMemoryForUserGroupSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1805,7 +1756,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 사용자 그룹 | 실패 | 잘못된 공유자번호")
-    @Transactional
     void shareMemoryForUserGroupFailToWrongSharerId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1867,7 +1817,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 사용자 그룹 | 실패 | 잘못된 일정번호")
-    @Transactional
     void shareMemoryForUserGroupFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1929,7 +1878,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 사용자 그룹 | 실패 | 잘못된 공유대상 사용자번호")
-    @Transactional
     void shareMemoryForUserGroupFailToWrongTargetUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1991,7 +1939,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 방 목록 | 성공")
-    @Transactional
     void shareMemoryForRoomsSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2065,7 +2012,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 방 목록 | 실패 | 잘못된 공유자번호")
-    @Transactional
     void shareMemoryForRoomsFailToWrongSharerId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2139,7 +2085,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 방 목록 | 실패 | 잘못된 일정번호")
-    @Transactional
     void shareMemoryForRoomsFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2213,7 +2158,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 공유 -> 방 목록 | 실패 | 잘못된 공유대상 방번호")
-    @Transactional
     void shareMemoryForRoomsFailToWrongTargetRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2261,7 +2205,7 @@ class MemoryServiceTest {
 
         var shareMemoryUsersReq = MemoryReqDto.builder()
                 .shareType(ShareType.ROOMS)
-                .shareIds(List.of(insertRoomRsp2.getRoomId() + 500, insertRoomRsp3.getRoomId()))
+                .shareIds(List.of(insertRoomRsp2.getRoomId(), insertRoomRsp3.getRoomId() + 500))
                 .build();
 
         /* 1. Make memory */
@@ -2287,7 +2231,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 공유방 | 성공")
-    @Transactional
     void deleteMemoryFromShareRoomSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2346,7 +2289,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 공유방 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void deleteMemoryFromShareRoomFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2406,7 +2348,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 공유방 | 실패 | 잘못된 일정번호")
-    @Transactional
     void deleteMemoryFromShareRoomFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2466,7 +2407,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 공유방 | 실패 | 잘못된 방번호")
-    @Transactional
     void deleteMemoryFromShareRoomFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2526,7 +2466,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 공유방 | 실패 | 방에 포함되지 않은 일정")
-    @Transactional
     void deleteMemoryFromShareRoomFailToNotIncludeRoom() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2597,7 +2536,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 개인방 | 성공")
-    @Transactional
     void deleteMemoryFromPrivateRoomSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2653,7 +2591,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 개인방 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void deleteMemoryFromPrivateRoomFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2712,7 +2649,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 개인방 | 실패 | 잘못된 일정번호")
-    @Transactional
     void deleteMemoryFromPrivateRoomFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2771,7 +2707,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 개인방 | 실패 | 잘못된 방번호")
-    @Transactional
     void deleteMemoryFromPrivateRoomFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2830,7 +2765,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 삭제 -> 개인방 | 실패 | 방에 포함되지 않은 일정")
-    @Transactional
     void deleteMemoryFromPrivateRoomFailToNotIncludeRoom() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2900,7 +2834,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 수정 -> 작성자 | 성공")
-    @Transactional
     void updateMemoryByWriterSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -2978,7 +2911,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 수정 -> 작성자 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void updateMemoryByWriterFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -3055,7 +2987,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 수정 -> 작성자 | 실패 | 잘못된 일정번호")
-    @Transactional
     void updateMemoryByWriterFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -3132,7 +3063,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 수정 -> 작성자 | 실패 | 일정 작성자가 아닌 경우")
-    @Transactional
     void updateMemoryByWriterFailToNotMatchedWriterId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -3209,7 +3139,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 수정 -> 작성자 외 다른 사람 | 성공")
-    @Transactional
     void updateMemoryByOtherSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -3279,7 +3208,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 수정 -> 작성자 외 다른 사람 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void updateMemoryByOtherFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -3349,7 +3277,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 수정 -> 작성자 외 다른 사람 | 실패 | 잘못된 일정번호")
-    @Transactional
     void updateMemoryByOtherFailToWrongMemoryId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -3419,7 +3346,6 @@ class MemoryServiceTest {
 
     @Test
     @DisplayName("일정 목록 조회 | 성공")
-    @Transactional
     void findMemoriesSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -3600,8 +3526,8 @@ class MemoryServiceTest {
         assertThat(findMemoriesRsp7.getMemoryId()).isEqualTo(insertMemoryRsp7.getMemoryId());
     }
 
-    // life cycle: @Before -> @Test => separate => Not maintained @Transactional
-    // Call function in @Test function => maintained @Transactional
+    // life cycle: @Before -> @Test => separate => Not maintained 
+    // Call function in @Test function => maintained 
     void setBaseData() {
         /* 1. Create Writer, Member */
         var insertWriterReq = UserReqDto.builder()
