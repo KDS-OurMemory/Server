@@ -17,6 +17,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.transaction.Transactional;
 import java.io.FileInputStream;
@@ -29,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserServiceTest {
@@ -478,10 +480,8 @@ class UserServiceTest {
         assertThat(insertUserRsp).isNotNull();
 
         /* 1. Delete user */
-        var wrongUserId = insertUserRsp.getUserId() + 1;
-        assertThrows(
-                UserNotFoundException.class, () -> userService.find(wrongUserId)
-        );
+        var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
+        assertNull(deleteUserRsp);
     }
 
     @Test
