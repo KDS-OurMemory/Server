@@ -17,8 +17,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserServiceTest {
@@ -42,7 +43,7 @@ class UserServiceTest {
 
     /**
      * Assert time format -> delete sec
-     *
+     * <p>
      * This is because time difference occurs after room creation due to relation table work.
      */
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
@@ -64,15 +65,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("회원가입 | 성공")
-    @Transactional
     void signUpSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
-                .pushToken("before Token")
+                .snsId("회원가입_SNS_ID")
+                .pushToken("회원가입 Token")
                 .push(true)
-                .name("테스트 유저")
+                .name("회원가입 유저")
                 .birthday("0720")
                 .solar(true)
                 .birthdayOpen(false)
@@ -91,7 +91,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("회원가입 | 실패 | 요청 Dto 없음.")
-    @Transactional
     void signUpFailToRequestNull() {
         /* 1. Insert */
         assertThrows(
@@ -101,15 +100,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("로그인 | 성공")
-    @Transactional
     void signInSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
-                .pushToken("before Token")
+                .snsId("로그인 성공_SNS_ID")
+                .pushToken("로그인 성공 Token")
                 .push(true)
-                .name("테스트 유저")
+                .name("로그인 성공 유저")
                 .birthday("0720")
                 .solar(true)
                 .birthdayOpen(false)
@@ -134,15 +132,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("로그인 | 실패 | snsType 다름")
-    @Transactional
     void signInFailedToWrongSnsType() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
-                .pushToken("before Token")
+                .snsId("로그인 실패_SNS_ID")
+                .pushToken("로그인 실패 Token")
                 .push(true)
-                .name("테스트 유저")
+                .name("로그인 실패 유저")
                 .birthday("0720")
                 .solar(true)
                 .birthdayOpen(false)
@@ -164,15 +161,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("로그인 | 실패 | snsId 다름")
-    @Transactional
     void signInFailedToWrongSnsId() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
-                .pushToken("before Token")
+                .snsId("로그인 실패_SNS_ID")
+                .pushToken("로그인 실패 Token")
                 .push(true)
-                .name("테스트 유저")
+                .name("로그인 실패 유저")
                 .birthday("0720")
                 .solar(true)
                 .birthdayOpen(false)
@@ -194,15 +190,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("내 정보 조회 | 성공")
-    @Transactional
     void findSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
-                .pushToken("before Token")
+                .snsId("내 정보 조회_SNS_ID")
+                .pushToken("내 정보 조회 Token")
                 .push(true)
-                .name("테스트 유저")
+                .name("내 정보 조회 유저")
                 .birthday("0720")
                 .solar(true)
                 .birthdayOpen(false)
@@ -229,15 +224,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("내 정보 조회 | 실패 | 사용자번호 다름")
-    @Transactional
     void findFailToWrongUserId() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
-                .pushToken("before Token")
+                .snsId("내 정보 조회 실패 사용자번호 다름_SNS_ID")
+                .pushToken("내 정보 조회 실패 사용자번호 다름 Token")
                 .push(true)
-                .name("테스트 유저")
+                .name("내 정보 조회 실패 사용자번호 다름 유저")
                 .birthday("0720")
                 .solar(true)
                 .birthdayOpen(false)
@@ -258,15 +252,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("토큰변경 | 성공")
-    @Transactional
     void patchTokenSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
-                .pushToken("before Token")
+                .snsId("토큰변경_SNS_ID")
+                .pushToken("토큰변경 Token")
                 .push(true)
-                .name("테스트 유저")
+                .name("토큰변경 유저")
                 .birthday("0720")
                 .solar(true)
                 .birthdayOpen(false)
@@ -290,12 +283,11 @@ class UserServiceTest {
 
     @Test
     @DisplayName("토큰변경 | 실패 | 사용자번호 다름")
-    @Transactional
     void patchTokenFailToWrongUserId() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
+                .snsId("토큰변경 실패_SNS_ID")
                 .pushToken("before Token")
                 .push(true)
                 .name("테스트 유저")
@@ -323,7 +315,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("토큰변경 | 실패 | 토큰값 없음")
-    @Transactional
     void patchTokenFailToTokenNull() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
@@ -355,7 +346,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("업데이트 | 성공")
-    @Transactional
     void updateSuccess() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
@@ -394,7 +384,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("업데이트 | 실패 | 사용자번호 다름")
-    @Transactional
     void updateFailToWrongUserId() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
@@ -430,7 +419,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("업데이트 | 실패 | 요청 Dto 없음")
-    @Transactional
     void updateFailToRequestNull() {
         /* 0. Create Request */
         var insertReq = UserReqDto.builder()
@@ -459,7 +447,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("사용자 삭제 | 성공")
-    @Transactional
     void deleteSuccess() {
         /* 0. Create users */
         // 1) user
@@ -478,15 +465,12 @@ class UserServiceTest {
         assertThat(insertUserRsp).isNotNull();
 
         /* 1. Delete user */
-        var wrongUserId = insertUserRsp.getUserId() + 1;
-        assertThrows(
-                UserNotFoundException.class, () -> userService.find(wrongUserId)
-        );
+        var deleteUserRsp = userService.delete(insertUserRsp.getUserId());
+        assertNull(deleteUserRsp);
     }
 
     @Test
     @DisplayName("사용자 삭제 | 실패 | 사용자번호 다름")
-    @Transactional
     void deleteFailToWrongUserId() {
         /* 0. Create users */
         // 1) user
@@ -517,7 +501,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("사용자 삭제-친구 처리 | 성공")
-    @Transactional
     void deleteFriendSuccess() {
         /* 0. Create users */
         // 1) user
@@ -600,7 +583,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("사용자 삭제-개인방/일정 처리 | 성공")
-    @Transactional
     void deletePrivateUserSuccess() {
         /* 0-1. Create user */
         // 1) user
@@ -698,7 +680,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("사용자 삭제-방장 방/일정-방장 처리 | 성공")
-    @Transactional
     void deleteOwnerUser() {
         /* 0. Create users */
         // 1) user
@@ -791,7 +772,7 @@ class UserServiceTest {
             if (response.getRoomId() == insertOwnerRoomRsp.getRoomId()) ownerRoomCnt++;
         }
         assertThat(ownerRoomCnt).isOne();
-        
+
         /* 4. Find memory */
         var ownerRoomMemoryId = insertOwnerRoomMemoryRsp.getMemoryId();
         var ownerRoomRoomId = insertOwnerRoomMemoryRsp.getAddedRoomId();
@@ -810,7 +791,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("사용자 삭제-참여방/일정 처리 | 성공")
-    @Transactional
     void deleteParticipantUserSuccess() {
         /* 0. Create users */
         // 1) user
@@ -936,15 +916,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("로그인-사용자 삭제 후 재가입한 사용자 | 성공")
-    @Transactional
     void reSignUpSignInSuccess() {
         /* 0. Create user */
         var insertUserReq = UserReqDto.builder()
                 .snsType(1)
-                .snsId("TESTS_SNS_ID")
-                .pushToken("before Token")
+                .snsId("로그인-사용자 삭제 후 재가입한 사용자 | 성공_SNS_ID")
+                .pushToken("로그인-사용자 삭제 후 재가입한 사용자 | 성공 Token")
                 .push(true)
-                .name("user")
+                .name("로그인-사용자 삭제 후 재가입한 사용자 | 성공 이름")
                 .birthday("0720")
                 .solar(true)
                 .birthdayOpen(false)
@@ -981,7 +960,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("프로필 사진 업로드 | 성공")
-    @Transactional
     void uploadProfileImageSuccess() throws IOException {
         /* 0. Create Request */
         var insertUserReq = UserReqDto.builder()
@@ -1018,7 +996,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("프로필 사진 업로드 | 실패 | 사용자번호 다름")
-    @Transactional
     void uploadProfileImageFailToWrongUserId() throws IOException {
         /* 0. Create Request */
         var insertUserReq = UserReqDto.builder()
@@ -1056,7 +1033,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("프로필 사진 업로드 | 실패 | 사진없음")
-    @Transactional
     void uploadProfileImageFailToProfileImageNull() {
         /* 0. Create Request */
         var insertUserReq = UserReqDto.builder()
@@ -1090,7 +1066,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("프로필 사진 삭제 | 성공")
-    @Transactional
     void deleteProfileImageSuccess() throws IOException {
         /* 0. Create Request */
         var insertUserReq = UserReqDto.builder()
@@ -1132,7 +1107,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("프로필 사진 삭제 | 실패 | 사용자번호 다름")
-    @Transactional
     void deleteProfileImageFailToWrongUserId() throws IOException {
         /* 0. Create Request */
         var insertUserReq = UserReqDto.builder()
@@ -1175,7 +1149,6 @@ class UserServiceTest {
 
     @Test
     @DisplayName("프로필 사진 재업로드 | 성공")
-    @Transactional
     void reUploadProfileImageSuccess() throws IOException {
         /* 0. Create Request */
         var insertUserReq = UserReqDto.builder()

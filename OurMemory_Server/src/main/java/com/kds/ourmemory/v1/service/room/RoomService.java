@@ -95,6 +95,7 @@ public class RoomService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
+    @Transactional
     public RoomRspDto find(Long roomId) {
         var room = findRoom(roomId)
                 .filter(Room::isUsed)
@@ -103,6 +104,7 @@ public class RoomService {
         return new RoomRspDto(room);
     }
 
+    @Transactional
     public List<RoomRspDto> findRooms(Long userId, String name) {
         List<Room> findRooms = new ArrayList<>();
 

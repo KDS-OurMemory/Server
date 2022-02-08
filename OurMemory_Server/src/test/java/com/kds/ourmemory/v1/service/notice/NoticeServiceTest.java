@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class NoticeServiceTest {
@@ -41,7 +42,6 @@ class NoticeServiceTest {
 
     @Test
     @DisplayName("알림 생성 | 성공")
-    @Transactional
     void insertSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -66,7 +66,6 @@ class NoticeServiceTest {
 
     @Test
     @DisplayName("알림 생성 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void insertFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -84,7 +83,6 @@ class NoticeServiceTest {
 
     @Test
     @DisplayName("알림 목록 조회 -> 읽음처리 X | 성공")
-    @Transactional
     void findsSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -124,7 +122,6 @@ class NoticeServiceTest {
 
     @Test
     @DisplayName("알림 목록 조회 -> 읽음처리 O | 성공")
-    @Transactional
     void checkReadAfterFindNoticesSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -162,7 +159,6 @@ class NoticeServiceTest {
 
     @Test
     @DisplayName("알림 삭제 | 성공")
-    @Transactional
     void deleteSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -181,7 +177,6 @@ class NoticeServiceTest {
 
     @Test
     @DisplayName("알림 삭제 | 실패 | 잘못된 알림번호")
-    @Transactional
     void deleteFailToWrongNoticeId() {
         /* 1. Delete notice */
         assertThrows(
@@ -189,8 +184,8 @@ class NoticeServiceTest {
         );
     }
 
-    // life cycle: @Before -> @Test => separate => Not maintained @Transactional
-    // Call function in @Test function => maintained @Transactional
+    // life cycle: @Before -> @Test => separate => Not maintained 
+    // Call function in @Test function => maintained 
     void setBaseData() {
         /* 1. Create User */
         var insertUserReq = UserReqDto.builder()

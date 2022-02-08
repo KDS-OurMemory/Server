@@ -10,17 +10,20 @@ import com.kds.ourmemory.v1.entity.notice.NoticeType;
 import com.kds.ourmemory.v1.entity.user.DeviceOs;
 import com.kds.ourmemory.v1.service.notice.NoticeService;
 import com.kds.ourmemory.v1.service.user.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest
+@ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FriendServiceTest {
@@ -59,7 +62,6 @@ class FriendServiceTest {
     @Test
     @Order(1)
     @DisplayName("내 편에서 친구[X] 상대편에서 친구[X]")
-    @Transactional
     void bothNotFriend() {
         /* 0-1. Set base data */
         setBaseData();
@@ -132,7 +134,6 @@ class FriendServiceTest {
     @Test
     @Order(2)
     @DisplayName("내 편에서 친구[X] 상대편에서 친구[O] 차단[X]")
-    @Transactional
     void onlyFriendSideAndNotBlock() {
         /* 0-1. Set base data */
         setBaseData();
@@ -173,8 +174,12 @@ class FriendServiceTest {
 
 
         /* 1. Request friend */
-        assertThrows(FriendAlreadyAcceptException.class, () ->
+        var friendAlreadyAcceptException = assertThrows(FriendAlreadyAcceptException.class, () ->
                 friendService.requestFriend(requestReq)
+        );
+        log.debug(
+                "Expected exception occurred during request friend. {}:{}",
+                friendAlreadyAcceptException.getClass(), friendAlreadyAcceptException.getMessage()
         );
 
         /* 2. Accept friend */
@@ -241,7 +246,6 @@ class FriendServiceTest {
     @Test
     @Order(3)
     @DisplayName("내 편에서 친구[X] 상대편에서 친구[O] 차단[O]")
-    @Transactional
     void onlyFriendSideAndBlock() {
         /* 0-1. Set base data */
         setBaseData();
@@ -324,7 +328,7 @@ class FriendServiceTest {
         var userSideUserId = requestUserRsp.getUserId();
         var userSideFriendUserId = acceptUserRsp.getUserId();
         assertThrows(
-                FriendInternalServerException.class, () -> friendService.deleteFriend(userSideUserId, userSideFriendUserId)
+                FriendStatusException.class, () -> friendService.deleteFriend(userSideUserId, userSideFriendUserId)
         );
 
         // Cancel friend request
@@ -361,7 +365,6 @@ class FriendServiceTest {
     @Test
     @Order(4)
     @DisplayName("내 편에서 친구[O] 상대편에서 친구[X] 차단[X]")
-    @Transactional
     void onlyMySideAndNotBlock() {
         /* 0-1. Set base data */
         setBaseData();
@@ -464,7 +467,6 @@ class FriendServiceTest {
     @Test
     @Order(5)
     @DisplayName("내 편에서 친구[O] 상대편에서 친구[X] 차단[O]")
-    @Transactional
     void onlyMySideAndBlock() {
         /* 0-1. Set base data */
         setBaseData();
@@ -573,7 +575,6 @@ class FriendServiceTest {
     @Test
     @Order(6)
     @DisplayName("내 편에서 친구[O] 상대편에서 친구[O]")
-    @Transactional
     void bothAlreadyFriend() {
         /* 0-1. Set base data */
         setBaseData();
@@ -657,7 +658,6 @@ class FriendServiceTest {
     @Test
     @Order(7)
     @DisplayName("친구 수락 후 관련 알림 읽음 확인")
-    @Transactional
     void checkNoticeAfterAcceptFriend() {
         /* 0-1. Set base data */
         setBaseData();
@@ -698,7 +698,6 @@ class FriendServiceTest {
     @Test
     @Order(8)
     @DisplayName("친구 요청 취소 후 알림 삭제 확인")
-    @Transactional
     void cancelFriendRequestAndCheckDeleteNotice() {
         /* 0-1. Set base data */
         setBaseData();
@@ -732,7 +731,6 @@ class FriendServiceTest {
     @Test
     @Order(9)
     @DisplayName("사용자 목록 조회")
-    @Transactional
     void findUsers() {
         /* 0. Create Request */
         var insertUniqueNameReq = UserReqDto.builder()
@@ -811,7 +809,7 @@ class FriendServiceTest {
         assertThat(findUsersById2.isSolar()).isEqualTo(insertSameNameReq1.getSolar());
         assertThat(findUsersById2.isBirthdayOpen()).isEqualTo(insertSameNameReq1.getBirthdayOpen());
         assertThat(findUsersById2.getBirthday()).isEqualTo(
-                insertSameNameReq1.getBirthdayOpen()? insertSameNameReq1.getBirthday() : null
+                insertSameNameReq1.getBirthdayOpen() ? insertSameNameReq1.getBirthday() : null
         );
         assertThat(findUsersById2.getFriendStatus()).isNull();
 
@@ -923,7 +921,7 @@ class FriendServiceTest {
         // 4) BLOCK
         var findUsersByBlockList = friendService.findUsers(
                 insertSameNameRsp2.getUserId(), null, null, FriendStatus.BLOCK
-                );
+        );
         assertThat(findUsersByBlockList.size()).isOne();
 
         var findUsersByBlockRsp = findUsersByBlockList.get(0);
@@ -932,8 +930,8 @@ class FriendServiceTest {
     }
 
 
-    // life cycle: @Before -> @Test => separate => Not maintained @Transactional
-    // Call function in @Test function => maintained @Transactional
+    // life cycle: @Before -> @Test => separate => Not maintained 
+    // Call function in @Test function => maintained 
     void setBaseData() {
         /* 1. Create RequestUser, AcceptUser */
         var insertRequestUserReq = UserReqDto.builder()

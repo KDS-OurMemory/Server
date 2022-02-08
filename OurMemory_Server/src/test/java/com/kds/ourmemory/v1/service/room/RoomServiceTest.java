@@ -14,8 +14,8 @@ import com.kds.ourmemory.v1.service.user.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RoomServiceTest {
@@ -65,7 +66,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("생성 | 성공")
-    @Transactional
     void insertSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -88,7 +88,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("생성 | 실패 | 사용자번호 다름")
-    @Transactional
     void insertFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -109,7 +108,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 개별 조회 | 성공")
-    @Transactional
     void findSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -137,7 +135,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 개별 조회 | 실패 | 방 번호 다름")
-    @Transactional
     void findFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -166,7 +163,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 목록 조회 - 방장번호 | 성공")
-    @Transactional
     void findsSuccessToUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -247,7 +243,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 목록 조회 - 방이름 | 성공")
-    @Transactional
     void findsSuccessToRoomName() {
         /* 0-1. Set base data */
         setBaseData();
@@ -323,7 +318,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방장 양도 | 성공")
-    @Transactional
     void recommendOwnerSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -386,7 +380,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방장 양도 | 실패 | 방 번호에 맞는 방이 없는 경우")
-    @Transactional
     void recommendOwnerFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -431,7 +424,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방장 양도 | 실패 | 양도할 사용자가 방에 없는 경우")
-    @Transactional
     void recommendOwnerFailToNotInRoomMember() {
         /* 0-1. Set base data */
         setBaseData();
@@ -481,7 +473,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방장 양도 | 실패 | 양도할 사용자가 이미 방장인 경우")
-    @Transactional
     void recommendOwnerFailToAlreadyOwner() {
         /* 0-1. Set base data */
         setBaseData();
@@ -531,7 +522,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("수정 | 성공")
-    @Transactional
     void updateSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -565,7 +555,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("수정 | 실패 | 방번호 다름")
-    @Transactional
     void updateFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -599,7 +588,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 삭제 -> 공유방 | 성공")
-    @Transactional
     void deleteShareRoomSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -742,7 +730,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 삭제 -> 개인방 | 성공")
-    @Transactional
     void deletePrivateRoomSuccess() {
         /* 0-1. Set base data */
         setBaseData();
@@ -806,7 +793,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 삭제 | 실패 | 사용자번호 다름")
-    @Transactional
     void deleteFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -851,13 +837,12 @@ class RoomServiceTest {
         var wrongRoomId = insertOwnerRsp.getPrivateRoomId() + 10000;
         var userId = insertOwnerRsp.getUserId();
         assertThrows(
-            RoomNotFoundException.class, () -> roomService.delete(wrongRoomId, userId)
+                RoomNotFoundException.class, () -> roomService.delete(wrongRoomId, userId)
         );
     }
 
     @Test
     @DisplayName("방 삭제 | 실패 | 방번호 다름")
-    @Transactional
     void deleteFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -902,13 +887,12 @@ class RoomServiceTest {
         var roomId = insertOwnerRsp.getPrivateRoomId();
         var wrongUserId = insertOwnerRsp.getUserId() + 10000;
         assertThrows(
-            UserNotFoundException.class, () -> roomService.delete(roomId, wrongUserId)
+                UserNotFoundException.class, () -> roomService.delete(roomId, wrongUserId)
         );
     }
 
     @Test
     @DisplayName("방 삭제 | 실패 | 방 소유자가 아님")
-    @Transactional
     void deleteFailToNotOwner() {
         /* 0-1. Set base data */
         setBaseData();
@@ -959,7 +943,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 성공 | 방장 지정")
-    @Transactional
     void exitShareRoomOwnerSuccessToRecommendUser() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1001,7 +984,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 성공 | 임의 위임")
-    @Transactional
     void exitShareRoomOwnerSuccessToRandomRecommendUser() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1032,7 +1014,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 잘못된 방번호")
-    @Transactional
     void exitShareRoomOwnerFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1048,7 +1029,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void exitShareRoomOwnerFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1079,7 +1059,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 참여자가 아닌 사용자번호")
-    @Transactional
     void exitShareRoomOwnerFailToNotParticipantUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1111,7 +1090,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 잘못된 위임자번호")
-    @Transactional
     void exitShareRoomOwnerFailToWrongRecommendUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1142,7 +1120,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 참여자가 아닌 위임자번호")
-    @Transactional
     void exitShareRoomOwnerFailToNotParticipantRecommendUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1174,7 +1151,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 방장인 경우 | 실패 | 위임자가 이미 방장인 경우")
-    @Transactional
     void exitShareRoomOwnerFailToRecommendUserAlreadyOwner() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1203,7 +1179,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공 | 방장 위임")
-    @Transactional
     void exitShareRoomParticipantSuccessToRecommendUser() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1236,7 +1211,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공 | 잘못된 위임자번호")
-    @Transactional
     void exitShareRoomParticipantSuccessToWrongRecommendUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1269,7 +1243,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공 | 위임자가 이미 방장인 경우")
-    @Transactional
     void exitShareRoomParticipantSuccessToRecommendUserAlreadyOwner() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1302,7 +1275,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 성공 | 임의위임")
-    @Transactional
     void exitShareRoomParticipantSuccessToRandomRecommendUser() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1335,7 +1307,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 실패 | 잘못된 방번호")
-    @Transactional
     void exitShareRoomParticipantFailToWrongRoomId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1360,7 +1331,7 @@ class RoomServiceTest {
         var userId = insertMember1Rsp.getUserId();
         var recommendUserId = insertOwnerRsp.getUserId();
         assertThrows(
-                RoomNotFoundException.class, () -> roomService.exit(wrongRoomId , userId, recommendUserId)
+                RoomNotFoundException.class, () -> roomService.exit(wrongRoomId, userId, recommendUserId)
         );
 
         /* 3. Check same owner */
@@ -1370,7 +1341,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 실패 | 잘못된 사용자번호")
-    @Transactional
     void exitShareRoomParticipantFailToWrongUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1395,7 +1365,7 @@ class RoomServiceTest {
         var wrongUserId = -5000L;
         var recommendUserId = insertOwnerRsp.getUserId();
         assertThrows(
-                UserNotFoundException.class, () -> roomService.exit(roomId , wrongUserId, recommendUserId)
+                UserNotFoundException.class, () -> roomService.exit(roomId, wrongUserId, recommendUserId)
         );
 
         /* 3. Check same owner */
@@ -1405,7 +1375,6 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("방 나가기 -> 공유방 참여자인 경우 | 실패 | 참여자가 아닌 사용자번호")
-    @Transactional
     void exitShareRoomParticipantFailToNotParticipantUserId() {
         /* 0-1. Set base data */
         setBaseData();
@@ -1436,8 +1405,8 @@ class RoomServiceTest {
     }
 
 
-    // life cycle: @Before -> @Test => separate => Not maintained @Transactional
-    // Call function in @Test function => maintained @Transactional
+    // life cycle: @Before -> @Test => separate => Not maintained 
+    // Call function in @Test function => maintained 
     void setBaseData() {
         /* 1. Create Owner, Member1, Member2 */
         var insertOwnerReq = UserReqDto.builder()
