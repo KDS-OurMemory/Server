@@ -34,8 +34,12 @@ jobs:
           distribution: 'temurin'
       - name: Grant execute permission for gradlew
         run: chmod +x ./OurMemory_Server/gradlew
-      - name: Build with Gradle
-        run: ./OurMemory_Server/gradlew build
+      - name: Clean with Gradle
+        run: ./OurMemory_Server/gradlew clean
+      - name: bootJar with Gradle
+        run: ./OurMemory_Server/gradlew bootJar
+#      - name: Build with Gradle
+#        run: ./OurMemory_Server/gradlew build
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
