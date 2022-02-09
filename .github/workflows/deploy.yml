@@ -35,9 +35,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./OurMemory_Server/gradlew build
       - name: BootJar with Gradle
-        run: ./gradlew bootJar
+        run: ./OurMemory_Server/gradlew bootJar
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -47,7 +47,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./ourmemory.jar s3://ourmemory/deploy/
+        run: aws s3 cp --region ap-northeast-2 ./OurMemory_Server/libs/OurMemory.jar s3://ourmemory/deploy/
 
       - name: deploy with AWS codeDeploy
         run: aws deploy create-deployment
