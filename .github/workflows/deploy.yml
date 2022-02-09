@@ -45,7 +45,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./OurMemory_Server/libs/OurMemory.jar s3://ourmemory/deploy/
+        run: aws s3 cp --region ap-northeast-2 ./OurMemory_Server/build/libs/OurMemory.jar s3://ourmemory/deploy/
 
       - name: deploy with AWS codeDeploy
         run: aws deploy create-deployment
