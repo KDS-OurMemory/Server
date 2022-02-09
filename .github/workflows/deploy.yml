@@ -36,8 +36,6 @@ jobs:
         run: chmod +x ./OurMemory_Server/gradlew
       - name: Build with Gradle
         run: ./OurMemory_Server/gradlew build
-      - name: BootJar with Gradle
-        run: ./OurMemory_Server/gradlew bootJar
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
