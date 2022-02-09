@@ -33,7 +33,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x ./OurMemory_Server/gradlew
       - name: Build with Gradle
         run: ./OurMemory_Server/gradlew build
       - name: BootJar with Gradle
