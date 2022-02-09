@@ -119,7 +119,7 @@ class MemoryControllerTest {
 
         // then
         var responseDto = memoryController.findMemories(writer.getId(), null);
-        assertThat(responseDto.getResultCode()).isEqualTo("S00");
+        assertThat(responseDto.getResultCode()).isEqualTo("S001");
         assertThat(responseDto.getResponse().size()).isEqualTo(3);
 
         // check response data
