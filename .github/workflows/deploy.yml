@@ -34,10 +34,8 @@ jobs:
           distribution: 'temurin'
       - name: Grant execute permission for gradlew
         run: chmod +x ./OurMemory_Server/gradlew
-      - name: Clean with Gradle
-        run: ./OurMemory_Server/gradlew clean
       - name: bootJar with Gradle
-        run: ./OurMemory_Server/gradlew bootJar
+        run: cd ./OurMemory_server && ./OurMemory_Server/gradlew bootJar
 #      - name: Build with Gradle
 #        run: ./OurMemory_Server/gradlew build
 
