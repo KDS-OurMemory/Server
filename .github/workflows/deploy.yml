@@ -51,7 +51,7 @@ jobs:
 
       - name: deploy with AWS codeDeploy
         run: aws deploy create-deployment
-          --application-name OurMemory
+          --application-name OurMemory-CodeDeploy
           --deployment-config-name CodeDeployDefault.OneAtATime
-          --deployment-group-name deploy-group
+          --deployment-group-name CodeDeploy-Group
           --s3-location bucket=ourmemory,bundleType=jar,key=deploy/OurMemory.jar
