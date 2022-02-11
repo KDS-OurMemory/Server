@@ -57,4 +57,4 @@ jobs:
           --application-name OurMemory-CodeDeploy
           --deployment-config-name CodeDeployDefault.OneAtATime
           --deployment-group-name CodeDeploy-Group
-          --s3-location bucket=ourmemory,bundleType=jar,key=deploy/OurMemory.jar
+          --s3-location bucket=ourmemory,bundleType=tar.gz,key=deploy/OurMemory.tar.gz
