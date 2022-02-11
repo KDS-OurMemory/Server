@@ -39,8 +39,8 @@ jobs:
 #      - name: Build with Gradle
 #        run: ./OurMemory_Server/gradlew build
 
-      - name: compress .jar to .tar.gz
-        run: tar -zcvf OurMemory.tar.gz ./OurMemory_Server/build/libs/OurMemory.jar
+      - name: compress .jar to .tgz
+        run: tar -zcvf OurMemory.tgz ./OurMemory_Server/build/libs/OurMemory.jar
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -57,4 +57,4 @@ jobs:
           --application-name OurMemory-CodeDeploy
           --deployment-config-name CodeDeployDefault.OneAtATime
           --deployment-group-name CodeDeploy-Group
-          --s3-location bucket=ourmemory,bundleType=tar.gz,key=deploy/OurMemory.tar.gz
+          --s3-location bucket=ourmemory,bundleType=tgz,key=deploy/OurMemory.tgz
