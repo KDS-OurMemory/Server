@@ -50,7 +50,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 OurMemory.tar.gz s3://ourmemory/deploy/
+        run: aws s3 cp --region ap-northeast-2 OurMemory.tgz s3://ourmemory/deploy/
 
       - name: deploy with AWS codeDeploy
         run: aws deploy create-deployment
