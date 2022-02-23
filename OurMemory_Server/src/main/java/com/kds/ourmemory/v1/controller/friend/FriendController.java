@@ -33,7 +33,10 @@ public class FriendController {
         return ok(friendService.findUsers(userId, targetId, name, friendStatus));
     }
 
-    @ApiOperation(value = "친구 요청", notes = "사용자에게 친구 요청 푸시 알림을 전송한다. 차단한 상대에게는 요청이 전달되지 않는다.")
+    @ApiOperation(value = "친구 요청", notes = """
+            사용자에게 친구 요청 푸시 알림을 전송한다. 차단한 상대에게는 요청이 전달되지 않는다.
+            상대방 기준 사용자와 이미 친구라면 친구 요청을 수락할 수 없기 때문에 F006 응답코드를 전달한다.
+            """)
     @PostMapping("/request")
     public ApiResult<FriendRspDto> requestFriend(@RequestBody FriendReqDto reqDto) {
         return ok(friendService.requestFriend(reqDto));

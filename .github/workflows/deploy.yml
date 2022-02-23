@@ -1,0 +1,60 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+
+name: deploy
+
+on:
+  push:
+    branches: [Feature/#198_github_action_deploy]
+  pull_request:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java-version: [16]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - name: Checkout source code.
+        uses: actions/checkout@v2
+
+      - name: Use JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./OurMemory_Server/gradlew
+      - name: bootJar with Gradle
+        run: cd ./OurMemory_Server && ./gradlew bootJar
+#      - name: Build with Gradle
+#        run: ./OurMemory_Server/gradlew build
+
+      - name: compress .jar to .tgz
+        run: tar -zcvf OurMemory.tgz ./OurMemory_Server/build/libs/OurMemory.jar
+
+      - name: AWS configure credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: upload to S3
+        run: aws s3 cp --region ap-northeast-2 OurMemory.tgz s3://ourmemory/deploy/
+
+      - name: deploy with AWS codeDeploy
+        run: aws deploy create-deployment
+          --application-name OurMemory-CodeDeploy
+          --deployment-config-name CodeDeployDefault.OneAtATime
+          --deployment-group-name CodeDeploy-Group
+          --s3-location bucket=ourmemory,bundleType=tgz,key=deploy/OurMemory.tgz

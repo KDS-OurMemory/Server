@@ -81,7 +81,7 @@ class RoomControllerTest {
 
         // then
         var responseDto = roomController.findRooms(owner.getId(), null);
-        assertThat(responseDto.getResultCode()).isEqualTo("S00");
+        assertThat(responseDto.getResultCode()).isEqualTo("S001");
         assertThat(responseDto.getResponse().size()).isEqualTo(3);
 
         // check response data

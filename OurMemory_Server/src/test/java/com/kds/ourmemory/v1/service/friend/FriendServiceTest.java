@@ -141,7 +141,7 @@ class FriendServiceTest {
         /* 0-2. Create request */
         var requestReq = new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
         var acceptReq = new FriendReqDto(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
-        var addReq = new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
+        var reAddReq = new FriendReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
 
         /* 0-3. Request friend for other side friend */
         var beforeRequestRsp = friendService.requestFriend(requestReq);
@@ -174,8 +174,8 @@ class FriendServiceTest {
 
 
         /* 1. Request friend */
-        var friendAlreadyAcceptException = assertThrows(FriendAlreadyAcceptException.class, () ->
-                friendService.requestFriend(requestReq)
+        var friendAlreadyAcceptException = assertThrows(
+                FriendAlreadyAcceptException.class, () -> friendService.requestFriend(requestReq)
         );
         log.debug(
                 "Expected exception occurred during request friend. {}:{}",
@@ -183,14 +183,18 @@ class FriendServiceTest {
         );
 
         /* 2. Accept friend */
-        assertThrows(
+        var friendStatusException = assertThrows(
                 FriendStatusException.class, () -> friendService.acceptFriend(acceptReq)
+        );
+        log.debug(
+                "Expected exception occurred during Accept friend. {}:{}",
+                friendStatusException.getClass(), friendStatusException.getMessage()
         );
 
         /* 3. Add friend */
-        var reAddRsp_MySideX_FriendSideO_Block = friendService.reAddFriend(addReq);
-        assertThat(reAddRsp_MySideX_FriendSideO_Block.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
-        assertThat(reAddRsp_MySideX_FriendSideO_Block.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
+        var reAddFriendRsp = friendService.reAddFriend(reAddReq);
+        assertThat(reAddFriendRsp.getFriendId()).isEqualTo(acceptUserRsp.getUserId());
+        assertThat(reAddFriendRsp.getFriendStatus()).isEqualTo(FriendStatus.FRIEND);
 
         /* 4. Find friends */
         // My side

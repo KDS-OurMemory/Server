@@ -72,7 +72,7 @@ class UserControllerTest {
 
         // then
         var uploadResponse = userController.uploadProfileImage(user.getId(), request);
-        assertThat(uploadResponse.getResultCode()).isEqualTo("S00");
+        assertThat(uploadResponse.getResultCode()).isEqualTo("S001");
         assertThat(uploadResponse.getResponse().getProfileImageUrl()).isEqualTo(mockUploadUrl);
         log.debug("uploadResponse: {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(uploadResponse));
     }
@@ -103,7 +103,7 @@ class UserControllerTest {
 
         // then
         var deleteResponse = userController.deleteProfileImage(user.getId());
-        assertThat(deleteResponse.getResultCode()).isEqualTo("S00");
+        assertThat(deleteResponse.getResultCode()).isEqualTo("S001");
         assertNull(deleteResponse.getResponse().getProfileImageUrl());
         log.debug("deleteResponse: {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(deleteResponse));
     }

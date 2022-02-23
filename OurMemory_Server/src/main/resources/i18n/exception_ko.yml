@@ -5,8 +5,8 @@ user:
     detailMessage: "사용자 기능과 관련된 요청 변수 값 {0}이 잘못되었습니다. API 요청 프로토콜을 확인하시기 바랍니다."
   notFound:
     code: "U002"
-    resultMessage: "사용자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
-    detailMessage: "사용자 번호 {0} 에 맞는 사용자를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
+    resultMessage: "사용자를 찾을 수 없습니다. \n 새로고침 후 새로고침 후 다시 시도해주시기 바랍니다."
+    detailMessage: "사용자 ({0}) 를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
   internalServer:
     code: "U003"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
@@ -23,7 +23,7 @@ friend:
     detailMessage: "친구 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
   notFound:
     code: "F002"
-    resultMessage: "친구를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "친구를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "사용자 번호 {0}, 친구 사용자 번호 {1} 에 맞는 친구를 찾을 수 없습니다."
   internalServer:
     code: "F003"
@@ -31,16 +31,16 @@ friend:
     detailMessage: "친구에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
   notFoundUser:
     code: "F004"
-    resultMessage: "사용자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "사용자를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "사용자 번호 {0} 에 맞는 사용자를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
   notFoundFriend:
     code: "F005"
-    resultMessage: "사용자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "사용자를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "사용자 번호 {0} 에 맞는 친구 사용자를 찾을 수 없습니다. 친구의 사용자 번호를 확인해주시기 바랍니다."
   alreadyAccept:
     code: "F006"
-    resultMessage: "이미 친구 요청을 수락한 사용자입니다."
-    detailMessage: "이미 친구 요청을 수락한 사용자는 다시 친구 요청 수락할 수 없습니다. 친구 추가를 진행해주시기 바랍니다."
+    resultMessage: "상대방은 당신과 친구 상태이기 때문에 친구 요청할 수 없습니다. 친구 재 추가를 진행하시기 바랍니다."
+    detailMessage: "상대방은 당신과 친구 상태이기 때문에 친구 요청할 수 없습니다. 친구 재 추가를 진행하시기 바랍니다."
   blockedFromFriend:
     code: "F007"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
@@ -65,7 +65,7 @@ memory:
     detailMessage: "일정 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
   notFound:
     code: "M002"
-    resultMessage: "일정을 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "일정을 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "일정 번호 {0} 에 맞는 일정을 찾을 수 없습니다."
   internalServer:
     code: "M003"
@@ -73,19 +73,19 @@ memory:
     detailMessage: "일정에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
   notFoundWriter:
     code: "M004"
-    resultMessage: "일정 작성자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "일정 작성자를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "사용자 번호 {0} 에 맞는 일정 생성자를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
   notFoundShareMember:
     code: "M005"
-    resultMessage: "일정을 공유할 사용자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "일정을 공유할 사용자를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "일정을 공유할 사용자(번호: {0})를 찾을 수 없습니다."
   notFoundShareRoom:
     code: "M006"
-    resultMessage: "일정을 공유할 방을 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "일정을 공유할 방을 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "일정을 공유할 방(번호: {0})을 찾을 수 없습니다. 방 번호를 확인해주시기 바랍니다."
   notFoundRoom:
     code: "M007"
-    resultMessage: "일정을 등록할 방을 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "일정을 등록할 방을 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "일정을 등록시킬 방(번호: {0})을 찾을 수 없습니다. 방 번호를 확인해주시기 바랍니다."
   notWriter:
     code: "M008"
@@ -107,7 +107,7 @@ room:
     detailMessage: "방 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
   notFound:
     code: "R002"
-    resultMessage: "방을 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "방을 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "입력한 값 {0}에 해당하는 방을 찾을 수 없습니다."
   internalServer:
     code: "R003"
@@ -115,11 +115,11 @@ room:
     detailMessage: "방에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
   notFoundOwner:
     code: "R004"
-    resultMessage: "방 생성자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "방 생성자를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "방 생성자(번호: {0})를 찾을 수 없습니다. 생성자의 회원 번호를 확인해주시기 바랍니다."
   notFoundMember:
     code: "R005"
-    resultMessage: "방 참여자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "방 참여자를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "방 참여자(번호: {0})를 찾을 수 없습니다. 참여자의 회원 번호를 확인해주시기 바랍니다."
   alreadyOwner:
     code: "R006"
@@ -131,7 +131,7 @@ room:
     detailMessage: "사용자(번호: {0}) 는 방(번호: {1}) 의 방장이 아닙니다."
   notFoundRecommendUser:
     code: "R008"
-    resultMessage: "방장을 양도할 참여자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "방장을 양도할 참여자를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "방장을 양도받을 참여자(번호: {0}) 를 찾을 수 없습니다."
   notParticipant:
     code: "R009"
@@ -153,7 +153,7 @@ notice:
     detailMessage: "알림에 대한 작업 중 알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
   notFoundUser:
     code: "N004"
-    resultMessage: "사용자를 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "사용자를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "알림 사용자(번호 {0})를 찾을 수 없습니다. 사용자 번호를 확인해주시기 바랍니다."
 
 todo:
@@ -163,7 +163,7 @@ todo:
     detailMessage: "TODO 리스트 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
   notFound:
     code: "T002"
-    resultMessage: "TODO 항목을 찾을 수 없습니다. \n 다시 시도해주시기 바랍니다."
+    resultMessage: "TODO 항목을 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
     detailMessage: "TODO 항목(번호: {0})을 찾을 수 없습니다."
   internalServer:
     code: "T003"
