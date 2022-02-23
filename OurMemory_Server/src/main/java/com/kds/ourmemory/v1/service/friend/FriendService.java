@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Service
@@ -67,12 +66,12 @@ public class FriendService {
                                                     .orElseGet(() -> new Friend(user, targetUser, null));
                                             return new FriendRspDto(friend);
                                         })
-                                        .collect(Collectors.toList())
+                                .collect(Collectors.toList())
                         )
                         .orElseGet(ArrayList::new)
         );
 
-        return responseList.stream().distinct().collect(Collectors.toList());
+        return responseList.stream().distinct().toList();
     }
 
     @Transactional
@@ -123,7 +122,9 @@ public class FriendService {
                     fcmService.sendMessageTo(
                             new FcmDto.Request(friendToken, friend.getDeviceOs(), title, body,
                                     false, NoticeType.FRIEND_REQUEST.name(),
-                                    Long.toString(reqDto.getUserId())));
+                                    Long.toString(reqDto.getUserId())
+                            )
+                    );
 
                     return new FriendRspDto(insertFriendMySideRsp); // response by reqDto result
                 });
@@ -242,15 +243,22 @@ public class FriendService {
                 ));
 
         // Check friend status on reqDto side, And add friend
-        return findFriend(reqDto.getUserId(), reqDto.getFriendUserId())
-                .map(fa -> Optional.of(fa).filter(f -> f.getStatus().equals(FriendStatus.WAIT))
-                        .map(f -> {
-                            f.changeStatus(FriendStatus.FRIEND).ifPresent(this::updateFriend);
-                            return new FriendRspDto(f);
-                        })
-                        .orElseThrow(() -> new FriendStatusException(FriendStatus.WAIT.name(), fa.getStatus().name()))
-                )
-                .orElseThrow(FriendNotRequestedException::new);
+        if (findFriend(reqDto.getUserId(), reqDto.getFriendUserId()).isPresent()) {
+            throw new FriendInternalServerException(
+                    String.format("There must be no friend data. friend Data(user: %d, friendUser: %d) is exists.",
+                            reqDto.getUserId(), reqDto.getFriendUserId())
+            );
+        }
+
+        var user = findUser(reqDto.getUserId()).orElseThrow(
+                () -> new FriendNotFoundUserException(reqDto.getUserId())
+        );
+        var friend = findUser(reqDto.getFriendUserId()).orElseThrow(
+                () -> new FriendNotFoundFriendException(reqDto.getFriendUserId())
+        );
+
+        // Add my side FRIEND status
+        return new FriendRspDto(insertFriend(new Friend(user, friend, FriendStatus.FRIEND)));
     }
 
     // Not found friend -> None Error, just empty -> return emptyList
@@ -259,7 +267,7 @@ public class FriendService {
         return findFriendsByUserId(userId)
                 .map(friends -> friends.stream()
                         .map(FriendRspDto::new)
-                        .collect(Collectors.toList())
+                        .toList()
                 )
                 .orElseGet(ArrayList::new);
     }
@@ -361,7 +369,7 @@ public class FriendService {
         List<Notice> notices = new ArrayList<>();
 
         noticeRepo.findAllByUserId(userId).ifPresent(noticeList -> notices.addAll(
-                noticeList.stream().filter(Notice::isUsed).collect(toList()))
+                noticeList.stream().filter(Notice::isUsed).toList())
         );
 
         return Optional.of(notices)
