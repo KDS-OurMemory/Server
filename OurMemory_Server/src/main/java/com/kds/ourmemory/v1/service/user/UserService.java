@@ -2,8 +2,8 @@ package com.kds.ourmemory.v1.service.user;
 
 import com.kds.ourmemory.v1.advice.user.exception.UserInternalServerException;
 import com.kds.ourmemory.v1.advice.user.exception.UserNotFoundException;
+import com.kds.ourmemory.v1.advice.user.exception.UserNotSignUpException;
 import com.kds.ourmemory.v1.advice.user.exception.UserProfileImageUploadException;
-import com.kds.ourmemory.v1.util.S3Uploader;
 import com.kds.ourmemory.v1.controller.user.dto.UserReqDto;
 import com.kds.ourmemory.v1.controller.user.dto.UserRspDto;
 import com.kds.ourmemory.v1.entity.friend.Friend;
@@ -11,6 +11,7 @@ import com.kds.ourmemory.v1.entity.user.User;
 import com.kds.ourmemory.v1.repository.friend.FriendRepository;
 import com.kds.ourmemory.v1.repository.user.UserRepository;
 import com.kds.ourmemory.v1.service.room.RoomService;
+import com.kds.ourmemory.v1.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -38,7 +38,7 @@ public class UserService {
 
     @Transactional
     public UserRspDto signUp(UserReqDto reqDto) {
-        checkNotNull(reqDto, "가입할 사용자 정보가 입력되지 않았습니다.");
+        checkNotNull(reqDto, "가입할 사용자 정보");
 
         return insertUser(reqDto.toEntity())
                 .map(user -> {
@@ -53,7 +53,7 @@ public class UserService {
     @Transactional
     public UserRspDto signIn(int snsType, String snsId) {
         return findUser(snsType, snsId).map(UserRspDto::new)
-                .orElseThrow(() -> new UserNotFoundException(
+                .orElseThrow(() -> new UserNotSignUpException(
                                 String.format("snsType: %d, snsId: %s", snsType, snsId)
                         )
                 );
@@ -89,7 +89,7 @@ public class UserService {
     @Transactional
     public UserRspDto uploadProfileImage(long userId, UserReqDto reqDto) {
         // 1. Check image
-        checkNotNull(reqDto.getProfileImage(), "업로드할 프로필이미지가 없습니다.");
+        checkNotNull(reqDto.getProfileImage(), "프로필 이미지");
 
         // 2. Get user
         var user = findUser(userId)
@@ -173,6 +173,12 @@ public class UserService {
                 })
                 // Delete user after all job executed.
                 .map(user -> {
+                    // 1) delete from S3
+                    s3Uploader.delete(user.getProfileImageUrl())
+                            .map(result -> user.updateProfileImageUrl(null))
+                            .orElseThrow(UserProfileImageUploadException::new);
+
+                    // 2) delete user
                     user.deleteUser();
                     return true;
                 })
@@ -183,7 +189,7 @@ public class UserService {
 
     private void transferOwner(long roomId, long ownerId, List<User> users) {
         var transferIds = users.stream().map(User::getId).filter(id -> id != ownerId)
-                .collect(Collectors.toList());
+                .toList();
         Optional.of(transferIds)
                 .filter(ids -> !ids.isEmpty())
                 .map(ids -> ids.get(0))

@@ -17,8 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
-
-import static java.util.stream.Collectors.toList;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -113,18 +112,18 @@ public class RoomService {
                         user.getRooms().stream().filter(
                                         room -> room.isUsed() && !room.getId().equals(user.getPrivateRoomId())
                                 )
-                                .collect(toList())
+                                .collect(Collectors.toList())
                 )
         );
         findRoomsByName(name).ifPresent(
-                rooms -> findRooms.addAll(rooms.stream().filter(Room::isUsed).collect(toList()))
+                rooms -> findRooms.addAll(rooms.stream().filter(Room::isUsed).toList())
         );
 
         return findRooms.stream()
                 .distinct()
                 .sorted(Comparator.comparing(Room::getRegDate).reversed())
                 .map(RoomRspDto::new)
-                .collect(toList());
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -238,7 +237,7 @@ public class RoomService {
             }
             // info) Not present recommendUserId -> random recommend(only exists participants)
             else {
-                recommendUser = room.getUsers().stream().filter(u -> u.getId() != userId).collect(toList()).get(0);
+                recommendUser = room.getUsers().stream().filter(u -> u.getId() != userId).toList().get(0);
             }
             room.recommendOwner(recommendUser);
 

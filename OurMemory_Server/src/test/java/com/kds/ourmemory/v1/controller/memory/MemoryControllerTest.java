@@ -2,6 +2,7 @@ package com.kds.ourmemory.v1.controller.memory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kds.ourmemory.v1.controller.memory.dto.MemoryRspDto;
 import com.kds.ourmemory.v1.entity.memory.Memory;
 import com.kds.ourmemory.v1.entity.user.DeviceOs;
@@ -28,7 +29,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class MemoryControllerTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    // LocalDateTime 의 경우, 오브젝트매퍼로 바로 역직렬화되지 않는다.
+    // 실제 API 통신에는 해당 값을 문자열로 변경하여 리턴하기 때문에 인터셉터에서 로그 기록 시, 문제가 되지 않는다.
+    // -> 따라서 테스트용 코드에서만 사용할 수 있도록 아래와 같이 임시조치로 해결.
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     private final DateTimeFormatter alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 

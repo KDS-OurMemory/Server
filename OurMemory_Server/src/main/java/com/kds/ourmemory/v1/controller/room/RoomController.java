@@ -27,13 +27,15 @@ public class RoomController {
         return ok(roomService.insert(reqDto));
     }
 
-    @ApiOperation(value = "방 단일 조회")
+    @ApiOperation(value = "방 단일 조회", notes = "방 정보, 방에 포함된 일정을 조회한다.")
     @GetMapping("/{roomId}")
     public ApiResult<RoomRspDto> find(@PathVariable long roomId) {
         return ok(roomService.find(roomId));
     }
 
-    @ApiOperation(value = "방 목록 조회", notes = "조건에 맞는 방 목록을 조회한다.")
+    @ApiOperation(value = "방 목록 조회", notes = """
+            조건에 맞는 방 목록을 조회한다. 개인방은 보여지지 않는다.
+            각 조건은 OR 검색된다.""")
     @GetMapping
     public ApiResult<List<RoomRspDto>> findRooms(
             @RequestParam(required = false) Long userId,

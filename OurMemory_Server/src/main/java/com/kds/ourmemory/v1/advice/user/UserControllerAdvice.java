@@ -3,6 +3,7 @@ package com.kds.ourmemory.v1.advice.user;
 import com.kds.ourmemory.v1.advice.RestControllerAdviceResponse;
 import com.kds.ourmemory.v1.advice.user.exception.UserInternalServerException;
 import com.kds.ourmemory.v1.advice.user.exception.UserNotFoundException;
+import com.kds.ourmemory.v1.advice.user.exception.UserNotSignUpException;
 import com.kds.ourmemory.v1.advice.user.exception.UserProfileImageUploadException;
 import com.kds.ourmemory.v1.controller.ApiResult;
 import com.kds.ourmemory.v1.controller.user.UserController;
@@ -52,6 +53,11 @@ public class UserControllerAdvice extends RestControllerAdviceResponse {
     @ExceptionHandler(UserProfileImageUploadException.class)
     public ResponseEntity<ApiResult<String>> handleUserProfileImageUploadException(UserProfileImageUploadException e) {
         return response("user.profileUploadError", e);
+    }
+
+    @ExceptionHandler(UserNotSignUpException.class)
+    public ResponseEntity<ApiResult<String>> handleUserNotSignUpException(UserNotSignUpException e) {
+        return response("user.notSignUp", e);
     }
 
 }
