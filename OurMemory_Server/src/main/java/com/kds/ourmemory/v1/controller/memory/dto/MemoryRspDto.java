@@ -27,10 +27,10 @@ public class MemoryRspDto {
     @ApiModelProperty(value = "일정 제목", required = true, example = "회의 일정")
     private final String name;
 
-    @ApiModelProperty(value = "일정 내용", required = true, example = "주간 회의")
+    @ApiModelProperty(value = "일정 내용", example = "주간 회의")
     private final String contents;
 
-    @ApiModelProperty(value = "장소", required = true, example = "신도림역 1번 출구")
+    @ApiModelProperty(value = "장소", example = "신도림역 1번 출구")
     private final String place;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -45,11 +45,11 @@ public class MemoryRspDto {
     private final String bgColor;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "첫 번째 알림 시간(yyyy-MM-dd HH:mm)" ,required = true)
+    @ApiModelProperty(value = "첫 번째 알림 시간(yyyy-MM-dd HH:mm)")
     private final LocalDateTime firstAlarm;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @ApiModelProperty(value = "두 번째 알림 시간(yyyy-MM-dd HH:mm)", required = true)
+    @ApiModelProperty(value = "두 번째 알림 시간(yyyy-MM-dd HH:mm)")
     private final LocalDateTime secondAlarm;
 
     @ApiModelProperty(value = "일정 등록날짜(yyyy-MM-dd HH:mm:ss)", required = true)

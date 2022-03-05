@@ -2,7 +2,7 @@ user:
   badRequest:
     code: "U001"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
-    detailMessage: "사용자 기능과 관련된 요청 변수 값 {0}이 잘못되었습니다. API 요청 프로토콜을 확인하시기 바랍니다."
+    detailMessage: "사용자 기능과 관련된 요청 변수 {0} 의 값이 없습니다. API 요청 프로토콜을 확인하시기 바랍니다."
   notFound:
     code: "U002"
     resultMessage: "사용자를 찾을 수 없습니다. \n 새로고침 후 새로고침 후 다시 시도해주시기 바랍니다."
@@ -15,12 +15,16 @@ user:
     code: "U004"
     resultMessage: "이미지 업로드에 실패했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
     detailMessage: "프로필 이미지 업로드에 실패했습니다. 오류메시지: {0}"
+  notSignUp:
+    code: "U005"
+    resultMessage: "가입되지 않은 사용자입니다. \n 회원가입하시기 바랍니다."
+    detailMessage: "사용자 ({0}) 를 찾을 수 없습니다. 회원가입 후 다시 시도하시기 바랍니다."
 
 friend:
   badRequest:
     code: "F001"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
-    detailMessage: "친구 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+    detailMessage: "친구 기능과 관련된 요청 변수 {0} 의 값이 없습니다. API 요청 프로토콜을 확인하시기 바랍니다."
   notFound:
     code: "F002"
     resultMessage: "친구를 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
@@ -62,7 +66,7 @@ memory:
   badRequest:
     code: "M001"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
-    detailMessage: "일정 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+    detailMessage: "일정 기능과 관련된 요청 변수 {0} 의 값이 없습니다. API 요청 프로토콜을 확인하시기 바랍니다."
   notFound:
     code: "M002"
     resultMessage: "일정을 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
@@ -104,7 +108,7 @@ room:
   badRequest:
     code: "R001"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
-    detailMessage: "방 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+    detailMessage: "방 기능과 관련된 요청 변수 {0} 의 값이 없습니다. API 요청 프로토콜을 확인하시기 바랍니다."
   notFound:
     code: "R002"
     resultMessage: "방을 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."
@@ -142,7 +146,7 @@ notice:
   badRequest:
     code: "N001"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
-    detailMessage: "알림 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+    detailMessage: "알림 기능과 관련된 요청 변수 {0} 의 값이 없습니다. API 요청 프로토콜을 확인하시기 바랍니다."
   notFound:
     code: "N002"
     resultMessage: "알림을 찾을 수 없습니다."
@@ -160,7 +164,7 @@ todo:
   badRequest:
     code: "T001"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
-    detailMessage: "TODO 리스트 기능과 관련된 요청 변수 값이 잘못되었습니다. 오류메시지: {0}"
+    detailMessage: "TODO 리스트 기능과 관련된 요청 변수 {0} 의 값이 없습니다. API 요청 프로토콜을 확인하시기 바랍니다."
   notFound:
     code: "T002"
     resultMessage: "TODO 항목을 찾을 수 없습니다. \n 새로고침 후 다시 시도해주시기 바랍니다."

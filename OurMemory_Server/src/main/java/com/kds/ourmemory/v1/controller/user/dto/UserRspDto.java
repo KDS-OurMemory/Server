@@ -40,7 +40,7 @@ public class UserRspDto {
     @ApiModelProperty(value = "SNS ID", required = true)
     private final String snsId;
 
-    @ApiModelProperty(value = "프로필사진 Url", required = true)
+    @ApiModelProperty(value = "프로필사진 Url")
     private final String profileImageUrl;
 
     @ApiModelProperty(value = "역할(USER:사용자, ADMIN:관리자)", required = true, example = "USER")

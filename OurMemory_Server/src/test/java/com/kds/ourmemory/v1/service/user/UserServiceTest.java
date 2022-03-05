@@ -3,6 +3,7 @@ package com.kds.ourmemory.v1.service.user;
 import com.kds.ourmemory.v1.advice.memory.exception.MemoryNotFoundException;
 import com.kds.ourmemory.v1.advice.room.exception.RoomNotFoundException;
 import com.kds.ourmemory.v1.advice.user.exception.UserNotFoundException;
+import com.kds.ourmemory.v1.advice.user.exception.UserNotSignUpException;
 import com.kds.ourmemory.v1.controller.friend.dto.FriendReqDto;
 import com.kds.ourmemory.v1.controller.memory.dto.MemoryReqDto;
 import com.kds.ourmemory.v1.controller.room.dto.RoomReqDto;
@@ -155,7 +156,7 @@ class UserServiceTest {
         var wrongSnsType = (insertReq.getSnsType() + 1) % 3;
         var snsId = insertReq.getSnsId();
         assertThrows(
-                UserNotFoundException.class, () -> userService.signIn(wrongSnsType, snsId)
+                UserNotSignUpException.class, () -> userService.signIn(wrongSnsType, snsId)
         );
     }
 
@@ -184,7 +185,7 @@ class UserServiceTest {
         var snsType = insertReq.getSnsType();
         var wrongSnsId = insertReq.getSnsId() + "wrong!";
         assertThrows(
-                UserNotFoundException.class, () -> userService.signIn(snsType, wrongSnsId)
+                UserNotSignUpException.class, () -> userService.signIn(snsType, wrongSnsId)
         );
     }
 

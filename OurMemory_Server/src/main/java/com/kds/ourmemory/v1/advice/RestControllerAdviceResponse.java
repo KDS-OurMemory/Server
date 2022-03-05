@@ -26,6 +26,9 @@ public class RestControllerAdviceResponse {
     }
 
     protected ResponseEntity<ApiResult<String>> response(String resultCode, Exception e) {
+        // TODO: 개발 완료 후, 로그 삭제 필요. 처리하지 못한 예외를 잡기 위해 스택트레이스 출력시킴.
+        log.error("Exception!", e);
+
         return response(
                 getMessage(resultCode + ".code"),
                 getMessage(resultCode + ".resultMessage"),
@@ -34,12 +37,6 @@ public class RestControllerAdviceResponse {
     }
 
     private ResponseEntity<ApiResult<String>> response(String code, String resultMessage, String detailMessage) {
-        log.error("================================================================");
-        log.error("resultCode: {}", code);
-        log.error("resultMessage: {}", resultMessage);
-        log.error("detailMessage: {}", detailMessage);
-        log.error("================================================================");
-
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
         return new ResponseEntity<>(error(code, resultMessage, detailMessage), headers, HttpStatus.OK);

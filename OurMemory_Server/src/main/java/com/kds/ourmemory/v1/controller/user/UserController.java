@@ -26,7 +26,9 @@ public class UserController {
         return ok(userService.signUp(reqDto));
     }
 
-    @ApiOperation(value = "로그인", notes = "sns 종류와 SNS Id 로 사용자 정보 조회 및 리턴")
+    @ApiOperation(value = "로그인", notes = """
+            sns 종류와 SNS Id 로 로그인한다.
+            사용자가 조회되지 않는 경우 비회원 예외코드(U005)를 리턴한다.""")
     @GetMapping
     public ApiResult<UserRspDto> signIn(
             @ApiParam(value = "sns 종류", required = true) @RequestParam int snsType,
