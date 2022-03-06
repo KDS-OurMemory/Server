@@ -36,7 +36,7 @@ jobs:
         run: chmod +x ./OurMemory_Server/gradlew
 
       - name: Build with Gradle
-        run: ./OurMemory_Server/gradlew build
+        run: cd ./OurMemory_Server && ./gradlew build
 
       - name: bootJar with Gradle
         run: cd ./OurMemory_Server && ./gradlew bootJar
