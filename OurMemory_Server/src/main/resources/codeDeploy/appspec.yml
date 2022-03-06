@@ -1,0 +1,30 @@
+version: 0.0
+os: linux
+files:
+  - source: /OurMemory.jar
+    destination: /home/ec2-user/OurMemory/package
+#    overwrite: yes
+
+permissions:
+  - object: /home/ec2-user
+    pattern: '**'
+    owner: ec2-user
+    group: ec2-user
+
+hooks:
+  ApplicationStop:
+    - location: scripts/mkdir.sh
+      timeout: 180
+      runas: ec2-user
+  BeforeInstall:
+    - location: scripts/appStop.sh
+      timeout: 5300 # 스크립트에서 앱 정지 후 5초 대기 + 여유시간 0.3초
+      runas: ec2-user
+  AfterInstall:
+    - location: scripts/deploy.sh
+      timeout: 300
+      runas: ec2-user
+  ApplicationStart:
+    - location: scripts/appStart.sh
+      timeout: 300
+      runas: ec2-user

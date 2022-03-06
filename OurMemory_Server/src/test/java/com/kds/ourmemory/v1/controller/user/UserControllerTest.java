@@ -53,11 +53,10 @@ class UserControllerTest {
                 .build();
         user.updatePrivateRoomId(1L);
 
-        var file = new MockMultipartFile("request",
-                "CD 명함사이즈.jpg",
-                "image/jpg",
-                new FileInputStream("src/test/java/com/kds/ourmemory/v1/controller/user/UserControllerTest.java")
-        );
+        var file = new MockMultipartFile("favicon",
+                "favicon.ico",
+                "image/ico",
+                new FileInputStream("src/main/resources/static/favicon.ico"));
 
         var request = UserReqDto.builder()
                 .profileImage(file)
