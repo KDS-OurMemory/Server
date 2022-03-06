@@ -13,6 +13,7 @@ import com.kds.ourmemory.v1.repository.user.UserRepository;
 import com.kds.ourmemory.v1.service.room.RoomService;
 import com.kds.ourmemory.v1.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -173,10 +174,9 @@ public class UserService {
                 })
                 // Delete user after all job executed.
                 .map(user -> {
-                    // 1) delete from S3
-                    s3Uploader.delete(user.getProfileImageUrl())
-                            .map(result -> user.updateProfileImageUrl(null))
-                            .orElseThrow(UserProfileImageUploadException::new);
+                    // 1) delete profileImage from S3
+                    Optional.ofNullable(user.getProfileImageUrl()).ifPresent(s3Uploader::delete);
+                    user.updateProfileImageUrl(null);
 
                     // 2) delete user
                     user.deleteUser();
