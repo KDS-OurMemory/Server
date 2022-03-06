@@ -29,10 +29,10 @@ class S3UploaderTest {
     @Test
     @DisplayName("파일 업로드/삭제")
     void uploadFile() throws IOException {
-        var file = new MockMultipartFile("image",
-                "CD 명함사이즈.jpg",
-                "image/jpg",
-                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var file = new MockMultipartFile("code",
+                "S3UploaderTest.java",
+                "multipart/form-data",
+                new FileInputStream("src/test/java/com/kds/ourmemory/v1/util/S3UploaderTest.java"));
 
         var uploadUrl = s3Uploader.upload(file);
         assertThat(uploadUrl).isNotNull();

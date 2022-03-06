@@ -33,8 +33,8 @@ custom:
 cloud:
   aws:
     credentials:
-      accessKey: AKIA6AVXSEVS67FHAUC6
-      secretKey: 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
+      accessKey: AKIA6AVXSEVS33MJM2VZ
+      secretKey: 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
     s3:
       bucket: ourmemory
       profile-image-dir: profileImages
