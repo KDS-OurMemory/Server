@@ -9,11 +9,12 @@
 name: deploy
 
 on:
-#  부득이 브랜치에서 자동배포가 필요한 경우만 사용하자
-#  push:
-#    branches: [Feature/#198_github_action_deploy]
-  pull_request:
+  push:
     branches: [develop]
+
+# 병합 요청 시, 빌드되도록 액션을 따로 분리하고 관리해야 한다. 빌드 오류가 있어 우선 주석 처리함.
+#  pull_request:
+#    branches: [develop]
 
 jobs:
   build:
