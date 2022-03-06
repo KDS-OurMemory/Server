@@ -21,7 +21,6 @@ jobs:
     strategy:
       matrix:
         java-version: [16]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
       - name: Checkout source code.
@@ -32,15 +31,21 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./OurMemory_Server/gradlew
+
+      - name: Build with Gradle
+        run: ./OurMemory_Server/gradlew build
+
       - name: bootJar with Gradle
         run: cd ./OurMemory_Server && ./gradlew bootJar
-#      - name: Build with Gradle
-#        run: ./OurMemory_Server/gradlew build
 
-      - name: compress .jar to .tgz
-        run: tar -zcvf OurMemory.tgz ./OurMemory_Server/build/libs/OurMemory.jar
+      - name: copy .jar, appspec.yml, scripts
+        run: cp ./OurMemory_Server/src/main/resource/codeDeploy/ .
+
+      - name: compress to .tgz
+        run: tar -zcvf OurMemory.tgz ./OurMemory_Server/build/libs/OurMemory.jar appspec.yml scripts
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
