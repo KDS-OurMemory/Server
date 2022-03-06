@@ -974,10 +974,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("code",
-                "UserServiceTest.java",
-                "multipart/form-data",
-                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
+        var file = new MockMultipartFile("favicon",
+                "favicon.ico",
+                "image/ico",
+                new FileInputStream("src/main/resources/static/favicon.ico"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
@@ -1010,10 +1010,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("code",
-                "UserServiceTest.java",
-                "multipart/form-data",
-                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
+        var file = new MockMultipartFile("favicon",
+                "favicon.ico",
+                "image/ico",
+                new FileInputStream("src/main/resources/static/favicon.ico"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
@@ -1080,10 +1080,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("code",
-                "UserServiceTest.java",
-                "multipart/form-data",
-                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
+        var file = new MockMultipartFile("favicon",
+                "favicon.ico",
+                "image/ico",
+                new FileInputStream("src/main/resources/static/favicon.ico"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
@@ -1121,10 +1121,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("code",
-                "UserServiceTest.java",
-                "multipart/form-data",
-                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
+        var file = new MockMultipartFile("favicon",
+                "favicon.ico",
+                "image/ico",
+                new FileInputStream("src/main/resources/static/favicon.ico"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
@@ -1163,10 +1163,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("code",
-                "UserServiceTest.java",
-                "multipart/form-data",
-                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
+        var file = new MockMultipartFile("favicon",
+                "favicon.ico",
+                "image/ico",
+                new FileInputStream("src/main/resources/static/favicon.ico"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */

@@ -41,8 +41,8 @@ jobs:
       - name: bootJar with Gradle
         run: cd ./OurMemory_Server && ./gradlew bootJar
 
-      - name: copy .jar, appspec.yml, scripts
-        run: cp ./OurMemory_Server/src/main/resource/codeDeploy/ .
+      - name: copy OurMemory.jar, appspec.yml, scripts/
+        run: cp ./OurMemory_Server/src/main/resources/codeDeploy/ .
 
       - name: compress to .tgz
         run: tar -zcvf OurMemory.tgz ./OurMemory_Server/build/libs/OurMemory.jar appspec.yml scripts
