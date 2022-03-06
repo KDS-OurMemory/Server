@@ -9,8 +9,9 @@
 name: deploy
 
 on:
-  push:
-    branches: [Feature/#198_github_action_deploy]
+#  부득이 브랜치에서 자동배포가 필요한 경우만 사용하자
+#  push:
+#    branches: [Feature/#198_github_action_deploy]
   pull_request:
     branches: [develop]
 
