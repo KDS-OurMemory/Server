@@ -19,7 +19,6 @@
 .gradle
 /build/
 bin/
-src/main/resources/application.yml
 
 # idea, Sonarlint
 /.idea/

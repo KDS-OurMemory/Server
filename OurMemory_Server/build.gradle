@@ -6,6 +6,8 @@ plugins {
 
 bootJar {
     archiveFileName = 'OurMemory.jar'
+	exclude 'application*'
+	exclude 'codeDeploy'
 }
 
 group = 'com.kds.ourmemory'
