@@ -974,10 +974,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("image",
-                "CD 명함사이즈.jpg",
-                "image/jpg",
-                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var file = new MockMultipartFile("code",
+                "UserServiceTest.java",
+                "multipart/form-data",
+                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
@@ -1010,10 +1010,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("image",
-                "CD 명함사이즈.jpg",
-                "image/jpg",
-                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var file = new MockMultipartFile("code",
+                "UserServiceTest.java",
+                "multipart/form-data",
+                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
@@ -1080,10 +1080,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("image",
-                "CD 명함사이즈.jpg",
-                "image/jpg",
-                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var file = new MockMultipartFile("code",
+                "UserServiceTest.java",
+                "multipart/form-data",
+                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
@@ -1121,10 +1121,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("image",
-                "CD 명함사이즈.jpg",
-                "image/jpg",
-                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var file = new MockMultipartFile("code",
+                "UserServiceTest.java",
+                "multipart/form-data",
+                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
@@ -1163,10 +1163,10 @@ class UserServiceTest {
                 .birthdayOpen(false)
                 .deviceOs(DeviceOs.AOS)
                 .build();
-        var file = new MockMultipartFile("image",
-                "CD 명함사이즈.jpg",
-                "image/jpg",
-                new FileInputStream("F:\\자료\\문서\\서류 및 신분증 사진\\CD 명함사이즈.jpg"));
+        var file = new MockMultipartFile("code",
+                "UserServiceTest.java",
+                "multipart/form-data",
+                new FileInputStream("src/test/java/com/kds/ourmemory/v1/service/UserServiceTest.java"));
         var profileImageReq = UserReqDto.builder().profileImage(file).build();
 
         /* 1. Insert */
