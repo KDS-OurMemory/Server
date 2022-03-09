@@ -29,9 +29,7 @@
      - CodeDeploy 배포대상 서버입니다.
      - 스크립트를 통해 최초 배포된 파일들을 위치시키고, 서버를 기동합니다.
      - 서버 구동에 필요한 설정 파일의 경우, 보안을 위해 자동 배포에서 제외되기 때문에 수동으로 업로드하여 관리하고 있습니다.
-
-![image](https://user-images.githubusercontent.com/43669379/156932367-dfe219e3-b2d8-4e27-a376-0512e4729ad1.png)
-
+![CI/CD 순서도](https://user-images.githubusercontent.com/43669379/157423389-b50cba3f-4f3b-4bd6-972b-fc6d66f410f4.png)
 
 ## 4. 주요기능
 일정을 자유롭게 작성하고 필요한 경우, 일정 참여자 혹은 방에 공유할 수 있습니다.
