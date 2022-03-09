@@ -10,9 +10,11 @@
 6. [프로젝트 문서](#6-프로젝트-문서)
 
 ## 1. 환경
-  * JDK : 16
-  * Spring Boot 2.5.6 / gradle
-  * DB : MySQL8 / Spring data JPA
+  * Spring Boot 2.5.6 / gradle / JDK 16
+  * DB : MySQL8(RDS) / Spring data JPA
+  * 브랜치 전략
+    - GitHub Flow 에 따라 관리합니다. 
+    - 프로젝트를 개인 레포지토리로 포크한 뒤 발행된 이슈에 맞춰 브랜치를 작성하고 Pull Request 를 통해 메인 레포지토리로 병합합니다.
 
 ## 2. 개요
 클라이언트(iOS, Android) 로부터 요청을 받아 처리하기 위한 API 서버
