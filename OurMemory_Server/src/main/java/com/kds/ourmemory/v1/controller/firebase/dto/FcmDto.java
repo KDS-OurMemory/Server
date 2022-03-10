@@ -1,4 +1,4 @@
-package com.kds.ourmemory.v1.controller.dto;
+package com.kds.ourmemory.v1.controller.firebase.dto;
 
 import com.kds.ourmemory.v1.entity.user.DeviceOs;
 import io.swagger.annotations.ApiModel;

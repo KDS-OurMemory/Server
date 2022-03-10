@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
 import com.kds.ourmemory.v1.config.CustomConfig;
-import com.kds.ourmemory.v1.controller.dto.FcmDto;
+import com.kds.ourmemory.v1.controller.firebase.dto.FcmDto;
 import com.kds.ourmemory.v1.entity.user.DeviceOs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
