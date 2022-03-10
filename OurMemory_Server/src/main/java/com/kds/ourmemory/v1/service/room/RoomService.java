@@ -3,7 +3,7 @@ package com.kds.ourmemory.v1.service.room;
 import com.kds.ourmemory.v1.advice.room.exception.*;
 import com.kds.ourmemory.v1.advice.user.exception.UserInternalServerException;
 import com.kds.ourmemory.v1.advice.user.exception.UserNotFoundException;
-import com.kds.ourmemory.v1.controller.dto.FcmDto;
+import com.kds.ourmemory.v1.controller.firebase.dto.FcmDto;
 import com.kds.ourmemory.v1.controller.room.dto.RoomReqDto;
 import com.kds.ourmemory.v1.controller.room.dto.RoomRspDto;
 import com.kds.ourmemory.v1.entity.memory.Memory;

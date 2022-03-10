@@ -2,7 +2,7 @@ package com.kds.ourmemory.v1.service.friend;
 
 import com.kds.ourmemory.v1.advice.friend.exception.*;
 import com.kds.ourmemory.v1.advice.user.exception.UserNotFoundException;
-import com.kds.ourmemory.v1.controller.dto.FcmDto;
+import com.kds.ourmemory.v1.controller.firebase.dto.FcmDto;
 import com.kds.ourmemory.v1.controller.friend.dto.FriendReqDto;
 import com.kds.ourmemory.v1.controller.friend.dto.FriendRspDto;
 import com.kds.ourmemory.v1.controller.notice.dto.NoticeReqDto;
