@@ -40,9 +40,10 @@ class FcmControllerTest {
     @Test
     @DisplayName("FCM 메시지 전송 요청 | 성공")
     void sendMessageSuccess() {
-        var fcmReqDto = new FcmReqDto(1L, "test title", "test body");
+        var userId = 1L;
+        var fcmReqDto = new FcmReqDto("test title", "test body");
         var user = User.builder()
-                .id(fcmReqDto.getUserId())
+                .id(userId)
                 .snsType(1)
                 .snsId("test sns id")
                 .name("test name")
@@ -54,11 +55,11 @@ class FcmControllerTest {
         var userRspDto = new UserRspDto(user);
 
         // given
-        given(userService.find(fcmReqDto.getUserId())).willReturn(userRspDto);
+        given(userService.find(userId)).willReturn(userRspDto);
         given(fcmService.sendMessageTo(any())).willReturn(true);
 
         // when
-        var apiResult = fcmController.sendMessage(fcmReqDto);
+        var apiResult = fcmController.sendMessage(userId, fcmReqDto);
 
         // then
         assertThat(apiResult.getResultCode()).isEqualTo("S001");

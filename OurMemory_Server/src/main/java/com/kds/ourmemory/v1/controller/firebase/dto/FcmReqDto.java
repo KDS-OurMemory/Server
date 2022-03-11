@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FcmReqDto {
 
-    @ApiModelProperty(value = "사용자 번호", required = true)
-    private Long userId;
-
     @ApiModelProperty(value = "푸시 메시지 제목", required = true)
     private String title;
 
