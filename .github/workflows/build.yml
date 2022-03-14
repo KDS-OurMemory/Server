@@ -35,17 +35,17 @@ jobs:
 
       - name: Create Fcm service key file
         run: |
-          cd OurMemory_Server
+          cd OurMemory_Server/src/main/resources
           touch fcmServiceKey.json
           cat << EOF >> fcmServiceKey.json
           ${{ secrets.FCM_SERVICE_KEY }}
 
-      - name: Create .env
+      - name: Create application-test.yml
         run: |
-          cd OurMemory_Server
-          touch .env
-          cat << EOF >> .env
-          ${{ secrets.ENV }}
+          cd OurMemory_Server/src/main/resources
+          touch application-test.yml
+          cat << EOF >> application-test.yml
+          ${{ secrets.APPLICATION_TEST }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./OurMemory_Server/gradlew
