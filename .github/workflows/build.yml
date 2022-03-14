@@ -40,7 +40,7 @@ jobs:
           cat << EOF >> fcmServiceKey.json
           ${{ secrets.FCM_SERVICE_KEY }}
 
-      -name: Create .env
+      - name: Create .env
         run: |
           cd OurMemory_Server
           touch .env
