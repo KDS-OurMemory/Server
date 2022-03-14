@@ -21,7 +21,7 @@
 OurMemory_Server/.gradle
 OurMemory_Server/build/
 OurMemory_Server/bin/
-OurMemory_Server/src/main/resources/application.yml
+OurMemory_Server/src/main/resources/application*.yml
 
 # idea, Sonarlint
 /.idea/
@@ -29,4 +29,4 @@ OurMemory_Server/src/main/resources/application.yml
 
 # Custom
 OurMemory_Server/logs/
-OurMemory_Server/src/main/resources/FCM_ServiceKey.json
+OurMemory_Server/src/main/resources/*.json
