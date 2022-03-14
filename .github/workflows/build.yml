@@ -34,14 +34,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create Fcm service key file
-        run:
+        run: |
           cd OurMemory_Server
           touch fcmServiceKey.json
           cat << EOF >> fcmServiceKey.json
           ${{ secrets.FCM_SERVICE_KEY }}
 
       -name: Create .env
-        run:
+        run: |
           cd OurMemory_Server
           touch .env
           cat << EOF >> .env
