@@ -12,7 +12,6 @@ on:
   push:
     branches: [Feature/#198_github_action_deploy]
 
-  # 병합 요청 시, 빌드되도록 액션을 따로 분리하고 관리해야 한다. 빌드 오류가 있어 우선 주석 처리함.
   pull_request:
     branches: [develop]
 
@@ -52,3 +51,4 @@ jobs:
 
       - name: Build with gradle
         run: cd ./OurMemory_Server && ./gradlew build
+        debug: true
