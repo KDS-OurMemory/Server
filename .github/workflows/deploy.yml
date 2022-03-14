@@ -32,8 +32,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./OurMemory_Server/gradlew
 
-#      - name: Build with Gradle
-#        run: cd ./OurMemory_Server && ./gradlew build
+      - name: Build with Gradle
+        run: cd ./OurMemory_Server && ./gradlew build
 
       - name: bootJar with Gradle
         run: cd ./OurMemory_Server && ./gradlew bootJar

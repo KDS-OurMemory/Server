@@ -8,13 +8,12 @@
 
 name: Build before merging
 
-on:
-  push:
-    branches: [Feature/#206_tmp_fcm_api]
+# 모든 브랜치 푸시에 대해 빌드
+on: [push]
 
 # 병합 요청 시, 빌드되도록 액션을 따로 분리하고 관리해야 한다. 빌드 오류가 있어 우선 주석 처리함.
-#  pull_request:
-#    branches: [develop]
+  pull_request:
+    branches: [develop]
 
 jobs:
   build:

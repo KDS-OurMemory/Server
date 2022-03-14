@@ -12,3 +12,22 @@ spring:
       dialect: org.hibernate.dialect.MySQL8InnoDBDialect
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.H2Dialect
+  message:
+    basename: i18n/exception
+    encoding: UTF-8
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AccessKey}
+      secret-key: ${SecretKey}
+    s3:
+      bucket: ourmemory
+      profile-image-dir: profileImages
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+custom:
+  fcm-key: ${FcmKeyPath}
