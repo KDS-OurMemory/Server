@@ -8,9 +8,8 @@
 
 name: Build before merging
 
-on:
-  push:
-    branches: [Feature/#198_github_action_deploy]
+# 모든 브랜치에 푸시할 때마다 빌드 테스트
+on: [push]
 
 # 병합 요청 시, 빌드되도록 액션을 따로 분리하고 관리해야 한다. 빌드 오류가 있어 우선 주석 처리함.
   pull_request:
