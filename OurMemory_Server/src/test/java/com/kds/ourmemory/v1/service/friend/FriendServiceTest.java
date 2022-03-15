@@ -838,6 +838,7 @@ class FriendServiceTest {
         );
 
         assertThat(findUsersByUniqueNameList.isEmpty()).isFalse();
+        // TODO: GitHub Action 환경에서 해당 테스트만 되지 않아 주석함. 추후 GitHubAction 로그를 통해 해결할 예정.
 //        assertThat(findUsersByUniqueNameList.size()).isOne();
 //
 //        var findUsersByUniqueName = findUsersByUniqueNameList.get(0);

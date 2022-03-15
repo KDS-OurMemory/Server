@@ -10,7 +10,7 @@ name: Deploy to server
 
 on:
   push:
-    branches: [Feature/#198_github_action_deploy]
+    branches: [develop]
 
 jobs:
   build:
@@ -20,14 +20,14 @@ jobs:
         java-version: [16]
 
     steps:
-      - name: Build Test
+      - name: Build before deploy
         uses: convictional/trigger-workflow-and-wait@v1.6.0
         with:
           owner: idean3885
           repo: Server
           github_token: ${{ secrets.ACTION_TOKEN }}
           workflow_file_name: build.yml
-          ref: Feature/#198_github_action_deploy
+          ref: deploy
 
       - name: Use JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v2
