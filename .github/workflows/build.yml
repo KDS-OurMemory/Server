@@ -10,6 +10,8 @@ name: Build before merging
 
 on:
   workflow_dispatch:
+    ref: 'Feature/#198_github_action_deploy'
+
   push:
     branches-ignore:
       - 'Feature/#198_github_action_deploy'

@@ -27,7 +27,6 @@ jobs:
           repo: Server
           github_token: ${{ secrets.ACTION_TOKEN }}
           workflow_file_name: build.yml
-          client_payload: '{"ref":"Feature/#198_github_action_deploy"}'
 
       - name: Use JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v2
