@@ -834,11 +834,11 @@ class FriendServiceTest {
 
         // 4) find by name : insertUniqueNameReq
         var findUsersByUniqueNameList = friendService.findUsers(
-                insertSameNameRsp1.getUserId(), -1L, insertUniqueNameReq.getName(), null
+                insertSameNameRsp1.getUserId(), null, insertUniqueNameReq.getName(), null
         );
 
         assertThat(findUsersByUniqueNameList.isEmpty()).isFalse();
-        assertThat(findUsersByUniqueNameList.size()).isOne();
+        assertThat(findUsersByUniqueNameList.size()).isEqualTo(2);
 
         var findUsersByUniqueName = findUsersByUniqueNameList.get(0);
         assertThat(findUsersByUniqueName.getFriendId()).isEqualTo(insertUniqueNameRsp.getUserId());
