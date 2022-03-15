@@ -23,9 +23,10 @@ jobs:
       - name: Build Test
         uses: convictional/trigger-workflow-and-wait@v1.6.0
         with:
-          owner: idean3885
-          repo: Server
+          owner: keithconvictional
+          repo: myrepo
           github_token: ${{ secrets.ACTION_TOKEN }}
+          workflow_file_name: build.yml
 
       - name: Use JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v2
