@@ -10,7 +10,13 @@ name: Build before merging
 
 on:
   workflow_dispatch:
-    ref: 'Feature/#198_github_action_deploy'
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'
 
   push:
     branches-ignore:
