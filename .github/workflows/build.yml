@@ -10,11 +10,11 @@ name: Build
 
 on:
   workflow_dispatch:
-  push:
-    branches-ignore:
-      - 'develop'
-  pull_request:
-    branches: [develop]
+#  push:
+#    branches-ignore:
+#      - 'develop'
+#  pull_request:
+#    branches: [develop]
 
 jobs:
   build:
