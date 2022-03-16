@@ -45,7 +45,7 @@ jobs:
           cd OurMemory_Server/src/main/resources
           touch application-test.yml
           cat << EOF >> application-test.yml
-          ${{ secrets.APPLICATION_TEST }}
+          ${{ secrets.APPLICATION_TEST2 }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./OurMemory_Server/gradlew
