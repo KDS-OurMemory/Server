@@ -1,2 +1,32 @@
-logs/
 .idea/sonarlint/issuestore/**
+
+# Java templete
+*.class
+
+# eclipse setting
+.settings/
+.classpath
+.project
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Compiled files
+/target/
+**/target
+
+# Gradle
+OurMemory_Server/.gradle
+OurMemory_Server/build/
+OurMemory_Server/bin/
+OurMemory_Server/src/main/resources/application*
+
+# idea, Sonarlint
+/.idea/
+.idea/sonarlint/
+
+# Custom
+OurMemory_Server/logs/
+OurMemory_Server/src/main/resources/*.json

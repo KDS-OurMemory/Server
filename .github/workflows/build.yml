@@ -6,15 +6,15 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
 
-name: Build before merging
+name: Build
 
 on:
+  workflow_dispatch:
   push:
-    branches: [Feature/#206_tmp_fcm_api]
-
-# 병합 요청 시, 빌드되도록 액션을 따로 분리하고 관리해야 한다. 빌드 오류가 있어 우선 주석 처리함.
-#  pull_request:
-#    branches: [develop]
+    branches-ignore:
+      - 'develop'
+  pull_request:
+    branches: [develop]
 
 jobs:
   build:
@@ -32,6 +32,20 @@ jobs:
 
       - name: Checkout source code
         uses: actions/checkout@v2
+
+      - name: Create Fcm service key file
+        run: |
+          cd OurMemory_Server/src/main/resources
+          touch fcmServiceKey.json
+          cat << EOF >> fcmServiceKey.json
+          ${{ secrets.FCM_SERVICE_KEY }}
+
+      - name: Create application-test.yml
+        run: |
+          cd OurMemory_Server/src/main/resources
+          touch application-test.yml
+          cat << EOF >> application-test.yml
+          ${{ secrets.APPLICATION_TEST }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./OurMemory_Server/gradlew

@@ -20,6 +20,15 @@ jobs:
         java-version: [16]
 
     steps:
+      - name: Build before deploy
+        uses: convictional/trigger-workflow-and-wait@v1.6.0
+        with:
+          owner: idean3885
+          repo: Server
+          github_token: ${{ secrets.ACTION_TOKEN }}
+          workflow_file_name: build.yml
+          ref: develop
+
       - name: Use JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v2
         with:
@@ -31,9 +40,6 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./OurMemory_Server/gradlew
-
-#      - name: Build with Gradle
-#        run: cd ./OurMemory_Server && ./gradlew build
 
       - name: bootJar with Gradle
         run: cd ./OurMemory_Server && ./gradlew bootJar

@@ -8,6 +8,7 @@ bootJar {
     archiveFileName = 'OurMemory.jar'
 	exclude 'application*'
 	exclude 'codeDeploy'
+	exclude '*.json'
 }
 
 group = 'com.kds.ourmemory'
