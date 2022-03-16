@@ -38,7 +38,7 @@ jobs:
           cd OurMemory_Server/src/main/resources
           touch fcmServiceKey.json
           cat << EOF >> fcmServiceKey.json
-          ${{ secrets.FCM_SERVICE_KEY }}
+          ${{ secrets.FCM_SERVICE_KEY2 }}
 
       - name: Create application-test.yml
         run: |
