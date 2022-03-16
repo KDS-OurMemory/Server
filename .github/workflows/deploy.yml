@@ -27,7 +27,7 @@ jobs:
           repo: Server
           github_token: ${{ secrets.ACTION_TOKEN }}
           workflow_file_name: build.yml
-          ref: deploy
+          ref: develop
 
       - name: Use JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v2
