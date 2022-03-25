@@ -10,11 +10,11 @@ name: Build
 
 on:
   workflow_dispatch:
-#  push:
-#    branches-ignore:
-#      - 'develop'
-#  pull_request:
-#    branches: [develop]
+  push:
+    branches-ignore:
+      - 'develop'
+  pull_request:
+    branches: [develop]
 
 jobs:
   build:
@@ -40,6 +40,9 @@ jobs:
           cat << EOF >> fcmServiceKey.json
           ${{ secrets.FCM_SERVICE_KEY }}
 
+      - name: Check application-test.yml context
+        run: echo "${{ secrets.APPLICATION_TEST }}"
+
       - name: Create application-test.yml
         run: |
           cd OurMemory_Server/src/main/resources
@@ -51,4 +54,5 @@ jobs:
         run: chmod +x ./OurMemory_Server/gradlew
 
       - name: Build with gradle
-        run: cd ./OurMemory_Server && ./gradlew build
+        run: ./gradlew build -Dspring.profiles.active=test
+        working-directory: ./OurMemory_Server
