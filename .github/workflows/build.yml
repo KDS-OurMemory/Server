@@ -51,4 +51,5 @@ jobs:
         run: chmod +x ./OurMemory_Server/gradlew
 
       - name: Build with gradle
-        run: cd ./OurMemory_Server && ./gradlew build
+        run: ./gradlew build
+        working-directory: ./OurMemory_Server
