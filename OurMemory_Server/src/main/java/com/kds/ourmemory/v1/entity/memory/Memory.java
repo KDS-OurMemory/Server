@@ -13,6 +13,7 @@ import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -131,6 +132,56 @@ public class Memory extends BaseTimeEntity implements Serializable {
 
     public void deleteRoom(Room room) {
         this.rooms.remove(room);
+    }
+
+    /**
+     * Check start <= endDate
+     *   ref) start null -> true(None filtered.)
+     *
+     * @param start filtering option
+     * @return boolean start <= endDate
+     */
+    public boolean isAfter(YearMonth start) {
+        if (Objects.isNull(start)) return true;
+
+        var targetYear = endDate.getYear();
+        var targetMonth = endDate.getMonthValue();
+
+        var filterYear = start.getYear();
+        var filterMonth = start.getMonthValue();
+
+        // 1. Before Year
+        if (targetYear < filterYear) {
+            return false;
+        }
+
+        // 2. Same year -> before month
+        return targetYear != filterYear || targetMonth >= filterMonth;
+    }
+
+    /**
+     * Check startDate <= end
+     *   ref) end null -> true(None filtered.)
+     *
+     * @param end filtering option
+     * @return boolean startDate <= end
+     */
+    public boolean isBefore(YearMonth end) {
+        if (Objects.isNull(end)) return true;
+
+        var targetYear = startDate.getYear();
+        var targetMonth = startDate.getMonthValue();
+
+        var filterYear = end.getYear();
+        var filterMonth = end.getMonthValue();
+
+        // 1. After Year
+        if (targetYear > filterYear) {
+            return false;
+        }
+
+        // 2. Same year -> after month
+        return targetYear != filterYear || targetMonth <= filterMonth;
     }
 
     @Override

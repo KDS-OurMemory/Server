@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
 import java.util.List;
 
 import static com.kds.ourmemory.v1.controller.ApiResult.ok;
@@ -36,13 +37,25 @@ public class MemoryController {
         return ok(memoryService.find(memoryId, roomId));
     }
 
-    @ApiOperation(value = "일정 목록 조회", notes = "조건에 맞는 일정을 검색한다. 일정 시작시간 -> 일정 생성시간 순으로 정렬된다.")
+    @ApiOperation(value = "일정 목록 조회", notes = """
+            아래 조건에 맞는 일정 목록을 검색한다.
+            1. 검색기간 - 전달 시, 사이 값으로 조회
+                1) 시작월(yyyy-MM)
+                2) 종료월(yyyy-MM)
+            2. 검색조건 - 각 조건 별 OR 검색, Equals 검색
+                1) 일정 작성자 번호
+                2) 일정 제목
+            3. 정렬조건 - 오름차순
+                1) 일정 시작시간
+                2) 일정 생성시간""")
     @GetMapping
     public ApiResult<List<MemoryRspDto>> findMemories(
             @ApiParam(value = "일정 작성자 번호") @RequestParam(required = false) Long writerId,
-            @ApiParam(value = "일정 제목") @RequestParam(required = false) String name
+            @ApiParam(value = "일정 제목") @RequestParam(required = false) String name,
+            @ApiParam(value = "일정 시작월", example = "yyyy-MM") @RequestParam(required = false) YearMonth startMonth,
+            @ApiParam(value = "일정 종료월", example = "yyyy-MM") @RequestParam(required = false) YearMonth endMonth
     ) {
-        return ok(memoryService.findMemories(writerId, name));
+        return ok(memoryService.findMemories(writerId, name, startMonth, endMonth));
     }
 
     @ApiOperation(value = "일정 수정", notes = "전달받은 값이 있는 경우 수정")
@@ -63,10 +76,10 @@ public class MemoryController {
 
     @ApiOperation(value = "일정 공유",
             notes = """
-                    사용자가 대상 목록에게 일정을 공유시킨다.\s
-                    1. 사용자 개별 공유: 각 사용자 별로 방 생성 뒤 일정 공유(type=USERS, targetIds=사용자 번호 목록)\s
-                    2. 사용자 그룹 공유: 사용자들을 참여자로 방 생성 후 일정 공유(type=USER_GROUP, targetIds=사용자 번호 목록)\s
-                    3. 기존 방에 공유: 전달받은 각각의 방에 일정 공유(type=ROOMS, targetIds=방 번호 목록)"""
+                    ""                    사용자가 대상 목록에게 일정을 공유시킨다.\s
+                                        1. 사용자 개별 공유: 각 사용자 별로 방 생성 뒤 일정 공유(type=USERS, targetIds=사용자 번호 목록)\s
+                                        2. 사용자 그룹 공유: 사용자들을 참여자로 방 생성 후 일정 공유(type=USER_GROUP, targetIds=사용자 번호 목록)\s
+                                        3. 기존 방에 공유: 전달받은 각각의 방에 일정 공유(type=ROOMS, targetIds=방 번호 목록)"""
     )
     @PostMapping("/{memoryId}/share/{userId}")
     public ApiResult<MemoryRspDto> shareMemory(
