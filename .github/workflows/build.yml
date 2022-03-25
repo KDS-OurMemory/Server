@@ -54,5 +54,5 @@ jobs:
         run: chmod +x ./OurMemory_Server/gradlew
 
       - name: Build with gradle
-        run: ./gradlew build -Dspring.profiles.active=test
+        run: ./gradlew build
         working-directory: ./OurMemory_Server
