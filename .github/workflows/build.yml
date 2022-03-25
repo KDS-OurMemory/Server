@@ -41,11 +41,11 @@ jobs:
           ${{ secrets.FCM_SERVICE_KEY }}
 
       - name: Create application.yml
-          run: |
-            cd OurMemory_Server/src/main/resources
-            touch application.yml
-            cat << EOF >> application.yml
-            ${{ secrets.APPLICATION_TEST }}
+        run: |
+          cd OurMemory_Server/src/main/resources
+          touch application.yml
+          cat << EOF >> application.yml
+          ${{ secrets.APPLICATION_TEST }}
 
       - name: Create application-test.yml
         run: |
