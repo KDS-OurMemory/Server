@@ -23,7 +23,7 @@ jobs:
       - name: Build before deploy
         uses: convictional/trigger-workflow-and-wait@v1.6.0
         with:
-          owner: idean3885
+          owner: KDS-OurMemory
           repo: Server
           github_token: ${{ secrets.ACTION_TOKEN }}
           workflow_file_name: build.yml
