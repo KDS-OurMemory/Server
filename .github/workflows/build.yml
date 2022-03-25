@@ -41,7 +41,7 @@ jobs:
           ${{ secrets.FCM_SERVICE_KEY }}
 
       - name: Echo application-test.yml
-        run: echo ${{ secrets.APPLICATION_TEST }}
+        run: echo "${{ secrets.APPLICATION_TEST }}"
 
       - name: Create application-test.yml
         run: |
