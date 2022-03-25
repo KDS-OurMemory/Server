@@ -13,8 +13,8 @@ on:
   push:
     branches-ignore:
       - 'develop'
-#  pull_request:
-#    branches: [develop]
+  pull_request:
+    branches: [develop]
 
 jobs:
   build:
