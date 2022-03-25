@@ -20,7 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +45,7 @@ class MemoryServiceTest {
      * This is because time difference occurs after room creation due to relation table work.
      */
     private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
+    private DateTimeFormatter dateFormat;
 
     // Base data for test memoryService
     private UserRspDto insertWriterRsp;
@@ -63,6 +66,7 @@ class MemoryServiceTest {
     @BeforeAll
     void setUp() {
         alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        dateFormat = DateTimeFormatter.ofPattern("yyyy-MM");
     }
 
     @Test
@@ -2268,7 +2272,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -2328,7 +2332,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -2387,7 +2391,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -2446,7 +2450,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -2516,7 +2520,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -2572,7 +2576,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isZero();
 
         // 2) Find memory from inserted room
@@ -2629,7 +2633,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -2687,7 +2691,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -2745,7 +2749,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -2814,7 +2818,7 @@ class MemoryServiceTest {
 
         /* 3. Check delete memory */
         // 1) Find memory from writer
-        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null);
+        var findMemoriesRsp = memoryService.findMemories(insertMemoryRsp.getWriterId(), null, null, null);
         assertThat(findMemoriesRsp.size()).isOne();
         assertThat(findMemoriesRsp.get(0).getMemoryId()).isEqualTo(insertMemoryRsp.getMemoryId());
 
@@ -3345,8 +3349,8 @@ class MemoryServiceTest {
     }
 
     @Test
-    @DisplayName("일정 목록 조회 | 성공")
-    void findMemoriesSuccess() {
+    @DisplayName("일정 목록 조회 -> 전체기간 | 성공")
+    void findAllMemoriesSuccess() {
         /* 0-1. Set base data */
         setBaseData();
 
@@ -3500,7 +3504,7 @@ class MemoryServiceTest {
         assertThat(insertMemoryRsp7).isNotNull();
 
         /* 2. Find memories */
-        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq1.getUserId(), null);
+        List<MemoryRspDto> findMemoriesList = memoryService.findMemories(insertMemoryReq1.getUserId(), null, null, null);
         assertThat(findMemoriesList.size()).isEqualTo(7);
 
         // expected order: 3 5 2 4 6 1 7
@@ -3524,6 +3528,281 @@ class MemoryServiceTest {
 
         var findMemoriesRsp7 = findMemoriesList.get(6);
         assertThat(findMemoriesRsp7.getMemoryId()).isEqualTo(insertMemoryRsp7.getMemoryId());
+    }
+
+    @Test
+    @DisplayName("일정 목록 조회 -> 월 범위 | 성공")
+    void findMonthsMemoriesSuccess() {
+        /* 0-1. Set base data */
+        setBaseData();
+
+        /* 0-2. Create request */
+        var now = LocalDateTime.now();
+
+        // 1) -2 Month last Day 00H:00M ~ -2 Month last Day 23H:59M | Edge case, Out of range
+        var insertMemoryReq1 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory1")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.minusMonths(2).getYear(),
+                                now.minusMonths(2).getMonthValue(),
+                                now.minusMonths(2).with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth(),
+                                0,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 시작시간
+                .endDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.minusMonths(2).getYear(),
+                                now.minusMonths(2).getMonthValue(),
+                                now.minusMonths(2).with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth(),
+                                23,
+                                59).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 종료시간
+                .firstAlarm(LocalDateTime.parse(
+                        LocalDateTime.now().minusMonths(2).plusDays(6).format(alertTimeFormat), alertTimeFormat)
+                ) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
+
+        // 2) -1 Month 1 Day 00H:00M ~ -1 Month 8 Day 14H:00M
+        var insertMemoryReq2 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory3")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.minusMonths(1).getYear(),
+                                now.minusMonths(1).getMonthValue(),
+                                1,
+                                0,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 시작시간
+                .endDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.minusMonths(1).getYear(),
+                                now.minusMonths(1).getMonthValue(),
+                                8,
+                                14,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 종료시간
+                .firstAlarm(LocalDateTime.parse(
+                        LocalDateTime.now().minusMonths(2).plusDays(1).format(alertTimeFormat), alertTimeFormat)
+                ) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
+
+        // 3) -2 Month 20 Day 00H:00M ~ -1 Month 1 Day 00H:00M | Edge case
+        var insertMemoryReq3 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory2")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.minusMonths(2).getYear(),
+                                now.minusMonths(2).getMonthValue(),
+                                20,
+                                0,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 시작시간
+                .endDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.minusMonths(1).getYear(),
+                                now.minusMonths(1).getMonthValue(),
+                                1,
+                                0,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 종료시간
+                .firstAlarm(LocalDateTime.parse(
+                        LocalDateTime.now().minusMonths(1).plusDays(5).format(alertTimeFormat), alertTimeFormat)
+                ) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
+
+        // 4) now Month now Day 00H:00M ~ now Month now Day 01H:00M | Same case to 5), Early insert
+        var insertMemoryReq4 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory4")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.getYear(),
+                                now.getMonthValue(),
+                                now.getDayOfMonth(),
+                                0,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 시작시간
+                .endDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.getYear(),
+                                now.getMonthValue(),
+                                now.getDayOfMonth(),
+                                1,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 종료시간
+                .firstAlarm(LocalDateTime.parse(
+                        LocalDateTime.now().plusDays(4).format(alertTimeFormat), alertTimeFormat)
+                ) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
+
+        // 5) now Month now Day 00H:00M ~ now Month now Day 01H:00M | Same case to 4), Rate insert
+        var insertMemoryReq5 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory1")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse(
+                                LocalDateTime.of(
+                                        now.getYear(),
+                                        now.getMonthValue(),
+                                        now.getDayOfMonth(),
+                                        0,
+                                        0).format(alertTimeFormat),
+                                alertTimeFormat)
+                ) // 시작시간
+                .endDate(LocalDateTime.parse(
+                                LocalDateTime.of(
+                                        now.getYear(),
+                                        now.getMonthValue(),
+                                        now.getDayOfMonth(),
+                                        1,
+                                        0).format(alertTimeFormat),
+                                alertTimeFormat)
+                ) // 종료시간
+                .firstAlarm(LocalDateTime.parse(
+                        LocalDateTime.now().plusMonths(1).plusDays(1).format(alertTimeFormat), alertTimeFormat)
+                ) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
+
+        // 6) +2 Month 1 Day 00H:00M ~ +2 Month 1 Day 01H:00M | Edge case, Out of range
+        var insertMemoryReq6 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory6")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.plusMonths(2).getYear(),
+                                now.plusMonths(2).getMonthValue(),
+                                1,
+                                0,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 시작시간
+                .endDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.plusMonths(2).getYear(),
+                                now.plusMonths(2).getMonthValue(),
+                                1,
+                                1,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 종료시간
+                .firstAlarm(LocalDateTime.parse(
+                        LocalDateTime.now().plusMonths(1).plusDays(3).format(alertTimeFormat), alertTimeFormat)
+                ) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
+
+        // 7) +1 Month last Day 23H:59M ~ +2 Month 1 Day 06H:00M | Edge case
+        var insertMemoryReq7 = MemoryReqDto.builder()
+                .userId(insertWriterRsp.getUserId())
+                .roomId(insertRoomRsp.getRoomId())
+                .name("Test Memory7")
+                .contents("Test Contents")
+                .place("Test Place")
+                .startDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.plusMonths(1).getYear(),
+                                now.plusMonths(1).getMonthValue(),
+                                now.plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth(),
+                                23,
+                                59).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 시작시간
+                .endDate(LocalDateTime.parse(
+                        LocalDateTime.of(
+                                now.plusMonths(2).getYear(),
+                                now.plusMonths(2).getMonthValue(),
+                                1,
+                                6,
+                                0).format(alertTimeFormat),
+                        alertTimeFormat)
+                ) // 종료시간
+                .firstAlarm(LocalDateTime.parse(
+                        LocalDateTime.now().plusMonths(1).plusDays(2).format(alertTimeFormat), alertTimeFormat)
+                ) // 첫 번째 알림
+                .bgColor("#FFFFFF")
+                .build();
+
+        /* 1. Make memories */
+        var insertMemoryRsp1 = memoryService.insert(insertMemoryReq1);
+        assertThat(insertMemoryRsp1).isNotNull();
+
+        var insertMemoryRsp2 = memoryService.insert(insertMemoryReq2);
+        assertThat(insertMemoryRsp2).isNotNull();
+
+        var insertMemoryRsp3 = memoryService.insert(insertMemoryReq3);
+        assertThat(insertMemoryRsp3).isNotNull();
+
+        var insertMemoryRsp4 = memoryService.insert(insertMemoryReq4);
+        assertThat(insertMemoryRsp4).isNotNull();
+
+        var insertMemoryRsp5 = memoryService.insert(insertMemoryReq5);
+        assertThat(insertMemoryRsp5).isNotNull();
+
+        var insertMemoryRsp6 = memoryService.insert(insertMemoryReq6);
+        assertThat(insertMemoryRsp6).isNotNull();
+
+        var insertMemoryRsp7 = memoryService.insert(insertMemoryReq7);
+        assertThat(insertMemoryRsp7).isNotNull();
+
+        /* 2. Find memories */
+        var startMonth = YearMonth.parse(
+                YearMonth.now().minusMonths(1).format(dateFormat), dateFormat);
+        var endMonth = YearMonth.parse(
+                YearMonth.now().plusMonths(1).format(dateFormat), dateFormat);
+        var findMemoriesList = memoryService.findMemories(
+                insertMemoryReq1.getUserId(), null, startMonth, endMonth
+        );
+        assertThat(findMemoriesList.size()).isEqualTo(5);
+
+        // Expected order: 3 2 4 5 7(Out of range: 1, 6)
+        var findMemoriesRsp1 = findMemoriesList.get(0);
+        assertThat(findMemoriesRsp1.getMemoryId()).isEqualTo(insertMemoryRsp3.getMemoryId());
+
+        var findMemoriesRsp2 = findMemoriesList.get(1);
+        assertThat(findMemoriesRsp2.getMemoryId()).isEqualTo(insertMemoryRsp2.getMemoryId());
+
+        var findMemoriesRsp3 = findMemoriesList.get(2);
+        assertThat(findMemoriesRsp3.getMemoryId()).isEqualTo(insertMemoryRsp4.getMemoryId());
+
+        var findMemoriesRsp4 = findMemoriesList.get(3);
+        assertThat(findMemoriesRsp4.getMemoryId()).isEqualTo(insertMemoryRsp5.getMemoryId());
+
+        var findMemoriesRsp5 = findMemoriesList.get(4);
+        assertThat(findMemoriesRsp5.getMemoryId()).isEqualTo(insertMemoryRsp7.getMemoryId());
     }
 
     // life cycle: @Before -> @Test => separate => Not maintained 
@@ -3570,4 +3849,5 @@ class MemoryServiceTest {
         assertThat(insertRoomRsp.getOwnerId()).isEqualTo(insertWriterRsp.getUserId());
         assertThat(insertRoomRsp.getMembers().size()).isEqualTo(2);
     }
+
 }

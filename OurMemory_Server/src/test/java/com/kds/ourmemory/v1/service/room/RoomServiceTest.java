@@ -781,7 +781,7 @@ class RoomServiceTest {
                 RoomNotFoundException.class, () -> roomService.find(privateRoomId)
         );
 
-        var afterFindMemoriesList = memoryService.findMemories(insertOwnerRsp.getUserId(), null);
+        var afterFindMemoriesList = memoryService.findMemories(insertOwnerRsp.getUserId(), null, null, null);
         assertTrue(afterFindMemoriesList.isEmpty());
 
         var memoryOwner = insertMemoryRspOwner.getMemoryId();

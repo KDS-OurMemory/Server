@@ -663,7 +663,7 @@ class UserServiceTest {
                 MemoryNotFoundException.class, () -> memoryService.find(privateMemoryId, privateMemoryRoomId)
         );
 
-        var findPrivateMemories = memoryService.findMemories(insertUserRsp.getUserId(), null);
+        var findPrivateMemories = memoryService.findMemories(insertUserRsp.getUserId(), null, null, null);
         assertThat(findPrivateMemories).isNotNull();
         assertThat(findPrivateMemories.isEmpty()).isTrue();
 
@@ -674,7 +674,7 @@ class UserServiceTest {
                 MemoryNotFoundException.class, () -> memoryService.find(privateRoomMemoryId, privateRoomRoomId)
         );
 
-        var findPrivateRoomMemories = memoryService.findMemories(insertUserRsp.getUserId(), null);
+        var findPrivateRoomMemories = memoryService.findMemories(insertUserRsp.getUserId(), null, null, null);
         assertThat(findPrivateRoomMemories).isNotNull();
         assertThat(findPrivateRoomMemories.isEmpty()).isTrue();
     }
@@ -781,11 +781,11 @@ class UserServiceTest {
                 MemoryNotFoundException.class, () -> memoryService.find(ownerRoomMemoryId, ownerRoomRoomId)
         );
 
-        var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
+        var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null, null, null);
         assertThat(findMemoriesByUser).isNotNull();
         assertTrue(findMemoriesByUser.isEmpty());
 
-        var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
+        var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null, null, null);
         assertThat(findMemoriesByMember).isNotNull();
         assertTrue(findMemoriesByMember.isEmpty());
     }
@@ -906,11 +906,11 @@ class UserServiceTest {
                 MemoryNotFoundException.class, () -> memoryService.find(participantRoomMemoryId, participantRoomRoomId)
         );
 
-        var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null);
+        var findMemoriesByUser = memoryService.findMemories(insertUserRsp.getUserId(), null, null, null);
         assertThat(findMemoriesByUser).isNotNull();
         assertTrue(findMemoriesByUser.isEmpty());
 
-        var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null);
+        var findMemoriesByMember = memoryService.findMemories(insertMemberRsp.getUserId(), null, null, null);
         assertThat(findMemoriesByMember).isNotNull();
         assertTrue(findMemoriesByMember.isEmpty());
     }

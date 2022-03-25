@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,6 +36,7 @@ class MemoryControllerTest {
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     private final DateTimeFormatter alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM");
 
     @Mock
     MemoryService memoryService;
@@ -44,7 +46,7 @@ class MemoryControllerTest {
 
     @Test
     @DisplayName("일정 목록 조회 요청-응답 | 성공")
-    void findMemoriesSuccess() throws JsonProcessingException{
+    void findMemoriesSuccess() throws JsonProcessingException {
         // given
         var writer = User.builder()
                 .id(1L)
@@ -118,16 +120,23 @@ class MemoryControllerTest {
         var memories = Stream.of(memory1, memory2, memory3).map(MemoryRspDto::new)
                 .collect(Collectors.toList());
 
+        var startMonth = YearMonth.parse(
+                YearMonth.now().minusMonths(1).format(dateFormat), dateFormat);
+        var endMonth = YearMonth.parse(
+                YearMonth.now().plusMonths(1).format(dateFormat), dateFormat);
+
         // when
-        when(memoryService.findMemories(writer.getId(), null)).thenReturn(memories);
+        when(memoryService.findMemories(writer.getId(), null, startMonth, endMonth)).thenReturn(memories);
 
         // then
-        var responseDto = memoryController.findMemories(writer.getId(), null);
+        var responseDto = memoryController
+                .findMemories(writer.getId(), null, startMonth, endMonth);
+
         assertThat(responseDto.getResultCode()).isEqualTo("S001");
         assertThat(responseDto.getResponse().size()).isEqualTo(3);
 
         // check response data
         log.debug(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseDto));
     }
-    
+
 }

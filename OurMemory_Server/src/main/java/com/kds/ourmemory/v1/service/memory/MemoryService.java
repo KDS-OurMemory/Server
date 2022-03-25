@@ -23,10 +23,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.YearMonth;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Service
@@ -143,7 +143,7 @@ public class MemoryService {
     }
 
     @Transactional
-    public List<MemoryRspDto> findMemories(Long writerId, String name) {
+    public List<MemoryRspDto> findMemories(Long writerId, String name, YearMonth start, YearMonth end) {
         List<Memory> findMemories = new ArrayList<>();
 
         findMemoriesByWriterId(writerId).ifPresent(findMemories::addAll);
@@ -151,15 +151,18 @@ public class MemoryService {
 
         var privateRoomId = findUser(writerId).map(User::getPrivateRoomId).orElse(null);
 
+        // Optional: Month filtering
         return findMemories.stream()
                 .filter(Memory::isUsed)
                 .distinct()
+                .filter(memory -> memory.isAfter(start))
+                .filter(memory -> memory.isBefore(end))
                 .sorted(
                         Comparator.comparing(Memory::getStartDate)  // first order
                                 .thenComparing(Memory::getRegDate)  // second order
                 )
                 .map(memory -> new MemoryRspDto(privateRoomId, memory))
-                .collect(toList());
+                .toList();
     }
 
     @Transactional
@@ -260,7 +263,7 @@ public class MemoryService {
                                                             memberId -> findUser(memberId).map(User::getId)
                                                                     .orElseThrow(() -> new MemoryNotFoundShareMemberException(memberId))
                                                     )
-                                                    .collect(toList())
+                                                    .toList()
                                     )
                                     .build()
                     )
