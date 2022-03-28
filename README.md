@@ -17,11 +17,9 @@
     - 마이너 버전 : 이슈 버전이 많이 증가하여 분기가 필요한 경우, 증가
     - 이슈 버전 : 이슈가 수정될 때마다 증가
   * 브랜치 전략(GitHub Flow)
-    1. 프로젝트 작업 레포지토리로 포크
-    2. 이슈 브랜치 생성 및 작업 진행
-    3. 메인 레포지토리 develop 브랜치로 Pull request 요청
-    4. 메인 레포지토리 develop 브랜치에 병합
-    
+    1. 이슈 브랜치 생성 및 작업 진행 -> 이슈 브랜치 푸시할 경우 `build` 진행(feat. `GitHub Action`)
+    2. develop 브랜치로 Pull request 요청 ->풀 리퀘스트 요청 시, `build` 진행(feat. `GitHub Action`)
+    3. develop 브랜치에 병합 -> 병합된 코드 기준 `build` & `deploy` 진행(feat. `GitHub Action`, `CodeDeploy`)
 
 ## 2. 개요
 클라이언트(iOS, Android) 로부터 요청을 받아 처리하기 위한 API 서버
