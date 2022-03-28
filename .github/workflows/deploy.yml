@@ -39,10 +39,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Grant execute permission for gradlew
-        run: chmod +x ./OurMemory_Server/gradlew
+        run: chmod +x gradlew
+        working-directory: ./OurMemory_Server
 
       - name: bootJar with Gradle
-        run: cd ./OurMemory_Server && ./gradlew bootJar
+        run: ./gradlew bootJar
+        working-directory: ./OurMemory_Server
 
       - name: copy OurMemory.jar, appspec.yml, scripts/
         run: cp -r ./OurMemory_Server/src/main/resources/codeDeploy/* . && cp ./OurMemory_Server/build/libs/OurMemory.jar .
