@@ -17,23 +17,32 @@
     - 마이너 버전 : 이슈 버전이 많이 증가하여 분기가 필요한 경우, 증가
     - 이슈 버전 : 이슈가 수정될 때마다 증가
   * 브랜치 전략(GitHub Flow)
-    1. 이슈 브랜치 생성 및 작업 진행 -> 이슈 브랜치 푸시할 경우 `build` 진행(feat. `GitHub Action`)
-    2. develop 브랜치로 Pull request 요청 ->풀 리퀘스트 요청 시, `build` 진행(feat. `GitHub Action`)
-    3. develop 브랜치에 병합 -> 병합된 코드 기준 `build` & `deploy` 진행(feat. `GitHub Action`, `CodeDeploy`)
+    1. 이슈 브랜치 생성 및 작업 진행 
+       - 이슈 브랜치 푸시할 경우 `build` 진행(feat. `GitHub Action`)
+    2. develop 브랜치로 Pull request 요청 
+       - 풀 리퀘스트 요청 시, `build` 진행(feat. `GitHub Action`)
+    3. develop 브랜치에 병합 
+       - 병합된 코드 기준 `build` & `deploy` 진행(feat. `GitHub Action`, `CodeDeploy`)
 
 ## 2. 개요
 클라이언트(iOS, Android) 로부터 요청을 받아 처리하기 위한 API 서버
 
 ## 3. CI/CD
   1. GitHub Action
-     - 개발 브랜치(develop) 로 이슈 처리 완료된 코드가 병합되어 푸시되는 경우, GitHub Action 을 실행합니다.
-     - bootJar 를 통해 생성된 패키지 파일 및 CodeDeploy 실행 순서 appspec.yml, 대상 서버에 배포 후 서버를 구동하기 위한 scripts/ 디렉토리를 압축(Archive.tgz)하여 S3 에 업로드합니다.
-     - 이후 CodeDeploy 에 업로드된 파일에 대해 배포 요청합니다.
+     - `Github Action이란 Github 저장소를 기반으로 소프트웨어 개발 Workflow를 자동화 할 수 있는 CI/CD 도구입니다.`
+     - 이슈 브랜치 push, 개발 브랜치(develop) pull request 하는 경우 GitHub Action 을 통해 build 를 진행합니다.
+     - 개발 브랜치(develop) 로 이슈 브랜치가 병합되는 경우, deploy 를 진행합니다. 과정은 아래와 같습니다.
+        1. 병합된 브랜치(develop) 기준 build 테스트
+        2. 빌드된 파일(Archive.jar) 및 배포에 필요한 파일(appspec.yml, scrips) 모아서 압축(Archive.tgz)
+        3. S3 에 압축된 패키지 업로드
+        4. CodeDeploy 에 업로드된 패키지 배포 요청
   2. CodeDeploy
+     - `AWS 서비스(EC2 인스턴스 등) 로 애플리케이션 배포를 자동화하는 배포 서비스입니다.`
      - S3 에서 파일을 받아 대상 서버(EC2)에 업로드합니다.
      - 이후, 대상 파일을 압축해제한 뒤 appspec.yml 에 내용에 따라 각 이벤트 별 스크립트를 실행합니다.
   3. EC2
-     - CodeDeploy 배포대상 서버입니다.
+     - `AWS 에서 제공하는 클라우드 기반 서버입니다.`
+     - CodeDeploy 배포대상 서버로 활용하고 있습니다.
      - 스크립트를 통해 최초 배포된 파일들을 위치시키고, 서버를 기동합니다.
      - 서버 구동에 필요한 설정 파일의 경우, 보안을 위해 자동 배포에서 제외되기 때문에 수동으로 업로드하여 관리하고 있습니다.
 ![CI/CD 순서도](https://user-images.githubusercontent.com/43669379/157431870-ed710f3c-9ede-4987-be6d-2dd762bf588a.png)
