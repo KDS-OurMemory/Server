@@ -10,8 +10,8 @@
 6. [프로젝트 문서](#6-프로젝트-문서)
 
 ## 1. 환경
-  * Spring Boot 2.5.6 / gradle / JDK 16
-  * DB : MySQL8(RDS) / Spring data JPA
+  * Spring Boot 2.6.5 / gradle / JDK 16
+  * DB : PostgreSQL(Heroku Postgres) / Spring data JPA
   * 버전관리 : [메이저 버전].[마이너 버전].[이슈 버전]
     - 메이저 버전 : 정식 배포된 경우 증가
     - 마이너 버전 : 이슈 버전이 많이 증가하여 분기가 필요한 경우, 증가
