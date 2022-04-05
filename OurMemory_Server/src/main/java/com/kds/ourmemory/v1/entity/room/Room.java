@@ -39,11 +39,11 @@ public class Room extends BaseTimeEntity implements Serializable{
 	
 	@Column(nullable = false, name="room_name")
 	private String name;
-	
-	@Column(nullable = false, name="room_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
+
+	@Column(nullable = false, name="room_used_flag")
 	private boolean used;
-	
-	@Column(nullable = false, name="room_opened_flag", columnDefinition = "boolean not null comment '0: 비공개, 1: 공개'")
+
+	@Column(nullable = false, name="room_opened_flag")
 	private boolean opened;
 
 	@ToString.Exclude
@@ -87,7 +87,7 @@ public class Room extends BaseTimeEntity implements Serializable{
 		return Optional.ofNullable(reqDto)
 				.map(req -> {
 					name = Objects.nonNull(req.getName()) ? req.getName() : name;
-					opened = Objects.nonNull(req.isOpened()) ? req.isOpened() : opened;
+					opened = req.isOpened();
 
 					return this;
 				});

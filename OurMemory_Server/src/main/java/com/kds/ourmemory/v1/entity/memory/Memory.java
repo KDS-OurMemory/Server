@@ -63,8 +63,8 @@ public class Memory extends BaseTimeEntity implements Serializable {
 	
 	@Column(name="memory_second_alarm")
 	private LocalDateTime secondAlarm;
-	
-	@Column(nullable = false, name="memory_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
+
+	@Column(nullable = false, name="memory_used_flag")
 	private boolean used;
 
     @ToString.Exclude

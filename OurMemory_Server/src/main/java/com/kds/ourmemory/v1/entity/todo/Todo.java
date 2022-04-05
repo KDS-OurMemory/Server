@@ -37,7 +37,7 @@ public class Todo extends BaseTimeEntity {
     @Column(nullable = false, name="todo_date")
     private LocalDateTime todoDate;
 
-    @Column(nullable = false, name="todo_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
+    @Column(nullable = false, name="todo_used_flag")
     private boolean used;
 
     @Builder

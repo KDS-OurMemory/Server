@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Comment;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -22,21 +23,16 @@ public class Friend extends BaseTimeEntity {
 
 	@Id
 	@ManyToOne(targetEntity = User.class)
-	@JoinColumn(
-			name = "user_id", foreignKey = @ForeignKey(name = "friends_user_id")
-	)
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "friends_user_id"))
 	private User user;
 
 	@Id
 	@ManyToOne(targetEntity = User.class)
-	@JoinColumn(
-			name = "friend_id", foreignKey = @ForeignKey(name = "friends_friend_id")
-	)
+	@JoinColumn(name = "friend_id", foreignKey = @ForeignKey(name = "friends_friend_id"))
 	private User friendUser;
 
-	@Column(nullable = false, name = "friend_status",
-			columnDefinition = "varchar(20) not null comment 'WAIT: 친구요청 후 대기상태, REQUESTED_BY: 친구요청 받은 상태, FRIEND: 친구 상태, BLOCK: 차단 상태'"
-	)
+	@Comment("WAIT: 친구요청 후 대기상태, REQUESTED_BY: 친구요청 받은 상태, FRIEND: 친구 상태, BLOCK: 차단 상태")
+	@Column(nullable = false, name = "friend_status")
 	@Enumerated(EnumType.STRING)
 	private FriendStatus status;
 

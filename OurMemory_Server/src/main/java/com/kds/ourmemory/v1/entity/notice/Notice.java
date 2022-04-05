@@ -5,6 +5,7 @@ import com.kds.ourmemory.v1.entity.user.User;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -30,17 +31,18 @@ public class Notice extends BaseTimeEntity implements Serializable {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "user_id"))
     private User user;
 
-    @Column(nullable = false, name = "notice_type", columnDefinition = "varchar(20) not null comment 'FRIEND_REQUEST: 친구 요청'")
+    @Comment("FRIEND_REQUEST: 친구 요청")
+    @Column(nullable = false, name = "notice_type")
     @Enumerated(EnumType.STRING)
     private NoticeType type;
 
     @Column(nullable = false, name = "notice_value")
     private String value;
 
-    @Column(nullable = false, name = "notice_read_flag", columnDefinition = "boolean not null comment '0: 읽지 않음, 1: 읽음'")
+    @Column(nullable = false, name = "notice_read_flag")
     private boolean read;
 
-    @Column(nullable = false, name = "notice_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
+    @Column(nullable = false, name = "notice_used_flag")
     private boolean used;
 
     @Builder
