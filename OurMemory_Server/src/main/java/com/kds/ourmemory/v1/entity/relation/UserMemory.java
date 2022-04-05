@@ -3,6 +3,7 @@ package com.kds.ourmemory.v1.entity.relation;
 import com.kds.ourmemory.v1.entity.memory.Memory;
 import com.kds.ourmemory.v1.entity.user.User;
 import lombok.*;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -21,7 +22,8 @@ public class UserMemory {
     @Column(name = "user_memory_id")
     private Long id;
 
-    @Column(nullable = false, name = "user_memory_attendance_status", columnDefinition = "varchar(12) not null comment 'ATTEND: 참석, ABSENCE: 불참'")
+    @Comment("ATTEND: 참석, ABSENCE: 불참")
+    @Column(nullable = false, name = "user_memory_attendance_status")
     @Enumerated(EnumType.STRING)
     private AttendanceStatus status;
 

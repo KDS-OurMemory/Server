@@ -13,7 +13,6 @@ import com.kds.ourmemory.v1.repository.user.UserRepository;
 import com.kds.ourmemory.v1.service.room.RoomService;
 import com.kds.ourmemory.v1.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

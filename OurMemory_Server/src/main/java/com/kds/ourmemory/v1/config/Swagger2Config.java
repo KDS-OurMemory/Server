@@ -25,7 +25,7 @@ public class Swagger2Config implements WebMvcConfigurer{
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder()
 				.title("기억공유 앱 서비스 - 서버")
-				.version("0.0.3") // Major.Minor.Issue
+				.version("0.0.4") // Major.Minor.Issue
 				.description("기억 공유 앱 서비스 API 서버")
 				.build();
 	}

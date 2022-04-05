@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -38,7 +39,8 @@ public class User extends BaseTimeEntity implements Serializable {
 	@Column(name = "user_id")	// JPARepository 에서 스네이크 표기법을 지원하지 않아 카멜로 수정
 	private Long id;
 
-    @Column(nullable = false, name="user_sns_type", columnDefinition = "int(1) not null comment '1: 카카오, 2: 구글, 3: 네이버'")
+    @Comment("1: 카카오, 2: 구글, 3: 네이버")
+    @Column(nullable = false, name="user_sns_type")
     private int snsType;
     
 	@Column(nullable = false, name="user_sns_id")
@@ -46,8 +48,8 @@ public class User extends BaseTimeEntity implements Serializable {
 	
 	@Column(name="user_push_token")
 	private String pushToken;
-	
-	@Column(nullable = false, name="user_fcm_push_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
+
+	@Column(nullable = false, name="user_fcm_push_flag")
     private boolean push;
 	
 	@Column(name="user_name")
@@ -55,18 +57,20 @@ public class User extends BaseTimeEntity implements Serializable {
 	
 	@Column(name="user_birthday")
 	private String birthday;
-	
-	@Column(nullable = false, name="user_solar_flag", columnDefinition = "boolean not null comment '0: 음력, 1: 양력'")
+
+	@Column(nullable = false, name="user_solar_flag")
 	private boolean solar;
-	
-	@Column(nullable = false, name="user_birthday_open_flag", columnDefinition = "boolean not null comment '0: 비공개, 1: 공개'")
+
+	@Column(nullable = false, name="user_birthday_open_flag")
 	private boolean birthdayOpen;
-	
-	@Column(nullable = false, name="user_role", columnDefinition = "varchar(10) not null comment 'USER: 사용자, ADMIN: 관리자'")
+
+    @Comment("USER: 사용자, ADMIN: 관리자")
+	@Column(nullable = false, name="user_role")
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Column(nullable = false, name="user_device_os", columnDefinition = "varchar(10) not null comment 'ANDROID: 안드로이드 OS, IOS: 아이폰 OS'")
+    @Comment("ANDROID: 안드로이드 OS, IOS: 아이폰 OS")
+    @Column(nullable = false, name="user_device_os")
     @Enumerated(EnumType.STRING)
     private DeviceOs deviceOs;
 
@@ -76,7 +80,7 @@ public class User extends BaseTimeEntity implements Serializable {
     @Column(name="user_profile_image_url")
     private String profileImageUrl;
 
-	@Column(nullable = false, name="user_used_flag", columnDefinition = "boolean not null comment '0: 사용안함, 1: 사용'")
+	@Column(nullable = false, name="user_used_flag")
 	private boolean used;
 
 	@ManyToMany(fetch = FetchType.LAZY)
