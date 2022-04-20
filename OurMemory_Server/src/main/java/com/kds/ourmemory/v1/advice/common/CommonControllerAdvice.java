@@ -1,6 +1,7 @@
 package com.kds.ourmemory.v1.advice.common;
 
 import com.kds.ourmemory.v1.advice.RestControllerAdviceResponse;
+import com.kds.ourmemory.v1.advice.common.exception.ColumnEncryptException;
 import com.kds.ourmemory.v1.controller.ApiResult;
 import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
@@ -19,8 +20,8 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * And the error code value and message are passed.
  */
 
-@Order(Ordered.LOWEST_PRECEDENCE)   // By setting the priority to the lowest level,
-                                    // each functional advice handles an exception that could not be addressed.
+@Order()   // By setting the priority to the lowest level(default value),
+           // each functional advice handles an exception that could not be addressed.
 @RestControllerAdvice
 public class CommonControllerAdvice extends RestControllerAdviceResponse {
 
@@ -28,13 +29,6 @@ public class CommonControllerAdvice extends RestControllerAdviceResponse {
 		super(messageSource);
 	}
 
-	/* Custom Error */
-    @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-    public ResponseEntity<ApiResult<String>> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
-        return response("common.incorrectResultSize", e);
-    }
-
-    
     /* Http Status Error */
     @ExceptionHandler({MissingServletRequestParameterException.class, HttpMessageNotReadableException.class})
 	public ResponseEntity<ApiResult<String>> handleBadRequestException(Exception e) {
@@ -56,4 +50,14 @@ public class CommonControllerAdvice extends RestControllerAdviceResponse {
 	    return response("common.internalServer", e);
 	}
 
+	/* Custom Error */
+	@ExceptionHandler(IncorrectResultSizeDataAccessException.class)
+	public ResponseEntity<ApiResult<String>> handleDataSizeException(IncorrectResultSizeDataAccessException e) {
+		return response("common.incorrectResultSize", e);
+	}
+
+	@ExceptionHandler(ColumnEncryptException.class)
+	public ResponseEntity<ApiResult<String>> handleColumnEncryptException(ColumnEncryptException e) {
+		return response("common.columnEncrypt", e);
+	}
 }

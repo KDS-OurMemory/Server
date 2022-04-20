@@ -203,3 +203,7 @@ common:
     code: "C005"
     resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
     detailMessage: "DB 로부터 조회된 데이터 갯수가 잘못되었습니다. 오류메시지: {0}"
+  columnEncrypt:
+    code: "C006"
+    resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
+    detailMessage: "컬럼 데이터 암복호화 과정 중 오류가 발생했습니다. 오류메시지: {0}"

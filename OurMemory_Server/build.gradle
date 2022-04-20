@@ -13,7 +13,7 @@ bootJar {
 }
 
 group = 'com.kds.ourmemory'
-version = '0.0.4'
+version = '0.0.5'
 
 configurations {
 	compileOnly {
@@ -35,8 +35,8 @@ dependencies {
 
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 	
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.5'
-	implementation 'org.springframework.boot:spring-boot-starter-web:2.6.5'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.google.guava:guava:31.1-jre'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
@@ -49,8 +49,8 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.22'
 	testCompileOnly 'org.projectlombok:lombok:1.18.22'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.6.5'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.6.5'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'com.h2database:h2:2.1.210'
 }
 

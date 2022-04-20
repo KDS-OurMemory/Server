@@ -1,6 +1,7 @@
 package com.kds.ourmemory.v1.entity.user;
 
 import com.kds.ourmemory.v1.controller.user.dto.UserReqDto;
+import com.kds.ourmemory.v1.encrypt.ColumnEncryptConverter;
 import com.kds.ourmemory.v1.entity.BaseTimeEntity;
 import com.kds.ourmemory.v1.entity.relation.UserMemory;
 import com.kds.ourmemory.v1.entity.room.Room;
@@ -51,7 +52,8 @@ public class User extends BaseTimeEntity implements Serializable {
 
 	@Column(nullable = false, name="user_fcm_push_flag")
     private boolean push;
-	
+
+    @Convert(converter = ColumnEncryptConverter.class)
 	@Column(name="user_name")
 	private String name;
 	

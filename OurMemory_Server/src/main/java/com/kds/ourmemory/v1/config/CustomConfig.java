@@ -12,5 +12,6 @@ import org.springframework.stereotype.Component;
 public class CustomConfig {
 
     private String fcmKey;
+    private String aes256Key;
 
 }
