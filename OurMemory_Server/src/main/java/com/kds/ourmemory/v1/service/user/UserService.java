@@ -11,8 +11,10 @@ import com.kds.ourmemory.v1.entity.user.User;
 import com.kds.ourmemory.v1.repository.friend.FriendRepository;
 import com.kds.ourmemory.v1.repository.user.UserRepository;
 import com.kds.ourmemory.v1.service.room.RoomService;
+import com.kds.ourmemory.v1.util.EncryptUtil;
 import com.kds.ourmemory.v1.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @RequiredArgsConstructor
@@ -35,6 +38,9 @@ public class UserService {
 
     // When searching for a user, add to pass the friend status
     private final FriendRepository friendRepository;
+
+    // For encryption
+    private final EncryptUtil encryptUtil;
 
     @Transactional
     public UserRspDto signUp(UserReqDto reqDto) {
@@ -52,6 +58,9 @@ public class UserService {
 
     @Transactional
     public UserRspDto signIn(int snsType, String snsId) {
+        checkArgument(1 <= snsType && snsType <= 3, "지원하지 않는 SNS 인증방식입니다. 카카오(1), 구글(2), 네이버(3) 중에 입력해주시기 바랍니다.");
+        checkArgument(StringUtils.isNoneBlank(snsId), "SNS ID 는 빈 값이 될 수 없습니다.");
+
         return findUser(snsType, snsId).map(UserRspDto::new)
                 .orElseThrow(() -> new UserNotSignUpException(
                                 String.format("snsType: %d, snsId: %s", snsType, snsId)
@@ -207,9 +216,9 @@ public class UserService {
     }
 
     private Optional<User> findUser(int snsType, String snsId) {
-        return Optional.ofNullable(snsId).flatMap(
-                sid -> userRepository.findByUsedAndSnsIdAndSnsType(true, snsId, snsType)
-        );
+        // Encrypt SNS ID
+        snsId = encryptUtil.columnEncrypt(snsId);
+        return userRepository.findBySnsTypeAndSnsIdAndUsed(snsType, snsId, true);
     }
 
     /**

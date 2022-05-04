@@ -1,7 +1,6 @@
 package com.kds.ourmemory.v1.entity.user;
 
 import com.kds.ourmemory.v1.controller.user.dto.UserReqDto;
-import com.kds.ourmemory.v1.encrypt.ColumnEncryptConverter;
 import com.kds.ourmemory.v1.entity.BaseTimeEntity;
 import com.kds.ourmemory.v1.entity.relation.UserMemory;
 import com.kds.ourmemory.v1.entity.room.Room;
@@ -43,28 +42,30 @@ public class User extends BaseTimeEntity implements Serializable {
     @Comment("1: 카카오, 2: 구글, 3: 네이버")
     @Column(nullable = false, name="user_sns_type")
     private int snsType;
-    
+
+    // TODO: 다른 값(이메일 등) 을 키 값으로 로그인 조회를 할 수 있다면 컨버터로 암복호화가 자동으로 진행된다.
+    // 클라이언트 측과 협의하여 이메일도 받을 수 있는지(이 경우, SNS ID 는 비밀번호 개념으로 사용되는데 이게 맞는지?) 확인 필요함.
+//    @Convert(converter = ColumnEncryptConverter.class)
 	@Column(nullable = false, name="user_sns_id")
-	private String snsId;
+    private String snsId;
 	
 	@Column(name="user_push_token")
-	private String pushToken;
+    private String pushToken;
 
 	@Column(nullable = false, name="user_fcm_push_flag")
     private boolean push;
 
-    @Convert(converter = ColumnEncryptConverter.class)
 	@Column(name="user_name")
-	private String name;
+    private String name;
 	
 	@Column(name="user_birthday")
-	private String birthday;
+    private String birthday;
 
 	@Column(nullable = false, name="user_solar_flag")
-	private boolean solar;
+    private boolean solar;
 
 	@Column(nullable = false, name="user_birthday_open_flag")
-	private boolean birthdayOpen;
+    private boolean birthdayOpen;
 
     @Comment("USER: 사용자, ADMIN: 관리자")
 	@Column(nullable = false, name="user_role")
@@ -83,13 +84,13 @@ public class User extends BaseTimeEntity implements Serializable {
     private String profileImageUrl;
 
 	@Column(nullable = false, name="user_used_flag")
-	private boolean used;
+    private boolean used;
 
 	@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="users_rooms",
                 joinColumns = @JoinColumn(name = "user_id"),
                 inverseJoinColumns = @JoinColumn(name = "room_id"))
-	private List<Room> rooms = new ArrayList<>();
+    private List<Room> rooms = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
     private List<UserMemory> memories = new ArrayList<>();

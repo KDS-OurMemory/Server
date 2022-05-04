@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Transactional
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUsedAndSnsIdAndSnsType(boolean used, String snsId, int snsType);
+    Optional<User> findBySnsTypeAndSnsIdAndUsed(int snsType, String snsId, boolean used);
 
     @Query("select u from users u where u.used = ?1 and (u.id = ?2 or u.name = ?3)")
     Optional<List<User>> findAllByUsedAndIdOrName(boolean used, Long userId, String name);

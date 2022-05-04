@@ -1,5 +1,6 @@
 package com.kds.ourmemory.v1.encrypt;
 
+import com.kds.ourmemory.v1.advice.common.exception.ColumnEncryptException;
 import com.kds.ourmemory.v1.config.CustomConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -24,73 +25,79 @@ public class ColumnEncryptModule {
 
     private final Charset charset = StandardCharsets.UTF_8;
 
-    public String encrypt(String plainText) throws Exception {
-        SecretKey keyspec = new SecretKeySpec(customConfig.getAes256Key().getBytes(charset), "AES");
+    public String encrypt(String plainText) {
+        try {
+            SecretKey keySpec = new SecretKeySpec(customConfig.getAes256Key().getBytes(charset), "AES");
 
-        //set iv as random 16byte
-        int ivSize = 16;
-        byte[] iv = new byte[ivSize];
-        SecureRandom random = new SecureRandom();
-        random.nextBytes(iv);
-        AlgorithmParameterSpec ivspec = new IvParameterSpec(iv);
+            // Set iv as random 16byte
+            int ivSize = 16;
+            byte[] iv = new byte[ivSize];
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(iv);
+            AlgorithmParameterSpec ivSpec = new IvParameterSpec(iv);
 
-        // Encryption
-        Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-        cipher.init(Cipher.ENCRYPT_MODE, keyspec, ivspec);
+            // Encryption
+            Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
 
-        int blockSize = 128; //block size
-        byte[] dataBytes = plainText.getBytes(charset);
+            int blockSize = 128; //block size
+            byte[] dataBytes = plainText.getBytes(charset);
 
-        //find fillChar & pad
-        int plaintextLength = dataBytes.length;
-        int fillChar = ((blockSize - (plaintextLength % blockSize)));
-        plaintextLength += fillChar; //pad
+            //find fillChar & pad
+            int plaintextLength = dataBytes.length;
+            int fillChar = ((blockSize - (plaintextLength % blockSize)));
+            plaintextLength += fillChar; //pad
 
-        byte[] plaintext = new byte[plaintextLength];
-        Arrays.fill(plaintext, (byte) fillChar);
-        System.arraycopy(dataBytes, 0, plaintext, 0, dataBytes.length);
+            byte[] plaintext = new byte[plaintextLength];
+            Arrays.fill(plaintext, (byte) fillChar);
+            System.arraycopy(dataBytes, 0, plaintext, 0, dataBytes.length);
 
-        //encrypt
-        byte[] cipherBytes = cipher.doFinal(plaintext);
+            //encrypt
+            byte[] cipherBytes = cipher.doFinal(plaintext);
 
-        //add iv to front of cipherBytes
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-        outputStream.write( iv );
-        outputStream.write( cipherBytes );
+            //add iv to front of cipherBytes
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+            outputStream.write( iv );
+            outputStream.write( cipherBytes );
 
-        //encode into base64
-        byte [] encryptedIvText = outputStream.toByteArray();
-        return new String(Base64.getEncoder().encode(encryptedIvText), charset);
+            //encode into base64
+            byte [] encryptedIvText = outputStream.toByteArray();
+            return new String(Base64.getEncoder().encode(encryptedIvText), charset);
+        } catch (Exception e) {
+            throw new ColumnEncryptException(e);
+        }
     }
 
-    public String decrypt(String encryptedText) throws Exception {
-        //decode with base64 decoder
-        byte [] encryptedIvTextBytes = Base64.getDecoder().decode(encryptedText);
+    public String decrypt(String encryptedText) {
+        try {
+            // Decode with base64 decoder
+            byte [] encryptedIvTextBytes = Base64.getDecoder().decode(encryptedText);
 
-        // Extract IV.
-        int ivSize = 16;
-        byte[] iv = new byte[ivSize];
-        System.arraycopy(encryptedIvTextBytes, 0, iv, 0, iv.length);
+            // Extract IV.
+            int ivSize = 16;
+            byte[] iv = new byte[ivSize];
+            System.arraycopy(encryptedIvTextBytes, 0, iv, 0, iv.length);
 
-        // Extract encrypted part.
-        int encryptedSize = encryptedIvTextBytes.length - ivSize;
-        byte[] encryptedBytes = new byte[encryptedSize];
-        System.arraycopy(encryptedIvTextBytes, ivSize, encryptedBytes, 0, encryptedSize);
+            // Extract encrypted part.
+            int encryptedSize = encryptedIvTextBytes.length - ivSize;
+            byte[] encryptedBytes = new byte[encryptedSize];
+            System.arraycopy(encryptedIvTextBytes, ivSize, encryptedBytes, 0, encryptedSize);
 
+            // Decryption
+            Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
+            SecretKey keySpec = new SecretKeySpec(customConfig.getAes256Key().getBytes(charset), "AES");
+            AlgorithmParameterSpec ivSpec = new IvParameterSpec(iv);
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+            byte[] aesDecode = cipher.doFinal(encryptedBytes);
 
+            // Un pad
+            byte[] origin = new byte[aesDecode.length - (aesDecode[aesDecode.length - 1])];
+            System.arraycopy(aesDecode, 0, origin, 0, origin.length);
 
-        // Decryption
-        Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-        SecretKey keyspec = new SecretKeySpec(customConfig.getAes256Key().getBytes(charset), "AES");
-        AlgorithmParameterSpec ivspec = new IvParameterSpec(iv);
-        cipher.init(Cipher.DECRYPT_MODE, keyspec, ivspec);
-        byte[] aesdecode = cipher.doFinal(encryptedBytes);
-
-        // unpad
-        byte[] origin = new byte[aesdecode.length - (aesdecode[aesdecode.length - 1])];
-        System.arraycopy(aesdecode, 0, origin, 0, origin.length);
-
-        return new String(origin, charset);
+            return new String(origin, charset);
+        } catch (Exception e) {
+            throw new ColumnEncryptException(e);
+        }
     }
 
 }
