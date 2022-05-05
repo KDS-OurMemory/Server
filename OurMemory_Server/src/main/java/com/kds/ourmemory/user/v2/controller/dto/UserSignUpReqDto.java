@@ -1,8 +1,7 @@
-package com.kds.ourmemory.user.v1.controller.dto;
+package com.kds.ourmemory.user.v2.controller.dto;
 
+import com.kds.ourmemory.user.v1.controller.dto.UserReqDto;
 import com.kds.ourmemory.user.v1.entity.DeviceOs;
-import com.kds.ourmemory.user.v1.entity.User;
-import com.kds.ourmemory.user.v1.entity.UserRole;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -11,12 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-@ApiModel(value = "UserReqDto", description = "User API Request Dto")
+
+@ApiModel(value = "UserSignUpReqDto", description = "Sign Up Request Dto")
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserReqDto {
+public class UserSignUpReqDto {
 
     @ApiModelProperty(value="SNS 인증방식(1: 카카오, 2:구글, 3: 네이버)")
     private Integer snsType;
@@ -49,8 +49,8 @@ public class UserReqDto {
     @ApiModelProperty(value = "프로필 이미지 파일")
     private MultipartFile profileImage;
 
-    public User toEntity() {
-        return User.builder()
+    public UserReqDto toDto() {
+        return UserReqDto.builder()
                 .snsId(snsId)
                 .snsType(snsType)
                 .pushToken(pushToken)
@@ -60,7 +60,6 @@ public class UserReqDto {
                 .solar(solar)
                 .birthdayOpen(birthdayOpen)
                 .deviceOs(deviceOs)
-                .role(UserRole.USER)
                 .build();
     }
 

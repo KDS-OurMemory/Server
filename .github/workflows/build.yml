@@ -36,8 +36,8 @@ jobs:
       - name: Create Fcm service key file
         run: |
           cd OurMemory_Server/src/main/resources
-          touch fcmServiceKey.json
-          cat << EOF >> fcmServiceKey.json
+          touch FCM_ServiceKey.json
+          cat << EOF >> FCM_ServiceKey.json
           ${{ secrets.FCM_SERVICE_KEY }}
 
       - name: Create application-test.yml
