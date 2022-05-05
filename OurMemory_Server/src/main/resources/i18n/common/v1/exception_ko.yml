@@ -1,0 +1,22 @@
+common:
+  badRequest:
+    code: "C001"
+    resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
+    detailMessage: "요청 변수 값이 잘못되었습니다. API 요청 프로토콜을 확인하시기 바랍니다. 오류메시지: {0}"
+  notFound:
+    code: "C002"
+    resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
+    detailMessage: "URL 이 잘못되었습니다. 오류메시지: {0}"
+  unsupportedMediaType:
+    code: "C003"
+    resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
+    detailMessage: "지원하지 않는 미디어타입입니다. contentType 을 applicaion/json 으로 설정하고 다시 시도해주십시오. 오류메시지: {0}"
+  internalServer:
+    code: "C004"
+    msg: "알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
+    resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
+    detailMessage: "알 수 없는 오류가 발생하였습니다. 오류메시지: {0}"
+  incorrectResultSize:
+    code: "C005"
+    resultMessage: "일시적인 문제가 발생했습니다. \n 동일한 문제가 반복될 경우 관리자에게 문의하시기 바랍니다."
+    detailMessage: "DB 로부터 조회된 데이터 갯수가 잘못되었습니다. 오류메시지: {0}"
