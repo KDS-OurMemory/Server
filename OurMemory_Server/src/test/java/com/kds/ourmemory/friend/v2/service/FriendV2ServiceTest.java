@@ -9,6 +9,7 @@ import com.kds.ourmemory.friend.v2.controller.dto.FriendReAddReqDto;
 import com.kds.ourmemory.friend.v2.controller.dto.FriendRequestReqDto;
 import com.kds.ourmemory.notice.v1.entity.NoticeType;
 import com.kds.ourmemory.notice.v1.service.NoticeService;
+import com.kds.ourmemory.notice.v2.service.NoticeV2Service;
 import com.kds.ourmemory.user.v1.entity.DeviceOs;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpReqDto;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpRspDto;
@@ -32,7 +33,7 @@ public class FriendV2ServiceTest {
     private final FriendV2Service friendV2Service;
     private final UserV2Service userV2Service;
 
-    private final NoticeService noticeService;  // The creation process from adding to the deletion of the notice.
+    private final NoticeV2Service noticeV2Service;  // The creation process from adding to the deletion of the notice.
 
     // Base data for test NoticeService
     private UserSignUpRspDto requestUserRsp;
@@ -40,10 +41,14 @@ public class FriendV2ServiceTest {
     private UserSignUpRspDto acceptUserRsp;
     
     @Autowired
-    private FriendV2ServiceTest(FriendV2Service friendV2Service, UserV2Service userV2Service, NoticeService noticeService) {
+    private FriendV2ServiceTest(
+            FriendV2Service friendV2Service,
+            UserV2Service userV2Service,
+            NoticeV2Service noticeV2Service
+    ) {
         this.friendV2Service = friendV2Service;
         this.userV2Service = userV2Service;
-        this.noticeService = noticeService;
+        this.noticeV2Service = noticeV2Service;
     }
 
     @Order(1)
@@ -77,7 +82,7 @@ public class FriendV2ServiceTest {
         assertThat(requestRsp.getFriendStatus()).isEqualTo(FriendStatus.WAIT);
 
         /* 2. Check notice before cancel */
-        var beforeCancelUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
+        var beforeCancelUserNotices = noticeV2Service.findNotices(requestReq.getFriendUserId(), false);
         assertThat(beforeCancelUserNotices.size()).isOne();
 
         var beforeAcceptUserNoticeRsp = beforeCancelUserNotices.get(0);
@@ -90,8 +95,8 @@ public class FriendV2ServiceTest {
         assertNotNull(cancelFriendRsp);
 
         /* 4. Check notice after cancel */
-        var afterAcceptUserNotices = noticeService.findNotices(requestReq.getFriendUserId(), false);
-        assertTrue(afterAcceptUserNotices.isEmpty());
+        var afterAcceptUserNotices = noticeV2Service.findNotices(requestReq.getFriendUserId(), false);
+        assertThat(afterAcceptUserNotices.size()).isZero();
     }
 
     @Order(3)

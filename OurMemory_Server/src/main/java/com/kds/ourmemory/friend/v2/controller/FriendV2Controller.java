@@ -1,8 +1,6 @@
 package com.kds.ourmemory.friend.v2.controller;
 
 import com.kds.ourmemory.common.v1.controller.ApiResult;
-import com.kds.ourmemory.friend.v1.controller.dto.FriendReqDto;
-import com.kds.ourmemory.friend.v1.controller.dto.FriendRspDto;
 import com.kds.ourmemory.friend.v1.entity.FriendStatus;
 import com.kds.ourmemory.friend.v2.controller.dto.*;
 import com.kds.ourmemory.friend.v2.service.FriendV2Service;
@@ -54,7 +52,7 @@ public class FriendV2Controller {
 
     @ApiOperation(value = "친구 목록 조회", notes = "사용자의 친구 목록을 조회한다.")
     @GetMapping("/{userId}")
-    public ApiResult<List<FriendFindFriendRspDto>> findFriends(
+    public ApiResult<List<FriendFindFriendsRspDto>> findFriends(
             @ApiParam(value = "userId", required = true) @PathVariable long userId) {
         return ok(friendV2Service.findFriends(userId));
     }

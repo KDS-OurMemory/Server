@@ -18,11 +18,6 @@ public class FriendV2Service {
         return new FriendRequestRspDto(friendService.requestFriend(reqDto.toDto()));
     }
 
-    public List<FriendFindUsersRspDto> findUsers(long userId, Long targetId, String name, FriendStatus friendStatus) {
-        return friendService.findUsers(userId, targetId, name, friendStatus)
-                .stream().map(FriendFindUsersRspDto::new).toList();
-    }
-
     public FriendCancelRequestRspDto cancelRequest(long userId, long friendUserId) {
         return new FriendCancelRequestRspDto(friendService.cancelFriend(userId, friendUserId));
     }
@@ -31,12 +26,8 @@ public class FriendV2Service {
         return new FriendAcceptRequestRspDto(friendService.acceptFriend(reqDto.toDto()));
     }
 
-    public FriendReAddRspDto reAdd(FriendReAddReqDto reqDto) {
-        return new FriendReAddRspDto(friendService.reAddFriend(reqDto.toDto()));
-    }
-
-    public List<FriendFindFriendRspDto> findFriends(long userId) {
-        return friendService.findFriends(userId).stream().map(FriendFindFriendRspDto::new).toList();
+    public List<FriendFindFriendsRspDto> findFriends(long userId) {
+        return friendService.findFriends(userId).stream().map(FriendFindFriendsRspDto::new).toList();
     }
 
     public FriendPatchFriendStatusRspDto patchFriendStatus(FriendPatchFriendStatusReqDto reqDto) {
@@ -45,6 +36,15 @@ public class FriendV2Service {
 
     public FriendDeleteRspDto delete(long userId, long friendUserId) {
         return new FriendDeleteRspDto(friendService.deleteFriend(userId, friendUserId));
+    }
+
+    public FriendReAddRspDto reAdd(FriendReAddReqDto reqDto) {
+        return new FriendReAddRspDto(friendService.reAddFriend(reqDto.toDto()));
+    }
+
+    public List<FriendFindUsersRspDto> findUsers(long userId, Long targetId, String name, FriendStatus friendStatus) {
+        return friendService.findUsers(userId, targetId, name, friendStatus)
+                .stream().map(FriendFindUsersRspDto::new).toList();
     }
 
 }

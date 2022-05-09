@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @ApiModel(value = "FriendFindFriendRspDto", description = "Find Friends Response Dto")
 @Getter
-public class FriendFindFriendRspDto {
+public class FriendFindFriendsRspDto {
 
     @ApiModelProperty(value = "친구 번호(친구 사용자 번호)", required = true, example = "99")
     private final Long friendId;
@@ -31,7 +31,7 @@ public class FriendFindFriendRspDto {
     @ApiModelProperty(value = "친구 상태(요청 후 대기: WAIT, 요청받은 상태: REQUESTED_BY, 친구: FRIEND, 차단: BLOCK)")
     private final FriendStatus friendStatus;
 
-    public FriendFindFriendRspDto(FriendRspDto friendRspDto) {
+    public FriendFindFriendsRspDto(FriendRspDto friendRspDto) {
         friendId = friendRspDto.getFriendId();
         name = friendRspDto.getName();
         birthday = friendRspDto.getBirthday();
