@@ -1,9 +1,5 @@
 package com.kds.ourmemory.user.v2.service;
 
-import com.kds.ourmemory.user.v1.advice.exception.UserInternalServerException;
-import com.kds.ourmemory.user.v1.advice.exception.UserNotFoundException;
-import com.kds.ourmemory.user.v1.controller.dto.UserReqDto;
-import com.kds.ourmemory.user.v1.controller.dto.UserRspDto;
 import com.kds.ourmemory.user.v1.service.UserService;
 import com.kds.ourmemory.user.v2.controller.dto.*;
 import lombok.RequiredArgsConstructor;

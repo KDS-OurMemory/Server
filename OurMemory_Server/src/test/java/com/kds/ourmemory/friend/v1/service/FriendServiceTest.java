@@ -40,16 +40,16 @@ class FriendServiceTest {
 
     /**
      * Test case
-     * ___________________________________________________________________
-     * |My side friend|Friend side friend|   Block   | Add Friend My side|
-     * |=================================================================|
-     * |       X      |         X        |     X     |          O        |
-     * |       X      |         O        |     X     |          O        |
-     * |       X      |         O        |Friend side|          X        |
-     * |       O      |         X        |     X     |          X        |
-     * |       O      |         X        |  My side  |          X        |
-     * |       O      |         O        |     X     |          X        |
-     * -------------------------------------------------------------------
+     * __________________________________________________________________
+     * |My side friend|Friend side friend|   Block   |Add Friend My side|
+     * |================================================================|
+     * |       X      |         X        |     X     |         O        |
+     * |       X      |         O        |     X     |         O        |
+     * |       X      |         O        |Friend side|         X        |
+     * |       O      |         X        |     X     |         X        |
+     * |       O      |         X        |  My side  |         X        |
+     * |       O      |         O        |     X     |         X        |
+     * ------------------------------------------------------------------
      */
 
     @Autowired
@@ -970,4 +970,5 @@ class FriendServiceTest {
         assertThat(acceptUserRsp).isNotNull();
         assertThat(acceptUserRsp.getUserId()).isNotNull();
     }
+
 }
