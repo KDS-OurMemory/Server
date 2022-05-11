@@ -8,7 +8,6 @@ import com.kds.ourmemory.friend.v2.controller.dto.FriendPatchFriendStatusReqDto;
 import com.kds.ourmemory.friend.v2.controller.dto.FriendReAddReqDto;
 import com.kds.ourmemory.friend.v2.controller.dto.FriendRequestReqDto;
 import com.kds.ourmemory.notice.v1.entity.NoticeType;
-import com.kds.ourmemory.notice.v1.service.NoticeService;
 import com.kds.ourmemory.notice.v2.service.NoticeV2Service;
 import com.kds.ourmemory.user.v1.entity.DeviceOs;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpReqDto;
@@ -59,7 +58,6 @@ public class FriendV2ServiceTest {
 
         /* 0-2. Create request */
         var requestReq = new FriendRequestReqDto(requestUserRsp.getUserId(), acceptUserRsp.getUserId());
-        var acceptReq = new FriendRequestReqDto(acceptUserRsp.getUserId(), requestUserRsp.getUserId());
 
         /* 1. Request friend */
         var requestRsp = friendV2Service.requestFriend(requestReq);

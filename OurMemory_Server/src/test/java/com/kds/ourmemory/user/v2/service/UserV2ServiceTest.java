@@ -1,6 +1,5 @@
 package com.kds.ourmemory.user.v2.service;
 
-import com.kds.ourmemory.user.v1.controller.dto.UserReqDto;
 import com.kds.ourmemory.user.v1.entity.DeviceOs;
 import com.kds.ourmemory.user.v2.controller.dto.UserPatchTokenReqDto;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpReqDto;
@@ -14,7 +13,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,21 +25,9 @@ public class UserV2ServiceTest {
 
     private final UserV2Service userV2Service;
 
-    /**
-     * Assert time format -> delete sec
-     * <p>
-     * This is because time difference occurs after room creation due to relation table work.
-     */
-    private DateTimeFormatter alertTimeFormat;  // startTime, endTime, firstAlarm, secondAlarm format
-
     @Autowired
     private UserV2ServiceTest(UserV2Service userV2Service) {
         this.userV2Service = userV2Service;
-    }
-
-    @BeforeAll
-    void setUp() {
-        alertTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
 
     @Order(1)
