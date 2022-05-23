@@ -1,7 +1,7 @@
 package com.kds.ourmemory.firebase.v2.service;
 
 import com.kds.ourmemory.firebase.v2.controller.dto.FcmSendMessageReqDto;
-import com.kds.ourmemory.user.v1.entity.DeviceOs;
+import com.kds.ourmemory.user.v2.enums.DeviceOs;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpReqDto;
 import com.kds.ourmemory.user.v2.service.UserV2Service;
 import org.junit.jupiter.api.Order;

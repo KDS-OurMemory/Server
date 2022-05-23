@@ -2,7 +2,7 @@ package com.kds.ourmemory.notice.v2.controller.dto;
 
 import com.kds.ourmemory.notice.v1.controller.dto.NoticeReqDto;
 import com.kds.ourmemory.notice.v1.entity.Notice;
-import com.kds.ourmemory.notice.v1.entity.NoticeType;
+import com.kds.ourmemory.notice.v2.enums.NoticeType;
 import com.kds.ourmemory.user.v1.entity.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,7 +27,7 @@ public class NoticeInsertReqDto {
     private String noticeValue;
 
     public NoticeReqDto toDto() {
-        return new NoticeReqDto(userId, noticeType, noticeValue);
+        return new NoticeReqDto(userId, NoticeType.toV1(noticeType), noticeValue);
     }
 
 }

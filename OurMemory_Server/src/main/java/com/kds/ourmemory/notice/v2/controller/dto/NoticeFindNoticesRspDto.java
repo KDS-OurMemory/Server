@@ -1,7 +1,7 @@
 package com.kds.ourmemory.notice.v2.controller.dto;
 
 import com.kds.ourmemory.notice.v1.controller.dto.NoticeRspDto;
-import com.kds.ourmemory.notice.v1.entity.NoticeType;
+import com.kds.ourmemory.notice.v2.enums.NoticeType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -14,7 +14,7 @@ public class NoticeFindNoticesRspDto {
     private final long noticeId;
 
     @ApiModelProperty(value = "알림 종류(FRIEND_REQUEST: 친구 요청)", required = true, example = "FRIEND_REQUEST")
-    private final NoticeType type;
+    private final NoticeType noticeType;
 
     @ApiModelProperty(value = "알림 문자열 값", required = true, example = "99")
     private final String value;
@@ -27,7 +27,7 @@ public class NoticeFindNoticesRspDto {
 
     public NoticeFindNoticesRspDto(NoticeRspDto noticeRspDto) {
         this.noticeId = noticeRspDto.getNoticeId();
-        this.type = noticeRspDto.getType();
+        this.noticeType = NoticeType.toV2(noticeRspDto.getType());
         this.value = noticeRspDto.getValue();
         this.read = noticeRspDto.isRead();
         this.regDate = noticeRspDto.getRegDate();

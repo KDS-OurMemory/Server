@@ -1,7 +1,7 @@
 package com.kds.ourmemory.user.v2.controller.dto;
 
 import com.kds.ourmemory.user.v1.controller.dto.UserReqDto;
-import com.kds.ourmemory.user.v1.entity.DeviceOs;
+import com.kds.ourmemory.user.v2.enums.DeviceOs;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -59,7 +59,7 @@ public class UserSignUpReqDto {
                 .birthday(birthday)
                 .solar(solar)
                 .birthdayOpen(birthdayOpen)
-                .deviceOs(deviceOs)
+                .deviceOs(DeviceOs.toV1(deviceOs))
                 .build();
     }
 

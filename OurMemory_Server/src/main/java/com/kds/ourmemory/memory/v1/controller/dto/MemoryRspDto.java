@@ -184,7 +184,7 @@ public class MemoryRspDto {
      */
     @ApiModel(value = "MemoryDto.UserAttendance", description = "inner class in MemoryDto.Response")
     @Getter
-    private class UserAttendance {
+    public class UserAttendance {
         @ApiModelProperty(value = "사용자 번호", required = true)
         private final long userId;
 

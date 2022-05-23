@@ -1,7 +1,7 @@
 package com.kds.ourmemory.friend.v2.controller.dto;
 
 import com.kds.ourmemory.friend.v1.controller.dto.FriendReqDto;
-import com.kds.ourmemory.friend.v1.entity.FriendStatus;
+import com.kds.ourmemory.friend.v2.enums.FriendStatus;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -25,7 +25,7 @@ public class FriendPatchFriendStatusReqDto {
     private FriendStatus friendStatus;
 
     public FriendReqDto toDto() {
-        return new FriendReqDto(userId, friendUserId, friendStatus);
+        return new FriendReqDto(userId, friendUserId, FriendStatus.toV1(friendStatus));
     }
 
 }

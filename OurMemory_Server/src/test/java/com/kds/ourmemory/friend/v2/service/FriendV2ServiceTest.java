@@ -2,14 +2,14 @@ package com.kds.ourmemory.friend.v2.service;
 
 import com.kds.ourmemory.friend.v1.advice.exception.FriendAlreadyAcceptException;
 import com.kds.ourmemory.friend.v1.advice.exception.FriendStatusException;
-import com.kds.ourmemory.friend.v1.entity.FriendStatus;
+import com.kds.ourmemory.friend.v2.enums.FriendStatus;
 import com.kds.ourmemory.friend.v2.controller.dto.FriendAcceptRequestReqDto;
 import com.kds.ourmemory.friend.v2.controller.dto.FriendPatchFriendStatusReqDto;
 import com.kds.ourmemory.friend.v2.controller.dto.FriendReAddReqDto;
 import com.kds.ourmemory.friend.v2.controller.dto.FriendRequestReqDto;
-import com.kds.ourmemory.notice.v1.entity.NoticeType;
+import com.kds.ourmemory.notice.v2.enums.NoticeType;
 import com.kds.ourmemory.notice.v2.service.NoticeV2Service;
-import com.kds.ourmemory.user.v1.entity.DeviceOs;
+import com.kds.ourmemory.user.v2.enums.DeviceOs;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpReqDto;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpRspDto;
 import com.kds.ourmemory.user.v2.service.UserV2Service;
@@ -84,7 +84,7 @@ public class FriendV2ServiceTest {
         assertThat(beforeCancelUserNotices.size()).isOne();
 
         var beforeAcceptUserNoticeRsp = beforeCancelUserNotices.get(0);
-        assertThat(beforeAcceptUserNoticeRsp.getType()).isEqualTo(NoticeType.FRIEND_REQUEST);
+        assertThat(beforeAcceptUserNoticeRsp.getNoticeType()).isEqualTo(NoticeType.FRIEND_REQUEST);
         assertThat(beforeAcceptUserNoticeRsp.getValue()).isEqualTo(Long.toString(requestReq.getUserId()));
         assertFalse(beforeAcceptUserNoticeRsp.isRead());
 

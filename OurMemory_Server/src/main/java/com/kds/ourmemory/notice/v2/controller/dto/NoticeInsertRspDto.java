@@ -2,7 +2,7 @@ package com.kds.ourmemory.notice.v2.controller.dto;
 
 import com.kds.ourmemory.notice.v1.controller.dto.NoticeRspDto;
 import com.kds.ourmemory.notice.v1.entity.Notice;
-import com.kds.ourmemory.notice.v1.entity.NoticeType;
+import com.kds.ourmemory.notice.v2.enums.NoticeType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -28,7 +28,7 @@ public class NoticeInsertRspDto {
 
     public NoticeInsertRspDto(NoticeRspDto noticeRspDto) {
         this.noticeId = noticeRspDto.getNoticeId();
-        this.type = noticeRspDto.getType();
+        this.type = NoticeType.toV2(noticeRspDto.getType());
         this.value = noticeRspDto.getValue();
         this.read = noticeRspDto.isRead();
         this.regDate = noticeRspDto.getRegDate();

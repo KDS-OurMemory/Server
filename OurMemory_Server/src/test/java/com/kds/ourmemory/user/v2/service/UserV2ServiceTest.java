@@ -1,10 +1,10 @@
 package com.kds.ourmemory.user.v2.service;
 
-import com.kds.ourmemory.user.v1.entity.DeviceOs;
 import com.kds.ourmemory.user.v2.controller.dto.UserPatchTokenReqDto;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpReqDto;
 import com.kds.ourmemory.user.v2.controller.dto.UserUpdateReqDto;
 import com.kds.ourmemory.user.v2.controller.dto.UserUploadProfileImageReqDto;
+import com.kds.ourmemory.user.v2.enums.DeviceOs;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

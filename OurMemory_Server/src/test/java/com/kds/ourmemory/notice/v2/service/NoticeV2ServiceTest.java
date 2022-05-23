@@ -1,9 +1,9 @@
 package com.kds.ourmemory.notice.v2.service;
 
-import com.kds.ourmemory.notice.v1.entity.NoticeType;
+import com.kds.ourmemory.notice.v2.enums.NoticeType;
 import com.kds.ourmemory.notice.v2.controller.dto.NoticeFindNoticesRspDto;
 import com.kds.ourmemory.notice.v2.controller.dto.NoticeInsertReqDto;
-import com.kds.ourmemory.user.v1.entity.DeviceOs;
+import com.kds.ourmemory.user.v2.enums.DeviceOs;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpReqDto;
 import com.kds.ourmemory.user.v2.controller.dto.UserSignUpRspDto;
 import com.kds.ourmemory.user.v2.service.UserV2Service;

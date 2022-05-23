@@ -2,7 +2,7 @@ package com.kds.ourmemory.friend.v2.controller.dto;
 
 import com.kds.ourmemory.friend.v1.controller.dto.FriendRspDto;
 import com.kds.ourmemory.friend.v1.entity.Friend;
-import com.kds.ourmemory.friend.v1.entity.FriendStatus;
+import com.kds.ourmemory.friend.v2.enums.FriendStatus;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -39,7 +39,7 @@ public class FriendFindUsersRspDto {
         solar = friendRspDto.isSolar();
         birthdayOpen = friendRspDto.isBirthdayOpen();
         profileImageUrl = friendRspDto.getProfileImageUrl();
-        friendStatus = friendRspDto.getFriendStatus();
+        friendStatus = FriendStatus.toV2(friendRspDto.getFriendStatus());
     }
 
 }

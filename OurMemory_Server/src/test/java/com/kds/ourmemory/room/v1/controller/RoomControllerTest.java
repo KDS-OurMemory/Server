@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kds.ourmemory.room.v1.controller.dto.RoomRspDto;
 import com.kds.ourmemory.room.v1.entity.Room;
+import com.kds.ourmemory.room.v1.service.RoomService;
 import com.kds.ourmemory.user.v1.entity.DeviceOs;
 import com.kds.ourmemory.user.v1.entity.User;
 import com.kds.ourmemory.user.v1.entity.UserRole;
-import com.kds.ourmemory.room.v1.service.RoomService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +37,6 @@ class RoomControllerTest {
     @Test
     @DisplayName("방 목록 조회 요청-응답 | 성공")
     void findRoomsSuccess() throws JsonProcessingException {
-        // given
         var owner = User.builder()
                 .id(1L)
                 .snsType(1)
@@ -77,11 +75,13 @@ class RoomControllerTest {
 
         var rooms = Stream.of(room1, room2, room3).map(RoomRspDto::new).collect(Collectors.toList());
 
-        // when
+        // given
         when(roomService.findRooms(owner.getId(), null)).thenReturn(rooms);
 
-        // then
+        // when
         var responseDto = roomController.findRooms(owner.getId(), null);
+
+        // then
         Assertions.assertThat(responseDto.getResultCode()).isEqualTo("S001");
         Assertions.assertThat(responseDto.getResponse().size()).isEqualTo(3);
 

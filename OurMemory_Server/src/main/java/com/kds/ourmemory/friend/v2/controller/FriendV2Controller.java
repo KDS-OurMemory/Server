@@ -1,8 +1,8 @@
 package com.kds.ourmemory.friend.v2.controller;
 
 import com.kds.ourmemory.common.v1.controller.ApiResult;
-import com.kds.ourmemory.friend.v1.entity.FriendStatus;
 import com.kds.ourmemory.friend.v2.controller.dto.*;
+import com.kds.ourmemory.friend.v2.enums.FriendStatus;
 import com.kds.ourmemory.friend.v2.service.FriendV2Service;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

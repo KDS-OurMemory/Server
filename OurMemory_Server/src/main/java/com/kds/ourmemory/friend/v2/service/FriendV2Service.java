@@ -1,8 +1,8 @@
 package com.kds.ourmemory.friend.v2.service;
 
-import com.kds.ourmemory.friend.v1.entity.FriendStatus;
 import com.kds.ourmemory.friend.v1.service.FriendService;
 import com.kds.ourmemory.friend.v2.controller.dto.*;
+import com.kds.ourmemory.friend.v2.enums.FriendStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,7 @@ public class FriendV2Service {
     }
 
     public List<FriendFindUsersRspDto> findUsers(long userId, Long targetId, String name, FriendStatus friendStatus) {
-        return friendService.findUsers(userId, targetId, name, friendStatus)
+        return friendService.findUsers(userId, targetId, name, FriendStatus.toV1(friendStatus))
                 .stream().map(FriendFindUsersRspDto::new).toList();
     }
 
