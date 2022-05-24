@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Api(tags = {"7-2. Firebase"})
+@Api(tags = {"7-2. Firebase V2"})
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/v2/Firebase")

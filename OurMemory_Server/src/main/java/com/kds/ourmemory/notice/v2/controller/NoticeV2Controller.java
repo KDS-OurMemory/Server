@@ -15,7 +15,7 @@ import java.util.List;
 
 import static com.kds.ourmemory.common.v1.controller.ApiResult.ok;
 
-@Api(tags = {"5-2. Notice"})
+@Api(tags = {"5-2. Notice V2"})
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/v2/notices")

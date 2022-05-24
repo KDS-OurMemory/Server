@@ -1,9 +1,6 @@
 package com.kds.ourmemory.user.v2.controller;
 
 import com.kds.ourmemory.common.v1.controller.ApiResult;
-import com.kds.ourmemory.user.v1.controller.dto.UserReqDto;
-import com.kds.ourmemory.user.v1.controller.dto.UserRspDto;
-import com.kds.ourmemory.user.v1.service.UserService;
 import com.kds.ourmemory.user.v2.controller.dto.*;
 import com.kds.ourmemory.user.v2.service.UserV2Service;
 import io.swagger.annotations.Api;
@@ -15,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.kds.ourmemory.common.v1.controller.ApiResult.ok;
 
-@Api(tags = {"1-2. User_V2"})
+@Api(tags = {"1-2. User V2"})
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/v2/users")

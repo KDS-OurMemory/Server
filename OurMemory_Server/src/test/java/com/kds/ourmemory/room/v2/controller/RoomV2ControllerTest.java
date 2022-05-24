@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -232,7 +231,7 @@ public class RoomV2ControllerTest {
                 .collect(Collectors.toList());
 
         // given
-        when(roomV2Service.findRooms(owner.getId(), null)).thenReturn(roomFindRspDtoList);
+        given(roomV2Service.findRooms(owner.getId(), null)).willReturn(roomFindRspDtoList);
 
         // when
         var responseDto = roomV2Controller.findRooms(owner.getId(), null);
@@ -460,8 +459,7 @@ public class RoomV2ControllerTest {
         room.addUser(member1);
         room.addUser(member2);
 
-        // given
-//        given(roomV2Service.exit(anyLong(), anyLong(), anyLong())).willReturn(roomExitRspDto);
+        // 삭제는 응답값을 주지 않기 때문에 given 세팅을 하지 않는다.
 
         // when
         var apiResult = roomV2Controller.exit(room.getId(), owner.getId(), room.getUsers().get(0).getId());
